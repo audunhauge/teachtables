@@ -1,0 +1,48 @@
+doctype 5
+html.no-js(lang="en")
+  head
+    title Årsplan for #{mytitle}
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width initial-scale=1.0")
+    link(rel="stylesheet", href="#{base}stat/css/#{version}/yearplan.css")
+    link(rel="stylesheet", href="#{base}stat/css/#{version}/workbook.css")
+    link(rel="stylesheet", href="#{base}stat/css/yearplan-menu.css")
+    link(rel="stylesheet", href="#{base}stat/css/prettify.css")
+    script(type="text/javascript", src="#{base}stat/js/prettify.js")
+    script(type="text/javascript", src="#{base}stat/js/d3.v2.js")
+    link(rel="stylesheet", href="#{base}stat/css/ui-lightness/jquery-ui-1.8.17.custom.css")
+    script(type="text/javascript", src="#{base}stat/js/mathjax/MathJax.js?config=default")
+    link(rel="icon",       href="#{base}stat/img/favicon.ico", type="image/x-icon")
+    script
+      var mybase="#{base}";
+      var language="#{language}";
+  body
+    #header
+      h1#htitle #{mytitle} &nbsp; 
+        span#yyear #{schoolyear}
+    block content
+    script(src="#{base}stat/js/jquery-1.7.1.js")
+    script(src="#{base}stat/js/#{version}/jbbq.min.js")
+    script(src="#{base}stat/js/tooltip.min.js")
+    script(src="#{base}stat/js/#{version}/jedi.js")
+    script(src="#{base}stat/js/#{version}/utils.js")
+    script(src="#{base}stat/js/#{version}/lang/en.js")
+    script(src="#{base}stat/js/#{version}/lang/#{language}.js")
+    script(src="#{base}stat/js/#{version}/plans.js")
+    script(src="#{base}stat/js/#{version}/rediger.js")
+    script(src="#{base}stat/js/#{version}/rom.js")
+    script(src="#{base}stat/js/#{version}/starbkurs.js")
+    script(src="#{base}stat/js/#{version}/timetables.js")
+    script(src="#{base}stat/js/#{version}/meetings.js")
+    script(src="#{base}stat/js/#{version}/quiz.js")
+    script(src="#{base}stat/js/#{version}/workbook.js")
+    script(src="#{base}stat/js/#{version}/bortfall.js")
+    script(src="#{base}stat/js/#{version}/courseeditor.js")
+    script(src="#{base}stat/js/#{version}/lineplot.js")
+    script(src="#{base}stat/js/#{version}/tickets.js")
+    script(src="#{base}stat/js/#{version}/jdiff.js")
+    script(src="#{base}stat/js/#{version}/setup.js")
+    script(src="#{base}stat/js/mylibs/jquery-ui-1.8.17.custom.min.js")
+    script(src="#{base}stat/js/mylibs/jstat.unmin.js")
+    script(src="#{base}stat/js/mylibs/jq-flot.min.js")
+    script(src="#{base}stat/js/jquery.ui.touch-punch.min.js")

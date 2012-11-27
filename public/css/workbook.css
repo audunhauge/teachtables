@@ -1,0 +1,1101 @@
+
+
+div.clock {
+  color:gray !important;
+}
+div.cloaked {
+  color:white !important;
+}
+
+del {
+  color:red;
+}
+
+ins {
+  color:green;
+}
+
+div.diff {
+  background:#eec;
+}
+
+#graph {
+  width:400px;
+  height:400px;
+}
+
+/* layout for math 1.-6. grade */
+ul.math {
+  position:relative;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-left: 1em;
+  width:12em;
+  text-align:right;
+}
+
+ul.math li:nth-last-child(1) {
+  border-bottom:solid black 1px;
+  border-top:solid black 1px;
+  padding-right:-2px;
+  position:relative;
+  left:0.8em;
+}
+
+table.math {
+    border:none;
+    font-size:1.7em;
+    border-collapse:collapse;
+} 
+
+table.math td {
+    border:none;
+    text-align:right;
+    width:24px;
+} 
+
+table.math tr:last-child td {
+    border-bottom:solid black 1px;
+    border-top:solid black 1px;
+    height:1.3em;
+} 
+
+
+#wbmain {
+  margin:5px;
+  padding:10px;
+  width:65em;
+  margin-left:auto;
+  margin-right:auto;
+  background: -moz-linear-gradient(left,#c6c6c6,#e2eAe0);
+  background-image: -o-linear-gradient(left,#c6c6c6,#e2eAe0);
+  background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#c6c6c6), to(#e2eAe0));
+  border-radius: 2em;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+
+div.userres {
+   clear:both;
+}
+
+#gradelist .fn, #gradelist .ln , #gradelist .kara {
+  display:block;
+  float:left;
+  width:9em;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  padding-right:3px;
+}
+#gradelist div.heading .fn, #gradelist div.heading .ln , #gradelist div.heading .kara {
+  font-weight:bold;
+}
+
+
+div.wbingress, div.wbbodytxt, div.wbsummary {
+    margin-left:auto;
+    margin-right:auto;
+}
+
+div.wbingress {
+    text-align:center;
+    font-size:1.1em;
+    color:#3030ff;
+}
+
+div.wbbodytxt {
+    text-align:left;
+    font-size:1.0em;
+    color:#272;
+    width:60%;
+    margin-bottom:30px;
+}
+
+table.standard_info,
+div.wbsummary table {
+  margin-left:auto;
+  margin-right:auto;
+  width:90%;
+  border-collapse:collapse;
+}
+
+table.standard_info td,table.standard_info th{
+   border:none;
+   text-align:left;
+}
+
+div.wbsummary table td {
+    width:20%;
+    border: solid gray 1px;
+}
+
+/* svg styles */
+path {
+  stroke-width: 1;
+  fill: none;
+}
+
+line.yTicks, line.xTicks {
+   stroke: black;
+   stroke-width: 0.3;
+}   
+
+text {
+  font-family: Arial;
+  font-size: 0.5em;
+}
+
+text.funlabel {
+  font-family: Arial;
+  font-size: 0.7em;
+}
+
+.chart rect {
+   fill: steelblue;
+   stroke: white;
+}
+path.link {
+ fill: none;
+ stroke: #666;
+ stroke-width: 1.5px;
+}
+marker#licensing {
+ fill: green;
+}
+path.link.identity {
+ stroke: blue;
+ stroke-width: 3.5px;
+}
+path.link.strong {
+ stroke: green;
+ stroke-width: 2.5px;
+}
+path.link.weak {
+ stroke: #88d;
+ stroke-dasharray: 0,2 1;
+}
+circle {
+ fill: #cfc;
+ stroke: #333;
+ stroke-width: 1.5px;
+}
+text {
+ font: 10px sans-serif;
+ pointer-events: none;
+}
+text.shadow {
+ stroke: #fff;
+ stroke-width: 3px;
+ stroke-opacity: .8;
+}
+
+#rapp {
+  position:absolute;;
+  left:0px;
+  top:382px;
+  width:1499px;
+  height:1499px;
+}
+
+#su {
+  display:none;
+}
+
+#taginfo {
+  position:absolute;
+  top:20px;
+  right:20px;
+  width:26em;
+  min-height:30px;
+  border:solid red 1px;
+}
+
+div.quizeditor {
+  position:absolute;
+  padding:2em;
+  top:250px;
+  left:180px;
+  width:66em;
+  min-height:100px;
+  border:solid green 1px;
+  text-overflow:ellipsis;
+  background:#d0d0a0;
+  z-index:999;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+
+
+
+span.wbteachedit {
+ position:relative;
+}
+span.wbedit {
+ position:absolute;
+ width:16px;
+ background:transparent url(img/edit.gif) no-repeat;
+}
+
+#addopt {
+    position:relative;
+    margin-left:50%;
+    margin-bottom:40px;
+}
+
+#edqlist {
+  position:absolute;
+  right:30px;
+  top:10px;
+}
+
+#editform {
+  position:relative;
+  margin-left:auto;
+  margin-right:auto;
+  width:600px;
+}
+#editform table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+#editform table td,#editform table th {
+  border:none;
+  width:20%;
+  text-align:left;
+}
+#editform textarea,#editform input {
+  /* width:80%; */
+  background:#ffffe0;
+}
+#editform textarea {
+  height:130px;
+}
+
+div.textareaq textarea {
+  width:80%;
+  height:180px;
+}
+
+#editform input.option {
+  width:100%;
+}
+#editform input.check {
+  width:8%;
+}
+
+#editform div.eopt {
+  width:90%;
+}
+
+#editform table.qed {
+    width:100%;
+}
+#editform table.qed th {
+    width:20%;
+}
+#editform table.qed td {
+    width:75%;
+}
+
+#qlistbox {
+  position:relative;
+  border:solid gray 1px;
+  background:#d0d0a0;
+  width:90%;
+  padding:6px;
+  margin-left:auto;
+  margin-right:auto;
+  min-height:200px;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+
+
+div.qtext span.fillin input {
+  width:4em;
+  background:#f0f032;
+  text-align:right;
+}
+
+div.qtext .medium span.fillin input {
+  width:8em;
+  text-align:right;
+}
+div.qtext .large span.fillin input {
+  width:20em;
+  text-align:right;
+}
+
+span.addcomment {
+  opacity:0;
+}
+
+
+div.question {
+  position:relative;
+  z-index:2;
+  color:black;
+  width:80%;
+  margin:2px;
+  margin-left:12px;
+  margin-top:16px;
+  padding:3px;
+  padding-top:25px;
+  background:#ffffc0;
+  border:solid gray 1px;
+  -webkit-border-bottom-left-radius: 8px;
+  -moz-border-bottom-left-radius: 8px;
+  -webkit-border-bottom-right-radius: 8px;
+  -moz-border-bottom-right-radius: 8px;
+}
+div.question:last-child {
+  margin-bottom:22px;
+}
+
+div.ui-state-highlight {
+  height:2em;
+  width:60%;
+  margin-left:12px;
+}
+
+div.equest {
+  clear:both;
+  color:black;
+  height:20px;
+  width:35em;
+  margin:2px;
+  margin-left:12px;
+  padding:3px;
+  background:#ffffc0;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+
+#qlistbox div.equest {
+  width:60%;
+}
+
+div.edme {
+  display:block;
+  float:right;
+  opacity:0;
+  color:white;
+  margin-right:8px;
+  height:16px;
+  width:16px;
+  background:transparent url(img/edit.gif) no-repeat;
+}
+#killquest {
+  position:absolute;
+  right:10px;
+  top:10px;
+  display:block;
+  color:white;
+  margin:4px;
+  height:8px;
+  border:solid #400 1px;
+  padding:5px;
+  background:red;
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+#xx {
+    position:relative;
+    font-style:italic;
+    font-weight:bold;
+    font-family:"times new roman";
+    font-size:1.4em;
+    top:-7px;
+}
+
+div.killer {
+  display:block;
+  float:right;
+  opacity:0;
+  color:white;
+  margin-top:4px;
+  margin-right:8px;
+  height:5px;
+  padding:0 5px 5px 4px;
+  border:solid #400 1px;
+  background:red;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+}
+div.eopt:hover > div.killer {
+   /* on hover we want to show delete button */
+  opacity:1;
+}
+
+div.equest:hover > div.killer {
+   /* on hover we want to show delete button */
+  opacity:1;
+}
+div.equest:hover > div.edme {
+   /* on hover we want to show delete button */
+  opacity:1;
+}
+
+#addmore {
+    margin:10px;
+    margin-bottom:16px;
+}
+
+span.num {
+  display:block;
+  text-align:right;
+  float:left;
+  width:20px;
+  padding-right:6px;
+  color:steelblue;
+}
+
+span.n1 {
+  color:#b22;
+}
+
+span.qid {
+  display:block;
+  text-align:right;
+  float:left;
+  width:35px;
+  padding-right:4px;
+  color:blue;
+}
+
+span.img {
+  display:block;
+  float:left;
+  width:20px;
+  height:16px;
+  padding-right:4px;
+}
+
+span.imgmultiple {
+  background:transparent url(img/multiple.gif) no-repeat;
+}
+span.imgdiff {
+  background:transparent url(img/diff.gif) no-repeat;
+}
+span.imgdragdrop {
+  background:transparent url(img/dragdrop.gif) no-repeat;
+}
+span.imgsequence {
+  background:transparent url(img/sequence.gif) no-repeat;
+}
+span.imginfo {
+  background:transparent url(img/info.gif) no-repeat;
+}
+span.imgtextarea {
+  background:transparent url(img/textarea.gif) no-repeat;
+}
+span.imgfillin {
+  background:transparent url(img/fillin.gif) no-repeat;
+}
+span.imgtextmark {
+  background:transparent url(img/textmark.gif) no-repeat;
+}
+
+span.qtype {
+  display:block;
+  text-align:left;
+  float:left;
+  padding-right:4px;
+  color:green;
+  width:45px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+span.qpoints {
+  display:block;
+  text-align:left;
+  float:left;
+  color:black;
+  width:15px;
+}
+
+div.qname {
+  text-align:left;
+  float:left;
+  padding-right:4px;
+  color:#277;
+  height:16px;
+  width:80px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  overflow:hidden;
+}
+span.qshort {
+  display:block;
+  text-align:left;
+  font-size:0.9em;
+  text-transform:lowercase;
+  float:left;
+  padding-right:4px;
+  color:#727;
+  width:160px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+div.multipleopt {
+  margin-left:20px;
+  margin-right:20px;
+  background:#f4f4c4;
+  margin-bottom:1px;
+  border-left:solid 6px #f4f4c4;
+}
+div.multipleq {
+  padding-bottom:5px;
+}
+div.question {
+  margin-bottom:5px;
+}
+
+.qtext {
+  width:85%;
+  padding-left:9px;
+}
+
+div.grademe {
+    position:absolute;
+    opacity:0;
+    top:0px;
+    right:60px;
+    width:1px;
+}
+
+div.studnote, div.teachnote {
+    position:absolute;
+    background:transparent url(img/studnote.png) no-repeat;
+    top:25px;
+    right:-20px;
+    width:45px;
+    height:45px;
+    font-size:0px;
+}
+
+div.teachnote {
+    background:transparent url(img/teachnote.png) no-repeat;
+    top:45px;
+    right:-25px;
+}
+
+div.question:hover  div.grademe {
+  opacity:1;
+}
+
+div.gethint {
+  margin-left:30px;
+  color:blue;
+  position:relative;
+}
+
+div.gethint:before {
+  content:'Hint:';
+  display:block;
+  position:absolute;
+  left:-30px;
+}
+
+
+
+div.gradebutton {
+  text-decoration:none;
+  color:white;
+  text-align:center;
+  padding:1px;
+  margin:1px;
+  border:solid gray 1px;
+  font-size:0.9em;
+  border-radius: 3px;
+  background:#444;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  width:55px;
+}
+div.gradebutton:hover {
+  background: -moz-linear-gradient(left,#22460A,#224A20);
+  background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#22460A), to(#224A20));
+}
+div.gradebutton:active {
+  background: -moz-linear-gradient(left,#22467A,#224A20);
+  background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#22467A), to(#224A20));
+  -webkit-box-shadow:none;
+  -moz-box-shadow:none;
+}
+
+
+#nextpage, #prevpage {
+  /* is a gradebutton */
+  position:absolute;
+  background:#484;
+  padding-top:18px;
+  width:15px;
+  height:42px;
+  top:45px;
+}
+#nextpage { 
+  right:-22px; 
+  -webkit-border-top-right-radius: 15px;
+  -webkit-border-bottom-right-radius: 15px;
+  -moz-border-radius-topright: 15px;
+  -moz-border-radius-bottomright: 15px;
+}
+#prevpage { 
+  left:-22px; 
+  -webkit-border-top-left-radius: 15px;
+  -webkit-border-bottom-left-radius: 15px;
+  -moz-border-radius-topleft: 15px;
+  -moz-border-radius-bottomleft: 15px;
+}
+
+div.working {
+  background: -moz-linear-gradient(top,#f00,#00f) !important;
+  background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#f00), to(#00f)) !important;
+  border:solid black 1px !important;
+}
+span.attempt {
+  position:absolute;
+  display:block;
+  right:-40px;
+  top:25px;
+  width:30px;
+  padding-left:5px;
+  color:green;
+}
+span.attempt:before {
+  content:'ForsøkNr:';
+}
+
+textarea.txted {
+  width:350px;
+  height:150px;
+}
+
+span.score {
+  position:absolute;
+  display:block;
+  right:-40px;
+  top:2px;
+  width:30px;
+  padding-left:5px;
+  color:blue;
+}
+span.score:before {
+  content:'score:';
+}
+#uscore {
+	position:absolute;
+	width:30px;
+	color:green;
+	left:100px;
+	top:0px;
+}
+#maxscore {
+	width:30px;
+	position:absolute;
+	left:200px;
+	color:blue;
+	top:0px;
+}
+#page {
+	width:30px;
+	position:absolute;
+	left:300px;
+	color:black;
+	top:0px;
+        white-space:nowrap;
+}
+
+span.qnumber {
+  display:block;
+  font-size:0.9em;
+  position:absolute;
+  padding:2px;
+  left:-12px;
+  top:-8px;
+  background:#ffffb0;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .2);
+  -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, .2);
+  width:120px;
+  height:22px;
+}
+
+span.qnumber:hover span.addcomment {
+  opacity:1;
+  background:transparent url(img/addnote.png) no-repeat;
+}
+
+#details {
+	width:16px;
+	height:16px;
+        background:transparent url(img/edit.gif) no-repeat;
+}
+
+input:disabled {
+  background:#ccc !important;
+}
+
+.gradebutton.disabled {
+  background:#999 !important;
+}
+input.text15 {
+	width:10em;
+}
+input.num4 {
+  text-align:right;
+  width:4em;
+}
+
+.qed input {
+  width:350px;
+}
+
+#attach {
+  position:absolute;
+  top:30px;
+  right:15px;
+}
+#reset {
+  position:absolute;
+  top:65px;
+  right:15px;
+}
+#regen {
+  position:absolute;
+  top:100px;
+  right:15px;
+}
+#export {
+  position:absolute;
+  top:100px;
+  right:15px;
+}
+#import {
+  position:absolute;
+  top:135px;
+  right:15px;
+}
+#edquiz {
+  position:absolute;
+  top:30px;
+  right:115px;
+}
+
+#taggs {
+  position:absolute;
+  top:0px;
+  right:-35px;
+  width:120px;
+  height:250px;
+}
+#taglist {
+  border:solid blue 1px;
+  height:250px;
+  background: rgb(200,200,200);
+  display:none;
+  overflow:auto;
+}
+div.tinybut {
+  position:absolute;
+  top:0px;
+  right:2px;
+  text-decoration:none;
+  color:white;
+  text-align:center;
+  padding:1px;
+  margin:1px;
+  border:solid gray 1px;
+  font-size:0.9em;
+  border-radius: 3px;
+  background:#444;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  width:10px;
+  height:10px;
+}
+#ppp {
+  position:absolute;
+  top:-3px;
+  left:2px;
+}
+#tagtxt {
+  position:absolute;
+  top:0px;
+  left:22px;
+  width:85px;
+  font-size:0.8em;
+}
+#tagtxt input {
+  height:12px;
+  width:75px;
+}
+
+div.tagdiv {
+  width:110px;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  height:18px;
+}
+#mytags div.tagdiv input {
+  width:16px;
+}
+div.tagg {
+  float:right;
+  width:80px;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  height:18px;
+}
+#chtag  {
+  width:150px;
+  height:300px;
+  overflow:auto;
+}
+
+#selectag {
+  /* select a tag - show qlist */
+  position:relative;
+  height:350px;
+}
+#qqlist {
+  /* select a tag - show qlist */
+  position:absolute;
+  top:0;
+  right:10px;
+  border:solid green 1px;
+  width:330px;
+  height:300px;
+  overflow:auto;
+}
+div.listqq {
+  height:14px;
+  width:250px;
+  font-size:0.8em;
+  border:solid gray 1px;
+}
+
+#choosen {
+  background:gray;
+  width:63em;
+}
+
+#wordlist {
+  background:white;
+  width:80%;
+  height:120px;
+  padding:1em;
+  margin:2em;
+  margin-left:auto;
+  margin-right:auto;
+  overflow:auto;
+}
+
+div.tagon {
+  color:green;
+}
+div.chooseme {
+  border: solid green 1px;
+  background:#609060;
+  color:white;
+}
+
+#multi {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+}
+
+div.duup {
+  background:#e0e0a0;
+}
+
+span.drop {
+  background:#e0e0a0;
+  width:30px;
+  height:20px;
+  margin-left:1px;
+  padding-left:1px;
+  padding-right:1px;
+}
+span.dragme {
+  display:block;
+  float:left;
+  background:#e0e0e0;
+  margin:2px;
+  margin-right:10px;
+  padding:3px;
+  padding-left:5px;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .7);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .7);
+}
+
+
+li.dragme {
+  display:block;
+  white-space:pre;
+  margin:0;
+  padding:0;
+  background:#e0e0e0;
+  margin:5px;
+  margin-right:15px;
+  padding:3px;
+  padding-left:5px;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .7);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .7);
+}
+
+div.clearbox {
+  clear:both;
+}
+
+span.used {
+  -webkit-box-shadow: 3px 3px 2px rgba(00, 90, 0, .7);
+  -moz-box-shadow: 3px 3px 2px rgba(00, 90, 0, .7);
+}
+
+span.act, li.act {
+  color:blue;
+  -webkit-box-shadow: 3px 3px 2px rgba(00, 00, 200, .7);
+  -moz-box-shadow: 3px 3px 2px rgba(00, 00, 200, .7);
+}
+
+span.filled {
+  background:#a0d0a0;
+}
+
+ul.sequence li.hidden {
+  display:none;
+}
+
+.hidden {
+  display:none;
+}
+
+ul.sequence, ul.sourcelist {
+  list-style: none; 
+  margin: 0;
+  min-height:50px;
+}
+
+ul.sequence {
+  padding-left: 5px;
+  margin:5px;
+  border:solid green 2px;
+}
+
+ul.sequence li {
+  list-style-type: none;
+}
+
+ul.order {
+  border:solid blue 2px;
+}
+
+div.catt {
+  text-align:left;
+  font-size:1.4em;
+  color:green;
+}
+
+#inputdiv select {
+  float:right;
+  margin-right:12em;
+}
+
+#inputdiv input {
+  float:right;
+  /* width:50%; */
+  margin-right:12em;
+}
+#inputdiv input.check {
+  float:right;
+  width:50%;
+  margin-right:1em;
+}
+#inputdiv div {
+  clear:right;
+}
+
+
+div.container, div.quiz {
+  color:blue;
+  margin:10px;
+  margin-left:15px;
+  font-size:1.4em;
+  clear:both;
+}
+
+div.correct {
+  border-left:solid 6px #a0FFa0;
+}
+div.wrong {
+  border-left:solid 6px #ffa0a0;
+}
+
+div.fasit, span.fasit {
+  color:green;
+  white-space:pre;
+  padding:3px;
+}
+
+div.quiz {
+  color:#00504f;
+}
+
+div.container:before, div.quiz:before {
+  content:"";
+  float:left;
+  width:32px;
+  height:32px;
+}
+div.container:before {
+  background:transparent url(img/book.gif) no-repeat;
+}
+div.quiz:before {
+  background:transparent url(img/quiz.gif) no-repeat;
+}
+div.locked:before {
+  background:transparent url(img/paddy.png) no-repeat;
+}
+div.clock:before {
+  background:transparent url(img/clock-icon.png) no-repeat;
+}
+
+span.container {
+  font-size:0.8em;
+  color:blue;
+}
+span.container:after {
+  content:' » ';
+}
+
+span.chapter {
+  font-size:1.2em;
+  color:blue;
+  padding:4px;
+}

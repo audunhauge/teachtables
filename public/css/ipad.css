@@ -1,0 +1,365 @@
+.ui-autocomplete { position: absolute; cursor: default; }
+/* workarounds */
+* html .ui-autocomplete { width:1px; } /* without this, the menu expands to 100% in IE6 */
+.ui-menu {
+    list-style:none;
+    padding: 2px;
+    margin: 0;
+    display:block;
+    float: left;
+    background:#e0e0e0;
+}
+.ui-menu .ui-menu {
+    margin-top: -3px;
+}
+.ui-menu .ui-menu-item {
+    margin:0;
+    padding: 0;
+    zoom: 1;
+    float: left;
+    clear: left;
+    width: 100%;
+}
+.ui-menu .ui-menu-item a {
+    text-decoration:none;
+    display:block;
+    padding:.2em .4em;
+    line-height:1.5;
+    zoom:1;
+}
+.ui-menu .ui-menu-item a.ui-state-hover,
+.ui-menu .ui-menu-item a.ui-state-active {
+    font-weight: normal;
+    margin: -1px;
+    background:#f0f0b0;
+}
+
+body {
+  font-size:1.2em;
+}
+
+table.elevliste {
+   font-size:0.6em;
+   width:90%;
+}
+div.fn, div.ln {
+   width:70px;
+   height:1.1em;
+   overflow:hidden;
+   white-space:nowrap;
+}
+
+div.fn {
+   width:56px;
+}
+div.klasse {
+   width:16px;
+}
+
+.flip {
+  position:absolute;
+  width:15px;
+  height:15px;
+  bottom:10px;
+  right:10px;
+}
+
+.back {
+}
+
+.delete {
+  position:absolute;
+  top:30px;
+  width:8px;
+  height:8px;
+  right:3px;
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  -opera-border-radius:5px;
+  -khtml-border-radius:5px;
+  border-radius:5px;
+  border:1px solid #E00;
+  background-color:#F55;
+  color:#fff;
+  font-size:0.7em;
+}
+
+.withmargin {
+  margin-left:30px;
+}
+
+.inf {
+  opacity:0;
+}
+
+#prv:hover, #nxt:hover, #flipper2:hover, #flipper1:hover {
+  background:-moz-linear-gradient(top,white,blue);
+  background-image:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#00f))
+ }
+
+
+
+#qbox {
+  position:relative;
+  width:17em;
+  margin-left:10em;
+}
+
+#msg {
+  position:absolute;
+  top:38px;
+  left:35px;
+  width:200px;
+  height:50px;
+  color:red;
+}
+
+#liste {
+  position:relative;
+  padding:5px;
+  padding-top:0px;
+  margin-top:0px;
+  color:white;
+  height:180px;
+}
+
+#elever {
+  position:relative;
+  top:200px;
+}
+
+
+.regbox {
+  position:absolute;
+  top:0;
+  left:0;
+  padding:1em;
+  width:16em;
+}
+
+.hidden {
+    display:none;
+}
+
+#buttonlbl {
+ position:relative;
+ top: -2px;
+ left:-5px;
+}
+
+
+#starbreg, #wait {
+  color:white;
+}
+
+#regkey {
+  display:block;
+  position:absolute;
+  font-size:1.8em;
+  left:25%;
+  top:0;
+  width:70%;
+  height:22px;
+}
+#regkey:before {
+  content:"RegKey";
+  font-size:0.7em;
+  position:absolute;
+  left:-35%;
+  top:12px;
+}
+
+#regkey.finally {
+  font-size:3em;
+  color:#3030ff;
+}
+#regkey.finally:before {
+  content:"";
+}
+
+#rom {
+  display:block;
+  position:absolute;
+  left:25%;
+  top:60px;
+  width:70%;
+  height:22px;
+}
+#rom:before {
+  content:"Rom:";
+  position:absolute;
+  left:-35%;
+}
+#antall {
+  display:block;
+  position:absolute;
+  left:25%;
+  top:100px;
+  width:70%;
+  height:22px;
+}
+#antall:before {
+  content:"Antall:";
+  position:absolute;
+  left:-35%;
+}
+#start {
+  display:block;
+  position:absolute;
+  left:25%;
+  top:140px;
+  width:70%;
+  height:22px;
+}
+#start:before {
+  content:"Start:";
+  position:absolute;
+  left:-35%;
+}
+#varighet {
+  display:block;
+  position:absolute;
+  left:25%;
+  top:180px;
+  width:70%;
+  height:22px;
+}
+#varighet:before {
+  content:"varighet:";
+  position:absolute;
+  left:-35%;
+}
+#info {
+  display:block;
+  position:absolute;
+  left:0;
+  top:32px
+  width:100%;
+  height:22px;
+}
+
+#info.finally {
+  top:80px
+}
+
+#input {
+  display:block;
+  position:absolute;
+  left:0;
+  top:64px;
+  width:100%;
+  height:22px;
+}
+#next {
+  position:absolute;
+  top:220px;
+}
+
+input {
+  background:white;
+}
+table.left th {
+  text-align:left;
+}
+
+table {
+   /*color:eee;*/
+   margin-top:10px;
+}
+td {
+   text-align:left;
+}
+.aqua{
+    background-color: rgba(60, 132, 148, 0.8);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(91, 91, 91, 0.8)), to(rgba(212, 212, 255, .9)));
+    background-image: -moz-linear-gradient(rgba(91, 91, 91, 0.8) 0%, rgba(212, 212, 255, .9) 90%);
+    border-top-color: #8ba2c1;
+    border-right-color: #5890bf;
+    border-bottom-color: #4f93ca;
+    border-left-color: #768fa5; 
+    -webkit-box-shadow: rgba(66, 140, 240, 0.5) 0px 10px 16px;
+    -moz-box-shadow: rgba(66, 140, 240, 0.5) 0px 10px 16px; /* FF 3.5+ */
+}
+
+.button{
+     width: 10em;
+     height: 1.2em;
+     padding: 5px 16px 3px;
+     -webkit-border-radius: 16px;
+     -moz-border-radius: 16px;
+     border-radius: 16px;
+     border: 2px solid #ccc;
+     margin-left:auto;
+     margin-right:auto;
+     margin-top:20px;
+     position: relative;
+     
+     font-family: Myriad Pro, Lucida Sans, Helvetica, Verdana, sans-serif;
+     font-weight: 900;
+     color: #fff;
+     text-align: center;
+     vertical-align: middle;
+     white-space: nowrap;
+     text-overflow: ellipsis; 
+     overflow: hidden;
+     -moz-box-shadow: 3px 3px 3px #000;
+     -webkit-box-shadow: 3px 3px 3px #000;
+     box-shadow: 3px 3px 3px #000;
+
+}
+ 
+.button:hover {
+     text-shadow: rgb(255, 255, 255) 0px 0px 5px;
+}
+.button:active {
+     text-shadow: rgb(255, 255, 255) 0px 0px 5px;
+     -moz-box-shadow: none;
+     -webkit-box-shadow: none;
+     box-shadow: none;
+     top:1px;
+     left:19px;
+}
+
+.button .glare {
+     position: absolute;
+     top: 0;
+     left: 5px;
+     -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+     border-radius: 8px;
+     height: 1px;
+     /*width: 147px;*/
+     width: 11em;
+     padding: 5px 0;
+     background-color: rgba(255, 255, 255, 0.25);
+     background-image: -webkit-gradient(linear, 0% 0%, 0% 95%, from(rgba(255, 255, 255, 0.7)), to(rgba(255, 255, 255, 0)));
+     background-image: -moz-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 95%);
+}
+
+.tiny {
+  font-size:0.6em;
+}
+
+div.msoyle {
+     width:4px;
+     height:15px;
+     position:absolute;
+     border:solid gray 1px ;
+     background-color:red;
+}
+div.soyle {
+     width:4px;
+     height:15px;
+     color:blue;
+     position:absolute;
+     border:solid green 1px ;
+     background-color:green;
+}
+div.graf {
+     padding-top:2px;
+     height:20px;
+     position:relative;
+     width:60%;
+     margin-right:auto;
+     margin-left:auto;
+}
