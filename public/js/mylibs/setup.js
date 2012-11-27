@@ -93,6 +93,8 @@ var fullname;           // lagrer fagnavn delen av gruppenavnet - fullname["3403
 var category;           // 3inf5:4, 2SCD5:10  -  NONONO kat != year kategori for faget 2=vg1,3=vg2,4=vg3,10=mdd
 var fagautocomp;        // liste over alle gyldige fagnavn - brukes til autocomplete
 var linktilrom = [];    // liste over alle rom
+var mysubscript = [];   // subscription menu
+var subscriptlist = {}; // the chosen subscriptions
 
 var promises = {};      // hash of promises that functions may fulfill when they have recieved data
 
@@ -326,8 +328,11 @@ function take_action() {
 
 // fetch userlist and do some more setup
 
+var alreadyappended = false;
 
 function setup_teach() {
+    if (alreadyappended) return;
+    alreadyappended = true;
     var romvalg = '<ul>';                     
     romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>'; 
     for (var i in romliste) {
@@ -342,6 +347,39 @@ function setup_teach() {
     }
     romvalg += '<li><a id="resrapp" href="#">'+ss.setup.rapport+'</a></li>'; 
     romvalg += '</ul>';
+
+    // prepare for subscriptions
+    if (! teachers) {
+        teachers = database.teachers;
+    }
+    var subscript = '<ul>';                     
+    var minefag = database.teachcourse[userinfo.id].join(' ');
+    var myown = database.subscribe.teachers[userinfo.id];
+    for (var i in database.subscribe.subjects) {
+        var i_teach_this = (minefag.indexOf(i) >= 0);
+        if (!i_teach_this && (!myown || myown.indexOf(i) < 0)) continue;
+        var su = database.subscribe.subjects[i];
+        if (su.length == 1 && su[0] == userinfo.id) continue;
+        subscript += '<li><a href="#">' + i + '</a><ul>'; 
+        for (var j =0; j< su.length; j++) {
+            var cla = '';
+            var te = su[j];
+            if (te == userinfo.id) continue;
+            var tea = teachers[te] || { firstname:'',lastname:'' };
+            var teaname = tea.firstname.caps();
+            if (subscriptlist[te] && subscriptlist[te][i]) {
+                // we subscribe - mark with n2
+                cla = ' class="n2" ';
+            }
+            subscript += '<li><a id="suru'+te+'_'+i+'" href="#" '+cla+'>'+teaname+'</a></li>'; 
+            mysubscript.push(te+'_'+i);
+        }
+        subscript += '</ul></li>'; 
+    }
+    subscript += '</ul>';
+    $j("#subscribe").after(subscript);
+    $j.get(mybase+ "/update_subscription");
+
     var s = '<li><a id="romres" href="#">'+ss.setup.reserv+'</a>'+romvalg+'</li>'
            + ''; // + '<li><a id="starb" href="#">Starb</a></li>';
     if (isadmin) {
@@ -412,6 +450,13 @@ function setup_teach() {
                 $j("#rom"+rom).click(function() {
                     var idd = $j(this).attr("id");
                     rom_reservering(idd.substr(3));
+                } );
+            }
+            for (var k=0; k < mysubscript.length; k++) {
+                var su = mysubscript[k];
+                $j("#suru"+su).click(function() {
+                    var idd = $j(this).attr("id");
+                    subscribe_to(idd);
                 } );
             }
             $j("#resrapp").click(function(event) {
@@ -569,6 +614,9 @@ function afterloggin(uinfo) {
          });
     }
     if (userinfo.department == ss.teachdep) {
+      if (userinfo.config && userinfo.config.subscription) {
+          subscriptlist = userinfo.config.subscription;
+      }
       fullname = userinfo.firstname + ' ' + userinfo.lastname;
       user = fullname;
       userinfo.fullname = fullname;
@@ -890,6 +938,10 @@ $j(document).ready(function() {
     $j("#quiz").click(function(event) {
         event.preventDefault();
         quizDemo();
+    });
+    $j("#subscribe").click(function(event) {
+        event.preventDefault();
+        subscribe();
     });
     $j("#andreplaner").click(function(event) {
         event.preventDefault();

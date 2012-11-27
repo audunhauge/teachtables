@@ -20,6 +20,15 @@ var orbits,
     tcolors = d3.scale.category20(),
     questions;
 
+var relations,
+    words,
+    qdata,
+    stopme,                   // id of timer - needs to stop when data recieved
+    wordlist,
+    tags,
+    qtags,
+    relations ;
+
 function makeJoin(clus) {
   switch (qparam.joy) {
     case 'only':
@@ -183,6 +192,12 @@ function questEditor(clusterlist) {
                if (selectedq.length) {
                  $j.post(mybase+'/changesubject', { subject:su, qidlist:selectedq.join(',') }, function(resp) {
                  });
+                 for (var i=0,l=selectedq.length; i<l; i++) {
+                     var b = selectedq[i];
+                     var bq = questions[b];
+                     bq.subject = su;
+                 }
+                 setupworld(qdata);
                }
                break;
              case 'Set tag':
@@ -212,7 +227,8 @@ function questEditor(clusterlist) {
                       var qq = selectedq[i];
                       delete questions[qq];
                    }
-                   showinfo(mylink,qparam.limit,qparam.filter);
+                   setupworld(qdata);
+                   //showinfo(mylink,qparam.limit,qparam.filter);
                  });
                }
                break;
@@ -221,38 +237,19 @@ function questEditor(clusterlist) {
   });
 }
 
-function quizDemo() {
-    qparam.teacher = qparam.teacher || userinfo.id;
-    var s = '<div class="sized1 centered gradback">'
-            + '<h1 class="retainer" id="oskrift">Questionbank - editor</h1>'
-            + 'Subject:<span id="subjbox"></span>'
-            + 'Filter:<span id="filterbox"></span>'
-            + 'Limit:<span id="limitbox"></span>'
-            + 'Teacher:<span id="teachbox"></span>'
-            + 'Quiz:<span id="quizbox"></span>'
-            + 'Tags:<span id="tagbox"></span>'
-            + 'Join:<span id="joybox"></span>'
-            + '<div id="choosen"><div id="wordlist"></div></div>'
-            + '<div class="quizeditor" id="info"><h4>Question editor</h4> Leser og indekserer alle dine spørsmål ...</div>'
-            + '<div id="rapp"></div>'
-            ;
-    $j("#main").html(s);
-    $j("#info").draggable();
-    var relations,
-        words,
-        wordlist,
-        tags,
-        qtags,
-        relations ;
-    $j.get(mybase+ "/wordindex", { teacher:qparam.teacher },
-        function(data) {
+function subscribe() {
+  console.log(database.subscribe);
+}
+
+function  setupworld(data) {
+          clearInterval(stopme);
           if (data == undefined) { 
              $j("#rapp").html("Du har ingen spørsmål, er ikke logget inn eller er ikke lærer");
              return;
           }
-          $j("#rapp").html("Listene mottatt fra server ....");
 
            //console.log(data);
+          qdata = data;
           questions = data.questions;
           unsynced = data.unsynced;
           words = '';
@@ -305,10 +302,10 @@ function quizDemo() {
           $j("#wordlist").html(words);
           makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
           show_unsynced();   // show questions not in sync with parent
-   });
+};
 
 
-   function makeForcePlot(filter,limit,keyword,subj) {
+function makeForcePlot(filter,limit,keyword,subj) {
           //words += '<h4>Relations</h4>';
           var fag = database.teachcourse[userinfo.id];
           var su;
@@ -418,6 +415,7 @@ function quizDemo() {
                  if (q.subject != undefined && q.subject != '') continue;
                } else if (subj != 'all' && q.subject != subj) continue;
                var q = questions[re[2]]; 
+               if (!q) continue;
                if (filter != 'all' && q.qtype != filter) continue;
                links.push({ source:""+re[1], target:""+re[2], fat:re[0], type:'strong' } )
                used[re[1]] = 1;
@@ -464,7 +462,6 @@ function quizDemo() {
                      + '<li>JAdda'
                      + '</ul>';
           $j("#info").html(helpinfo);
-          $j("#rapp").html("");
 
           // Compute the distinct nodes from the links.
           links.forEach(function(link) {
@@ -561,7 +558,33 @@ function quizDemo() {
           }
 
 
-    }
+}
+
+function quizDemo() {
+    qparam.teacher = qparam.teacher || userinfo.id;
+    var s = '<div class="sized1 centered gradback">'
+            + '<h1 class="retainer" id="oskrift">Questionbank - editor</h1>'
+            + 'Subject:<span id="subjbox"></span>'
+            + 'Filter:<span id="filterbox"></span>'
+            + 'Limit:<span id="limitbox"></span>'
+            + 'Teacher:<span id="teachbox"></span>'
+            + 'Quiz:<span id="quizbox"></span>'
+            + 'Tags:<span id="tagbox"></span>'
+            + 'Join:<span id="joybox"></span>'
+            + '<div id="choosen"><div id="wordlist"></div></div>'
+            + '<div class="quizeditor" id="info"><h4>Question editor</h4> Leser og indekserer alle dine spørsmål ...</div>'
+            + '<div id="rapp"></div>'
+            ;
+    $j("#main").html(s);
+    $j("#info").draggable();
+    var s = "Henter<br>";
+    stopme = window.setInterval(function() {
+        $j("#rapp").html(s);
+        s += (s.length % 10 == 0) ? '<br>' : '.';
+     }, 200);
+    $j.get(mybase+ "/wordindex", { teacher:qparam.teacher }, setupworld );
+
+
 }
 
 

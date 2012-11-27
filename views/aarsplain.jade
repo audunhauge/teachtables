@@ -1,0 +1,25 @@
+doctype 5
+html
+  head
+    title Årsplan for #{mytitle}
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width initial-scale=1.0")
+    link(rel="stylesheet", href="#{base}stat/css/#{version}/yearplan.css")
+    link(rel="stylesheet", href="#{base}stat/css/#{version}/yearplan-menu.css")
+    link(rel="icon",       href="#{base}stat/img/favicon.ico", type="image/x-icon")
+    script
+      var mybase="#{base}";
+      var language="#{language}";
+  body
+    header
+    #main
+    footer
+    script(src="#{base}stat/js/jquery-1.7.1.js")
+    script(src="#{base}stat/js/#{version}/jbbq.min.js")
+    script(src="#{base}stat/js/tooltip.min.js")
+    script(src="#{base}stat/js/#{version}/jedi.js")
+    script(src="#{base}stat/js/#{version}/utils.js")
+    script(src="#{base}stat/js/#{version}/lang/en.js")
+    script(src="#{base}stat/js/#{version}/plans.js")
+    script(src="#{base}stat/js/#{version}/timetables.js")
+    script(src="#{base}stat/js/#{version}/aarsplain.js")

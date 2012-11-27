@@ -184,13 +184,13 @@ function getcourseplans() {
 
 
 $j(document).ready(function() {
-    $j.getJSON( "/basic",{ navn:user }, 
+    $j.getJSON(mybase+ "/basic",{ navn:user }, 
          function(data) {
            database = data;
            userinfo = data.userinfo;
            database.userinfo = { uid:0 };
            // sjekk først om bruker allerede er logga inn
-          $j.getJSON( "/alltests", 
+          $j.getJSON(mybase + "/alltests", 
                function(data) {
                   alleprover = data;
                  show_all(database.startjd);

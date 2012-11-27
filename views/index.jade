@@ -1,68 +1,70 @@
 extends layout
 
 block content
-  ul#nav 
-    li.current 
-      a.llogin(href="#") #{menu.login}
-      ul 
-        li 
-          a.llogin#login(href="#") #{menu.login}
-        li 
-          a#logout(href="#") #{menu.logout}
-        li 
-          a#seek(href="#") #{menu.seek}
-    li 
-      a#yearplan(href="#") #{menu.yearplan}
-      ul 
-        li 
-          a#denne(href="#") #{menu.thisweek}
-        li 
-          a#neste(href="#") #{menu.next4}
-        li 
-          a#resten(href="#") #{menu.restofyear}
-        li 
-          a#hele(href="#") #{menu.wholeyear}
-        li 
-          a#starblist(href="#") #{menu.sss}
-        li 
-          a#prover(href="#") #{menu.mytests}
-        li 
-          a#heldag(href="#") #{menu.bigtest}
-        li 
-          a#alleprover(href="#") #{menu.alltests}
-    li
-      a#fagplaner(href="#") #{menu.plans}
-      ul 
-        li#teachmenu
-          a#mineplaner(href="#") #{menu.mycourses}</a>    </li> 
-        li#andref
-          a#andreplaner(href="#") #{menu.othercourses}</a>   </li> 
-        li
-          a#edbortfall(href="#") #{menu.away}</a>   </li> 
-        li
-          a#quiz(href="#") #{menu.quiz}</a>   </li> 
-    li
-      a#timeplaner(href="#") #{menu.timeplans} 
-      ul 
-        li
-          a#timeplanteach(href="#") #{menu.teachers}
-        li
-          a#timeplanelev(href="#") #{menu.students}
-        li
-          a(href="#") #{menu.groupings}
-          ul
-            li
-              a#timeplanklasse(href="#") #{menu.klasses}
-            li
-              a#timeplangruppe(href="#") #{menu.groups}
-            li
-              a#timeplanfag(href="#") #{menu.courses}
+    ul#nav 
+      li.current 
+        a.llogin(href="#") #{menu.login}
+        ul 
+          li 
+            a.llogin#login(href="#") #{menu.login}
+          li 
+            a#logout(href="#") #{menu.logout}
+          li 
+            a#seek(href="#") #{menu.seek}
+      li 
+        a#yearplan(href="#") #{menu.yearplan}
+        ul 
+          li 
+            a#denne(href="#") #{menu.thisweek}
+          li 
+            a#neste(href="#") #{menu.next4}
+          li 
+            a#resten(href="#") #{menu.restofyear}
+          li 
+            a#hele(href="#") #{menu.wholeyear}
+          li 
+            a#starblist(href="#") #{menu.sss}
+          li 
+            a#prover(href="#") #{menu.mytests}
+          li 
+            a#heldag(href="#") #{menu.bigtest}
+          li 
+            a#alleprover(href="#") #{menu.alltests}
+      li
+        a#fagplaner(href="#") #{menu.plans}
+        ul 
+          li#teachmenu
+            a#mineplaner(href="#") #{menu.mycourses}</a>    </li> 
+          li#andref
+            a#andreplaner(href="#") #{menu.othercourses}</a>   </li> 
           li
-            a#timeplanrom(href="#") #{menu.rooms}
+            a#edbortfall(href="#") #{menu.away}</a>   </li> 
           li
-            a#timeplansamling(href="#") #{menu.multiview}
-  p 
-    #main
-      h1#oskrift 
-      #timeviser
-        #timeplan #{menu.loading}
+            a#quiz(href="#") #{menu.quiz}</a>   </li> 
+          li
+            a#subscribe(href="#") #{menu.subscribe}</a>   </li> 
+      li
+        a#timeplaner(href="#") #{menu.timeplans} 
+        ul 
+          li
+            a#timeplanteach(href="#") #{menu.teachers}
+          li
+            a#timeplanelev(href="#") #{menu.students}
+          li
+            a(href="#") #{menu.groupings}
+            ul
+              li
+                a#timeplanklasse(href="#") #{menu.klasses}
+              li
+                a#timeplangruppe(href="#") #{menu.groups}
+              li
+                a#timeplanfag(href="#") #{menu.courses}
+            li
+              a#timeplanrom(href="#") #{menu.rooms}
+            li
+              a#timeplansamling(href="#") #{menu.multiview}
+    p 
+      #main
+        h1#oskrift 
+        #timeviser
+          #timeplan #{menu.loading}

@@ -1,5 +1,5 @@
 doctype 5
-html.no-js(lang="en")
+html
   head
     title Årsplan for #{mytitle}
     meta(charset="utf-8")
@@ -18,8 +18,8 @@ html.no-js(lang="en")
       var language="#{language}";
   body
     #header
-      h1#htitle #{mytitle} &nbsp; 
-        span#yyear #{schoolyear}
+        h1#htitle #{mytitle} &nbsp; 
+          span#yyear #{schoolyear}
     block content
     script(src="#{base}stat/js/jquery-1.7.1.js")
     script(src="#{base}stat/js/#{version}/jbbq.min.js")

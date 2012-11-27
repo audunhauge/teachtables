@@ -159,25 +159,6 @@ function lineplot(param) {
         .attr("r", 1)
       }
     }
-  if (param.lines) {
-    console.log("Drawing lines",param.lines);
-    for (var pp=0; pp< param.lines.length; pp++) {
-      var poi = param.points[pp];
-      var ppx = poi[0];
-      var ppy = poi[1];
-      if (ppx.length != ppy.length) continue;
-      for (var tt=0; tt< ppx.length; tt++) {
-        var px = ppx[tt];
-        var py = ppy[tt];
-        g.append("svg:circle")
-        .attr("cx", x(px))
-        .attr("cy", -1 * y(py))
-        .attr("stroke", plotcolors(data.length + pp))
-        .attr("fill", "none")
-        .attr("r", pointsize)
-      }
-    }
-  }
 
   if (param.points) {
     //console.log("some points found",param.points);
@@ -242,7 +223,7 @@ function lineplot(param) {
     }
 
   }
-
+  
     // x-axis
   var xp = -1*y(0);
   xp = (xp < 0) ? xp : -5;
@@ -266,7 +247,7 @@ function lineplot(param) {
       .attr("y2", -1 * y(yrange[1]))
       .attr("stroke", "black" )
       .attr("stroke-width", 0.3)
-
+  
   if (w>100 && h>100) {
     // only draw ticks and labels if
     // plot is reasonably big
@@ -294,7 +275,7 @@ function lineplot(param) {
         .attr("text-anchor", "right")
         .attr("dy", -2)
         .attr("dx", 2)
-
+    
     g.selectAll(".xTicks")
         .data(x.ticks(xticks))
         .enter().append("svg:line")

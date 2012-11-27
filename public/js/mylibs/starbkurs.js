@@ -207,6 +207,7 @@ function teachAbsent() {
     for (var ii in teachers) {
       var te = teachers[ii];
       var char1 = te.lastname.substr(0,1).toUpperCase();
+      if (char1 == "") continue;
       if (!booklet[char1]) {
         booklet[char1] = [];
       }
