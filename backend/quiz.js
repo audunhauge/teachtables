@@ -207,8 +207,14 @@ var qz = {
          draggers = [];
          did = 0;
          qobj.display = qobj.display.replace(/\[\[(.+?)\]\]/g,function(m,ch) {
+             if (ch == ' ') {
+                 // special: a single blank means BLANK option - dosnt generate a draggable
+                 // thus questions like : place x on the third position: [[ ]] [[ ]] [[x]] [[ ]]
+                 // works basically like checkbox - but can place the box anywhere in text
+                 // TODO we may not need to do anything here
+             } 
              draggers[did] = ch;
-	     var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="drop">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+	         var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="drop">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
              did++;
              return sp;
          });
@@ -1229,7 +1235,7 @@ var qz = {
                      ucorr++;
                    } else {
                      // TODO  this only works for first wdiff in question
-                     // need to handle chaning of callbacks for each [[codea ]] [[codeb ]]
+                     // need to handle chaining of callbacks for each [[codea ]] [[codeb ]]
                      // use word diff
                      try {
                        var codeA = prep(ff);
@@ -1408,8 +1414,15 @@ var qz = {
                  var ucorr = 0;    // user correct choices
                  var uerr = 0;     // user false choices
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   tot++;
                    var ff = unescape(fasit[ii]);
+                   if (ff == ' ' ) {
+                     // blank fields dont count - unless you place something on them
+                     if (ua[ii] == undefined || ua[ii] == '' || ua[ii] == '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                         continue;
+                     }
+                   }
+                   tot++;
+                   // ignore blank bokses - so we can have place one item in correct position
                    var fasil = ff.split(',');
                    if (ff == ua[ii] || fasil.indexOf(ua[ii]) >= 0 ) {
                      ucorr++;
@@ -1459,7 +1472,8 @@ var qz = {
                break;
            }
            if (simple) {  // only symbolic math is not simple
-             var adjust = qgrade * (1 - cost * attnum - hintcost*hintcount);
+             var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
+             var adjust = qgrade * (1 - cutcost - hintcost*hintcount);
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
              //console.log(feedback);

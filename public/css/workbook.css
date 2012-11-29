@@ -465,9 +465,17 @@ span.num {
   color:steelblue;
 }
 
-span.n1 {
-  color:#b22;
+.n3 {
+  color:#b22 !important;
 }
+     
+.n2 {
+  color:#2b2 !important;
+}
+.n1 {
+  color:#bbb !important;
+}
+
 
 span.qid {
   display:block;

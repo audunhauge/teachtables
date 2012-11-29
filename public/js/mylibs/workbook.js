@@ -1888,6 +1888,7 @@ wb.render.normal  = {
                               qtxt += grademe;
                               for (var i=0, l= param.options.length; i<l; i++) {
                                   var opt = param.options[i].split(',')[0];
+                                  if (opt == ' ') continue;
                                   qtxt += '<span id="ddm'+qu.qid+'_'+qi+'_'+i+'" class="dragme">' + opt + '</span>';
                               }
                               qtxt += '<div class="clearbox">&nbsp;</div>';

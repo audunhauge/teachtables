@@ -164,7 +164,6 @@ app.get(base+'/update_subscription',    workbook.update_subscription);
 app.get(base+'/gimmeahint',             workbook.gimmeahint); 
 app.get(base+'/updatecontainerscore',   workbook.updatecontainerscore );
 app.get(base+'/generateforall',         workbook.generateforall );
-app.get(base+'/resetcontainer',         workbook.resetcontainer );
 app.get(base+'/exportcontainer',        workbook.exportcontainer );
 app.get(base+'/copyquest',              workbook.copyquest );
 
@@ -174,6 +173,7 @@ app.post(base+'/editscore',             workbook.editscore);
 app.post(base+'/editquest',             workbook.editquest); 
 app.post(base+'/editqncontainer',       workbook.editqncontainer); 
 app.post(base+'/studresetcontainer',    workbook.studresetcontainer); 
+app.post(base+'/resetcontainer',        workbook.resetcontainer );
 app.post(base+'/changesubject',         workbook.changesubject );
 app.post(base+'/edittags',              workbook.edittags );
 app.post(base+'/settag',                workbook.settag );
