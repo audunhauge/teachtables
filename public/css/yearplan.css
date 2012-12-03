@@ -497,7 +497,7 @@ div.someabsent {
 }
 
 
-#vurd > div > p:first-letter {
+p.bigf:first-letter, #vurd > div > p:first-letter {
   font-size:1.8em;
   color:green;
 }

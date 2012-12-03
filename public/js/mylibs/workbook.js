@@ -7,7 +7,11 @@
 //       can contain (quiz,question,container)
 
 var wb = { render: {} };
-var wbinfo = { trail:[], page:{}, missing:{} };
+var wbinfo = { trail:[], page:{}, missing:{} , haveadded:0 };
+// trail is breadcrumb for navigation
+// missing is number of unasnwered questions in a quiz
+// haveadded will be > 0 if teach has added a new question this session
+//    used to show/hide extra help text
 
 var tablets = {};   // workaround for lack of drag and drop on tablets
 
@@ -401,10 +405,6 @@ function renderPage() {
     }
     body = wb.render[wbinfo.layout].body();
 
-
-
-
-
     var s = '<div id="wbmain">'+header + trail + body +  '</div>';
     $j("#main").html(s);
     if (teaches(userinfo.id,wbinfo.coursename)) {
@@ -638,6 +638,17 @@ function renderPage() {
                 }
               }
           });
+        } else {
+          // no questions added yet - give some suggestions
+          if (teaches(userinfo.id,wbinfo.coursename)) {
+            var info = '<p class="bigf">Klikk på blyanten for å legge til spørsmål.';
+            if (trail == '') {
+              info += '<p class="bigf">På dette nivået bør du bare legge quiz-er.'
+                   + "<br>dvs legg til spørsmål, endre type til quiz."
+                   + "<br>Legg nye spørsmål inne i quizene";
+            }
+            $j("#qlist").html(info);
+          }
         }
     });
   });
@@ -767,7 +778,6 @@ function edqlist() {
                       renderPage();
                     });
                });
-              
             }
          }
   });
@@ -898,6 +908,7 @@ function edqlist() {
       $j.post(mybase+'/editqncontainer', { action:'create', container:wbinfo.containerid, subject:subject }, function(resp) {
          $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
            wbinfo.qlist = qlist;
+           wbinfo.haveadded  += 1;
            edqlist();
          });
       });
@@ -968,7 +979,7 @@ function editbind() {
 }
 
 function workbook(coursename) {
-    wbinfo = { trail:[], page:{}, missing:{} };
+    wbinfo = { trail:[], page:{}, missing:{} , haveadded:0 };
     wbinfo.coursename = coursename;
     wbinfo.courseid = database.cname2id[coursename];
     var plandata = courseplans[coursename];
@@ -1615,6 +1626,32 @@ wb.render.normal  = {
               return qql;
             } else {
               qq = qql.join('');
+              if (qq == '') {
+                if (wbinfo.trail == '') {
+                 qq += '<p class="bigf">På dette nivået bør du bare legge quiz-er.'
+                       + "<br>dvs legg til spørsmål, endre type til quiz."
+                       + "<br>Legg nye spørsmål inne i quizene";
+                }
+                qq += '<p class="bigf">Nå kan du enten: <ul>'
+                   + '<li>Lage nye spørsmål - klikk på add'
+                   + '<li>Koble inn eksisterende - klikk på attach'
+                   + '</ul></p>';
+                if (wbinfo.trail == '') {
+                  qq += '<p class="bigf">Anbefalt: klikk på add.';
+                }
+              }
+              if (wbinfo.haveadded < 2) {
+                // first new question
+                qq += '<p class="bigf">Etterpå setter du markøren over det nye spørsmålet og klikk så på blyanten'
+                   +  ' for å redigere. Klikk på rød running for å fjerne spørsmålet.'
+                   +  '<p class="bigf">For å lage en quiz endrer du spørsmålstypen til quiz, '
+                   +  ' dette gjør du ved å redigere spørsmålet (blyant ved mus over) og '
+                   +  ' når redigeringsvinduet kommer fram - klikk på blyanten '
+                   +  ' under Detaljer. Nå får du et nytt vindu hvor du kan velge typer '
+                   +  ' fra en rullegardin. Velg quiz og klikk oppdater for å lage en quiz. '
+                   +  ' Klikk på den grønne Lagre knappen for å lagre endringene';
+
+              }
               return qq;
             }
            }   
@@ -1690,8 +1727,8 @@ wb.render.normal  = {
               sscore.userscore = Math.floor(sscore.userscore*100) / 100;
               callback( { showlist:qq, maxscore:sscore.maxscore, uscore:sscore.userscore, qrender:qrender, scorelist:sscore.scorelist });
             });
-          }   
-            
+          }
+
 
          , displayQuest:function(qu,qi,contopt,sscore,scored,fasit) {
               // qu is the question+useranswer, qi is instance number
