@@ -19,7 +19,7 @@ function prep(code) {
   code = code.replace(/import ([^ ;]+)/g,"import($1) ");
   code = code.replace(/\+\+/g,"+=1");
   code = code.replace(/--/g,"-=1");
-  code = code.replace(/(\w+):(int|string|number|date|boolean)/gi,"$1");
+  code = code.replace(/var (\w+):(\w+)/gi,"var $1");
   code = code.replace(/(\w+)\((.+)\):(int|string|number|boolean|date|void)/ig,"$1($2)");
   code = code.replace(/public (\w+) (\w+)/g,"$1 public_$2");
   code = code.replace(/private (\w+) (\w+)/g,"$1 private_$2");
@@ -373,7 +373,8 @@ var qz = {
                 var fus = fulist;
                 var ro = 'function (x,y) { with(Math) { return ' + fus + '}}';
                 hist += 'getudata();var param = { fu:'+ro+' ,  target:"#hist'+idd+'"'+param+' };\n'
-                hist += '$j("#redraw").click("",function() { getudata();var param = { fu:'+ro+' ,  target:"#hist'+idd+'"'+param+' }; vfield(param) });vfield(param)\n</script>';
+                hist += '$j("#redraw").click("",function() { getudata();var param = { fu:'+ro
+                        + ' ,  target:"#hist'+idd+'"'+param+' }; vfield(param) });vfield(param)\n</script>';
                 //console.log(hist);
                 return hist;
                break;
@@ -655,13 +656,50 @@ var qz = {
      // expand #{name[2]} to value of symb.con.name[2]
      var idx = 0;
      if (!text || text == '') return text;
-     text = text.replace(/\#{([a-zA-Z]+)\[(.+?)\]}/g,function(m,c1,c2) {
-       //  symb.a[2]
-       if (symb.con[c1]) return symb.con[c1][c2] || 0;
+     text = text.replace(/\#([a-zA-Z])/g,function(m,ch) {
+	     return symb[ch] || 0;
+       });
+     text = text.replace(/\#{([a-zA-Z]+)}/g,function(m,c1) {
+       if (symb.con[c1]) return symb.con[c1] || 0;
        return 0;
        });
      text = text.replace(/\#([a-zA-Z])/g,function(m,ch) {
 	     return symb[ch] || 0;
+       });
+     // if any #{ ... } left - try them as expressions
+     // so #{a+2} will fetch #a and add 2
+     text = text.replace(/\#{([a-zA-Z0-9.+*/)(-]+)}/g,function(m,exp) {
+       var calc = 0;
+       try {
+           // first replace d?nn with dice value
+           // da6 => random(1..6), db22 => random(1..22)
+           // da6 db6 dc6 dd6 are all 1..6 ( da6 will give same value if evaluated twice)
+           // thus if you need two d6 dice that are independent (independent random vars)
+           // you can use da6 db6 dc6 .. dz6
+           // rolled dice are stored in symb.dice
+	   exp = exp.replace(/(d[a-z][0-9]+)/g,function(m,ch) {
+               console.log("EXP=",exp,m,ch);
+               if (symb.dice[ch]) {
+                    console.log("DICE EXP=",symb.dice);
+                    return symb.dice[ch];
+               } else {
+                    var dd = Math.floor(+ch.substr(2));
+                    symb.dice[ch] = 1 + Math.floor(Math.random()*dd);
+                    console.log("New DICE EXP=",symb.dice);
+                    return symb.dice[ch];
+               }
+	   });
+	   with(symb){ calc = eval('('+exp+')') };
+           console.log("Evaluated ",exp," got ",calc);
+           return calc;
+         } catch(err) {
+            return exp;
+         }
+       });
+     text = text.replace(/\#{([a-zA-Z]+)\[(.+?)\]}/g,function(m,c1,c2) {
+       //  symb.a[2]
+       if (symb.con[c1]) return symb.con[c1][c2] || 0;
+       return 0;
        });
      return text;
    }  
@@ -898,6 +936,7 @@ var qz = {
        , rlist:qz.rlist
        , alist:qz.alist
        , con:{}
+       , dice:{}
      };  // remove symbols from prev question
      if (qz.containers[container] && qz.containers[container][userid] ) {
        // we have symbols for the container

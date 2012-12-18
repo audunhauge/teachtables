@@ -52,6 +52,7 @@ exports.editquest = function(user,query,callback) {
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
+  delete quiz.question[qid];  // remove it from cache
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':
@@ -84,8 +85,9 @@ exports.editquest = function(user,query,callback) {
     	  //console.log(sql,params);
     	  client.query( sql, params,
     			  after(function(results) {
-    				  callback( {ok:true, msg:"updated"} );
     				  delete quiz.question[qid];  // remove it from cache
+    				  callback( {ok:true, msg:"updated"} );
+                      // TODO here we may need to regen useranswer for container
     			  }));
     	  break;
       default:
@@ -702,24 +704,32 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   }));
 }
 
-exports.generateforall = function(user,query,callback) {
+var generateforall = exports.generateforall = function(user,query,callback) {
   // generate useranswer for all users
   var container    = +query.container;
   var parentid     = +query.parentid;
   var questlist    = query.questlist ;  // used in renderq - just fetch it here to check
   var group        = query.group;
-  if (user.department == 'Undervisning' ) {
-    console.log("Parent=",parentid);
-    client.query( "delete from quiz_useranswer where cid = $1 and score = 0 and attemptnum = 0 and response = '' ",[ container],
+  var isteach = (user.department == 'Undervisning');
+  if (isteach) {
+    var sql = "delete from quiz_useranswer where (qid =$1) ";
+    delete quiz.containers[container];
+    delete quiz.contq[container];
+    // delete any symbols generated for this container
+    client.query( sql,[container],
     after(function(results) {
-      if (db.memlist[group]) {
-        for (var i=0, l = db.memlist[group].length; i<l; i++) {
-          var enr = db.memlist[group][i];
-          renderq({id:enr},query,function(resp) {
-            //console.log(resp);
-          });
-        }
-      }
+        client.query( "delete from quiz_useranswer where cid = $1 and score = 0 and attemptnum = 0 and response = '' ",[ container],
+        after(function(results) {
+          if (db.memlist[group]) {
+            for (var i=0, l = db.memlist[group].length; i<l; i++) {
+              var enr = db.memlist[group][i];
+              renderq({id:enr},query,function(resp) {
+                //console.log(resp);
+              });
+            }
+          }
+          callback(null);
+        }));
     }));
   }
 }
@@ -941,16 +951,27 @@ var renderq = exports.renderq = function(user,query,callback) {
                       // forgot to delete useranswer?
                       console.log("HOW DID THIS HAPPEN?",questlist,i);
                     }
-                    if (!ualist[qu.id] || !ualist[qu.id][i]) {
+                    if (ualist[qu.id] && ualist[qu.id][i]) {
+                      retlist[i] = ualist[qu.id][i];
+                      loopWait(i+1,cb);
+                    } else if (ualist[qu.id]) {
+                       // we have the question, but with another index
+                       // this may happen if 1: shuffle  2:duplicated question (allowed)
+                       // easy way to make a quiz - dynamic question repeated n-times.
+                       // gives n  similar questions with different params (calculated values)
+                       for (var iiixi in ualist[qu.id]) {
+                         retlist[i] = ualist[qu.id][iiixi];
+                         delete ualist[qu.id][iiixi];
+                         loopWait(i+1,cb);
+                         break;
+                       }
+                    } else {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
                       quiz.generateParams(qu,user.id,i,container,function(params) {
                         missing.push( " ( "+qu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
                         loopWait(i+1,cb);
                       });
-                    } else {
-                      retlist[i] = ualist[qu.id][i];
-                      loopWait(i+1,cb);
                     }
                   } else {
                     cb();
@@ -1133,7 +1154,7 @@ exports.getcontainer = function(user,query,callback) {
   if (container && quiz.contq[container]) {
      // we have the list of questions
      callback(quiz.contq[container]);
-     //console.log("USING CONTAINER CACHE");
+     //console.log("USING CONTAINER CACHE",container,quiz.contq[container]);
      return;
   }
   var isteach = (user.department == 'Undervisning');
@@ -1263,11 +1284,11 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
       if (usas[res.userid] && usas[res.userid][qid] && usas[res.userid][qid][i] != undefined) {
         var uu = usas[res.userid][qid][i];
         score += +uu.score;
-        tot += quiz.question[qid].points;   
+        if (quiz.question[qid]) tot += quiz.question[qid].points;   
         if (uu.time > fresh) fresh = uu.time;
       } else {
         try {
-          console.log("NOTFOUND ",qid,usas[res.userid][qid],i);
+          console.log("NOTFOUND ",qid,res.userid,qid,i);
         } catch(err) {
           // console.log("REALLY not there ",qid,i);
         }

@@ -1560,7 +1560,7 @@ var getcourses = function() {
                                 blokkgr[amem.userid][group] = 1;
                               }
                           }
-                          //console.log(db.memgr);
+                          //console.log(db.teachcourse);
                           //console.log(db.memlist);
                           // console.log(db.cname2id);
                           client.query( 'select * from groups',

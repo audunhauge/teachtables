@@ -527,6 +527,12 @@ function renderPage() {
          }).disableSelection();
         $j("#main").undelegate(".cont","click");
         $j("#main").delegate(".cont","click", function() {
+            if ( $j(this).hasClass("clock")) {
+               if (!teaches(userinfo.id,wbinfo.coursename)) {
+                 alert("Test not open");
+                 return;
+               }
+            }
             var containerid = this.id.substr(2).split('_')[0];
             if (containerid == wbinfo.containerid) {
               // self-click - last element in trail is ident
@@ -730,16 +736,14 @@ function edqlist() {
          +showqlist 
          + '</div><div title="Lag nytt spørsmål" id="addmore" class="button">add</div>'
          + '<div title="Nullstill svarlista" id="reset" class="gradebutton">reset</div>'
-         // + '<div title="Lag klasseset - generer alle sprsml for alle elever i gruppa" id="regen" class="gradebutton">regen</div>'
          + '<div title="Exporter spørsmål" id="export" class="gradebutton">export</div>'
          + '<div title="Importer spørsmål" id="import" class="gradebutton">import</div>'
          + '<div tag="'+wbinfo.containerid+'" title="Rediger QUIZ" id="edquiz" class="gradebutton">REDIGER</div>'
          + '<div id="qlist" class="qlist"></div>'
          + '<div id="importdia" ></div>'
+         + '<div title="Gjenskap beholdere med elevsvar, ikke bruk dersom tillfeldig utvalg" id="regen" class="gradebutton">regen</div>'
          + '<div title="Legg til eksisterende sprsml" id="attach" class="gradebutton">attach</div></div></div>';
   $j("#main").html(s);
-  //MathJax.Hub.Queue(["Typeset",MathJax.Hub,"main"]);
-  //$j.post("/resetcontainer",{ container:wbinfo.containerid});
   $j("#sortable").sortable({placeholder:"ui-state-highlight",update: function(event, ui) {
             var ser = $j("#sortable").sortable("toArray");
             var trulist = [];
@@ -917,7 +921,7 @@ function edqlist() {
      $j.post(mybase+"/resetcontainer",{ container:wbinfo.containerid});
      show_thisweek();
   });
-  /*
+  //*
   $j("#regen").click(function() {
      var group;
      try {
@@ -929,13 +933,12 @@ function edqlist() {
      $j.post(mybase+'/generateforall',{ parentid:wbinfo.parentid, group:group, container:wbinfo.containerid, questlist:showlist}, function(qrender) {
      });
   });
-  */
+  //*/
   $j("#edquiz").click(function() {
      var myid = $j("#"+this.id).attr('tag');
      editquestion(+myid);
   });
   $j("#export").click(function() {
-     //$j.get("/exportcontainer",{ container:wbinfo.containerid});
      window.location.href="/exportcontainer?container="+wbinfo.containerid;
   });
   $j("#import").click(function() {
@@ -1374,14 +1377,15 @@ function editquestion(myid, target) {
            var start = dialog.contopt.start || '';
            var stop = dialog.contopt.stop || '';
            var locked = (dialog.contopt.locked != undefined) ? dialog.contopt.locked : 0;
-           var fasit = (dialog.contopt.locked != undefined) ? dialog.contopt.fasit : 0;
+           var hidden = (dialog.contopt.hidden != undefined) ? dialog.contopt.hidden : 0;
+           var fasit = (dialog.contopt.fasit != undefined) ? dialog.contopt.fasit : 0;
            var skala = dialog.contopt.skala || 'medium';
            var rcount = dialog.contopt.rcount || '15';
            var xcount = dialog.contopt.xcount || '0';
            var antall = dialog.contopt.antall || '10';
            var hintcost = dialog.contopt.hintcost || '0.05';
            var attemptcost = dialog.contopt.attemptcost || '0.1';
-           var trinn = +dialog.contopt.trinn || 0;
+           var trinn = (dialog.contopt.trinn != undefined) ? dialog.contopt.trinn : 0;
            var karak = (dialog.contopt.karak != undefined) ? dialog.contopt.karak : 0;
            var rank = (dialog.contopt.rank != undefined) ? dialog.contopt.rank : 0;
            var randlist = (dialog.contopt.randlist != undefined) ? dialog.contopt.randlist : 0;
@@ -1390,7 +1394,7 @@ function editquestion(myid, target) {
            var komme = (dialog.contopt.komme != undefined) ? dialog.contopt.komme : 1;
            var hints = (dialog.contopt.hints != undefined) ? dialog.contopt.hints : 1;
            var navi = (dialog.contopt.navi != undefined) ? dialog.contopt.navi : 1;
-           var adaptiv = +dialog.contopt.adaptiv || 0;
+           var adaptiv = (dialog.contopt.adaptiv != undefined) ? dialog.contopt.adaptiv : 0;
            var elements = { 
                  defaults:{  type:"text", klass:"copts" }
                , elements:{
@@ -1399,6 +1403,7 @@ function editquestion(myid, target) {
                  , hints:         {  type:"yesno", value:hints }
                  , trinn:         {  type:"yesno", value:trinn }
                  , locked:        {  type:"yesno", value:locked }
+                 , hidden:        {  type:"yesno", value:hidden }
                  , omstart:       {  type:"yesno", value:omstart }
                  , randlist:      {  type:"yesno", value:randlist }
                  , rcount:        {  klass:"copts num4",  value:rcount, depend:{ randlist:1}  } 
@@ -1418,6 +1423,7 @@ function editquestion(myid, target) {
                };
            var res = gui(elements);
            s += 'Instillinger for prøven: <div id="inputdiv">'
+             + '<div title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
              + '<div title="Prøve utilgjengelig før denne datoen">Start {start}</div>'
              + '<div title="Prøve utilgjengelig etter denne datoen">Stop {stop}</div>'
              + '<div title="Velger ut N fra spørsmålslista">Utvalg fra liste {randlist}</div>'
@@ -1705,7 +1711,7 @@ wb.render.normal  = {
               wbinfo.missing[wbinfo.containerid] = missing;
               if (contopt.navi) {
                 gonext = (contopt.navi == "1") ? '' : ' disabled' ;
-                if (wbinfo.missing[wbinfo.containerid] < 1) {
+                if (contopt.navi != "1"  && wbinfo.missing[wbinfo.containerid] < 1) {
                    gonext = '';
                    qql=[ '<div class="question">Besvart - naviger til neste spørsmål.</div>' ];
                    if (qant == qrender.length ) {
@@ -1771,6 +1777,32 @@ wb.render.normal  = {
                 var qtxt = ''
                   switch(qu.qtype) {
                       case 'quiz':
+                          //console.log(qu);
+                          var mycopt = qu.param.contopt;
+                          if (mycopt && mycopt.hidden == "1") {
+                            if (!teaches(userinfo.id,wbinfo.coursename)) {
+                               return '';
+                            }
+                            return '<div class="cont quiz cloaked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          }
+                          var start,stop,elm;
+                          var justnow = new Date();
+                          if (mycopt && mycopt.start) {
+                             elm = mycopt.start.split('/');
+                             start = new Date(elm[2],+elm[1]-1,elm[0]);
+                          }
+                          if (mycopt && mycopt.stop) {
+                             elm = mycopt.stop.split('/');
+                             stop = new Date(elm[2],+elm[1]-1,elm[0]);
+                          }
+                          start = start || justnow - 20000;
+                          stop = stop || justnow + 2000;
+                          if (justnow < start || justnow > stop ) {
+                            return '<div class="cont quiz clock" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          }
+                          if (mycopt && mycopt.locked == "1") {
+                            return '<div class="cont quiz locked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          }
                           return '<div class="cont quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           break;
                       case 'container':
@@ -1817,8 +1849,9 @@ wb.render.normal  = {
                                   vv = chosen[iid];
                                 } 
                                 var ff = fasit[iid] || '';
+                                var ffy = (ff) ? '<span class="fasit">'+unescape(ff)+'</span>' : '';
                                 //ff=ff.replace(/%3A/g,':');
-                                var ret = '<input type="text" value="'+vv+'" /><span class="fasit">'+unescape(ff)+'</span>';
+                                var ret = '<input type="text" value="'+vv+'" />'+ffy;
                                 iid++;
                                 return ret;
                               });
