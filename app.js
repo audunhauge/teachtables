@@ -106,7 +106,7 @@ fs.stat('public/css/'+version,function(err,stat) {
 
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', siteinf.port || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
@@ -208,7 +208,7 @@ app.get(base+'/blocks',                 plans.blocks );
 app.get(base+'/extrax',                 plans.extrax );
 app.get(base+'/yyear',                  plans.yyear );
 app.get(base+'/starblessons',           plans.starblessons );
-app.get(base+'/getallstarblessdate',    plans.getallstarblessdatess);
+app.get(base+'/getallstarblessdates',   plans.getallstarblessdates);
 app.get(base+'/getstarblessdates',      plans.getstarblessdates);
 app.get(base+'/createstarbless',        plans.createstarbless);
 app.get(base+'/savestarbless',          plans.savestarbless);
