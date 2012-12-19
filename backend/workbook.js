@@ -6,10 +6,13 @@
 // get hold of database
 var client = siteinf.client;
 var quiz = require('./quiz').qz;
+var parseJSON = require('./quiz').parseJSON;
 var julian = require('./julian');
 var async = require('async');
 var after = require('./utils').after;
 var db = siteinf.database.db;
+
+
 
 exports.gimmeahint = function(user,query,callback) {
   // gets a hint from quiz.question
@@ -52,6 +55,7 @@ exports.editquest = function(user,query,callback) {
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
+  delete quiz.question[qid];  // remove it from cache
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':
@@ -84,8 +88,9 @@ exports.editquest = function(user,query,callback) {
     	  //console.log(sql,params);
     	  client.query( sql, params,
     			  after(function(results) {
-    				  callback( {ok:true, msg:"updated"} );
     				  delete quiz.question[qid];  // remove it from cache
+    				  callback( {ok:true, msg:"updated"} );
+                      // TODO here we may need to regen useranswer for container
     			  }));
     	  break;
       default:
@@ -573,21 +578,6 @@ exports.getquestion = function(user,query,callback) {
   }));
 }
 
-function parseJSON(str) {
-  // take just about any string - ignore errors
-  if (str && str != '') {
-    str = str.replace(/\n/g,'_&_');
-    try {
-      return JSON.parse(str);
-    } catch(err) {
-      console.log("RENDER JSON PARSE error ",err,str);
-      return {};
-    }
-  } else {
-    return {};
-  }
-
-}
 
 
 
@@ -702,24 +692,32 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   }));
 }
 
-exports.generateforall = function(user,query,callback) {
+var generateforall = exports.generateforall = function(user,query,callback) {
   // generate useranswer for all users
   var container    = +query.container;
   var parentid     = +query.parentid;
   var questlist    = query.questlist ;  // used in renderq - just fetch it here to check
   var group        = query.group;
-  if (user.department == 'Undervisning' ) {
-    console.log("Parent=",parentid);
-    client.query( "delete from quiz_useranswer where cid = $1 and score = 0 and attemptnum = 0 and response = '' ",[ container],
+  var isteach = (user.department == 'Undervisning');
+  if (isteach) {
+    var sql = "delete from quiz_useranswer where (qid =$1) ";
+    delete quiz.containers[container];
+    delete quiz.contq[container];
+    // delete any symbols generated for this container
+    client.query( sql,[container],
     after(function(results) {
-      if (db.memlist[group]) {
-        for (var i=0, l = db.memlist[group].length; i<l; i++) {
-          var enr = db.memlist[group][i];
-          renderq({id:enr},query,function(resp) {
-            //console.log(resp);
-          });
-        }
-      }
+        client.query( "delete from quiz_useranswer where cid = $1 and score = 0 and attemptnum = 0 and response = '' ",[ container],
+        after(function(results) {
+          if (db.memlist[group]) {
+            for (var i=0, l = db.memlist[group].length; i<l; i++) {
+              var enr = db.memlist[group][i];
+              renderq({id:enr},query,function(resp) {
+                //console.log(resp);
+              });
+            }
+          }
+          callback(null);
+        }));
     }));
   }
 }
@@ -738,11 +736,71 @@ var renderq = exports.renderq = function(user,query,callback) {
   var now = justnow.getTime()
   var contopt = {};
   var message = null;
+  var ualist = {};
+  var already = {};  // list of questions with existing answers
+  var retlist = [];  // list to return
   // console.log( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ]);
   client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
   after(function(results) {
       // we now have the container as delivered to the user
       // must get useranswer for container.
+    client.query( "select * from quiz_useranswer where cid = $1 and userid = $2 order by instance",[ container,uid ],
+    after(function(answers) {
+            if (answers && answers.rows) {
+              for (var i=0,l=answers.rows.length; i<l; i++) {
+                var ua = answers.rows[i];
+                var q = quiz.question[ua.qid];
+                var qopts =parseJSON(q.qtext);
+                if (q == undefined) {
+                  continue;  // this response is to a question no longer part of container
+                  // just ignore it
+                }
+                ua.points = q.points;
+                ua.qtype = q.qtype;
+                ua.name = q.name;
+                ua.subject = q.subject;
+                if (!ualist[ua.qid]) {
+                  ualist[ua.qid] = {};
+                }
+                ua.param = parseJSON(ua.param);
+                ua.param.display = unescape(ua.param.display);
+                ua.param.fasit = '';
+                ua.param.cats = '';
+                ua.param.havehints = '';
+                ua.param.contopt = qopts.contopt;   // fetch out the TRUE container-opts
+                // these should track the question AS IS NOW - not as when useranswer generated
+                // other params should stay as generated (dynamic vars etc).
+                // this so that hiding/showing a quiz takes effect immediately
+                if (ua.param.hints) {
+                  // there are hints to be had
+                  // return those already payed for
+                  var hin = ua.param.hints.split('_&_');
+                  ua.param.hints = hin.slice(0,ua.hintcount);
+                  ua.param.havehints = 'y';
+                }
+                if (q.qtype == 'fillin' || q.qtype == 'numeric' ) {
+                  // must blank out options for these as they give
+                  // correct answer
+                  ua.param.options = [];
+                }
+
+                for (var oi in ua.param.options) {
+                   ua.param.options[oi] = unescape(ua.param.options[oi]); 
+                }
+                ua.response = parseJSON(ua.response);
+                ua.param.optorder = '';
+                ualist[ua.qid][ua.instance] = ua;
+                if (ua.attemptnum) {
+                    if (!already[ua.qid]) {
+                      already[ua.qid] = 0;
+                    }
+                    already[ua.qid]++;
+                    // we have existing answer for this question
+                    // if we generate random question-set
+                    // then keep this question if still in list to choose from
+                }
+              }
+            }
       var containerq = results.rows[0];
       if (!containerq) {
         // no container generated yet, make a new one
@@ -821,9 +879,25 @@ var renderq = exports.renderq = function(user,query,callback) {
         // make random list if needed
         //console.log("Contopts = ", contopt);
         var always = []; // list of questions always used
-        if (contopt.xcount && +contopt.xcount > 0) {
+        var fresh = []; // templist with existing answers removed
+        // first check if we have existing answers (attemptnum > 0)
+        // if we have - then use these if they still are on question-list
+        for (var i=0; i< questlist.length; i++) {
+            var q = questlist[i];
+            if (already[q.id]) {
+                // push this question into always
+                always.push(q);
+                already[q.id]--;
+            } else {
+                fresh.push(q);
+            }
+        }
+        questlist = fresh;
+        if (always.length == 0 && contopt.xcount && +contopt.xcount > 0) {
             // the first N questions are to be used no matter what
             // we slice them of
+            // only do this if always is still empty
+            // if not empty - then always contains already answered questions
             var n = +contopt.xcount;
             always = questlist.slice(0,n);
             questlist = questlist.slice(n);
@@ -833,15 +907,15 @@ var renderq = exports.renderq = function(user,query,callback) {
           if (contopt.shuffle && contopt.shuffle == "1") {
             questlist = quiz.shuffle(questlist);
           }
-          if (contopt.rcount && +contopt.rcount > 0 && +contopt.rcount <= questlist.length) {
-             questlist = questlist.slice(0,+contopt.rcount);
+          if (contopt.rcount && +contopt.rcount >= always.length && +contopt.rcount - always.length <= questlist.length) {
+             questlist = questlist.slice(0,+contopt.rcount - always.length);
           }
         }
         questlist = always.concat(questlist);
         if (contopt.shuffle && contopt.shuffle == "1") {
-          // must reshuffle so always list gets mixed in
+          // must reshuffle so _always_ list gets mixed in
           questlist = quiz.shuffle(questlist);
-          console.log("RANDOM QUESTIONS");
+          console.log("RANDOM QUESTIONS",uid);
         }
         // update for next time
         coo.qlistorder = questlist.map(function(e) { return e.id }).join(',');
@@ -853,51 +927,8 @@ var renderq = exports.renderq = function(user,query,callback) {
           after(function(results) {
           }));
       }
+      if (answers && answers.rows) {
 
-    client.query( "select * from quiz_useranswer where cid = $1 and userid = $2 order by instance",[ container,uid ],
-    after(function(results) {
-            if (results && results.rows) {
-              var ualist = {};
-              var retlist = [];  // list to return
-              for (var i=0,l=results.rows.length; i<l; i++) {
-                var ua = results.rows[i];
-                var q = quiz.question[ua.qid];
-                if (q == undefined) {
-                  continue;  // this response is to a question no longer part of container
-                  // just ignore it
-                }
-                ua.points = q.points;
-                ua.qtype = q.qtype;
-                ua.name = q.name;
-                ua.subject = q.subject;
-                if (!ualist[ua.qid]) {
-                  ualist[ua.qid] = {};
-                }
-                ua.param = parseJSON(ua.param);
-                ua.param.display = unescape(ua.param.display);
-                ua.param.fasit = '';
-                ua.param.cats = '';
-                ua.param.havehints = '';
-                if (ua.param.hints) {
-                  // there are hints to be had
-                  // return those already payed for
-                  var hin = ua.param.hints.split('_&_');
-                  ua.param.hints = hin.slice(0,ua.hintcount);
-                  ua.param.havehints = 'y';
-                }
-                if (q.qtype == 'fillin' || q.qtype == 'numeric' ) {
-                  // must blank out options for these as they give
-                  // correct answer
-                  ua.param.options = [];
-                }
-
-                for (var oi in ua.param.options) {
-                   ua.param.options[oi] = unescape(ua.param.options[oi]); 
-                }
-                ua.response = parseJSON(ua.response);
-                ua.param.optorder = '';
-                ualist[ua.qid][ua.instance] = ua;
-              }
               // ensure that we have useranswers for all (question,instance) we display
               // we insert empty ua's as needed
               var missing = [];
@@ -928,29 +959,40 @@ var renderq = exports.renderq = function(user,query,callback) {
                   callback(retlist);
                 }
               });
-            } else {
+      } else {
                 callback(null);
                 console.log('UNEXPECTED, SURPRISING .. renderq found no useranswers');
                 // we should not come here as the select should return atleast []
-            }
-            /// handle need for callback before inserting
-              function loopWait(i,cb) {
+      }
+      /// handle need for callback before inserting
+      function loopWait(i,cb) {
                   if (i < questlist.length) {
                     var qu = questlist[i];
                     if (qu == undefined) {
                       // forgot to delete useranswer?
                       console.log("HOW DID THIS HAPPEN?",questlist,i);
                     }
-                    if (!ualist[qu.id] || !ualist[qu.id][i]) {
+                    if (ualist[qu.id] && ualist[qu.id][i]) {
+                      retlist[i] = ualist[qu.id][i];
+                      loopWait(i+1,cb);
+                    } else if (ualist[qu.id]) {
+                       // we have the question, but with another index
+                       // this may happen if 1: shuffle  2:duplicated question (allowed)
+                       // easy way to make a quiz - dynamic question repeated n-times.
+                       // gives n  similar questions with different params (calculated values)
+                       for (var iiixi in ualist[qu.id]) {
+                         retlist[i] = ualist[qu.id][iiixi];
+                         delete ualist[qu.id][iiixi];
+                         loopWait(i+1,cb);
+                         break;
+                       }
+                    } else {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
                       quiz.generateParams(qu,user.id,i,container,function(params) {
                         missing.push( " ( "+qu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
                         loopWait(i+1,cb);
                       });
-                    } else {
-                      retlist[i] = ualist[qu.id][i];
-                      loopWait(i+1,cb);
                     }
                   } else {
                     cb();
@@ -1133,7 +1175,7 @@ exports.getcontainer = function(user,query,callback) {
   if (container && quiz.contq[container]) {
      // we have the list of questions
      callback(quiz.contq[container]);
-     //console.log("USING CONTAINER CACHE");
+     //console.log("USING CONTAINER CACHE",container,quiz.contq[container]);
      return;
   }
   var isteach = (user.department == 'Undervisning');
@@ -1263,11 +1305,11 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
       if (usas[res.userid] && usas[res.userid][qid] && usas[res.userid][qid][i] != undefined) {
         var uu = usas[res.userid][qid][i];
         score += +uu.score;
-        tot += quiz.question[qid].points;   
+        if (quiz.question[qid]) tot += quiz.question[qid].points;   
         if (uu.time > fresh) fresh = uu.time;
       } else {
         try {
-          console.log("NOTFOUND ",qid,usas[res.userid][qid],i);
+          console.log("NOTFOUND ",qid,res.userid,qid,i);
         } catch(err) {
           // console.log("REALLY not there ",qid,i);
         }
