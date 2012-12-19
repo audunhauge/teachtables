@@ -1777,7 +1777,7 @@ wb.render.normal  = {
                 var qtxt = ''
                   switch(qu.qtype) {
                       case 'quiz':
-                          //console.log(qu);
+                          console.log(qu);
                           var mycopt = qu.param.contopt;
                           if (mycopt && mycopt.hidden == "1") {
                             if (!teaches(userinfo.id,wbinfo.coursename)) {

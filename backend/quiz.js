@@ -10,6 +10,21 @@ var pro = require('uglify-js').uglify;
 var jstat = require('./jstat').jstat;
 
 
+var parseJSON = exports.parseJSON = function (str) {
+  // take just about any string - ignore errors
+  if (str && str != '') {
+    str = str.replace(/\n/g,' ');
+    try {
+      return JSON.parse(str);
+    } catch(err) {
+      console.log("RENDER JSON PARSE error ",err,str);
+      return {};
+    }
+  } else {
+    return {};
+  }
+
+}
 
 
 function prep(code) {
@@ -318,8 +333,12 @@ var qz = {
              break;
            case 'flot':
                // use jquery flot functions to plot graphs
+               // TODO fix this - pick out width and height
+               var ppa = {};
+               var w = (+ppa.width > 50) ? +ppa.width : 200;
+               var h = (+ppa.height > 50) ? +ppa.height : 200;
                console.log("Generating flot graph",idd);
-               hist = '<div id="hist'+idd+'" style="width:200px; height:200px;" ></div><script>';
+               hist = '<div id="hist'+idd+'" style="width:'+w+'px; height:'+h+'px;" ></div><script>';
                hist += " $j.plot($j('#hist" + idd + "'), "+params+" );";
                hist +=  '</script>';
                return hist;
@@ -678,19 +697,15 @@ var qz = {
            // you can use da6 db6 dc6 .. dz6
            // rolled dice are stored in symb.dice
 	   exp = exp.replace(/(d[a-z][0-9]+)/g,function(m,ch) {
-               console.log("EXP=",exp,m,ch);
                if (symb.dice[ch]) {
-                    console.log("DICE EXP=",symb.dice);
                     return symb.dice[ch];
                } else {
                     var dd = Math.floor(+ch.substr(2));
                     symb.dice[ch] = 1 + Math.floor(Math.random()*dd);
-                    console.log("New DICE EXP=",symb.dice);
                     return symb.dice[ch];
                }
 	   });
 	   with(symb){ calc = eval('('+exp+')') };
-           console.log("Evaluated ",exp," got ",calc);
            return calc;
          } catch(err) {
             return exp;
