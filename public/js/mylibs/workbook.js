@@ -1748,6 +1748,16 @@ wb.render.normal  = {
                 var param = qu.param;
                 param.display = param.display.replace(/«/g,'"');
                 param.display = param.display.replace(/»/g,"'");
+                // don't show below the word FASIT if it exists in the display text
+                // this should be done on server - so user never recieves FASIT before he should
+                // this is NOT DEPENDENT on fasit setting ( shows correct answers )
+                // After FASIT you can display a graph, give some explanation
+                // typically not give correct answer - but an explanation
+                var parts = param.display.split(/FASIT/);
+                // fasit.length != 0 if displaying results for a user
+                if ( fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) ) {
+                    param.display = parts[0];
+                }
                 score = Math.round(score*100)/100;
                 var delta = score || 0;
                 sscore.userscore += delta;
@@ -1777,7 +1787,6 @@ wb.render.normal  = {
                 var qtxt = ''
                   switch(qu.qtype) {
                       case 'quiz':
-                          console.log(qu);
                           var mycopt = qu.param.contopt;
                           if (mycopt && mycopt.hidden == "1") {
                             if (!teaches(userinfo.id,wbinfo.coursename)) {
@@ -1885,7 +1894,6 @@ wb.render.normal  = {
                                 var ret = '';
                                 var fee = feedback[iid];
                                 if (chosen[iid]) {
-                                  console.log(m,fee,chosen[iid]);
                                   for (var j=0, m = chosen[iid].length; j<m; j++) {
                                       var opt = chosen[iid][j];
                                       var oo = 'a';
@@ -1921,6 +1929,9 @@ wb.render.normal  = {
                                   qtxt += '<li id="ddm'+qu.qid+'_'+qi+'_'+i+'" class="dragme">' + opt + '</li>';
                               }
                               qtxt += '</ul>';
+                              if (fasit[0] && qu.param && qu.param.fasit) {
+                                 qtxt += '<ul class="sequence"><li>'+qu.param.fasit.join('<li>') + '</ul>'; 
+                              }
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 
                           } else {
@@ -1938,8 +1949,10 @@ wb.render.normal  = {
                                 if (chosen[iid]) {
                                   ret = chosen[iid];
                                 } 
+                                var ff = fasit[iid] || '';
+                                var ffy = (ff) ? ' <span class="fasit">'+unescape(ff)+'</span>' : '';
                                 iid++;
-                                return ret;
+                                return ret+ffy;
                               });
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext dragdropq">'+adjusted;
                           if (!param.donotshow && param.options && param.options.length) {
@@ -1959,7 +1972,7 @@ wb.render.normal  = {
                               for (var i=0, l= param.options.length; i<l; i++) {
                                   var opt = param.options[i].split(',')[0];
                                   if (opt == ' ') continue;
-                                  qtxt += '<span id="ddm'+qu.qid+'_'+qi+'_'+i+'" class="dragme">' + opt + '</span>';
+                                  qtxt += '<span id="ddm'+qu.qid+'_'+qi+'_'+i+'" class="dragme">' + opt + '</span>' ;
                               }
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 

@@ -334,9 +334,12 @@ var qz = {
            case 'flot':
                // use jquery flot functions to plot graphs
                // TODO fix this - pick out width and height
-               var ppa = {};
-               var w = (+ppa.width > 50) ? +ppa.width : 200;
-               var h = (+ppa.height > 50) ? +ppa.height : 200;
+               if (text.indexOf('replot') >= 0)  {
+                  tegn = '<div id="redraw'+qid+'_'+instance+'" class="gradebutton">Tegn</div>';
+               } 
+               var w=200,h=200;
+               params.replace(/height:([0-9]+)/gm,function(m,a) { h = a; } );
+               params.replace(/width:([0-9]+)/gm,function(m,a) { w = a; } );
                console.log("Generating flot graph",idd);
                hist = '<div id="hist'+idd+'" style="width:'+w+'px; height:'+h+'px;" ></div><script>';
                hist += " $j.plot($j('#hist" + idd + "'), "+params+" );";
@@ -344,55 +347,55 @@ var qz = {
                return hist;
              break;
            case 'plot':
-                if (text.indexOf('replot') >= 0)  {
+               if (text.indexOf('replot') >= 0)  {
                   tegn = '<div id="redraw'+qid+'_'+instance+'" class="gradebutton">Tegn</div>';
-                } 
-                var elm = [];
-                params.replace(/{([^ª]+?)}/mg,function(mm,cc) {
-                     elm.push(cc);
-                  });
-                if (elm.length < 1) {
-                  console.log("expected 1 groups of {} - found ",elm.length);
-                  return hist;
-                }
-                //dataprovider += 'var data=['+elm[0]+'];\n';
-                hist = '<div id="hist'+idd+'">'+tegn+'<div class="graph"></div></div><script>' + udata;
-                var param = (elm[1]) ? ','+elm[1] : '';
-                // subst param x for t without breaking exp(t)
-                var fulist = elm[0].replace(/\r/g,' ').replace(/\n/g,' ');
-                fulist = fulist.replace(/pow\(([^,)]+),/gm,function(m,a) { return 'pow('+a+'©'; } );
-                fulist = fulist.replace(/,/gm,'ð').replace(/©/gm,',');
-                fulist = normalizeFunction(fulist);
-                var fus = fulist.split('ð');
-                var ro = 'function (t) { with(Math) { return ' + fus.join(' }}, function (t) { with(Math) { return ') + '}}';
-                // hist += 'function fu'+idd+'(t) { with(Math) { return '+fu+' } };\n';
-                hist += 'getudata'+qid+'_'+instance+'();var param = { fu:['+ro+'] ,  target:"#hist'+idd+'"'+param+' };\n'
-                hist += '$j("#redraw'+qid+'_'+instance+'").click("",function() { fubug("redraw"); getudata'+qid+'_'+instance+'();var param = { fu:['
-                            +ro+'] ,  target:"#hist'+idd+'"'+param+' }; lineplot(param) });lineplot(param)\n</script>';
-                //console.log(hist);
-                return hist;
+               } 
+               var elm = [];
+               params.replace(/{([^ª]+?)}/mg,function(mm,cc) {
+                    elm.push(cc);
+                 });
+               if (elm.length < 1) {
+                 console.log("expected 1 groups of {} - found ",elm.length);
+                 return hist;
+               }
+               //dataprovider += 'var data=['+elm[0]+'];\n';
+               hist = '<div id="hist'+idd+'">'+tegn+'<div class="graph"></div></div><script>' + udata;
+               var param = (elm[1]) ? ','+elm[1] : '';
+               // subst param x for t without breaking exp(t)
+               var fulist = elm[0].replace(/\r/g,' ').replace(/\n/g,' ');
+               fulist = fulist.replace(/pow\(([^,)]+),/gm,function(m,a) { return 'pow('+a+'©'; } );
+               fulist = fulist.replace(/,/gm,'ð').replace(/©/gm,',');
+               fulist = normalizeFunction(fulist);
+               var fus = fulist.split('ð');
+               var ro = 'function (t) { with(Math) { return ' + fus.join(' }}, function (t) { with(Math) { return ') + '}}';
+               // hist += 'function fu'+idd+'(t) { with(Math) { return '+fu+' } };\n';
+               hist += 'getudata'+qid+'_'+instance+'();var param = { fu:['+ro+'] ,  target:"#hist'+idd+'"'+param+' };\n'
+               hist += '$j("#redraw'+qid+'_'+instance+'").click("",function() { fubug("redraw"); getudata'+qid+'_'+instance+'();var param = { fu:['
+                           +ro+'] ,  target:"#hist'+idd+'"'+param+' }; lineplot(param) });lineplot(param)\n</script>';
+               //console.log(hist);
+               return hist;
                break;
            case 'vfield':
-                if (text.indexOf('replot') >= 0)  {
+               if (text.indexOf('replot') >= 0)  {
                   tegn = '<div id="redraw" class="gradebutton">Tegn</div>';
-                } 
-                var elm = [];
-                params.replace(/{([^ª]+?)}/mg,function(mm,cc) {
+               } 
+               var elm = [];
+               params.replace(/{([^ª]+?)}/mg,function(mm,cc) {
                      elm.push(cc);
                   });
-                if (elm.length < 1) {
-                  console.log("expected 1 groups of {} - found ",elm.length);
-                  return hist;
-                }
-                hist = '<div id="hist'+idd+'">'+tegn+'<div class="graph"></div></div><script>' + udata;
-                var param = (elm[1]) ? ','+elm[1] : '';
-                // subst param x for t without breaking exp(t)
-                var fulist = elm[0].replace(/\r/g,' ').replace(/\n/g,' ');
-                fulist = normalizeFunction(fulist,1);
-                var fus = fulist;
-                var ro = 'function (x,y) { with(Math) { return ' + fus + '}}';
-                hist += 'getudata();var param = { fu:'+ro+' ,  target:"#hist'+idd+'"'+param+' };\n'
-                hist += '$j("#redraw").click("",function() { getudata();var param = { fu:'+ro
+               if (elm.length < 1) {
+                 console.log("expected 1 groups of {} - found ",elm.length);
+                 return hist;
+               }
+               hist = '<div id="hist'+idd+'">'+tegn+'<div class="graph"></div></div><script>' + udata;
+               var param = (elm[1]) ? ','+elm[1] : '';
+               // subst param x for t without breaking exp(t)
+               var fulist = elm[0].replace(/\r/g,' ').replace(/\n/g,' ');
+               fulist = normalizeFunction(fulist,1);
+               var fus = fulist;
+               var ro = 'function (x,y) { with(Math) { return ' + fus + '}}';
+               hist += 'getudata();var param = { fu:'+ro+' ,  target:"#hist'+idd+'"'+param+' };\n'
+               hist += '$j("#redraw").click("",function() { getudata();var param = { fu:'+ro
                         + ' ,  target:"#hist'+idd+'"'+param+' }; vfield(param) });vfield(param)\n</script>';
                 //console.log(hist);
                 return hist;
