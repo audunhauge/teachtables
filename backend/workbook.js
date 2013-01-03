@@ -1495,6 +1495,7 @@ exports.makeWordIndex = function(user,query,callback) {
   var subjects = {};   // distinct subjects with qcount
   var questions = {};
   var containers = {};
+  // modified questions 
   client.query("select q.id from quiz_question q  left join quiz_question qp "
                + " on (q.parent = qp.id) where q.status != 9 and q.parent != 0 and q.modified < qp.modified and q.qtext != qp.qtext and q.teachid=$1",[teachid],
     after(function(unsynced) {

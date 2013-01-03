@@ -1,4 +1,24 @@
 
+#teachbox  { 
+    position:relative;
+}
+#teachbox > ul { 
+  display:none; 
+  position:absolute;
+  top:-10px;
+  left:-10px;
+  width:200px;
+  height:150px;
+  background:white;
+  border:solid black 1px;
+  list-style: none;
+  overflow:auto;
+}
+#teachbox:hover > ul { display:block; }
+
+ul.teach {
+    display:none;
+}
 
 div.clock {
   color:gray !important;
