@@ -1487,7 +1487,8 @@ shortlist = ' akkurat aldri alene all alle allerede alltid alt alts_a andre anne
 
 exports.makeWordIndex = function(user,query,callback) {
   var teacher = +query.teacher;
-  var wordlist = {};
+  var wordlist = {  a:{}, b:{}, c:{}, d:{}, e:{}, f:{}, g:{},h:{}, i:{}, j:{}, k:{}, l:{}, m:{}, n:{}, o:{}, p:{}, q:{}, r:{}, s:{}, t:{}, u:{}, v:{},w:{}, x:{}, y:{}, z:{}, A:{} };
+  var wlist = [];      // wordlist as sorted array
   var relations = {};  // questions sharing words
   var teachlist;       // list of teachers with questions
   var close = [];      // questions sharing "many" words | many > 7
@@ -1549,17 +1550,20 @@ exports.makeWordIndex = function(user,query,callback) {
                             if (skipwords[wo]) {
                               return '';
                             }
-                            wcount++;
                             wo = wo.replace(/_a/g,'å').replace(/_o/g,'ø').replace(/_e/g,'æ');
-                            if (wordlist[wo]) {
-                              wordlist[wo].count ++;
-                              if (!wordlist[wo].qids[qu.id]) {
-                                wordlist[wo].qcount ++;
-                                wordlist[wo].qids[qu.id] = 1;
+                            if (wo.length < 3) return '';
+                            wcount++;
+                            var w0 = wo.substr(0,1);
+                            if (!wordlist[w0]) w0 = 'A';
+                            if (wordlist[w0][wo]) {
+                              wordlist[w0][wo].count ++;
+                              if (!wordlist[w0][wo].qids[qu.id]) {
+                                wordlist[w0][wo].qcount ++;
+                                wordlist[w0][wo].qids[qu.id] = 1;
                               }
                             } else {
-                              wordlist[wo] = { count:1, qcount:1, qids:{} };
-                              wordlist[wo].qids[qu.id] = 1;
+                              wordlist[w0][wo] = { count:1, qcount:1, qids:{} };
+                              wordlist[w0][wo].qids[qu.id] = 1;
                             }
                             return '';
                           });
@@ -1569,8 +1573,10 @@ exports.makeWordIndex = function(user,query,callback) {
                       }
                     }
                     console.log("Got all words");
-                    for (var wo in wordlist) {
-                      var w = wordlist[wo];
+                    for (var w0 in wordlist) {
+                     var ww = wordlist[w0];
+                     for (var wo in ww) {
+                      var w = ww[wo];
                       if (w.count > 1 && w.qcount > 1 ) {
                         //console.log(wo,w);
                          for (q in w.qids) {
@@ -1586,8 +1592,24 @@ exports.makeWordIndex = function(user,query,callback) {
                            }
                          }
                       }
+                     }
                     }
-                    console.log("Got all relations");
+                    /*
+                    var alfab = 'abcdefghijklmnopqrstuvwxyzA'.split('');
+                    for (var w0 in alfab) {
+                     var w1 = alfab[w0];
+                     var ww = wordlist[w1];
+                     var wwlist = [];
+                     for (var wo in ww) {
+                         var w = ww[wo];
+                         w.w = wo;
+                         wwlist.push(w);
+                     }
+                     wwlist.sort(function(a,b) {  var r = a.w.substr(0,3).localeCompare(b.w.substr(0,3)); return r ? r : +b.qcount - +a.qcount;  }  )
+                     wlist = wlist.concat(wwlist);
+                    }
+                    */
+                    console.log("Sorted wordlist "+wlist.length+" words.");
                     var already = {};  // only keep one side of a dual relation
                     for (q in relations) {
                       var rr = relations[q];

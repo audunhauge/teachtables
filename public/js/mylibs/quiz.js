@@ -40,6 +40,7 @@ var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence nume
 var mylink;
 var orbits,
     wordobj,
+    tlist,             // list of teachers to show questions for
     unsynced,          // questions out of sync with parent
     teachlist,         // list of teachers with questions (for copying)
     teachnames,        // names of teachers with questions
@@ -290,7 +291,8 @@ function  setupworld(data) {
              $j("#rapp").html("Du har ingen spørsmål, er ikke logget inn eller er ikke lærer");
              return;
           }
-          $j("#rapp").html("Starter arbeidet");
+           
+          tlist = 0;   // only show questions that I have created myself
 
           qdata = data;
           questions = data.questions;
@@ -302,8 +304,9 @@ function  setupworld(data) {
           for (var qq in quizz) {
             quizlist.push( { label:questions[qq].name.substr(0,25), value:qq } );
           }
-          //console.log(quizz);
+          console.log( userinfo.config.subscription);
           teachlist = data.teachlist.filter( function (e) { return database.teachers[e.teachid] } );  // remove not teachers
+          teachlist = teachlist.filter( function (e) { return userinfo.config.subscription[e.teachid]; });
           teachnames = teachlist.map( function (e) { var t = database.teachers[e.teachid]; return t ? t.firstname + ' ' + t.lastname : '' } );  // namelist
           teachids = teachlist.map( function (e) { return e ? e.teachid : 0 });
           teachlist = teachlist.map( function (e) { return {label:database.teachers[e.teachid].username, value:e.teachid} ; } );  // convert to label,value
@@ -312,7 +315,6 @@ function  setupworld(data) {
           console.log("teachids",teachids);
           console.log( randomColors(teachids.length + 1)) ;
           teachcolors.range( randomColors(teachids.length + 1)) ;
-          tellme("Behandler lista");
 
 
           orbits = data.orbits;
@@ -326,35 +328,43 @@ function  setupworld(data) {
           }
           taglist.sort();
           subjects = data.subjects;
+          // default to showing largest subject with less than 100 questions
           var most = 0;
           subjectArray = [];
           for (var s in subjects) {
             subjectArray.push(s);
-            if (subjects[s] > most) {
+            if (most == 0 || (subjects[s] < 100 && subjects[s] > most)) {
               most = subjects[s];
               qparam.subj = s;
             }
           }
           //console.log(tags);
-          for (var w in wordobj) {
-             var wo = wordobj[w];
-             wo.w = w;
-             wordlist.push(wo);
+          var alfab = 'abcdefghijklmnopqrstuvwxyzA'.split('');
+          for (var w0 in alfab) {
+              var w1 = alfab[w0];
+              var ww = wordobj[w1];
+              var wwlist = [];
+              for (var wo in ww) {
+                  var w = ww[wo];
+                  w.w = wo;
+                  wwlist.push(w);
+              }
+              //wwlist.sort(function(a,b) {  var r = a.w.substr(0,3).localeCompare(b.w.substr(0,3)); return r ? r : +b.qcount - +a.qcount;  }  )
+              wwlist.sort();
+              wordlist = wordlist.concat(wwlist);
           }
-          tellme("Sorterer  Relasjoner");
+
           relations = data.relations;
           relations.sort(function(b,a) {return +a[0] - +b[0]; } );
           // relations is now [ samewordcount,question1,question2 ]
           //wordlist.sort(function(a,b) { return +b.qcount - +a.qcount; });
-          tellme("Sorterer  Ordlista "+wordlist.length+" ord");
-          wordlist.sort(function(a,b) {  var r = a.w.substr(0,3).localeCompare(b.w.substr(0,3)); return r ? r : +b.qcount - +a.qcount;  }  )
-          tellme("Viser  Ordlista ");
+          //tellme("Sorterer  Ordlista "+wordlist.length+" ord");
+          //wordlist.sort(function(a,b) {  var r = a.w.substr(0,3).localeCompare(b.w.substr(0,3)); return r ? r : +b.qcount - +a.qcount;  }  )
           for (var w in wordlist) {
              var wo = wordlist[w];
              words += '<span class="keyword">'+wo.w + '</span> ' + wo.qcount + ', ';
           }
           $j("#wordlist").html(words);
-          tellme("Vasker data");
           makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
           show_unsynced();   // show questions not in sync with parent
           startup = false;
@@ -381,8 +391,14 @@ function makeForcePlot(filter,limit,keyword,subj) {
           $j("#limitbox").html(sel.limit);
           $j("#joybox").html(sel.joy);
           $j("#subjbox").html(sel.subj);
-          var st = teachnames.map( function (e,i) { var tid = teachids[i]; var co = teachcolors(tid); return '<span style="color:'+co+'">'+e+'</span>'; });
+          var st = teachnames.map( function (e,i) { var tid = teachids[i]; var co = teachcolors(tid); return '<span class="tti" id="ti'+tid+'" style="color:'+co+'">'+e+'</span>'; });
           $j("#teachbox").html('TEACH:<ul><li>'+st.join('</li><li>')+'</li></ul>' );
+          $j("#teachbox").undelegate(".tti","click");
+          $j("#teachbox").delegate(".tti","click", function() {
+                var mytid = this.id.substr(2);
+                tlist = mytid;
+                makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
+              });
           $j("#joy").change(function() {
                 qparam.joy = $j("#joy option:selected").text();
               });
@@ -440,7 +456,8 @@ function makeForcePlot(filter,limit,keyword,subj) {
           $j("#choosen").delegate(".keyword","click", function() {
                 var word = $j(this).text();
                 qparam.keyword = word;
-                var matchkey = wordobj[qparam.keyword];
+                var w0 = word.substr(0,1);
+                var matchkey = wordobj[w0][qparam.keyword];
                 var qmatched = {};
                 if (matchkey) {
                   qmatched = matchkey.qids;
@@ -467,6 +484,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
              if (re[0] > +limit) {
                var q = questions[re[1]]; 
                if (!q || filter != 'all' && q.qtype != filter) continue;
+               if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
                // if (subj != 'all' && q.subject != subj) continue;
                if (subj == 'empty') {
                  if (q.subject != undefined && q.subject != '') continue;
@@ -474,22 +492,24 @@ function makeForcePlot(filter,limit,keyword,subj) {
                var q = questions[re[2]]; 
                if (!q) continue;
                if (filter != 'all' && q.qtype != filter) continue;
+               if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
                links.push({ source:""+re[1], target:""+re[2], fat:re[0], type:'strong' } )
                used[re[1]] = 1;
                used[re[2]] = 1;
              }
           }
-          tellme("Bygger relasjoner");
           for (var i=0; i < relations.length; i+=1) {
              var re = relations[i];
              var q = questions[re[1]]; 
              if (!q || filter != 'all' && q.qtype != filter) continue;
+             if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
              if (subj == 'empty') {
                if (q.subject != undefined && q.subject != '') continue;
              } else if (subj != 'all' && q.subject != subj) continue;
              var q = questions[re[2]]; 
              if (!q || filter != 'all' && q.qtype != filter) continue;
              if (subj != 'all' && q.subject != subj) continue;
+             if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
              if (!used[re[1]] || !used[re[2]] ) {
                links.push({ source:""+re[1], target:""+re[2], fat:re[0], type:'weak' } )
                used[re[1]] = 1;
@@ -506,6 +526,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
           for (var qid in questions) {
             if (used[qid]) continue;
             var q = questions[qid];
+            if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
             if (subj == 'empty') {
                if (q.subject != undefined && q.subject != '') continue;
             } else if (subj != 'all' && q.subject != subj) continue;
@@ -519,7 +540,6 @@ function makeForcePlot(filter,limit,keyword,subj) {
                      + '<li>JAdda'
                      + '</ul>';
           $j("#info").html(helpinfo);
-          tellme("Linker questions");
 
           // Compute the distinct nodes from the links.
           links.forEach(function(link) {
@@ -566,7 +586,6 @@ function makeForcePlot(filter,limit,keyword,subj) {
               .attr("height", h);
 
 
-          tellme("Tegner force-plot");
           var path = svg.append("svg:g").selectAll("path")
               .data(force.links())
             .enter().append("svg:path")
@@ -630,7 +649,7 @@ function quizDemo() {
             + 'Subject:<span id="subjbox"></span>'
             + 'Filter:<span id="filterbox"></span>'
             + 'Limit:<span id="limitbox"></span>'
-            + '<p>Teacher:<span id="teachbox"></span>'
+            + 'Teacher:<span id="teachbox"></span><br>'
             + 'Quiz:<span id="quizbox"></span>'
             + 'Tags:<span id="tagbox"></span>'
             + 'Join:<span id="joybox"></span>'

@@ -86,7 +86,7 @@ console.log(db.version);
 // check that we have a symlink for javascipt libraries
 fs.stat('public/js/'+version,function(err,stat) {
   if (err) {
-    fs.symlink('.', 'public/js/' + version, function(err) {
+    fs.symlink('mylibs', 'public/js/' + version, function(err) {
       if (err) {
         console.log(err);
       }
