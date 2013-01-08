@@ -59,6 +59,8 @@ var express = require('express')
   , meetings = require('./routes/meetings')
   , tests = require('./routes/tests')
   , workbook = require('./routes/workbook')
+  , show = require('./routes/show')
+  , starb = require('./routes/starb')
   , plans = require('./routes/plans')
   , user = require('./routes/user')
   , timetables = require('./routes/timetables')
@@ -131,10 +133,11 @@ app.configure('development', function(){
 */
 app.get(base,                           routes.index);                                // gives start-page
 app.get(base+'/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
-app.get(base+'/gateway',                routes.gateway);            // get basic info - name of studs,teachers, timetables
 app.get(base+'/getsql',                 routes.getsql);          
 app.get(base+'/freedays',               routes.freedays);          
 app.get(base+'/getexams',               routes.getexams);          
+app.get(base+'/plain',                  routes.plain);              // simplified overview
+app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
 
 app.post(base+'/editcourse',             routes.editcourse);            
 app.post(base+'/edituser',               routes.edituser);           
@@ -189,7 +192,6 @@ app.get(base+'/acceptmeet',             meetings.acceptmeet );
 app.get(base+'/reserv',                 meetings.reserv );
 app.get(base+'/makereserv',             meetings.makereserv );
 app.get(base+'/getabsent',              meetings.getabsent );
-app.get(base+'/attendance',             meetings.attendance );
 app.post(base+'/save_excursion',        meetings.save_excursion );
 app.post(base+'/save_absent',           meetings.save_absent );
 
@@ -207,12 +209,6 @@ app.get(base+'/save_vurd',              plans.save_vurd );
 app.get(base+'/blocks',                 plans.blocks );
 app.get(base+'/extrax',                 plans.extrax );
 app.get(base+'/yyear',                  plans.yyear );
-app.get(base+'/starblessons',           plans.starblessons );
-app.get(base+'/getallstarblessdate',    plans.getallstarblessdates);
-app.get(base+'/getstarblessdates',      plans.getstarblessdates);
-app.get(base+'/createstarbless',        plans.createstarbless);
-app.get(base+'/savestarbless',          plans.savestarbless);
-app.get(base+'/killstarbless',          plans.killstarbless);
 app.post(base+'/modifyplan',            plans.modifyplan );
 app.post(base+'/save_simple',           plans.save_simple );
 app.post(base+'/savehd',                plans.savehd );
@@ -229,6 +225,27 @@ app.get(base+'/alltests',               tests.alltests);            // all tests
 app.get(base+'/save_test',              plans.save_test );
 app.get(base+'/savehd',                 plans.savehd );
 
+// shows - tickets  
+// get shows and sell tickets
+app.post(base+'/buytickets',          show.buytickets);            
+app.post(base+'/editshow',            show.editshow );
+app.get(base+'/tickets',              show.tickets );
+app.get(base+'/show',                 show.show );                  // get list of shows for this user
+
+app.get(base+'/starb',                  starb.starb);                 // start page for study time
+app.get(base+'/attendance',             starb.attendance );
+app.get(base+'/starblessons',           starb.starblessons );
+app.get(base+'/getallstarblessdates',   starb.getallstarblessdates);
+app.get(base+'/getstarblessdates',      starb.getstarblessdates);
+app.get(base+'/createstarbless',        starb.createstarbless);
+app.get(base+'/savestarbless',          starb.savestarbless);
+app.get(base+'/killstarbless',          starb.killstarbless);
+app.get(base+'/elevstarb',              starb.elevstarb);                 
+app.get(base+'/fjernelev',              starb.fjernelev);           
+app.get(base+'/regstud',                starb.regstud);              
+app.get(base+'/teachstarb',             starb.teachstarb);       
+app.get(base+'/starbkey',               starb.starbkey);          
+app.get(base+'/ipad ',                  starb.ipad );               
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

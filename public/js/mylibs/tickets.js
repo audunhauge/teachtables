@@ -51,7 +51,7 @@ function editshow(userid) {
         $j(".resme").click(function(event) {
           event.stopPropagation()
           myid = $j(this).attr('id');
-          showEditor(userid,mylist[myid],'rightside',students,'institution');
+          showEditor(userid,mylist[myid],'rightside',students,'department');
         });
     });
 }
@@ -84,7 +84,9 @@ function showEditor(userid,myshow,targetdiv,ulist,tabb) {
               chosen[uid] = 0;
           }
       }
-      studChooser("#chooser",choosefrom,chosen,tabb);
+      var fieldlist = { 'firstname':1,'lastname':1 };
+      fieldlist[tabb] = 1;
+      studChooser("#chooser",choosefrom,chosen,tabb,fieldlist);
       $j("#chooser").undelegate(".tnames","click");
       $j("#chooser").delegate(".tnames","click",function() {
          var stuid = +this.id.substr(2);
@@ -107,7 +109,7 @@ function showEditor(userid,myshow,targetdiv,ulist,tabb) {
         + '   <tr><th>Showname</th><td><input type="text" name="showname" id="showname" value="'+myshow.name+'"></td></tr>'
         + '   <tr><th>ShowTime</th><td><input type="text" name="showtime" id="showtime" value="'+myshow.showtime+'"></td></tr>'
         + '   <tr><th>PriceNames</th><td><input type="text" name="pricenames" id="pricenames" value="'+myshow.pricenames+'"></td></tr>'
-        + '   <tr><th>AuthList</th><td><input disabled="disabled" type="text" name="authlist" id="authlist" value="'+myshow.authlist+'"></td></tr>'
+        + '   <tr><th>AuthList</th><td><input type="text" name="authlist" id="authlist" value="'+myshow.authlist+'"></td></tr>'
         + '   <tr><th>AuthList</th><td><span id="aulist">'+aulist+'</span></td></tr>'
         + '   <tr><td><div class="button" id="update">Oppdater</div></td>'
         + '       <td><div title="Velg fra teach eller stud" class="button" id="toggle">TeachStud</div></td>'
@@ -129,7 +131,7 @@ function showEditor(userid,myshow,targetdiv,ulist,tabb) {
     $j("#toggle").click(function() {
           showstate = (showstate + 1) % 2;
           if (showstate == 0) {
-            showEditor(userid,myshow,targetdiv,students,'institution');
+            showEditor(userid,myshow,targetdiv,students,'department');
           } else {
             showEditor(userid,myshow,targetdiv,teachers,'institution');
           }

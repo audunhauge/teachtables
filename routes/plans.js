@@ -31,67 +31,6 @@ exports.yyear = function(req, res) {
     });
 };
 
-exports.starblessons = function(req,res) {
-    // returns list of all starblessons
-    // a starblesson is stored like this
-    //  id      | julday  | userid | teachid | roomid | courseid | eventtype | day | slot | class | name  |  value
-    //  xxxx    |         |        |   10111 |     56 |          | starbless |   2 |    0 | 0     |       | Kurs i flash
-    //          | jd1     |        |   10111 |     56 |   xxxx   | less      |     |      |       |       | 
-    //          | jd2     |        |   10111 |     56 |   xxxx   | less      |     |      |       |       | 
-    if (req.session.user && req.session.user.isadmin) {
-      plans.getstarbless(req.session.user, req.query, function(data) {
-        res.send(data);
-      });
-    } else {
-      res.send(null);
-    }
-};
-
-exports.getallstarblessdates = function(req,res) {
-      // get all starb-lessons
-      plans.getallstarblessdates(req.session.user, req.query, function(data) {
-        res.send(data);
-      });
-};
-
-exports.getstarblessdates = function(req,res) {
-      // for specific teacher
-      plans.getstarblessdates(req.session.user, req.query, function(data) {
-        res.send(data);
-      });
-};
-
-exports.createstarbless =  function(req,res) {
-    if (req.session.user && req.session.user.isadmin) {
-      plans.createstarbless(req.session.user, req.query, function(data) {
-        res.send(data);
-      });
-    } else {
-      res.send(null);
-    }
-};
-
-
-exports.savestarbless = function(req,res) {
-    if (req.session.user && req.session.user.isadmin) {
-      plans.savestarbless(req.session.user, req.query, function(data) {
-        res.send(data);
-      });
-    } else {
-      res.send(null);
-    }
-};
-
-exports.killstarbless = function(req,res) {
-    if (req.session.user && req.session.user.isadmin) {
-      plans.savestarbless(req.session.user, req.query, function(data) {
-        res.send(data);
-      });
-    } else {
-      res.send(null);
-    }
-};
-
 
 exports.getaplan = function(req, res) {
     plans.getAplan(req.query.planid,function(plandata) {

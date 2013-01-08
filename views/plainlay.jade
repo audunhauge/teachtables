@@ -1,0 +1,25 @@
+doctype 5
+html
+  head
+    title Årsplan for #{mytitle}
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width initial-scale=1.0")
+    link(rel="stylesheet", href="#{base}stat/css/#{version}/plain.css")
+    link(rel="icon",       href="#{base}stat/img/favicon.ico", type="image/x-icon")
+    script
+      var mybase="#{base}";
+      var language="#{language}";
+  body
+    header
+    #container
+      span#uui.hidden!= userid
+      span#logged.hidden!= loggedin
+      span#julday.hidden!= julday
+      span#uname.hidden!= username
+      span#firstname.hidden!= firstname
+      span#lastname.hidden!= lastname
+    block content
+    script(src="#{base}stat/js/jquery-1.7.1.js")
+    script(src="#{base}stat/js/#{version}/jquery-ui-1.8.17.custom.min.js")
+    script(src="#{base}stat/js/#{version}/utils.js")
+    script(src="#{base}stat/js/#{version}/plain.js")

@@ -632,70 +632,6 @@ var saveTimetableSlot = function(user,query,callback) {
 }
 
 
-var selltickets = function(user,query,callback) {
-    //console.log(query);
-    var today = new Date();
-    var m = today.getMonth()+1; var d = today.getDate(); var y = today.getFullYear();
-    var julday = julian.greg2jul(m,d,y);
-    var showid = query.showid;
-    var type = query.type;
-    //console.log(query.accu);
-    var accu = query.accu.split('|');
-    var now = new Date();
-    var jn = now.getHours()*100 + now.getMinutes();
-    var values = [];
-    for (var i in accu) {
-        var elm = accu[i].split(',');
-        values.push('('+showid+",'"+elm[0]+"',"+elm[1]+",'"+type+"',"+elm[2]+','+jn+','+julday+','+user.id+')' );
-    }
-    var valuelist = values.join(',');
-    //console.log('insert into tickets (showid,showtime,price,kk,ant,saletime,jd,userid) values ' + values);
-    client.query(
-        'insert into tickets (showid,showtime,price,kk,ant,saletime,jd,userid) values ' + values,
-        after(function(results) {
-            callback( {ok:true, msg:"inserted"} );
-        }));
-}
-
-var editshow = function(user,query,callback) {
-    var action     = query.action;
-    var showid     = query.showid;
-    var name       = query.name;
-    var showtime   = query.showtime;
-    var pricenames = query.pricenames;
-    var authlist   = query.authlist;
-    var userid     = user.id;
-    switch(action) {
-      case 'test':
-          console.log(action,showid,name,showtime,pricenames,authlist,userid);
-          callback( {ok:true, msg:"tested"} );
-          break;
-      case 'update':
-        client.query( 'update show set name=$1, showtime=$2,pricenames=$3,authlist=$4 where id=$5', [name,showtime,pricenames,authlist, showid],
-            after(function(results) {
-                callback( {ok:true, msg:"updated"} );
-            }));
-        break;
-      case 'kill':
-        client.query(
-            'delete from show where id=$1', [ showid],
-            after(function(results) {
-                client.query(
-                  'delete from tickets where showid=$1', [ showid],
-                  after(function(results) {
-                     callback( {ok:true, msg:"deleted"} );
-                  }));
-            }));
-        break;
-      case 'insert':
-        client.query(
-            'insert into show (name,showtime,pricenames,authlist,userid) values ($1,$2,$3,$4,$5)', [ name,showtime,pricenames,authlist,userid],
-            after(function(results) {
-                callback( {ok:true, msg:"inserted"} );
-            }));
-        break;
-    }
-}
 
 
 
@@ -961,75 +897,6 @@ var genstarb = function(user,params,callback) {
 
 
 }
-
-var getAttend = function(user,params,callback) {
-  // returns a hash of attendance
-  //console.log("getAttend");
-  var uid = (user) ? user.id : 0;
-  var all = params.all || false;
-  if (all) { client.query(
-      'select * from starb order by julday ' ,
-      after(function(results) {
-          var studs={}, daycount = {}, rooms={}, teach={}, klass={};
-          if (results.rows) for (var i=0,k= results.rows.length; i < k; i++) {
-            var att = results.rows[i];
-            var stu = db.students[att.userid];
-
-            if (!studs[att.userid]) {
-              studs[att.userid] = {};
-            }
-            studs[att.userid][att.julday] = [att.teachid, att.roomid ];
-
-            if (!daycount[att.julday]) {
-              daycount[att.julday] = 0;
-            }
-            daycount[att.julday]++; 
-
-            // count pr klass
-            if (stu && stu.department) {
-                if (!klass[stu.department]) {
-                  klass[stu.department] = {};
-                }
-                if (!klass[stu.department][att.julday]) {
-                  klass[stu.department][att.julday] = 0;
-                }
-                klass[stu.department][att.julday]++;
-            }
-
-            if (!rooms[att.roomid]) {
-              rooms[att.roomid] = {};
-            }
-            if (!rooms[att.roomid][att.julday]) {
-              rooms[att.roomid][att.julday] = [];
-              rooms[att.roomid][att.julday].teach = att.teachid;
-            }
-            rooms[att.roomid][att.julday].push(att.userid);
-
-            if (!teach[att.teachid]) {
-              teach[att.teachid] = {};
-            }
-            if (!teach[att.teachid][att.julday]) {
-              teach[att.teachid][att.julday] = { room:att.roomid, studs:[] };
-            }
-            teach[att.teachid][att.julday].studs.push(att.userid);
-
-          }
-          db.daycount = daycount;
-          db.klass = klass;
-          callback( { studs:studs, daycount:daycount, rooms:rooms, teach:teach, klass:klass } );
-      }));
-  } else client.query(
-      'select s.*, i.name from starb s inner join room i '
-      + ' on (s.roomid = i.id) where userid=$1 order by julday ' ,[uid ],
-      after(function(results) {
-          if (results && results.rows)
-            callback(results.rows);
-          else
-            callback(null);
-      }));
-}
-
-
 
 
 var getmeeting = function(callback) {
@@ -1302,59 +1169,6 @@ var getReservations = function(callback) {
               }
           }
           callback(reservations);
-      }));
-}
-
-var gettickets = function(user,query,callback) {
-  // returns a hash of tickets for show
-  // assumes you give it a callback that assigns the hash
-  client.query(
-      // fetch all shows
-       'SELECT u.firstname,u.lastname,u.department,sho.name,ti.* from tickets ti inner join show sho '
-       + 'on (sho.id = ti.showid) inner join users u on (u.id = ti.userid)',
-      after(function(results) {
-          var tickets = {};
-          if (results && results.rows )
-          for (var i=0,k= results.rows.length; i < k; i++) {
-              var tick = results.rows[i];
-              var julday = tick.jd;
-              delete tick.jd;
-              if (!tickets[julday]) {
-                tickets[julday] = [];
-              }
-              tickets[julday].push(tick);
-          }
-          callback(tickets);
-      }));
-}
-
-var getshow = function(callback) {
-  // returns a hash of all shows
-  // assumes you give it a callback that assigns the hash
-  client.query(
-      // fetch all shows
-       'SELECT * from show order by name',
-      after(function(results) {
-          var showlist = {};
-          if (results && results.rows)
-          for (var i=0,k= results.rows.length; i < k; i++) {
-              var show = results.rows[i];
-              var userid = show.userid;
-              var aut = show.authlist.split(',');
-              if (!showlist[userid]) {
-                showlist[userid] = [];
-              }
-              showlist[userid].push(show);
-              for (var au in aut) {
-                autid = aut[au];
-                if (!showlist[autid]) {
-                  showlist[autid] = [];
-                }
-                showlist[autid].push(show);
-
-              }
-          }
-          callback(showlist);
       }));
 }
 
@@ -1786,19 +1600,9 @@ module.exports.changeStateMeet = changeStateMeet;
 module.exports.getmeet = getmeet;
 module.exports.getmeeting = getmeeting;
 module.exports.getTimetables = getTimetables;
-module.exports.editshow = editshow;
 module.exports.savesimple = savesimple;
-module.exports.getAttend = getAttend;
 module.exports.ical = ical;
 module.exports.saveabsent = saveabsent;
-module.exports.genstarb = genstarb;
-module.exports.getstarb = getstarb;
-module.exports.regstarb = regstarb;
-module.exports.teachstarb = teachstarb;
-module.exports.deletestarb = deletestarb;
 module.exports.getabsent = getabsent;
 module.exports.saveteachabsent = saveteachabsent;
-module.exports.getshow = getshow;
-module.exports.selltickets = selltickets ;
-module.exports.gettickets = gettickets;
 module.exports.saveTimetableSlot =  saveTimetableSlot ;

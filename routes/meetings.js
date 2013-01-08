@@ -123,10 +123,3 @@ exports.getabsent = function(req, res) {
           });
 };
 
-exports.attendance = function(req, res) {
-    // get attendance
-    database.getAttend(req.session.user,req.query,function(attend) {
-            res.send(attend);
-          });
-};
-

@@ -306,15 +306,17 @@ function  setupworld(data) {
           }
           console.log( userinfo.config.subscription);
           teachlist = data.teachlist.filter( function (e) { return database.teachers[e.teachid] } );  // remove not teachers
-          teachlist = teachlist.filter( function (e) { return userinfo.config.subscription[e.teachid]; });
+          teachlist = teachlist.filter( function (e) { return e.teachid == userinfo.id || userinfo.config && userinfo.config.subscription && userinfo.config.subscription[e.teachid]; });
           teachnames = teachlist.map( function (e) { var t = database.teachers[e.teachid]; return t ? t.firstname + ' ' + t.lastname : '' } );  // namelist
           teachids = teachlist.map( function (e) { return e ? e.teachid : 0 });
           teachlist = teachlist.map( function (e) { return {label:database.teachers[e.teachid].username, value:e.teachid} ; } );  // convert to label,value
-          teachlist.push( { label:'self', value:userinfo.id } );
+          //teachlist.push( { label:'self', value:userinfo.id } );
           //console.log("teachnames",teachnames);
           console.log("teachids",teachids);
-          console.log( randomColors(teachids.length + 1)) ;
-          teachcolors.range( randomColors(teachids.length + 1)) ;
+          var colorange = randomColors(teachids.length + 2);
+          //colorange.unshift('#ff0000');
+          teachcolors.range( colorange ) ;
+          console.log(colorange);
 
 
           orbits = data.orbits;
