@@ -3,7 +3,7 @@
  * Module dependencies.
  */
 
-var version = '1.0.16';
+var version = '1.1.0';
 
 var site = 'default';
 var crypto = require('crypto');
@@ -190,8 +190,8 @@ app.get(base+'/getmeeting',             meetings.getmeeting );
 app.get(base+'/rejectmeet',             meetings.rejectmeet );
 app.get(base+'/acceptmeet',             meetings.acceptmeet );
 app.get(base+'/reserv',                 meetings.reserv );
-app.get(base+'/makereserv',             meetings.makereserv );
 app.get(base+'/getabsent',              meetings.getabsent );
+app.post(base+'/makereserv',             meetings.makereserv );
 app.post(base+'/save_excursion',        meetings.save_excursion );
 app.post(base+'/save_absent',           meetings.save_absent );
 
@@ -203,7 +203,7 @@ app.get(base+'/getaplan',               plans.getaplan );
 app.get(base+'/getallplans',            plans.getallplans );
 app.get(base+'/myplans',                plans.myplans );
 app.get(base+'/allplans',               plans.allplans );
-app.get(base+'/save_fagplan',           plans.save_fagplan );
+app.post(base+'/save_fagplan',           plans.save_fagplan );
 app.get(base+'/save_totfagplan',        plans.save_totfagplan );
 app.get(base+'/save_vurd',              plans.save_vurd );
 app.get(base+'/blocks',                 plans.blocks );
@@ -222,7 +222,7 @@ app.post(base+'/save_timetable',         timetables.save_timetable);
 
 // tests - exams
 app.get(base+'/alltests',               tests.alltests);            // all tests and exams for students
-app.get(base+'/save_test',              plans.save_test );
+app.post(base+'/save_test',             tests.save_test );
 app.get(base+'/savehd',                 plans.savehd );
 
 // shows - tickets  

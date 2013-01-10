@@ -1648,14 +1648,18 @@ wb.render.normal  = {
               }
               if (wbinfo.haveadded < 2) {
                 // first new question
-                qq += '<p class="bigf">Etterpå setter du markøren over det nye spørsmålet og klikk så på blyanten'
-                   +  ' for å redigere. Klikk på rød running for å fjerne spørsmålet.'
-                   +  '<p class="bigf">For å lage en quiz endrer du spørsmålstypen til quiz, '
+                qq += '<p class="bigf">For å redigere setter du markøren over et spørsmål og klikker på blyanten.'
+                   +  '  Klikk på rød running for å fjerne spørsmålet.'
+                   +  '</p><p class="bigf">For å lage en quiz endrer du spørsmålstypen til quiz, '
                    +  ' dette gjør du ved å redigere spørsmålet (blyant ved mus over) og '
                    +  ' når redigeringsvinduet kommer fram - klikk på blyanten '
                    +  ' under Detaljer. Nå får du et nytt vindu hvor du kan velge typer '
                    +  ' fra en rullegardin. Velg quiz og klikk oppdater for å lage en quiz. '
-                   +  ' Klikk på den grønne Lagre knappen for å lagre endringene';
+                   +  ' Klikk på den grønne Lagre knappen for å lagre endringene'
+                   +  '</p><p class="bigf">'
+                   +  '<ul><li>add - lag nye spørsmål</li><li>attach - koble inn eksisterende</li>'
+                   +  '<li>reset - slett besvarelser og generer nye spørsmål</li><li>regen - gjenskap elevbesvarelser med endringer</li>'
+                   +  '</ul></p>';
 
               }
               return qq;

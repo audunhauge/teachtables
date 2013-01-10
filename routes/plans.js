@@ -145,7 +145,7 @@ exports.save_totfagplan = function(req, res) {
     // several sections may be changed
     if (req.session.user && req.session.user.department == 'Undervisning') {
       //console.log("User saved som data");
-      wb.updateTotCoursePlan(req.body,function(msg) {
+      plans.updateTotCoursePlan(req.body,function(msg) {
          res.send(msg);
          delete addons.plans;
       });
@@ -157,7 +157,7 @@ exports.save_totfagplan = function(req, res) {
 exports.save_vurd = function(req, res) {
     // user has changed/created a test
     if (req.session.user && req.session.user.department == 'Undervisning') {
-      wb.saveVurd(req.body,function(msg) {
+      plans.saveVurd(req.body,function(msg) {
          //console.log(msg);
          res.send(msg);
       });
@@ -167,21 +167,6 @@ exports.save_vurd = function(req, res) {
 
 };
 
-exports.save_test = function(req, res) {
-    // user has changed/created a test
-    var justnow = new Date();
-    if (req.session.user && req.session.user.department == 'Undervisning') {
-      wb.saveTest(req.session.user,req.body,function(msg) {
-         //console.log("returned here in app.post"base+);
-         //console.log(msg);
-         res.send(msg);
-         delete addons.tests;
-      });
-    } else {
-      res.send({ok:false, msg:"bad user", restart:db.restart});
-    }
-
-};
 
 exports.extrax = function(req, res) {
     // ekstra exams - editor is based on block editor

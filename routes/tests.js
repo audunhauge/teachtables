@@ -23,3 +23,19 @@ exports.alltests = function(req, res) {
           });
     }
 };
+
+exports.save_test = function(req, res) {
+    // user has changed/created a test
+    var justnow = new Date();
+    if (req.session.user && req.session.user.department == 'Undervisning') {
+      tests.saveTest(req.session.user,req.body,function(msg) {
+         //console.log("returned here in app.post"base+);
+         //console.log(msg);
+         res.send(msg);
+         delete addons.tests;
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+
+};
