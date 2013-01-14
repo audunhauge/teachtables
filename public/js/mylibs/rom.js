@@ -31,7 +31,7 @@ function resrapport(delta) {
                 }
             }
     }
-    $j("#rapp").html('<table class="summary"><tr>'+ showlist.join('</tr><tr>') + '</table>' );
+    $j("#romrapp").html('<table class="summary"><tr>'+ showlist.join('</tr><tr>') + '</table>' );
     $j("#nxt").click(function() {
          resrapport(delta+1);
       });
