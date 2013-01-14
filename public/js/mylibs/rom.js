@@ -9,7 +9,7 @@ function resrapport(delta) {
             + '<idv id="rapp"></div>';
     $j("#main").html(s);
     delta = typeof(delta) != 'undefined' ?  +delta : 0;
-    var slotlabs = database.roomdata.roominfo["M119"].slabels || '';
+    var slotlabs = database.roominfo["M119"].slabels || '';
     slotlabs = slotlabs.split(',');
     var current = database.thisjd+delta;
     var greg = julian.jdtogregorian(current);
