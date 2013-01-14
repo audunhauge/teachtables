@@ -7,6 +7,17 @@ var database = siteinf.database;
 var db = database.db;
 var addons = siteinf.addons;
 
+exports.makemeet = function(req, res) {
+    // make a meeting
+    if (req.session.user && req.session.user.department == 'Undervisning') {
+      database.makemeet(req.session.user,req.body,function(msg) {
+         res.send(msg);
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+
+};
 
 exports.getmeet = function(req, res) {
     // returns list of users signed on to meetings (with meet info)

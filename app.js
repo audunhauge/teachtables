@@ -194,6 +194,7 @@ app.get(base+'/getabsent',              meetings.getabsent );
 app.post(base+'/makereserv',             meetings.makereserv );
 app.post(base+'/save_excursion',        meetings.save_excursion );
 app.post(base+'/save_absent',           meetings.save_absent );
+app.post(base+'/makemeet',           meetings.makemeet );
 
 
 
