@@ -6,7 +6,7 @@ function resrapport(delta) {
             + '<h1 class="retainer" id="oskrift"><div class="button blue" id="prv">&lt;</div>'
             + ' Romreservering for <span id="showdate"></span>'
             + '<div class="button blue "id="nxt">&gt;</div></h1>'
-            + '<idv id="rapp"></div>';
+            + '<idv id="romrapp"></div>';
     $j("#main").html(s);
     delta = typeof(delta) != 'undefined' ?  +delta : 0;
     var slotlabs = database.roominfo["M119"].slabels || '';
