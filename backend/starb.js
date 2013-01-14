@@ -10,6 +10,16 @@ var database = siteinf.database;
 var db = database.db;
 
 
+exports.getstarbless = function(user, query, callback) {
+  client.query(
+      "select * from calendar where eventtype='starbless' order by teachid,name ",
+      after(function(results) {
+         if (results.rows)
+          callback(results.rows);
+         else
+          callback(null);
+      }));
+};
 
 
 exports.getallstarblessdates = function(user, query, callback) {
