@@ -16,6 +16,15 @@
 }
 #teachbox:hover > ul { display:block; }
 
+del {
+  color:red;
+  font-style:italic;
+}
+ins {
+  font-style:oblique;
+  color:blue;
+}
+
 ul.teach {
     display:none;
 }
@@ -25,14 +34,6 @@ div.clock {
 }
 div.cloaked {
   color:white !important;
-}
-
-del {
-  color:red;
-}
-
-ins {
-  color:green;
 }
 
 div.diff {

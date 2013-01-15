@@ -5,9 +5,9 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var crypto = require('crypto');
-var jsp = require('uglify-js').parser;
-var pro = require('uglify-js').uglify;
+var jsp = require('uglify-js');
 var jstat = require('./jstat').jstat;
+var jdiff = require('./jdiff');
 
 
 var parseJSON = exports.parseJSON = function (str) {
@@ -41,18 +41,18 @@ function prep(code) {
   var ast;
   try {
    ast = jsp.parse(code);
+   ast.figure_out_scope();
+   ast.compute_char_frequency();
+   ast.mangle_names();
+   var res = ast.print_to_string({beautify:true});
+   console.log(res);
+   return res;
   }
   catch (err) {
    console.log(err);
    console.log("THE CODE:",code);
    return '';
   }
-  ast = pro.ast_mangle(ast,{toplevel:true} );
-  ast = pro.ast_squeeze(ast,{make_seqs:false});
-  var newcode = pro.gen_code(ast,{beautify:true});
-  console.log("THE CODE:",code);
-  console.log("THE NEW-CODE:",newcode);
-  return newcode;
 }
 
 function sympify(txt) {
@@ -1285,58 +1285,27 @@ var qz = {
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
                  var uerr = 0;     // user false choices
+                 feedback = '';
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    tot++;
                    var ff = unescape(fasit[ii]);
                    if (ff == ua[ii] ) {
                      ucorr++;
                    } else {
-                     // TODO  this only works for first wdiff in question
-                     // need to handle chaining of callbacks for each [[codea ]] [[codeb ]]
-                     // use word diff
                      try {
                        var codeA = prep(ff);
                        var codeB = prep(ua[ii]);
+                       var cdiff = jdiff.diffString2(codeA,codeB);
+                       feedback += cdiff.diff+'<br>';
+                       ucorr += cdiff.similar;
                      } catch(err) {
                        console.log("parse err");
-                       callback(0,'');
-                       return;
+                       feedback = 'feil';
                      }
-                     //console.log("trying diff",codeA,codeB);
-                     fs.writeFile("/tmp/wdiff1", codeA, function (err) {
-                         if (err) { res.send(''); throw err; }
-                         fs.writeFile("/tmp/wdiff2", codeB, function (err) {
-                           if (err) { res.send(''); throw err; }
-                           var child = exec("/usr/bin/wdiff -sn /tmp/wdiff1 /tmp/wdiff2", function(error,stdout,stderr) {
-                              // stdout is diff format + percentages
-                              //  12 words  12 91% common  0 0% deleted  1 8% changed
-                              var ffi = stdout.split(/\/tmp\/wdiff[12]:/g);
-                              //feedback = escape(ffi[0]);
-                              feedback = ffi[0].replace(/{\+.+?\+}/g,'').replace(/\[\-.+?\-\]/g,'##');
-                              feedback = escape(feedback);
-                              console.log("diff=",ffi[0]);
-                              console.log("stdout=",stdout);
-                              if (ffi.length > 1) {
-                                var ff1 = ffi[1].split(/  /);
-                                var common = ff1[1].split(' ')[1];
-                                common = common.substr(0,common.length-1);
-                              } else {
-                                common = 0;
-                              }
-                              //console.log(ff1,ff2,common);
-                              fs.unlink('/tmp/wdiff1');
-                              fs.unlink('/tmp/wdiff2');
-                              qgrade = +common / 100.0;
-                              callback(qgrade,feedback);
-                           });
-                         });
-                      });
-                     return;
                    }
                  }
-                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
                  if (tot > 0) {
-                   qgrade = (ucorr - uerr/6) / tot;
+                   qgrade = ucorr / tot;
                  }
                  qgrade = Math.max(0,qgrade);
                break;

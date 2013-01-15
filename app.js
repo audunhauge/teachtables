@@ -71,8 +71,6 @@ var express = require('express')
 var app = express();
 
 
-var jsp = require('uglify-js').parser;
-var pro = require('uglify-js').uglify;
 
 var mydom = {};  // for each user - result of file import
 

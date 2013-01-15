@@ -214,7 +214,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                         // return parsed version of param
                         // as the question needs to be redisplayed
                         // to reflect userchoice
-                        qua.param = parseJSON(qua.param);
+                        qua.param = param;
                         qua.param.display = unescape(qua.param.display);
                         for (var oi in qua.param.options) {
                            qua.param.options[oi] = unescape(qua.param.options[oi]); 

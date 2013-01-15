@@ -353,7 +353,7 @@ function setup_teach() {
         teachers = database.teachers;
     }
     var subscript = '<ul>';                     
-    var minefag = database.teachcourse[userinfo.id].join(' ');
+    var minefag = database.teachcourse[userinfo.id] ? database.teachcourse[userinfo.id].join(' ') : '';
     var myown = database.subscribe.teachers[userinfo.id];
     for (var i in database.subscribe.subjects) {
         var i_teach_this = (minefag.indexOf(i) >= 0);
