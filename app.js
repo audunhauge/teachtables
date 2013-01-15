@@ -204,9 +204,6 @@ app.get(base+'/getaplan',               plans.getaplan );
 app.get(base+'/getallplans',            plans.getallplans );
 app.get(base+'/myplans',                plans.myplans );
 app.get(base+'/allplans',               plans.allplans );
-app.post(base+'/save_fagplan',           plans.save_fagplan );
-app.get(base+'/save_totfagplan',        plans.save_totfagplan );
-app.get(base+'/save_vurd',              plans.save_vurd );
 app.get(base+'/blocks',                 plans.blocks );
 app.get(base+'/extrax',                 plans.extrax );
 app.get(base+'/yyear',                  plans.yyear );
@@ -214,6 +211,9 @@ app.post(base+'/modifyplan',            plans.modifyplan );
 app.post(base+'/save_simple',           plans.save_simple );
 app.post(base+'/savehd',                plans.savehd );
 app.post(base+'/saveblokk',             plans.saveblokk );
+app.post(base+'/save_vurd',              plans.save_vurd );
+app.post(base+'/save_totfagplan',        plans.save_totfagplan );
+app.post(base+'/save_fagplan',           plans.save_fagplan );
 
 
 // timetables
