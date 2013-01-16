@@ -79,10 +79,13 @@ function randomColor() {
                     (Math.random() * 100) + "%, " + 
                     (Math.random() * 100) + "%)";
 }
-exports.diffString2 = function ( o, n ) {
+exports.diffString2 = function ( o, n, fiidback ) {
   o = o.replace(/\s+$/, '');
   n = n.replace(/\s+$/, '');
-  dw = [];
+  var dw = [];
+  var missing = {};
+  var aliens = {};
+
 
   var out = exports.diff(o == "" ? [] : o.split(/\s+/), n == "" ? [] : n.split(/\s+/) );
   var count=0,ins=0,del=0;
@@ -111,6 +114,7 @@ exports.diffString2 = function ( o, n ) {
           os += "<del>" + escape(out.o[i]) + oSpace[i] + "</del>";
           dw.push("<del>" + escape(out.o[i]) + oSpace[i] + "</del>");
           del++;
+          missing[escape(out.o[i])] = 1;
       }
   }
 
@@ -122,12 +126,24 @@ exports.diffString2 = function ( o, n ) {
           ns += "<ins>" + escape(out.n[i]) + nSpace[i] + "</ins>";
           dw.push("<ins>" + escape(out.n[i]) + oSpace[i] + "</ins>");
           ins++;
+          aliens[escape(out.n[i])] = 1;
       }
   }
   var tot = out.o.length;
   var similar = (tot - del) / (tot + ins);
+  var fb = del + ' words missing ' + ins + ' words added of '+tot+' words.';
+  var mw = Object.keys(missing);
+  var aw = Object.keys(aliens);
+  switch (fiidback) {
+      case 'lots':
+        fb += '<br>' + os + '<hr>' + ns;
+        break;
+      case 'some':
+        fb += '<br>Missing:' + mw.join(' ') + '<br>Remove:' + aw.join(' ');
+        break;
+  }
   
-  return { diff:os+'<hr>'+ns, dw:(dw.join(' ')), del:del, ins:ins, similar:similar };
+  return { diff:fb, dw:(dw.join(' ')), del:del, ins:ins, similar:similar };
 
   //return { o : os , n : ns };
 }

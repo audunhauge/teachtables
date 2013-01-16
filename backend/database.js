@@ -1194,6 +1194,7 @@ var getTimetables = function(isad,callback) {
           var grouptimetable = {};
           var teachtimetable = {};
           var studtimetable = {};
+          var flatlist = [];
           if (results && results.rows) 
           for (var i=0,k= results.rows.length; i < k; i++) {
               var lesson = results.rows[i];
@@ -1203,12 +1204,15 @@ var getTimetables = function(isad,callback) {
               var fag = elm[0];
               var group = elm[1];
               var uid = lesson.teachid;
+              flatlist.push( [lesson.day,lesson.slot,course,room,uid]);
+              continue;
+
 
               // indexd by teach id
               if (!teachtimetable[uid]) {
                 teachtimetable[uid] = [];
               }
-              teachtimetable[uid].push([lesson.day, lesson.slot, course, room, '',uid]);
+              teachtimetable[uid].push([lesson.day, lesson.slot, "", room, '',uid]);
 
               // indexed by group name
               if (!grouptimetable[group]) {
@@ -1244,7 +1248,8 @@ var getTimetables = function(isad,callback) {
             }
             console.log(studtimetable);
           }
-          callback( { course:coursetimetable, room:roomtimetable, group:grouptimetable, teach:teachtimetable, stud:studtimetable  } );
+          //callback( { course:coursetimetable, room:roomtimetable, group:grouptimetable, teach:teachtimetable, stud:studtimetable  } );
+          callback( { flatlist:flatlist } );
       }));
 }
 

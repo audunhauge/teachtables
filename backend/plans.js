@@ -19,10 +19,10 @@ exports.getAllPlans = function(state,callback) {
   // 2 == oldplans - for copying
   //console.log("getAllPlans",client);
   client.query(
-        'select p.*,c.shortname, pe.name as pname,p.info as vurdering from plan p '
+        'select p.id as i,p.name as n,c.shortname as s, pe.name as pn,p.info as v from plan p '
       + ' inner join periode pe on (pe.id = p.periodeid) '
       + ' left outer join course c '
-      + ' on (c.planid = p.id) where p.state in ( '+state+' ) order by name',
+      + ' on (c.planid = p.id) where p.state in ( '+state+' ) order by p.name',
       after(function(results) {
         if (results) {
           callback(results.rows);
@@ -67,7 +67,7 @@ exports.getCoursePlans = function(callback) {
           + '        INNER JOIN plan p ON (p.userid = u.id) '
           + '        INNER JOIN course c ON (c.planid = p.id) '
           + '        LEFT JOIN weekplan w ON (p.id = w.planid) '
-          + " WHERE u.department = 'Undervisning' order by w.sequence ",
+          + " WHERE u.department = 'Undervisning' and w.plantext != '' order by w.sequence ",
           //+ '   ORDER BY u.institution,u.username,c.shortname,w.sequence ' ,
       after(function(results) {
           //console.log(results);

@@ -870,8 +870,8 @@ $j(document).ready(function() {
              cpinfo = {};
              for (var i in data) {
                var pinf = data[i];
-               if (!planinfo[pinf.id]) planinfo[pinf.id] = pinf.vurdering;
-               if (!cpinfo[pinf.shortname]) cpinfo[pinf.shortname] = pinf.id;
+               if (!planinfo[pinf.i]) planinfo[pinf.i] = pinf.v;
+               if (!cpinfo[pinf.s]) cpinfo[pinf.s] = pinf.i;
              }
          });
     $j("#prover").click(function(event) {

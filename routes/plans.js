@@ -18,11 +18,11 @@ exports.yyear = function(req, res) {
       data.students = db.students;
       data.roomnames = db.roomnames;
       data.start = db.startjd;
-      res.send(data)
+      res.send( {   } )
       //console.log("quick");
     } else 
     database.getyearplan(function(data) {
-      db.yearplan = data;
+      //db.yearplan = data;
       data.teachers = db.teachers;
       data.students = db.students;
       data.roomnames = db.roomnames;

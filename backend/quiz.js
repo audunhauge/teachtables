@@ -1093,6 +1093,7 @@ var qz = {
            var ua;
            var cost = (contopt) ? contopt.attemptcost || 0.1 : 0.1;  // grade cost pr attempt
            var hintcost = (contopt) ? contopt.hintcost || 0.05 : 0.1;  // grade cost pr hint
+           console.log("CONTOPT=",contopt);
            useranswer = useranswer.replace(/&lt;/g,'<');
            useranswer = useranswer.replace(/&gt;/g,'>');
            useranswer = useranswer.replace(/&amp;/g,'&');
@@ -1280,7 +1281,6 @@ var qz = {
                  qgrade = Math.max(0,qgrade);
                break;
              case 'diff':
-                 //var fasit = qobj.fasit;
                  var fasit = param.fasit;
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
@@ -1292,16 +1292,16 @@ var qz = {
                    if (ff == ua[ii] ) {
                      ucorr++;
                    } else {
-                     try {
+                     //try {
                        var codeA = prep(ff);
                        var codeB = prep(ua[ii]);
-                       var cdiff = jdiff.diffString2(codeA,codeB);
+                       var cdiff = jdiff.diffString2(codeA,codeB,contopt.fiidback);
                        feedback += cdiff.diff+'<br>';
                        ucorr += cdiff.similar;
-                     } catch(err) {
-                       console.log("parse err");
-                       feedback = 'feil';
-                     }
+                     //} catch(err) {
+                     //  console.log("parse err");
+                     //  feedback = 'feil';
+                     //}
                    }
                  }
                  if (tot > 0) {

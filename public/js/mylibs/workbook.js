@@ -1388,6 +1388,7 @@ function editquestion(myid, target) {
            var trinn = (dialog.contopt.trinn != undefined) ? dialog.contopt.trinn : 0;
            var karak = (dialog.contopt.karak != undefined) ? dialog.contopt.karak : 0;
            var rank = (dialog.contopt.rank != undefined) ? dialog.contopt.rank : 0;
+           var fiidback = (dialog.contopt.fiidback != undefined) ? dialog.contopt.fiidback : 0;
            var randlist = (dialog.contopt.randlist != undefined) ? dialog.contopt.randlist : 0;
            var shuffle = (dialog.contopt.shuffle != undefined) ? dialog.contopt.shuffle : 0;
            var omstart = (dialog.contopt.omstart != undefined) ? dialog.contopt.omstart : 0;
@@ -1415,6 +1416,7 @@ function editquestion(myid, target) {
                  , fasit:         {  type:"yesno", value:fasit }
                  , karak:         {  type:"yesno",  value:karak } 
                  , rank:          {  type:"yesno",  value:rank } 
+                 , fiidback:      {  type:"select", klass:"copts",  value:fiidback, options:[{ value:"none"},{ value:"some"},{ value:"lots"} ] } 
                  , skala:         {  type:"select", klass:"copts",  value:skala, options:[{ value:"medium"},{ value:"easy"},{ value:"hard"} ] } 
                  , hintcost:      {  klass:"copts num4",  value:hintcost, depend:{ hints:1} } 
                  , attemptcost:   {  klass:"copts num4",  value:attemptcost, depend:{ adaptiv:1 } } 
@@ -1432,6 +1434,7 @@ function editquestion(myid, target) {
              + '<div title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
              + '<div title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
              + '<div title="Nivå for fasit visning">Fasit {fasit}</div>'
+             + '<div title="Tilbakemeldinger for hvert spørsmål">Feedback{fiidback} </div>'
              + '<div title="Karakterskala som skal brukes, easy for en lett prøve (streng vurdering), hard gir snill vurdering">Skala {skala}</div>'
              + '<div title="Skal karakter vises">Karakter{karak} </div>'
              + '<div title="Rangering i klassen">Rank{rank} </div>'
