@@ -126,6 +126,96 @@ $j(window).bind('hashchange', function(event) {
          gotoPage();
     });
 
+function unflatreserv(data) {
+  var id,userid,day,slot,courseid,roomid,name,value,eventtype,res,jd,i,k,elm;
+  var ret = {};
+  for (jd in data) {
+    res = data[jd];
+    var lis = [];
+    for (i=0,k= res.length; i < k; i++) {
+       elm = res[i].split(',');
+       lis.push( { id:elm[0],userid:elm[1],day:elm[2],slot:elm[3],courseid:elm[4],roomid:elm[5],name:elm[6],value:elm[7],eventtype:elm[8] } );
+    }
+    ret[jd] = lis;
+  }
+  return ret;
+}
+
+function expandatt(att) {
+    // expand attendance
+    var ret = { studs:{}, daycount:att.daycount, rooms:{}, teach:{} , klass:att.klass };
+    for (var st in att.studs) {
+        var list = att.studs[st].split(';');
+        ret.studs[st] = {};
+        for (var di in list) {
+            var dat = list[di].split(',');
+            ret.studs[st][ +dat[0] + +database.firstweek] = [ dat[1],dat[2] ];
+        }
+    }
+    for (var rr in att.rooms) {
+        var list = att.rooms[rr];
+        ret.rooms[rr] = {};
+        for (var jj in list) {
+            var dat = list[jj].split(',');
+            ret.rooms[rr][ +jj + +database.firstweek] = dat;
+        }
+    }
+    for (var rr in att.teach) {
+        var list = att.teach[rr];
+        ret.teach[rr] = {};
+        for (var jj in list) {
+            var dat = list[jj];
+            ret.teach[rr][ +jj + +database.firstweek] = { room:dat[0],studs:dat[1].split(',')};
+        }
+    }
+    return ret;
+}
+
+
+function unflatten(data) {
+   var coursetimetable = {};
+   var roomtimetable = {};
+   var grouptimetable = {};
+   var teachtimetable = {};
+   var studtimetable = {};
+   for (var i=0,k= data.length; i < k; i++) {
+              var lesson = data[i].split(',');
+              var day = +lesson[0].charAt(0);
+              var slot = +lesson[0].charAt(1);
+              var course = lesson[1];
+              var room = lesson[2];
+              var uid = lesson[3];
+              var elm = course.split('_');
+              var fag = elm[0];
+              var group = elm[1];
+              // indexd by teach id
+              if (!teachtimetable[uid]) {
+                teachtimetable[uid] = [];
+              }
+              teachtimetable[uid].push([day, slot, course, room, '',uid]);
+              
+              // indexed by group name
+              if (!grouptimetable[group]) {
+                grouptimetable[group] = [];
+              }
+              grouptimetable[group].push([day, slot, course, room,'', uid]);
+              
+              
+              // indexed by room name
+              if (!roomtimetable[room]) {
+                roomtimetable[room] = [];
+              }
+              roomtimetable[room].push([day, slot, course, room,'', uid]);
+              
+              // indexed by coursename (course_group)
+              if (!coursetimetable[course]) {
+                coursetimetable[course] = [];
+              }
+              coursetimetable[course].push([day, slot, course, room,'', uid]);
+          }   
+  return { course:coursetimetable, room:roomtimetable, group:grouptimetable, teach:teachtimetable, stud:studtimetable  };
+
+}
 
 function teaches(uid,coursename) {
   // returns true if uid is a teacher in coursename
@@ -224,7 +314,7 @@ function gotoPage() {
                 } else {
                   $j.getJSON(mybase+ "/timetables", 
                     function(data) {
-                        timetables = data;
+                        timetables = unflatten(data);
                         updateFagplanMenu();
                         var userplan = getcourseplan(usr,deltamemory);
                         vis_timeplan_helper(userplan,usr,target,false,false,deltamemory);
@@ -242,7 +332,7 @@ function gotoPage() {
                 } else {
                   $j.getJSON(mybase+ "/timetables", 
                     function(data) {
-                        timetables = data;
+                        timetables = unflatten(data);
                         updateFagplanMenu();
                         var userplan = getuserplan(+usr);
                         vis_timeplan_helper(userplan,+usr,target,'isuser',true,0);
@@ -311,7 +401,7 @@ function take_action() {
             if (showplan != '') {
                  $j.getJSON(mybase+ "/timetables", 
                     function(data) {
-                        timetables = data;
+                        timetables = unflatten(data);
                         getcourseplans();
                     });
 
@@ -444,7 +534,7 @@ function setup_teach() {
             $j("#ledigrom").click(function() {
                 findfree();
             } );
-            reservations = data;
+            reservations = unflatreserv(data);
             for (var k=0; k < linktilrom.length; k++) {
                 var rom = linktilrom[k];
                 $j("#rom"+rom).click(function() {
@@ -623,7 +713,7 @@ function afterloggin(uinfo) {
       isteach = true;
       isadmin = (database.userinfo.isadmin);
       $j.get(mybase+ '/attendance', { all:1 },function(att) {
-            allattend = att;
+            allattend = expandatt(att);
             $j("#timeplaner").html("Timeplan/Starb");
             s =  '<li><a id="show" href="#">Starb</a><ul>'
               +    '<li><a id="regstarb"    href="#">RegistrerStarb</a></li>'
@@ -657,7 +747,7 @@ function afterloggin(uinfo) {
           });
     } else {
        $j.get(mybase+ '/attendance', function(att) {
-          attend = att;
+          attend = expandat(att);
           s =  '<li><a id="show" href="#">Starb</a><ul>'
               +    '<li><a id="myattend"    href="#">Starb-oversikt</a></li>'
               + '</ul></li>';
@@ -697,7 +787,7 @@ function getusers() {
          });
     $j.getJSON(mybase+ "/reserv", 
          function(data) {
-            reservations = data;
+            reservations = unflatreserv(data);
          });
 }
 
@@ -705,7 +795,7 @@ function getcourseplans() {
   // fetch timetables and courseplans
   $j.getJSON(mybase+ "/timetables", 
         function(data) {
-            timetables = data;
+            timetables = unflatten(data.flatlist);
             if (promises.timetables) {
               // some functions have some actions pending on my data
               for (var p in promises.timetables) {

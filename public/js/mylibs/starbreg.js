@@ -33,7 +33,7 @@ var badkeys = {};
 var antall = 10; 
 var d = new Date();
 var starth = d.getHours();
-var startm = d.getMinutes();
+var startm = Math.max(0,d.getMinutes()-1);
 if (starth < 12) {
     starth = 12; startm = 10;
 }

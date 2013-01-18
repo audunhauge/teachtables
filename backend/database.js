@@ -1161,11 +1161,15 @@ var getReservations = function(callback) {
                 var vvalue = (res.name+' '+stripRooms(res.value));
                 for (var j=0;j<9;j++) {
                   res.slot = j;
-                  reservations[julday].push({id: res.id, userid: res.userid, day: res.day, 
-                                 slot: j, itemid: res.roomid, name:roomname , value:vvalue, eventtype:'hd' });
+                  //reservations[julday].push({id: res.id, userid: res.userid, day: res.day, 
+                  //               slot: j, itemid: res.roomid, name:roomname , value:vvalue, eventtype:'hd' });
+                  reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ j + ','
+                                           + res.courseid + ','+res.roomid+','+ roomname + ','+ vvalue + ',hd' ); 
                 }
               } else {
-                reservations[julday].push(res);
+                //reservations[julday].push(res);
+                reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ res.slot + ','
+                                           + res.courseid + ','+res.roomid+','+ res.name + ','+ res.value + ','+ res.eventtype ); 
               }
           }
           callback(reservations);
@@ -1204,7 +1208,7 @@ var getTimetables = function(isad,callback) {
               var fag = elm[0];
               var group = elm[1];
               var uid = lesson.teachid;
-              flatlist.push( [lesson.day,lesson.slot,course,room,uid]);
+              flatlist.push( ""+lesson.day+lesson.slot+','+course+','+room+','+uid);
               continue;
 
 
@@ -1260,7 +1264,7 @@ var getstudents = function() {
   // list of all rooms, array of coursenames (for autocomplete)
   client.query(
       // fetch students and teachers
-      'SELECT id,username,firstname,lastname,department,institution,email from users order by department,institution,lastname,firstname',
+      'SELECT id,username,firstname,lastname,department,institution from users order by department,institution,lastname,firstname',
             after(function(results) {
             //console.log(results.rows);
             for (var i=0,k= results.rows.length; i < k; i++) {

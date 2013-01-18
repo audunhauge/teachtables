@@ -162,7 +162,7 @@ function rom_reservering(room,delta,makeres) {
         $j.post(mybase+'/makereserv',{ current:current, room:room, myid:0, idlist:idlist, message:message, action:"insert" },function(resp) {
             $j.getJSON(mybase+ "/reserv", 
                  function(data) {
-                    reservations = data;
+                    reservations =  unflatreserv(data);
                     rom_reservering(room,delta);
                     if (resp.ok) {
                       $j("#info").html("Vellykket");
@@ -178,7 +178,7 @@ function rom_reservering(room,delta,makeres) {
         $j.post(mybase+'/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:"", action:"kill" },function(resp) {
           $j.getJSON(mybase+ "/reserv", 
                function(data) {
-                  reservations = data;
+                  reservations =  unflatreserv(data);
                   rom_reservering(room,delta);
                   if (resp.ok) {
                     $j("#info").html("Vellykket");
@@ -195,7 +195,7 @@ function rom_reservering(room,delta,makeres) {
             $j.post(mybase+'/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:value, action:"update" },function(resp) {
               $j.getJSON(mybase+ "/reserv", 
                    function(data) {
-                      reservations = data;
+                      reservations =  unflatreserv(data);
                       rom_reservering(room,delta);
                       if (resp.ok) {
                         $j("#info").html("Vellykket");

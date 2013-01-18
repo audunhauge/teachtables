@@ -362,9 +362,10 @@ exports.getAttend = function(user,params,callback) {
             var stu = db.students[att.userid];
 
             if (!studs[att.userid]) {
-              studs[att.userid] = {};
+              studs[att.userid] = [];
             }
-            studs[att.userid][att.julday] = [att.teachid, att.roomid ];
+            //studs[att.userid][att.julday -db.firstweek] = [att.teachid, att.roomid ];
+            studs[att.userid].push((att.julday -db.firstweek)+','+att.teachid+','+ att.roomid );
 
             if (!daycount[att.julday]) {
               daycount[att.julday] = 0;
@@ -385,23 +386,35 @@ exports.getAttend = function(user,params,callback) {
             if (!rooms[att.roomid]) {
               rooms[att.roomid] = {};
             }
-            if (!rooms[att.roomid][att.julday]) {
-              rooms[att.roomid][att.julday] = [];
-              rooms[att.roomid][att.julday].teach = att.teachid;
+            if (!rooms[att.roomid][att.julday - db.firstweek]) {
+              rooms[att.roomid][att.julday - db.firstweek] = [];
             }
-            rooms[att.roomid][att.julday].push(att.userid);
+            rooms[att.roomid][att.julday - db.firstweek].push(att.userid);
 
             if (!teach[att.teachid]) {
               teach[att.teachid] = {};
             }
-            if (!teach[att.teachid][att.julday]) {
-              teach[att.teachid][att.julday] = { room:att.roomid, studs:[] };
+            if (!teach[att.teachid][att.julday - db.firstweek]) {
+              teach[att.teachid][att.julday - db.firstweek] = [ att.roomid, [] ];
             }
-            teach[att.teachid][att.julday].studs.push(att.userid);
+            teach[att.teachid][att.julday - db.firstweek][1].push(att.userid);
 
           }
           db.daycount = daycount;
           db.klass = klass;
+          for (var ss in studs) {
+              studs[ss] = studs[ss].join(';');
+          }
+          for (var rr in rooms) {
+              for ( var jj in rooms[rr]) {
+                  rooms[rr][jj] = rooms[rr][jj].join(',');
+              }
+          }
+          for (var tt in teach) {
+              for ( var jt in teach[tt]) {
+                  teach[tt][jt][1] = teach[tt][jt][1].join(',');
+              }
+          }
           callback( { studs:studs, daycount:daycount, rooms:rooms, teach:teach, klass:klass } );
       }));
   } else client.query(

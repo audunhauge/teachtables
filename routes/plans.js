@@ -12,21 +12,21 @@ var plans = require('../backend/plans');
 
 exports.yyear = function(req, res) {
     // called when yearplan has been changed
-    if (req.query.quick && db && db.yearplan) {
-      var data = db.yearplan;
-      data.teachers = db.teachers;
-      data.students = db.students;
-      data.roomnames = db.roomnames;
-      data.start = db.startjd;
-      res.send( {   } )
+    //if (req.query.quick && db && db.yearplan) {
+      //var data = db.yearplan;
+      //data.teachers = db.teachers;
+      //data.students = db.students;
+      //data.roomnames = db.roomnames;
+      //data.start = db.startjd;
+      //res.send( {   } )
       //console.log("quick");
-    } else 
+    //} else 
     database.getyearplan(function(data) {
       //db.yearplan = data;
-      data.teachers = db.teachers;
-      data.students = db.students;
-      data.roomnames = db.roomnames;
-      data.start = db.startjd;
+      //data.teachers = db.teachers;
+      //data.students = db.students;
+      //data.roomnames = db.roomnames;
+      //data.start = db.startjd;
       res.send(data);
     });
 };
