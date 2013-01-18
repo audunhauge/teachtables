@@ -71,6 +71,7 @@ function getPassword() {
      if (loggedin == '1') {
         $j("#input").hide();
         $j.get( '/timetables', function(timetables) {
+          timetables = unflatten(timetables);
           var mytab = timetables.teach[uuid];
           for (var ii in mytab) {
             var entry = mytab[ii];
@@ -96,6 +97,7 @@ function getPassword() {
               uname = uinfo.username;
               loggedin = '1';
               $j.get( '/timetables', function(timetables) {
+                timetables = unflatten(timetables);
                 var mytab = timetables.teach[uuid];
                 for (var ii in mytab) {
                   var entry = mytab[ii];

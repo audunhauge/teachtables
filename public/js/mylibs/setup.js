@@ -172,50 +172,6 @@ function expandatt(att) {
 }
 
 
-function unflatten(data) {
-   var coursetimetable = {};
-   var roomtimetable = {};
-   var grouptimetable = {};
-   var teachtimetable = {};
-   var studtimetable = {};
-   for (var i=0,k= data.length; i < k; i++) {
-              var lesson = data[i].split(',');
-              var day = +lesson[0].charAt(0);
-              var slot = +lesson[0].charAt(1);
-              var course = lesson[1];
-              var room = lesson[2];
-              var uid = lesson[3];
-              var elm = course.split('_');
-              var fag = elm[0];
-              var group = elm[1];
-              // indexd by teach id
-              if (!teachtimetable[uid]) {
-                teachtimetable[uid] = [];
-              }
-              teachtimetable[uid].push([day, slot, course, room, '',uid]);
-              
-              // indexed by group name
-              if (!grouptimetable[group]) {
-                grouptimetable[group] = [];
-              }
-              grouptimetable[group].push([day, slot, course, room,'', uid]);
-              
-              
-              // indexed by room name
-              if (!roomtimetable[room]) {
-                roomtimetable[room] = [];
-              }
-              roomtimetable[room].push([day, slot, course, room,'', uid]);
-              
-              // indexed by coursename (course_group)
-              if (!coursetimetable[course]) {
-                coursetimetable[course] = [];
-              }
-              coursetimetable[course].push([day, slot, course, room,'', uid]);
-          }   
-  return { course:coursetimetable, room:roomtimetable, group:grouptimetable, teach:teachtimetable, stud:studtimetable  };
-
-}
 
 function teaches(uid,coursename) {
   // returns true if uid is a teacher in coursename

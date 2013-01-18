@@ -73,6 +73,7 @@ function getPassword() {
         $j("#inp").show();
         $j("#pwd").hide();
         $j.get(mybase+ '/timetables', function(timetables) {
+          timetables = unflatten(timetables);
           var mytab = timetables.teach[uuid];
           var day = jd % 7;
           for (var ii in mytab) {
@@ -103,6 +104,7 @@ function getPassword() {
               uname = uinfo.username;
               loggedin = '1';
               $j.get(mybase+ '/timetables', function(timetables) {
+                timetables = unflatten(timetables);
                 var mytab = timetables.teach[uuid];
                 var day = jd % 7;
                 for (var ii in mytab) {
@@ -214,7 +216,7 @@ function getDuration() {
        $j("#next").unbind();
        $j("#next").click(function() {
                  duration = +($j("#inp").val());
-                 if (duration < 3 || duration > 80) {
+                 if (duration < 3 || duration > 9980) {
                      badInput("mellom 3 og 80");
                  } else {
                      generateKey();

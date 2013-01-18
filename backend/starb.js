@@ -305,7 +305,7 @@ exports.genstarb = function(user,params,callback) {
   var romid     = +params.romid     || 0;
   var duration  = +params.duration  || 0;
   
-  if (uid < 10000 || duration < 3 || duration > 80 || starth < 12 || starth > 14 || startm < 0 || startm > 59 ) {
+  if (uid < 10000 || duration < 3 || duration > 80000 || starth < 12 || starth > 14 || startm < 0 || startm > 59 ) {
     callback( { "key":0 } );
     return;
   }

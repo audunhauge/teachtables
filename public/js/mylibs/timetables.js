@@ -700,7 +700,7 @@ function vis_timeplan_helper(userplan,uid,filter,isuser,visfagplan,delta,edit) {
                  $j("#oskrift").html('<span class="redfont">'+msg.msg+'</span>');
                  $j.getJSON(mybase+ "/timetables",
                    function(data) {
-                     timetables = data;
+                     timetables = unflatten(data);
                      vis_valgt_timeplan({id:uid}, filter,visfagplan,isuser,edit);
                    });
              });
@@ -885,7 +885,7 @@ function edit_teachtimeplan() {
     $j.post(mybase+ "/save_timetable", { teachid:0 },function(msg) { 
                  $j.getJSON(mybase+ "/timetables", { reload:1 },
                    function(data) {
-                     timetables = data;
+                     timetables = unflatten(data);
                    });
            } );
     for (var i in teachers) {
