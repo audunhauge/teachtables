@@ -26,8 +26,7 @@ exports.yyear = function(req, res) {
       //data.teachers = db.teachers;
       //data.students = db.students;
       //data.roomnames = db.roomnames;
-      //data.start = db.startjd;
-      res.send(data);
+      res.send( { data:data, start:db.startjd, teachers:db.teachers, students:db.students, roomnames:db.roomnames });
     });
 };
 

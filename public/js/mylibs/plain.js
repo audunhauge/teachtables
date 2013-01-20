@@ -221,7 +221,7 @@ function getYearPlanThisWeek(thisweek) {
     var s = '';
     var header = [[],[]];
     for (var w=0;w<2;w++) {
-      var e = yearplan[Math.floor(thisweek/7)+w] || { days:[]} ;
+      var e = yearplan.data[Math.floor(thisweek/7)+w] || { days:[]} ;
       for (var j=0;j<6;j++) {
         header[w][j] = e.days[j] || '';
         var hd = heldag[thisweek+j+w*7];
