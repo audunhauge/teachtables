@@ -903,7 +903,7 @@ function edit_aarsplan(edchoice) {
     database.heldag = data;
     $j.getJSON(mybase+ "/yyear", 
     function(data) {
-      database.yearplan = data;
+      database.yearplan = data.data;
       var iddx = 0;
       edchoice   = typeof(edchoice) != 'undefined' ? edchoice : 0;
       var events = database.yearplan;
@@ -1257,7 +1257,7 @@ function save_simple(value,settings) {
             // can see the change straight away if the navigate to ThisWeek
             $j.getJSON(mybase+ "/yyear", 
             function(data) {
-              database.yearplan = data;
+              database.yearplan = data.data;
               });
         } else {    
             $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
