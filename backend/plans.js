@@ -58,6 +58,7 @@ exports.getMyPlans = function(user,callback) {
   database.getActiveWorkbooks();
 }
 
+
 exports.getCoursePlans = function(callback) {
     //console.log("getCoursePlans");
     client.query(
@@ -67,7 +68,7 @@ exports.getCoursePlans = function(callback) {
           + '        INNER JOIN plan p ON (p.userid = u.id) '
           + '        INNER JOIN course c ON (c.planid = p.id) '
           + '        LEFT JOIN weekplan w ON (p.id = w.planid) '
-          + " WHERE u.department = 'Undervisning' and w.plantext != '' order by w.sequence ",
+          + " WHERE u.department = 'Undervisning' order by w.sequence ",
           //+ '   ORDER BY u.institution,u.username,c.shortname,w.sequence ' ,
       after(function(results) {
           //console.log(results);
