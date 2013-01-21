@@ -124,7 +124,7 @@ exports.getAplan = function(planid,callback) {
       + ' inner join weekplan w on (w.planid = p.id) '
       + ' where p.id = $1 ' , [planid ],
       after(function(results) {
-          if (results.rows) {
+          if (results && results.rows) {
             var plan = {};
             if (results.rows[0]) { 
               plan.name = results.rows[0].name;
