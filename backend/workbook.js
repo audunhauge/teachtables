@@ -205,26 +205,31 @@ exports.gradeuseranswer = function(user,query,callback) {
                     var qua = results.rows[0];
                     var param = parseJSON(qua.param);
                     //var nugrade = quiz.grade(myquiz,myquest,ua,param);
-                    quiz.grade(contopt,myquiz,myquest,ua,param,qua.attemptnum,qua.hintcount,function(nugrade,feedback) {
+                    quiz.grade(contopt,myquiz,myquest,ua,param,qua.attemptnum,qua.hintcount,user,iid,function(nugrade,feedback,completed) {
                       //console.log("FEEDBACK IS NOW",feedback);
-                      client.query( "update quiz_useranswer set score = $5,instance=$4,response=$1,"
+                      // completed will be 1 if this is a question with complete=1 in code section
+                      //   if so then all other questions in this container will be updated to complete (score=1,attemptnum=1)
+                      //   so that a stepwise container is completed if first (difficult) question answered correct
+                      qua.param = param;
+                      qua.param.display = unescape(qua.param.display);
+                      for (var oi in qua.param.options) {
+                           qua.param.options[oi] = unescape(qua.param.options[oi]); 
+                      }
+                      qua.response = parseJSON(ua);
+                      qua.feedback = feedback;
+                      qua.param.optorder = '';
+                      qua.qtype = myquest.qtype;
+                      qua.points = myquest.points;
+                      if (completed.lock) {
+                        callback({score:nugrade, att:0, qua:qua, completed:0} );
+                      } else client.query( "update quiz_useranswer set score = $5,instance=$4,response=$1,"
                                     + "feedback='"+feedback+"', attemptnum = attemptnum + 1,time=$2 where id=$3",
                                     [ua,now,qua.id,iid,nugrade,],
                       after(function(results) {
                         // return parsed version of param
                         // as the question needs to be redisplayed
                         // to reflect userchoice
-                        qua.param = param;
-                        qua.param.display = unescape(qua.param.display);
-                        for (var oi in qua.param.options) {
-                           qua.param.options[oi] = unescape(qua.param.options[oi]); 
-                        }
-                        qua.response = parseJSON(ua);
-                        qua.feedback = feedback;
-                        qua.param.optorder = '';
-                        qua.qtype = myquest.qtype;
-                        qua.points = myquest.points;
-                        callback({score:nugrade, att:qua.attemptnum+1, qua:qua} );
+                        callback({score:nugrade, att:qua.attemptnum+1, qua:qua, completed:completed.comp} );
                       }));
                     });
                   } else {
@@ -1004,6 +1009,7 @@ var renderq = exports.renderq = function(user,query,callback) {
 
 exports.studresetcontainer = function(user,query,callback) {
   // deletes useranswers for (container)
+  user = user || {};
   var container    = +query.container ;
   var uid          = user.id;
   var instance     = +query.instance || 0;

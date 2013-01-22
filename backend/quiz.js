@@ -8,6 +8,9 @@ var crypto = require('crypto');
 var jsp = require('uglify-js');
 var jstat = require('./jstat').jstat;
 var jdiff = require('./jdiff');
+var client = siteinf.client;
+var after = require('./utils').after;
+var saveconf = require('./user').save_config;
 
 
 var parseJSON = exports.parseJSON = function (str) {
@@ -106,7 +109,7 @@ var qz = {
  ,  question:{}     // cache for questions
  ,  contq:{}        // cache for container-questions
  ,  graphs:{}       // cache for graphs indexed by md5 hash of asymptote code
- ,  symb:{}         // symbols used by dynamic question
+ //,  symb:{}         // symbols used by dynamic question
  ,  containers:{}   // symbols defined by container
  , perturbe:function(optionCount) {
      // gives back a shuffled string, 'abcd'.length == optionCount
@@ -1073,7 +1076,7 @@ var qz = {
 
          }
 
-  , grade: function(contopt,aquiz,aquest,useranswer,param,attnum,hintcount,callback) {
+  , grade: function(contopt,aquiz,aquest,useranswer,param,attnum,hintcount,user,instance,callback) {
            // takes a question + useranswer + param and returns a grade
            // and possibly a feedback (where needed).
            // param is stored in db, it contains parameters
@@ -1084,6 +1087,42 @@ var qz = {
            // contopt - options for this container - sent from user web page
            var feedback = '';  // default feedback
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
+           var symb = {};
+           if (qobj.code && qobj.code.indexOf('complete') >= 0) {
+               // complete = 1  \n limit = 0.9 assumed to be in code section
+               // this question can complete this set of questions if correctly answered
+               // so that we can have a _complete_ question (this one)
+               // followed by tiny steps questions
+               // 1 Calculate P(Z>0.5) for p(Z) ~ N(3,2)  answer:[  ]
+               // 2 A dist with mean = 3 and variance = 4 can be made Standard normal
+               //   by substituting ( z - mean)/sqrt(var) into standard normal
+               // 3 What value will we have for Z>0.5 given mean=3 and var=4
+               // 4 Calculate P(Z>0.5)
+               // So q1 correctly answered will cause q2,q3,q4 to be correctly answered
+               // and student can skip these (reciving full score)
+               // failing q1 will open q2 q3 q4 wich will baby-step student to correct solution
+               symb.limit = 1;  // grade needed to set completed for all the rest
+               symb.skip = 0;   // how many questions to mark as completed, 0 => all the remaining
+               symb.lock = 0;   // this question needs to be answered correctly to continue with remaining
+                                //    used as password/lock
+               symb.key = '';   // key used to unlock
+               var text = qobj.code.trim();
+               if (text != '' ) {
+                 var lines = text.split(/\n/);
+                 for (var lid in lines) {
+                   var exp = lines[lid].trim();
+                         if (exp == '' ) {
+                           continue ;
+                         }
+                     try {
+                        with(symb){ eval('('+exp+')') };
+                     } catch(err) {
+                           console.log("EVAL-ERROR err=",err," EXPRESSION=",exp,":::");
+                     }
+                 }
+               }
+               //console.log("LOG: grade symb : ",symb);
+           }
            qobj.origtext = '' ; // only used in editor
            var simple = true;   // use the callback at end of function
            // symbolic python does not - callback at end of sympy exe
@@ -1093,7 +1132,7 @@ var qz = {
            var ua;
            var cost = (contopt) ? contopt.attemptcost || 0.1 : 0.1;  // grade cost pr attempt
            var hintcost = (contopt) ? contopt.hintcost || 0.05 : 0.1;  // grade cost pr hint
-           console.log("CONTOPT=",contopt);
+           //console.log("CONTOPT=",contopt);
            useranswer = useranswer.replace(/&lt;/g,'<');
            useranswer = useranswer.replace(/&gt;/g,'>');
            useranswer = useranswer.replace(/&amp;/g,'&');
@@ -1502,8 +1541,26 @@ var qz = {
              var adjust = qgrade * (1 - cutcost - hintcost*hintcount);
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
-             //console.log(feedback);
-             callback(qgrade,feedback);
+             var completed = { comp:0, lock:0 };
+             console.log(user);
+             if (symb.key && symb.keyvalue) {
+                 // this question creates a key - used by a lock
+                 // user,query,callback
+                saveconf(userinfo,{key:'key'+symb.key,value:symb.keyvalue},function() {} ); 
+             } else if (symb.lock) {
+                completed.lock = 1;
+             } else if (symb.limit && symb.limit <= qgrade) {
+                 var tempq = parseJSON(aquiz.qtext);
+                 var skip = symb.skip ? symb.skip : tempq.qlistorder.length;
+                 remaining = tempq.qlistorder.slice(instance+1,instance+skip+1);
+                 console.log("UNLOCK ALL",instance,remaining,tempq.qlistorder);
+                 completed.comp = 1;
+                 client.query( "update quiz_useranswer set score = 1,attemptnum = 1 "
+                              + " where qid != $3 and cid=$1 and userid=$2 and qid in (" + remaining.join(',')+ ')',
+                                    [aquiz.id, user.id,aquest.id ] );
+
+             }
+             callback(qgrade,feedback,completed);
            }
   }
 }

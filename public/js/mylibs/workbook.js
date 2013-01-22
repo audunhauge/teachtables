@@ -597,16 +597,20 @@ function renderPage() {
                         var qid = elm[0], iid = elm[1];
                         var ua = wb.getUserAnswer(qid,iid,myid,renderq.qrender);
                         $j.post(mybase+'/gradeuseranswer', {  contopt:contopt, iid:iid, qid:qid, cid:wbinfo.containerid, ua:ua }, function(ggrade) {
-                              ggrade.qua.display = ggrade.qua.param.display;
-                              ggrade.qua.score = ggrade.score;
-                              wb.render[wbinfo.layout].qrend(contopt,iid,qid,ggrade.qua,renderq.qrender,renderq.scorelist,function(adjust) {
+                              if (ggrade.completed == 1) {
+                                 renderPage();
+                              } else {
+                                ggrade.qua.display = ggrade.qua.param.display;
+                                ggrade.qua.score = ggrade.score;
+                                wb.render[wbinfo.layout].qrend(contopt,iid,qid,ggrade.qua,renderq.qrender,renderq.scorelist,function(adjust) {
                                       //$j("#qlist").html( renderq.showlist);
                                       $j("#"+adjust.sscore.qdivid).html(adjust.sscore.qdiv);
                                       $j("#"+adjust.sscore.scid).html( adjust.sscore.userscore);
                                       $j("#"+adjust.sscore.atid).html( ggrade.att);
                                       $j("#uscore").html(Math.floor(100*adjust.sumscore) / 100);
                                       redrawQuestion(iid,ggrade.att,adjust.sscore.userscore);  // redraw next question if any
-                              });
+                                });
+                              }
                         });
                     });
                 };
