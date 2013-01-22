@@ -410,7 +410,7 @@ div.equest {
 div.edme {
   display:block;
   float:right;
-  opacity:0;
+  opacity:0.3;
   color:white;
   margin-right:8px;
   height:16px;
@@ -446,7 +446,7 @@ div.edme {
 div.killer {
   display:block;
   float:right;
-  opacity:0;
+  opacity:0.3;
   color:white;
   margin-top:4px;
   margin-right:8px;
