@@ -1076,7 +1076,7 @@ var qz = {
 
          }
 
-  , grade: function(contopt,aquiz,aquest,useranswer,param,attnum,hintcount,user,instance,callback) {
+  , grade: function(contopt,aquiz,aquest,useranswer,param,attnum,hintcount,user,instance,uaid,callback) {
            // takes a question + useranswer + param and returns a grade
            // and possibly a feedback (where needed).
            // param is stored in db, it contains parameters
@@ -1088,7 +1088,7 @@ var qz = {
            var feedback = '';  // default feedback
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
            var symb = {};
-           if (qobj.code && qobj.code.indexOf('complete') >= 0) {
+           if (qobj.code && qobj.code.indexOf('control') >= 0) {
                // complete = 1  \n limit = 0.9 assumed to be in code section
                // this question can complete this set of questions if correctly answered
                // so that we can have a _complete_ question (this one)
@@ -1105,7 +1105,7 @@ var qz = {
                symb.skip = 0;   // how many questions to mark as completed, 0 => all the remaining
                symb.lock = 0;   // this question needs to be answered correctly to continue with remaining
                                 //    used as password/lock
-               symb.key = '';   // key used to unlock
+               symb.key = '';   // this question depends on key question (may be in other quiz)
                var text = qobj.code.trim();
                if (text != '' ) {
                  var lines = text.split(/\n/);
@@ -1121,7 +1121,7 @@ var qz = {
                      }
                  }
                }
-               //console.log("LOG: grade symb : ",symb);
+               console.log("LOG: grade symb : ",symb);
            }
            qobj.origtext = '' ; // only used in editor
            var simple = true;   // use the callback at end of function
@@ -1542,25 +1542,47 @@ var qz = {
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
              var completed = { comp:0, lock:0 };
-             console.log(user);
-             if (symb.key && symb.keyvalue) {
-                 // this question creates a key - used by a lock
-                 // user,query,callback
-                saveconf(userinfo,{key:'key'+symb.key,value:symb.keyvalue},function() {} ); 
-             } else if (symb.lock) {
-                completed.lock = 1;
-             } else if (symb.limit && symb.limit <= qgrade) {
-                 var tempq = parseJSON(aquiz.qtext);
-                 var skip = symb.skip ? symb.skip : tempq.qlistorder.length;
-                 remaining = tempq.qlistorder.slice(instance+1,instance+skip+1);
-                 console.log("UNLOCK ALL",instance,remaining,tempq.qlistorder);
-                 completed.comp = 1;
-                 client.query( "update quiz_useranswer set score = 1,attemptnum = 1 "
+             console.log(symb);
+             if (symb.lock && symb.limit && symb.limit <= qgrade) {
+               completed.lock = 1;
+             }
+             if (symb.key) {
+                 // this question is unanswerable until question aa:bb is answered
+                 //   in container aa there is a question with name bb
+                 //   if this has a score > 0 then accept answer
+                 completed.lock = 1;
+                 var keyel = symb.key.split(':');
+                 var cname = keyel[0];
+                 var qname = keyel[1] || '';
+                 var sql = 'select  u.score,u.id,c.name from quiz_question q inner join quiz_useranswer u on (q.id = u.qid) '
+                        +  ' inner join quiz_question c on (u.cid = c.id) where q.name=$1 and c.name=$2 and u.userid=$3';
+                client.query( sql,[ qname,cname,user.id],
+                  after(function(res) {
+                      var score = 0;
+                      if (res && res.rows) {
+                        var uan = res.rows[0];
+                        console.log("TESTING KEY",aquest,uan);
+                        if (uan && (uan.id == uaid && qgrade > 0 || uan.score > 0)) {
+                            score = qgrade;
+                            completed.lock = 0;
+                        }
+                      }
+                      callback(score,feedback,completed);
+
+                  }));
+             } else { 
+                 if (symb.limit && symb.limit <= qgrade) {
+                  var tempq = parseJSON(aquiz.qtext);
+                  var skip = symb.skip ? symb.skip : tempq.qlistorder.length;
+                  remaining = tempq.qlistorder.slice(instance+1,instance+skip+1);
+                  console.log("UNLOCK ALL",instance,remaining,tempq.qlistorder);
+                  completed.comp = 1;
+                  client.query( "update quiz_useranswer set score = 1,attemptnum = 1 "
                               + " where qid != $3 and cid=$1 and userid=$2 and qid in (" + remaining.join(',')+ ')',
                                     [aquiz.id, user.id,aquest.id ] );
-
+                 }
+               callback(qgrade,feedback,completed);
              }
-             callback(qgrade,feedback,completed);
            }
   }
 }
