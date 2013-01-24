@@ -297,7 +297,7 @@ function findfree(delta) {
       });
     $j(".free").click( function() {
           var myid = $j(this).attr("id");
-          if ($j(this).attr("checked")) {
+          if ($j(this).is(':checked')) {
             var elms = myid.split('-');
             var day = elms[0]; var slot = elms[1];
             possible = crosscheck(possible,reservtable, day,slot);

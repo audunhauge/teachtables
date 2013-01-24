@@ -2017,7 +2017,7 @@ wb.render.normal  = {
                           break;
                   }
                   var qnum = +qi + 1;
-                  var qname = (qu.name != '') ? '<span class="questname">'+qu.name+'</span>' : '';
+                  var qname = (qu.name && qu.name != '') ? '<span class="questname">'+qu.name+'</span>' : '';
                   var studnote = ''; // <div class="studnote"></div>
                   if (qu.usercomment && qu.usercomment != '') {
                     var stutxt = qu.usercomment.replace(/['"]/g,'«');
