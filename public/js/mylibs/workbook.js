@@ -1628,7 +1628,7 @@ wb.render.normal  = {
               if (wantlist) qdiv += '<input type="checkbox">';
               qdiv +=      '<span class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">' 
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
-                         + '<span class="qtype">' + qu.qtype + '</span><div class="qname"> '
+                         + '<span class="qtype">&nbsp;' + qu.name + '</span><div class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
                          + '</span><span class="qpoints">'+ qu.points +'</span><div class="edme"></div>';
               if (!wantlist) qdiv += '<div class="killer"></div>';
@@ -1875,6 +1875,9 @@ wb.render.normal  = {
                                 iid++;
                                 return ret;
                               });
+                          if (qu.feedback && qu.feedback != '' ) {
+                            adjusted += '<div class="fasit">'+unescape(qu.feedback) + '</div>';
+                          }
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext fillinq">'+adjusted;
                           if (iid > 0) {  // there are input boxes to be filled
                               if (scored || attempt != '' && attempt > 0) {
@@ -2014,6 +2017,7 @@ wb.render.normal  = {
                           break;
                   }
                   var qnum = +qi + 1;
+                  var qname = (qu.name != '') ? '<span class="questname">'+qu.name+'</span>' : '';
                   var studnote = ''; // <div class="studnote"></div>
                   if (qu.usercomment && qu.usercomment != '') {
                     var stutxt = qu.usercomment.replace(/['"]/g,'«');
@@ -2023,7 +2027,7 @@ wb.render.normal  = {
                     var teachtxt = qu.teachcomment.replace(/['"]/g,'«');
                     studnote += '<div  id="com'+qu.id+'" title="'+teachtxt+'" class="teachnote addcomment"></div>';
                   }
-                  qtxt = '<span class="qnumber">Spørsmål '+qnum
+                  qtxt = '<span class="qnumber">Spørsmål '+qnum + qname
                     +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt;
                   if (sscore.qdiv != undefined) {
                     sscore.qdiv = hints+qtxt;

@@ -755,11 +755,11 @@ var renderq = exports.renderq = function(user,query,callback) {
               for (var i=0,l=answers.rows.length; i<l; i++) {
                 var ua = answers.rows[i];
                 var q = quiz.question[ua.qid];
-                var qopts =parseJSON(q.qtext);
                 if (q == undefined) {
                   continue;  // this response is to a question no longer part of container
                   // just ignore it
                 }
+                var qopts =parseJSON(q.qtext);
                 ua.points = q.points;
                 ua.qtype = q.qtype;
                 ua.name = q.name;

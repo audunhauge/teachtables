@@ -1121,7 +1121,7 @@ var qz = {
                      }
                  }
                }
-               console.log("LOG: grade symb : ",symb);
+               //console.log("LOG: grade symb : ",symb);
            }
            qobj.origtext = '' ; // only used in editor
            var simple = true;   // use the callback at end of function
@@ -1554,6 +1554,7 @@ var qz = {
                  var keyel = symb.key.split(':');
                  var cname = keyel[0];
                  var qname = keyel[1] || '';
+                 feedback = 'Must complete: '+symb.key+' (container:question)';
                  var sql = 'select  u.score,u.id,c.name from quiz_question q inner join quiz_useranswer u on (q.id = u.qid) '
                         +  ' inner join quiz_question c on (u.cid = c.id) where q.name=$1 and c.name=$2 and u.userid=$3';
                 client.query( sql,[ qname,cname,user.id],
@@ -1561,10 +1562,11 @@ var qz = {
                       var score = 0;
                       if (res && res.rows) {
                         var uan = res.rows[0];
-                        console.log("TESTING KEY",aquest,uan);
+                        console.log("TESTING KEY",feedback);
                         if (uan && (uan.id == uaid && qgrade > 0 || uan.score > 0)) {
                             score = qgrade;
                             completed.lock = 0;
+                            feedback = '';
                         }
                       }
                       callback(score,feedback,completed);
