@@ -1111,14 +1111,16 @@ var qz = {
                  var lines = text.split(/\n/);
                  for (var lid in lines) {
                    var exp = lines[lid].trim();
-                         if (exp == '' ) {
-                           continue ;
-                         }
-                     try {
-                        with(symb){ eval('('+exp+')') };
-                     } catch(err) {
-                           console.log("EVAL-ERROR err=",err," EXPRESSION=",exp,":::");
-                     }
+                   if (exp == '' ) {
+                       continue ;
+                   }
+                   if ("limskiplockey".indexOf(exp.substr(0,3)) == -1) continue;
+                   // ignore any javascript not related to locking a container
+                   try {
+                       with(symb){ eval('('+exp+')') };
+                   } catch(err) {
+                           //console.log("EVAL-ERROR err=",err," EXPRESSION=",exp,":::");
+                   }
                  }
                }
                //console.log("LOG: grade symb : ",symb);
