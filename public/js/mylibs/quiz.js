@@ -306,7 +306,8 @@ function  setupworld(data) {
           }
           console.log( userinfo.config.subscription);
           teachlist = data.teachlist.filter( function (e) { return database.teachers[e.teachid] } );  // remove not teachers
-          teachlist = teachlist.filter( function (e) { return e.teachid == userinfo.id || userinfo.config && userinfo.config.subscription && userinfo.config.subscription[e.teachid]; });
+          teachlist = teachlist.filter( function (e) { return e.teachid == userinfo.id 
+              || userinfo.config && userinfo.config.subscription && userinfo.config.subscription[e.teachid]; });
           teachnames = teachlist.map( function (e) { var t = database.teachers[e.teachid]; return t ? t.firstname + ' ' + t.lastname : '' } );  // namelist
           teachids = teachlist.map( function (e) { return e ? e.teachid : 0 });
           teachlist = teachlist.map( function (e) { return {label:database.teachers[e.teachid].username, value:e.teachid} ; } );  // convert to label,value
@@ -342,6 +343,7 @@ function  setupworld(data) {
           }
           //console.log(tags);
           var alfab = 'abcdefghijklmnopqrstuvwxyzA'.split('');
+          $j("#rapp").html("Sorterer");
           for (var w0 in alfab) {
               var w1 = alfab[w0];
               var ww = wordobj[w1];
@@ -352,7 +354,8 @@ function  setupworld(data) {
                   wwlist.push(w);
               }
               //wwlist.sort(function(a,b) {  var r = a.w.substr(0,3).localeCompare(b.w.substr(0,3)); return r ? r : +b.qcount - +a.qcount;  }  )
-              wwlist.sort();
+              wwlist.sort(function(a,b) {  return a.w.localeCompare(b.w);  }  )
+              //wwlist.sort();
               wordlist = wordlist.concat(wwlist);
           }
 
@@ -419,10 +422,10 @@ function makeForcePlot(filter,limit,keyword,subj) {
                   if (clusterlist.length > 0) {
                     questEditor(clusterlist) 
                   } else {
-                    $j("#info").html("No match for this question type");
+                    $j("#info").html(ss.quiz.nomatchtype);
                   }
                 } else {
-                  $j("#info").html("No match");
+                  $j("#info").html(ss.quiz.nomatch);
                 }
               });
           $j("#tags").change(function() {
@@ -435,10 +438,10 @@ function makeForcePlot(filter,limit,keyword,subj) {
                   if (clusterlist.length > 0) {
                     questEditor(clusterlist) 
                   } else {
-                    $j("#info").html("No match for this question type");
+                    $j("#info").html(ss.quiz.nomatchtype);
                   }
                 } else {
-                  $j("#info").html("No match");
+                  $j("#info").html(ss.quiz.nomatch);
                 }
               });
           $j("#teacher").change(function() {
@@ -468,10 +471,10 @@ function makeForcePlot(filter,limit,keyword,subj) {
                   if (clusterlist.length > 0) {
                     questEditor(clusterlist) 
                   } else {
-                    $j("#info").html("No match for this question type");
+                    $j("#info").html(ss.quiz.nomatchtype);
                   }
                 } else {
-                  $j("#info").html("No match");
+                  $j("#info").html(ss.quiz.nomatch);
                 }
               });
 
@@ -559,7 +562,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
           });
 
           if (nodecount < 1) {
-            $j("#rapp").html("Ingen spørsmål funnet med valgt filter");
+            $j("#rapp").html(ss.quiz.nomatchtype);
             return;
           }
           //$j("#info").html(40*Math.sqrt(1+nodecount));

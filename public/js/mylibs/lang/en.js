@@ -32,4 +32,8 @@ var ss  = {
     , choosegroup       : 'Select group'
     , note              : 'Note'
    } 
+,  quiz                 : {
+      nomatchtype       : 'No match for this question type (given filters)'
+    , nomatch           : 'No match'
+   } 
 };
