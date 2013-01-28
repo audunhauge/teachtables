@@ -86,7 +86,8 @@ function normalizeFunction(txt,nosubst) {
       fu = fu.replace(/yy/gm,'y*y');
       fu = fu.replace(/yy/gm,'y*y');
       fu = fu.replace(/\)\(/gm,')*(').replace(/©/gm,'exp');
-  return fu;
+      //return 'with(Math) { return ' + fu + '; }';
+      return fu;
 }
 
 
@@ -1089,7 +1090,7 @@ var qz = {
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
            var symb = {};
            if (qobj.code && qobj.code.indexOf('control') >= 0) {
-               // complete = 1  \n limit = 0.9 assumed to be in code section
+               // control = 1  \n limit = 0.9 assumed to be in code section
                // this question can complete this set of questions if correctly answered
                // so that we can have a _complete_ question (this one)
                // followed by tiny steps questions
@@ -1101,11 +1102,11 @@ var qz = {
                // So q1 correctly answered will cause q2,q3,q4 to be correctly answered
                // and student can skip these (reciving full score)
                // failing q1 will open q2 q3 q4 wich will baby-step student to correct solution
-               symb.limit = 1;  // grade needed to set completed for all the rest
-               symb.skip = 0;   // how many questions to mark as completed, 0 => all the remaining
-               symb.lock = 0;   // this question needs to be answered correctly to continue with remaining
-                                //    used as password/lock
-               symb.key = '';   // this question depends on key question (may be in other quiz)
+               symb.limit = 0.9; // grade needed to set completed for all the rest
+               symb.skip = 0;    // how many questions to mark as completed, 0 => all the remaining
+               symb.lock = 0;    // this question needs to be answered correctly to continue with remaining
+                                 //    used as password/lock
+               symb.key = '';    // this question depends on key question (may be in other quiz)
                var text = qobj.code.trim();
                if (text != '' ) {
                  var lines = text.split(/\n/);
@@ -1163,15 +1164,15 @@ var qz = {
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    tot++;
                    var ff = unescape(fasit[ii]);
-                   if (ff == ua[ii]  ) {
+                   if (ff == ua[ii]  ) {        // MARK: exact answer
                      ucorr++;
                    } else {
                      var swi = ff.substr(0,4);  // check for nor: sym: eva: reg: lis:
                      var tch = ff.substr(4);    // remainder after removing prefix
-                     var num = +ff;
-                     var tol = 0.0000001;
-                     var uanum = ua[ii].replace(',','.');
-                     uanum = +uanum;
+                     var num = +ff;             // get numeric value
+                     var tol = 0.0000001;       // default tolerance
+                     var uanum = ua[ii].replace(',','.');  // user input 3,141 => 3.14
+                     uanum = +uanum;       // numeric value of user input 
                      var uatxt = ua[ii];
                      switch (swi) {
                        case 'nor:':
@@ -1224,6 +1225,50 @@ var qz = {
                           });
                          break;
                        case 'eva:':
+                         //   eva:exp,a,b       the answer x is scored as eval(x) == exp, for 20 rand in [a,b]
+                         var elm = tch.split(',');
+                         var exp = elm[0];
+                         var lolim = +elm[1] || -5;
+                         var hilim = +elm[2] || 5;
+                         var sco = 0;
+                         exp = normalizeFunction(exp);
+                         var ufu = normalizeFunction(uatxt);
+                         console.log(exp,lolim,hilim,ufu);
+                         if (exp == ufu) {
+                             ucorr++;     // good match for regular expression
+                         } else {
+                           if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                             // user supplied function numericly tested against fasit
+                             // for x values lolim .. hilim , 20 steps
+                             var dx = (+hilim - +lolim) / 20;
+                             var bad = false;
+                             try {
+                               //return 'with(Math) { return ' + fu + '; }';
+                               var fu1 = new Function("t",' with(Math) { return ' +exp+'; }' );
+                               var fu2 = new Function("t",' with(Math) { return ' +ufu+'; }' );
+                               for (var ii=0,xi = lolim; ii < 20; xi += dx, ii++) {
+                                   var f1 = fu1(xi);
+                                   var f2 = fu2(xi);
+                                   var reltol = f1 ? Math.abs(fu1(xi)-fu2(xi))/Math.abs(fu1(xi)) : Math.abs(fu1(xi)-fu2(xi));
+                                   console.log(xi,reltol);
+                                   if (reltol > 0.005) {
+                                       bad = true;
+                                       break;
+                                   }
+                                   sco += reltol;
+                               }
+                             }
+                             catch (err) {
+                                 console.log("EVAL fu ",err);
+                                 bad = true;
+                             }
+                             if (bad) {
+                               uerr++;
+                             } else {
+                               ucorr += 1 - sco;
+                             }
+                           }
+                         }
                          break;
                        case 'reg:':
                          try {

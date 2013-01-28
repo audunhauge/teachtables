@@ -1186,7 +1186,7 @@ exports.getcontainer = function(user,query,callback) {
   }
   var isteach = (user.department == 'Undervisning');
   var sql,param;
-  if (givenqlist) {
+  if (givenqlist && givenqlist != '') {
     // process the specified questions
     if (isteach) {
       sql = "select q.*,case when q.parent != 0 and q.qtext != qp.qtext then "
@@ -1214,6 +1214,7 @@ exports.getcontainer = function(user,query,callback) {
     param = [ container ];
     //console.log("HERE 2");
   }
+  //console.log("WORKBOOK:getcontainer:",sql,param);
   client.query( sql, param,
     after(function(results) {
       //console.log("came here ",results.rows);
