@@ -10,7 +10,7 @@ var addons = siteinf.addons;
 exports.makemeet = function(req, res) {
     // make a meeting
     if (req.session.user && req.session.user.department == 'Undervisning') {
-      database.makemeet(req.session.user,req.body,function(msg) {
+      database.makemeet(req.session.user,req.body,req.headers.host,function(msg) {
          res.send(msg);
       });
     } else {

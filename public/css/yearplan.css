@@ -1776,11 +1776,27 @@ div.meetlist.active {
   background:blue;
   color:white;
 }
+div.meetlist.myown {
+  -webkit-box-shadow: 3px 3px 2px #090;      
+  -moz-box-shadow: 3px 3px 2px #090;      
+}
 
+div.meetlist.acc0 {
+    background:gray;
+}
+div.meetlist.acc1 {
+    background:#1E90FF;
+}
+div.meetlist.acc2 {
+    background:green;
+}
+div.meetlist.acc3 {
+    background:red;
+}
 span.meetdato {
   position:absolute;
   display:block;
-  left:90px;
+  left:110px;
   top:3px;
   font-size:0.9em;
 }
@@ -1792,6 +1808,9 @@ span.ulist {
   font-size:0.8em;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+input.meetchk {
+    background:yellow;
 }
 span.meetroom {
   position:absolute;

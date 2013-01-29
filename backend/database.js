@@ -1,10 +1,12 @@
+// catch all for functions not assigned to specific xxx.js class
+//   some of these should be factored out into new classes or existing classes
 var pg = require('pg');
 var sys = require('util');
 var crypto = require('crypto');
-//var creds = require('./creds');
+var async = require('async');
+var sendemail = require('nodemailer');
 var connectionString = siteinf.connectionString;
 
-var email   = require("emailjs/email");
 
 // utils will upgrade String with a few goodies
 var after = require('./utils').after;
@@ -150,21 +152,32 @@ var saveteachabsent = function(user,query,callback) {
                        var avd = siteinf.depleader[teach.institution];
                        if (avd) {
                          var depleader = db.teachers[db.teachuname[avd]];
-                         var server  = email.server.connect({
-                              user:       "skeisvang.skole", 
-                              password:   "123naturfag", 
-                              host:       "smtp.gmail.com", 
-                              ssl:        true
+                         var server  = sendemail.createTransport("SMTP",{
+                              service:"Gmail",
+                              auth: {
+                                user:   "skeisvang.skole", 
+                                pass:   "123naturfag", 
+                              }
                          });
-
-                         // send the message and get a callback with an error or details of the message that was sent
-                         server.send({
+                         var mailOptions = {
                                 text:   "Borte i dag: " + teach.username + " " + name + " " + text + " time"
                               , from:   "kontoret <skeisvang.skole@gmail.com>"
                               , to:     depleader.email
                               , cc:     "audun.hauge@gmail.com"
-                              , subject:  "Bortfall lerar"
-                         }, function(err, message) { console.log(err || message); });
+                              , subject:  "Bortfall lærer"
+                         }
+
+                        server.sendMail(mailOptions, function(error, response){
+                            if(error){
+                                console.log(error);
+                            }else{
+                                console.log("Message sent: " + response.message);
+                            }
+
+                            // if you don't want to use this transport object anymore, uncomment following line
+                            server.close(); // shut down the connection pool, no more messages
+                        });
+
 
                        }
                     }
@@ -319,11 +332,12 @@ exports.edituser = function(user,query,callback) {
   var department   = query.department || 'Student';
   var institution  = query.institution || 'New';
   var password     = query.password || 'new';
+  var email        = query.email || '';
   var md5pwd = crypto.createHash('md5').update(password).digest("hex");
   switch(action) {
       case 'create':
-           client.query("insert into users (username,firstname,lastname,password,department,institution) "
-                       + " values ($1,$2,$3,$4,$5,$6) returning id",[username,firstname,lastname,md5pwd,department,institution],
+           client.query("insert into users (username,firstname,lastname,password,department,institution,email) "
+                       + " values ($1,$2,$3,$4,$5,$6,$7) returning id",[username,firstname,lastname,md5pwd,department,institution,email],
            after(function(results) {
             var nu = (results.rows && results.rows.length) ? results.rows[0] : 0;
             client.query("select * from users order by username",
@@ -931,9 +945,8 @@ var getmeet = function(callback) {
   // returns a hash of all meet
   // a meet is a calendar entry for one specific person assigned to a meeting
   // each meet is connected to a meeting thru courseid
-  // horrid - certainly. so what ?
   client.query(
-      'select id,userid,courseid,day,slot,roomid,name,value,julday,class as klass from calendar  '
+      'select id,userid,teachid,courseid,day,slot,roomid,name,value,julday,class as klass from calendar  '
        + "      WHERE eventtype = 'meet' and class in (0,1,2) and julday >= " + db.startjd ,
       after(function(results) {
           var meets = {};
@@ -969,7 +982,7 @@ var changeStateMeet  = function(query,state,callback) {
 };
 
 
-var makemeet = function(user,query,callback) {
+var makemeet = function(user,query,host,callback) {
     var current        = +query.current;
     var idlist         = query.idlist;
     var shortslots     = query.shortslots; // for short meetings (5,10,15 .. min)
@@ -988,15 +1001,22 @@ var makemeet = function(user,query,callback) {
     var sendmail       = query.sendmail;   // send mail to participants
     var values         = [];               // entered as events into calendar for each partisipant
     // idlist will be slots in the same day (script ensures this)
+    console.log("DATABASE:makemeet host=",host);
     if (kort && !(typeOf(shortslots) === 'object')) {
          callback( {ok:false, msg:"no slots"} );
          return;
     }
     switch(action) {
       case 'kill':
-        //console.log("delete where id="+myid+" and uid="+user.id);
-        sqlrunner('delete from calendar where eventtype=\'meet\' and id=$1 and (userid=$2 or $3 )  ',[myid,user.id,user.isadmin],callback);
-        callback( {ok:true, msg:"meeting removed"} );
+        console.log("delete where id="+myid+" and uid="+user.id);
+        console.log("delete where courseid="+myid+" and eventtype='meeting' ");
+        //sqlrunner('delete from calendar where eventtype=\'meet\' and id=$1 and (userid=$2 or $3 )  ',[myid,user.id,user.isadmin],callback);
+        client.query('delete from calendar where id=$1 and (userid=$2 or $3)',[myid,user.id,user.isadmin], after(function(res) {
+          client.query("delete from calendar where courseid=$1 and eventtype = 'meet'",[myid], after(function(res) {
+              callback( {ok:true, msg:"meeting removed"} );
+          }));
+        }));
+        return;
         break;
       case 'insert':
         var teach        = db.teachers[user.id];
@@ -1024,18 +1044,12 @@ var makemeet = function(user,query,callback) {
                 var teach = db.teachers[uid];
                 participants.push(teach.firstname.caps() + " " + teach.lastname.caps());
                 allusers.push(teach.email);
-                values.push('(\'meet\','+pid+','+uid+','+(current+myday)+','+roomid+",'"+title+"','"+idlist+"',"+klass+","+slot+")" );
+                values.push('(\'meet\','+pid+','+uid+','+user.id+','+(current+myday)+','+roomid+",'"+title+"','"+idlist+"',"+klass+","+slot+")" );
               }
               var valuelist = values.join(',');
               //console.log( 'insert into calendar (eventtype,courseid,userid,julday,roomid,name,value,class,slot) values ' + values);
-              client.query( 'insert into calendar (eventtype,courseid,userid,julday,roomid,name,value,class,slot) values ' + values,
+              client.query( 'insert into calendar (eventtype,courseid,userid,teachid,julday,roomid,name,value,class,slot) values ' + values,
                after(function(results) {
-                   if (!(resroom && !kort)) {
-                     if (!calledback) {
-                       callback( {ok:true, msg:"inserted"} );
-                       calledback = true;
-                     }
-                   }
               }));
               if (resroom && !kort) {
                 // make a reservation if option is checked - but not for short meetings
@@ -1048,10 +1062,6 @@ var makemeet = function(user,query,callback) {
                 //console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values '+ values.join(','));
                 client.query( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values '+ values.join(','),
                   after(function(results) {
-                     if (!calledback) {
-                       callback( {ok:true, msg:"inserted"} );
-                       calledback = true;
-                     }
                    }));
               }
               console.log("SENDMAIL=",sendmail);
@@ -1062,13 +1072,16 @@ var makemeet = function(user,query,callback) {
                 var greg = julian.jdtogregorian(current + myday);
                 var d1 = new Date(greg.year, greg.month-1, greg.day);
                 var meetdate = greg.day + '.' + greg.month + '.' + greg.year;
-                var server  = email.server.connect({
-                      user:       "skeisvang.skole", 
-                      password:   "123naturfag", 
-                      host:       "smtp.gmail.com", 
-                      ssl:        true
-                });
-                var basemsg = '\n\n' + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Time: ' + idlist 
+                var server  = sendemail.createTransport("SMTP",{
+                      service:"Gmail",
+                      auth: {
+                        user:   "skeisvang.skole", 
+                        pass:   "123naturfag", 
+                      }
+                 });
+
+                var basemsg = '\n\nMøte på Skeisvang\n=====================\n\n'+title+'\n=====================\n\n' 
+                         + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Time: ' + idlist 
                          + '\n  Tid: ' + meetstart + '\n  Sted: rom '+roomname;
                 basemsg  += "\n\n" + "  Deltagere:\n   * " + participants.join('\n   * ');
                 basemsg  += "\n\n" + "  Ansvarlig: " + owner;
@@ -1077,24 +1090,32 @@ var makemeet = function(user,query,callback) {
                       var persmsg = basemsg;
                       var uid = +chosen[uii];
                       var teach = db.teachers[uid];
-                      if (konf == 'deny') persmsg += "\n" + " Avvis med denne linken:\n    http://node.skeisvang-moodle.net/rejectmeet?userid="+uid+"&meetid="+pid;
-                      if (konf == 'conf') persmsg += "\n" + " Bekreft med denne linken:\n    http://node.skeisvang-moodle.net/acceptmeet?userid="+uid+"&meetid="+pid;
-                      server.send({
+                      if (konf == 'deny') persmsg += "\n" + " Avvis med denne linken:\n"
+                          + "http://"+host+siteinf.base +"/rejectmeet?userid="+uid+"&meetid="+pid;
+                      if (konf == 'conf') persmsg += "\n" + " Bekreft med denne linken:\n"
+                          + "http://"+host+siteinf.base +"/acceptmeet?userid="+uid+"&meetid="+pid;
+                      var mailOptions = {
                                 text:   persmsg
                               , from:   "AvtalePlanlegger <skeisvang.skole@gmail.com>"
                               , to:     teach.email
                               , subject:  title
-                      }, function(err, message) { console.log(err || message); });
+                       }
+                      console.log("DATABASE makemeet sendmailto:",mailOptions);
+                      server.sendMail(mailOptions, function(error, response){
+                            if(error){
+                                console.log(error);
+                            }else{
+                                console.log("Message sent: " + response.message);
+                            }
+                            server.close();
+                      });
                 }
               }
-              return;
            }
-           if (!calledback) {
-             callback( {ok:true, msg:"inserted"} );
-             calledback = true;
-           }
+           callback( {ok:true, msg:"inserted"} );
 
         }));
+        return;
         break;
     }
     callback( {ok:false, msg:"Failed to make meeting"} );
@@ -1264,7 +1285,7 @@ var getstudents = function() {
   // list of all rooms, array of coursenames (for autocomplete)
   client.query(
       // fetch students and teachers
-      'SELECT id,username,firstname,lastname,department,institution from users order by department,institution,lastname,firstname',
+      'SELECT id,username,firstname,lastname,department,institution,email from users order by department,institution,lastname,firstname',
             after(function(results) {
             //console.log(results.rows);
             for (var i=0,k= results.rows.length; i < k; i++) {
@@ -1275,6 +1296,7 @@ var getstudents = function() {
                   db.tnames.push(user.username);
                   db.teachuname[user.username] = user.id;
                 } else {
+                  delete user.email;  // save some space
                   db.studentIds.push(user.id);
                   db.students[user.id] = user;
                 }

@@ -627,7 +627,7 @@ function findFreeTime() {
                   function(data) {
                      meetings = data;
                      freeTimeTable(userlist,minfo.roomid,minfo.delta);
-                     $j("#oskrift").html("Avtalen er lagra");
+                     $j("#oskrift").html("Avtalen er lagra").effect("pulsate", { times:3 }, 3000);
              });
          });
        });
@@ -666,7 +666,6 @@ function myMeetings(meetid,delta) {
     var meetlist = [];
     var jd = database.startjd + 7*delta;
     for (var day = 0; day < 5; day++) {
-      // decimate based on existing meetings for teachers
       if (database.thisjd > jd+day) {
         continue;
       }
@@ -701,10 +700,12 @@ function myMeetings(meetid,delta) {
             if (abba.id == meetid) active = ' active';
             var meetdate = julian.jdtogregorian(jd+day);
             var meetime =  meetTimeStart(idlist,avalue,shortslots);
-            var meetdiv = '<div id="'+abba.courseid+'" class="meetlist'+active+'"><span class="meetinfo">' + abba.name
+            var myown = (abba.teachid == userinfo.id) ? ' myown' : '';
+            var meetdiv = '<div  class="meetlist'+active+' acc'+abba.klass+myown+'"><span class="meetinfo">' 
+                          + '<input  class="meetchk" type="checkbox" >' + abba.name
                           +'</span><span class="meetdato">' + meetime + ' ' + romdager[day]+' '
                           +meetdate.day+'.'+meetdate.month+'</span><span class="ulist">'
-                          +minf[abba.courseid].ulist.join(',')+'</span><span class="meetroom">'+database.roomnames[abba.roomid]
+                          +minf[abba.courseid].ulist.join(',')+'</span><span id="'+abba.courseid+'" class="meetroom">'+database.roomnames[abba.roomid]
                           +'</span></div>';
             meetlist.push(meetdiv);
           }
@@ -712,27 +713,54 @@ function myMeetings(meetid,delta) {
       }
     }
     $j("#stage").html(meetlist.join(''));
-    $j(".meetlist").click(function() {
-       editMeeting(this.id,jd);
+    $j(".meetroom").click(function() {
+       editMeeting(this.id,meetid,delta);
+    });
+    $j(".meetroom").click(function() {
+       editMeeting(this.id,meetid,delta);
     });
   })
 }
 
 
-function editMeeting(meetingid) {
+function editMeeting(meetingid,meetid,delta) {
   // edit a specific meeting - you are owner
   $j.getJSON(mybase+ "/getmeeting", function(data) {
-    var s='<div id="timeviser"><h1 id="oskrift">Rediger møte</h1>';
-    s+= '<div id="stage"></div>';
-    s+= '<div id="controls">'
-        + '<div class="meetbutton">Slett</div>'
-        + '<div class="meetbutton">Resend</div>'
-        + '</div>';
-    s+= "</div>";
-    $j("#main").html(s);
-    s = '';
+    var meet,s,owner,ownerid;
+    var owner = false;
     if ( data[userinfo.id] && data[userinfo.id][meetingid]) {
-      var meet = data[userinfo.id][meetingid];
+      meet = data[userinfo.id][meetingid];
+      owner = true;
+    } else {
+        // find this meeting, data is indexed by owner
+        for (var uui in data) {
+            var uuu = data[uui];
+            if (uuu[meetingid]) {
+               meet = uuu[meetingid];
+               ownerid = uui;
+               break;
+            }
+        }
+    }
+    if (meet) {
+      if (owner) {
+        s='<div id="timeviser"><h1 id="oskrift">Rediger møte</h1>';
+        s+= '<div id="stage"></div>';
+        s+= '<div id="controls">'
+            + '<div id="killmeet" class="meetbutton">Slett</div>'
+            + '<div class="meetbutton">Resend</div>'
+            + '</div>';
+        s+= "</div>";
+      } else {
+        var teach = teachers[ownerid];
+        var ownername = teach.firstname.caps() + ' '+ teach.lastname.caps() ;
+        s='<div id="timeviser"><h1 id="oskrift">Møte</h1>';
+        s+= '<h4>Ansvarlig: '+ownername+'</h4>';
+        s+= '<div id="stage"></div>';
+        s+= "</div>";
+      }
+      $j("#main").html(s);
+      s = '';
       var metinfo = JSON.parse(meet.value);
       var tslots = {};
       if (metinfo.kort) {
@@ -754,10 +782,15 @@ function editMeeting(meetingid) {
       }
       s += '<h3>Deltakere</h3><ul><li>'+teachlist.join('</li><li>') + '</ul>';
       s += (metinfo.kort) ? '<br>Short meeting' : '';
+      $j("#killmeet").click(function() {
+            $j.post(mybase+'/makemeet',{ myid:meetingid, action:"kill" },function(resp) {
+                 myMeetings(meetid,delta);
+             });
+       });
+       $j("#stage").html(s);
       
     } else {
-      metinfo = 'No such meeting';
+      $j("#main").html('No such meeting pending');
     }
-    $j("#stage").html(s);
   })
 }
