@@ -16,6 +16,7 @@ minfo = {
 };  
 
 
+
 function reduceSlots(userlist,roomname,jd) {
   // returns biglump, whois, busy and rreserv
   // whois busy and rreserv contain info on who,what,why the slot is blocked
@@ -656,7 +657,7 @@ function myMeetings(meetid,delta) {
   // show list of meetings (your meetings)
   meetid = typeof(meetid) != 'undefined' ?  +meetid : 0;
   delta = typeof(delta) != 'undefined' ?  +delta : 0;    // week offset from current date
-  $j.getJSON(mybase+ "/getmeet", function(data) {
+  $j.getJSON(mybase+ "/getmeet", function(data) { 
     meetings = data.meetings;
     var s='<div id="timeviser"><h1 id="oskrift">Mine møter</h1>';
     s+= '<div id="freeplan"></div>';
@@ -769,6 +770,7 @@ function editMeeting(meetingid,meetid,delta) {
       }
       var meetime =  meetTimeStart(metinfo.idlist.split(','),metinfo.idlist,tslots);
       s += '<h1>' + metinfo.title + '</h1>';
+      s += (meet.klass == 1) ? '<h4>Obligatorisk</h4>' : '';
       s +=  metinfo.message + '<hr>';
       if (metinfo.sendmail == 'yes') {
         s+= '<br>Mail er sendt til deltakerne';
@@ -776,9 +778,28 @@ function editMeeting(meetingid,meetid,delta) {
       s += '<br>Time:' + meetime;
       s += '<br>Rom : ' + database.roomnames[meet.roomid];
       var teachlist = [];
+      var daymeet = meetings[meet.julday];   // all meetings this day
+      var acceptOrDecline = 0;
       while( metinfo.chosen.length) {
         var teach = teachers[metinfo.chosen.pop()];
-        teachlist.push( teach.firstname.caps() + ' '+ teach.lastname.caps() );
+        var accepted = 'ui-icon-help';
+        if (daymeet[teach.id]) {
+            for (var mii in daymeet[teach.id]) {
+                var mmme = daymeet[teach.id][mii];
+                if (mmme.courseid == meetingid) {
+                   accepted = ("ui-icon-help,ui-icon-check,ui-icon-check,ui-icon-close".split(','))[mmme.klass];
+                   if (teach.id == userinfo.id) {
+                       acceptOrDecline = mmme.klass;
+                   }
+                   break;
+                }
+            }
+        }
+        accepted = '<span class="right ui-icon '+accepted+'"></span>';
+        teachlist.push( teach.firstname.caps() + ' '+ teach.lastname.caps() + accepted );
+      }
+      if (acceptOrDecline == 0) {
+          s += '<h5><div id="acc" class="float button">godta</div><div id="rej" class="float button">avslå</div></h5><p class="clear"></p>';
       }
       s += '<h3>Deltakere</h3><ul><li>'+teachlist.join('</li><li>') + '</ul>';
       s += (metinfo.kort) ? '<br>Short meeting' : '';
@@ -788,6 +809,16 @@ function editMeeting(meetingid,meetid,delta) {
              });
        });
        $j("#stage").html(s);
+      $j("#rej").click(function() {
+          $j.get(mybase+ "/rejectmeet?userid="+userinfo.id+"&meetid="+meetingid,function(res) {
+                 myMeetings(meetid,delta);
+              });
+       });
+      $j("#acc").click(function() {
+          $j.get(mybase+ "/acceptmeet?userid="+userinfo.id+"&meetid="+meetingid,function(res) {
+                 myMeetings(meetid,delta);
+              });
+       });
       
     } else {
       $j("#main").html('No such meeting pending');

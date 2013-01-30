@@ -1251,6 +1251,10 @@ div.helper { border:solid yellow 1px; background:yellow; width:20px; height:16px
     float:left;
 }
 
+.right {
+    float:right;
+}
+
 .clear {
     clear:both;
 }
@@ -1788,10 +1792,10 @@ div.meetlist.acc1 {
     background:#1E90FF;
 }
 div.meetlist.acc2 {
-    background:green;
+    background:#90EE90;
 }
 div.meetlist.acc3 {
-    background:red;
+    background:#CD5C5C;
 }
 span.meetdato {
   position:absolute;

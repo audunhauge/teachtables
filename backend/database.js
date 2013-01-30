@@ -1029,8 +1029,8 @@ var makemeet = function(user,query,host,callback) {
                                        sendmail:sendmail, title:title, message:message, 
                                        chosen:chosen, kort:kort, shortslots:shortslots });
         client.query(
-          'insert into calendar (eventtype,julday,userid,roomid,name,value) values (\'meeting\',$1,$2,$3,$4,$5)  returning id',
-             [current+myday,user.id,roomid,title.substr(0,30),meetinfo], after(function(results) {
+          'insert into calendar (eventtype,julday,userid,roomid,name,value,class) values (\'meeting\',$1,$2,$3,$4,$5,$6)  returning id',
+             [current+myday,user.id,roomid,title.substr(0,30),meetinfo,klass], after(function(results) {
             if (results && results.rows && results.rows[0] ) {
               var pid = results.rows[0].id;
               var allusers = [];
@@ -1042,9 +1042,10 @@ var makemeet = function(user,query,host,callback) {
               for (var uii in chosen) {
                 var uid = +chosen[uii];
                 var teach = db.teachers[uid];
+                var thisklass = (user.id == uid) ? 1 : klass;  // creater can not choose to not show up for meeting
                 participants.push(teach.firstname.caps() + " " + teach.lastname.caps());
                 allusers.push(teach.email);
-                values.push('(\'meet\','+pid+','+uid+','+user.id+','+(current+myday)+','+roomid+",'"+title+"','"+idlist+"',"+klass+","+slot+")" );
+                values.push('(\'meet\','+pid+','+uid+','+user.id+','+(current+myday)+','+roomid+",'"+title+"','"+idlist+"',"+thisklass+","+slot+")" );
               }
               var valuelist = values.join(',');
               //console.log( 'insert into calendar (eventtype,courseid,userid,julday,roomid,name,value,class,slot) values ' + values);
