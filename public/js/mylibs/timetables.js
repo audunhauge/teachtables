@@ -1145,8 +1145,9 @@ function setup_timeregister() {
 
 function addToMemory() {
     // legger til en ny bruker til minnet
-    if (valgtPlan && eier && eier.username) {
-        var username = eier.username;
+    //if (valgtPlan && eier && eier.username) {
+    if (valgtPlan) {
+        var username = eier.username || eier;
         if (!timeregister[username]) {
            timeregister[username] = valgtPlan;
         }

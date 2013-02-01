@@ -703,7 +703,7 @@ function afterloggin(uinfo) {
           });
     } else {
        $j.get(mybase+ '/attendance', function(att) {
-          attend = expandat(att);
+          attend = expandatt(att);
           s =  '<li><a id="show" href="#">Starb</a><ul>'
               +    '<li><a id="myattend"    href="#">Starb-oversikt</a></li>'
               + '</ul></li>';

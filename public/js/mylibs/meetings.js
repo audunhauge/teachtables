@@ -223,7 +223,18 @@ function findFreeTime() {
       // the teach has memorized someone 
       // find all teachers who teach this stud
       // and set chosen to this list
+      var memList = [];
       for (var treg in timeregister) {
+          // first pass expands groups into students
+          if ( memberlist[treg]) {
+              // this is a group containing members
+              memList = memList.concat(memberlist[treg]);
+          } else {
+              memList.push(treg);
+          }
+      }
+      for (var tii in memList) {
+        var treg = memList[tii];
         if (students[+treg]) {
             var usergr = memgr[+treg] || null;
             if (usergr) {
@@ -782,7 +793,8 @@ function editMeeting(meetingid,meetid,delta) {
       var acceptOrDecline = 0;
       while( metinfo.chosen.length) {
         var teach = teachers[metinfo.chosen.pop()];
-        var accepted = 'ui-icon-help';
+        var accepted = 'ui-icon-close';
+        var notcoming = ' class="redfont" ';
         if (daymeet[teach.id]) {
             for (var mii in daymeet[teach.id]) {
                 var mmme = daymeet[teach.id][mii];
@@ -790,17 +802,22 @@ function editMeeting(meetingid,meetid,delta) {
                    accepted = ("ui-icon-help,ui-icon-check,ui-icon-check,ui-icon-close".split(','))[mmme.klass];
                    if (teach.id == userinfo.id) {
                        acceptOrDecline = mmme.klass;
+                       notcoming = '';
                    }
                    break;
                 }
             }
         }
         accepted = '<span class="right ui-icon '+accepted+'"></span>';
-        teachlist.push( teach.firstname.caps() + ' '+ teach.lastname.caps() + accepted );
+        teachlist.push( '<span'+notcoming+'>'+teach.firstname.caps() + ' '+ teach.lastname.caps() + '</span>'+ accepted );
       }
-      if (acceptOrDecline == 0) {
-          s += '<h5><div id="acc" class="float button">godta</div><div id="rej" class="float button">avslå</div></h5><p class="clear"></p>';
-      }
+      if (acceptOrDecline == 0 || acceptOrDecline == 2) {
+          if (acceptOrDecline == 0 ) {
+             s += '<h5><div id="acc" class="float button">godta</div><div id="rej" class="float button">avslå</div></h5><p class="clear"></p>';
+          } else {
+             s += '<h5><div id="rej" class="button">KanIkke</div></h5>';
+          }
+      } 
       s += '<h3>Deltakere</h3><ul><li>'+teachlist.join('</li><li>') + '</ul>';
       s += (metinfo.kort) ? '<br>Short meeting' : '';
       $j("#killmeet").click(function() {
