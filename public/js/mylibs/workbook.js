@@ -1162,6 +1162,7 @@ function editquestion(myid, target) {
    var s = '<div id="wbmain">' + head + '<div id="qlistbox"><div id="editform">'
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
+        + '<tr><th>Type</th><td>'+selectype+'</td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr>'
         + '</table>'
@@ -1205,7 +1206,6 @@ function editquestion(myid, target) {
        "Oppdater": function() {
                //alert($j("input[name=qpoints]").val());
              $j( this ).dialog( "close" );
-             dialog.qtype = $j("select[name=qtype]").val();
              dialog.qpoints = $j("input[name=qpoints]").val();
              dialog.qcode = $j("#qcode").val();
              dialog.pycode = $j("#pycode").val();
@@ -1248,7 +1248,6 @@ function editquestion(myid, target) {
                 var dia = ''
                 +   '<form><fieldset><table class="standard_info">'
                 +   '<tr><th>Points</th><td><input name="qpoints" class="num4" type="text" value="'+q.points+'"></td></tr>'
-                +   '<tr><th>Type</th><td>'+selectype+'</td></tr>'
                 +   '<tr><th>Created</th><td>'+showdate(q.created)+'</td></tr>'
                 +   '<tr><th>Modified</th><td>'+showdate(q.modified)+'</td></tr>'
                 +   '<tr><th>Parent</th><td>'+q.parent+'</td></tr>'
@@ -1307,11 +1306,12 @@ function editquestion(myid, target) {
         }
         var daze = $j("input[name=daze]").val();
         dialog.daze = daze;
+        var qtype = $j("select[name=qtype]").val();
         var qname = $j("input[name=qname]").val();
         var newqtx = { display:$j("#qdisplay").val(), options:q.options, fasit:q.fasit, code:dialog.qcode, 
                         pycode:dialog.pycode, hints:dialog.hints, daze:daze, contopt:contopt };
         $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname, 
-                                qtype:dialog.qtype, points:dialog.qpoints }, function(resp) {
+                                qtype:qtype, points:dialog.qpoints }, function(resp) {
            editquestion(myid,target);
         });
       });

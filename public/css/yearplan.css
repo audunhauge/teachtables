@@ -90,7 +90,7 @@ div.tnames:first-child {
   border-top-right-radius: 13px;
 }
 div.chapter {
-  z-index:100;
+  z-index:99;
   margin-top:12px;
   border:solid gray 3px;
   position:absolute;

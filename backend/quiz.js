@@ -238,6 +238,7 @@ var qz = {
              return sp;
          });
          qobj.fasit = draggers;
+         //console.log("Draggers = ",draggers);
          break;
        case 'multiple':
          break;
