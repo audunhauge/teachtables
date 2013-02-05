@@ -747,7 +747,9 @@ var renderq = exports.renderq = function(user,query,callback) {
   // console.log( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ]);
   client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
   after(function(results) {
-      // we now have the container as delivered to the user
+   client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
+   after(function(master) {
+      // we now have the container as it exists now
       // must get useranswer for container.
     client.query( "select * from quiz_useranswer where cid = $1 and userid = $2 order by instance",[ container,uid ],
     after(function(answers) {
@@ -807,6 +809,12 @@ var renderq = exports.renderq = function(user,query,callback) {
               }
             }
       var containerq = results.rows[0];
+      var masterq = master.rows[0];
+      var moo = JSON.parse(masterq.qtext);
+      var shuffle = false;
+      if (moo.contopt && (moo.contopt.randlist || moo.contopt.shuffle)) {
+          shuffle = true;
+      }
       if (!containerq) {
         // no container generated yet, make a new one
         // TODO make a true container here
@@ -816,17 +824,24 @@ var renderq = exports.renderq = function(user,query,callback) {
           containerq.attemptnum = 0;
           console.log("paaa 1");
         } else {
-          containerq = { attemptnum:0 };
-          var coo = { contopt:{} };
+          containerq = masterq;
+          containerq.attemptnum = 0;
+          var coo = moo;
           console.log("paaa 2");
         }
       } else {
           var coo = JSON.parse(containerq.param);
-          //console.log("paaa 3");
+          if (shuffle) {
+              // use original order (its a random shuffle or selection)
+          } else {
+              // use authoritative order as exists in container now
+              //coo.qlistorder = moo.qlistorder.join(',');
+              coo.qlistorder = moo.qlistorder;
+          }
       }
       //if (quiz.question[container]) {
       //var containerq = quiz.question[container];
-      contopt = coo.contopt || {};
+      contopt = moo.contopt || {};
       if (contopt.start || contopt.stop) {
         var start,stop,elm;
         if (contopt.start) {
@@ -849,7 +864,7 @@ var renderq = exports.renderq = function(user,query,callback) {
           }
         }
       }
-      if ( containerq.attemptnum != 0) {
+      if ( !shuffle || containerq.attemptnum != 0) {
         // we have questions in questlist
         // we have the order (and number) in qlist
         // BUT if we have questions not in  questlist
@@ -858,12 +873,18 @@ var renderq = exports.renderq = function(user,query,callback) {
         // THIS happens if the question has just been edited
         // AND some of the questions deleted
         //console.log("USING GENERATED question list",coo.qlistorder);
-        var qlist = coo.qlistorder.split(',');
+        //var qlist = coo.qlistorder.split(',');
+        var qlist = coo.qlistorder;
+        if (!Array.isArray(qlist)) {
+            qlist = qlist.split(',');
+        }
         var ref = {};
+        var rr = [];
         var allPresent = true;  // assume we have these questions
         for (var i=0; i< questlist.length; i++) {
           var q = questlist[i];
           ref[q.id] = q;
+          rr.push(q.id);
         }
         var newlist = [];
         for (var i=0; i< qlist.length; i++) {
@@ -878,14 +899,13 @@ var renderq = exports.renderq = function(user,query,callback) {
           }
         }
         if (allPresent) questlist = newlist;
-      }
-      if ( containerq.attemptnum == 0) {
+      } else if ( containerq.attemptnum == 0) {
         // first time rendering this container
         // make random list if needed
         //console.log("Contopts = ", contopt);
         var always = []; // list of questions always used
         var fresh = []; // templist with existing answers removed
-        // first check if we have existing answers (attemptnum > 0)
+        // first check if we have existing answers 
         // if we have - then use these if they still are on question-list
         for (var i=0; i< questlist.length; i++) {
             var q = questlist[i];
@@ -905,14 +925,13 @@ var renderq = exports.renderq = function(user,query,callback) {
             // if not empty - then always contains already answered questions
             var n = +contopt.xcount;
             always = questlist.slice(0,n);
+            console.log("FIXED qlist : ",n,always,questlist);
             questlist = questlist.slice(n);
         }
         if (contopt.randlist && contopt.randlist == "1") {
-          // pick N random questions, if N >= length of list then just shuffle the list
-          if (contopt.shuffle && contopt.shuffle == "1") {
-            questlist = quiz.shuffle(questlist);
-          }
+          // pick N random questions
           if (contopt.rcount && +contopt.rcount >= always.length && +contopt.rcount - always.length <= questlist.length) {
+             questlist = quiz.shuffle(questlist);
              questlist = questlist.slice(0,+contopt.rcount - always.length);
           }
         }
@@ -925,11 +944,11 @@ var renderq = exports.renderq = function(user,query,callback) {
         // update for next time
         coo.qlistorder = questlist.map(function(e) { return e.id }).join(',');
         var para = JSON.stringify(coo)
-        //console.log("updating container ...",container);
         //delete quiz.question[container];
         query.shufflist = questlist;
         client.query("update quiz_useranswer set param = $1,attemptnum =1 where userid=$2 and qid = $3",[ para,uid,container],
           after(function(results) {
+               //console.log("update quiz_useranswer set param = $1,attemptnum =1 where userid=$2 and qid = $3",[ para,uid,container]);
           }));
       }
       if (answers && answers.rows) {
@@ -1003,6 +1022,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                     cb();
                   }
               }
+     }));
     }));
   }));
 }

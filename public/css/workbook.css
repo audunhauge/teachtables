@@ -1,4 +1,64 @@
 
+#wbmain {
+      margin:5px;
+      padding:10px;
+      width:65em;
+      margin-left:auto;
+      margin-right:auto;
+}
+
+#qlistbox {
+  position:relative;
+  width:90%;
+  padding:6px;
+  margin-left:auto;
+  margin-right:auto;
+  min-height:200px;
+}
+
+
+@media print { 
+    div.qtext span.fillin input {
+      width:8em;
+    }
+
+    div.qtext .medium span.fillin input {
+      width:12em;
+    }
+    div.qtext .large span.fillin input {
+      width:20em;
+    }
+    span.drop:after {
+        content: "_________";
+    }
+    div.question {
+      page-break-after:auto;
+      page-break-before:auto;
+      page-break-inside:avoid;
+      border:solid 1px black;
+    }
+}
+@media screen { 
+    #wbmain {
+      background: -moz-linear-gradient(left,#c6c6c6,#e2eAe0);
+      background-image: -o-linear-gradient(left,#c6c6c6,#e2eAe0);
+      background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#c6c6c6), to(#e2eAe0));
+      border-radius: 2em;
+      -webkit-border-radius: 2em;
+      -moz-border-radius: 2em;
+      -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+      -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+    }
+    #qlistbox {
+      border:solid gray 1px;
+      background:#d0d0a0;
+      -webkit-border-radius: 2em;
+      -moz-border-radius: 2em;
+      -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+      -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+    }
+}
+
 #teachbox  { 
     position:relative;
 }
@@ -83,21 +143,6 @@ table.math tr:last-child td {
 } 
 
 
-#wbmain {
-  margin:5px;
-  padding:10px;
-  width:65em;
-  margin-left:auto;
-  margin-right:auto;
-  background: -moz-linear-gradient(left,#c6c6c6,#e2eAe0);
-  background-image: -o-linear-gradient(left,#c6c6c6,#e2eAe0);
-  background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#c6c6c6), to(#e2eAe0));
-  border-radius: 2em;
-  -webkit-border-radius: 2em;
-  -moz-border-radius: 2em;
-  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
-  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
-}
 
 div.userres {
    clear:both;
@@ -323,21 +368,6 @@ div.textareaq textarea {
 }
 #editform table.qed td {
     width:75%;
-}
-
-#qlistbox {
-  position:relative;
-  border:solid gray 1px;
-  background:#d0d0a0;
-  width:90%;
-  padding:6px;
-  margin-left:auto;
-  margin-right:auto;
-  min-height:200px;
-  -webkit-border-radius: 2em;
-  -moz-border-radius: 2em;
-  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
-  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
 }
 
 

@@ -50,11 +50,11 @@ function makeTrail() {
     var prev = wbinfo.coursename;
     for (var i=0,l=wbinfo.trail.length; i<l; i++) {
       var e = wbinfo.trail[i];
-      trail += '<span id="tt'+e.id+'_a" class="cont container">'+prev+'</span>';
+      trail += '<span id="tt'+e.id+'_a" class="gui cont container">'+prev+'</span>';
       prev = e.name;
     }
     //if (l > 0) trail += '<span class="chapter">' + prev + '</span>';
-    if (l > 0) trail += '<span id="tt'+wbinfo.containerid+'_a" class="chapter cont container">'+prev+'</span>';
+    if (l > 0) trail += '<span id="tt'+wbinfo.containerid+'_a" class="gui chapter cont container">'+prev+'</span>';
     return trail;
 }
 
@@ -285,7 +285,7 @@ function updateScore(val,settings) {
   var res = _updateScore.res;
   var qua = res.q[qid][iid];
 
-  console.log(qid,iid,uid,res);
+  //console.log(qid,iid,uid,res);
   $j.post(mybase+'/editscore', { nuval:val,  iid:iid, qid:qid, cid:wbinfo.containerid, uid:uid, qua:qua }, function(ggrade) {
       // no action yet ..
   });
@@ -398,7 +398,7 @@ function renderPage() {
 
     // if this is a quiz ...
     if (container.qtype == 'quiz') {
-      trail += '<h1 id="quiz">QUIZ </h1>';
+      trail += '<h1 id="quiz" class="gui">QUIZ </h1>';
       header = '';
     } else {
         header = wb.render[wbinfo.layout].header();
@@ -578,7 +578,7 @@ function renderPage() {
                             +renderq.maxscore+'</div><div id="uscore">'+renderq.uscore+'</div>');
                 afterEffects();
                 if (contopt.omstart && contopt.omstart == "1") {
-                    $j("#progress").append('<div title="Gi meg ett nytt sett med spørsmål" id="renew" class="gradebutton">Lag nye</div>');
+                    $j("#progress").append('<div title="Gi meg ett nytt sett med spørsmål" id="renew" class="gui gradebutton">Lag nye</div>');
                     $j("#renew").click(function() {
                        $j.post(mybase+"/studresetcontainer",{ uid:userinfo.id, container:wbinfo.containerid},function(res) {
                          renderPage();
@@ -690,6 +690,7 @@ function generateQlist(qlist) {
           }
         }
         var points = 0;
+        //console.log(wbinfo);
         for (var qi in wbinfo.qlistorder) {
           var quid = wbinfo.qlistorder[qi];
           if (ql[quid]) {
@@ -713,6 +714,7 @@ function generateQlist(qlist) {
         // original
       }
       wbinfo.qlist = qlist;
+      //console.log(showlist);
       return showlist;
 }
 
@@ -1609,7 +1611,7 @@ wb.render.normal  = {
            }  
          // renderer for body
        , body:function() {
-            var contained = '<div id="qlistbox" class="wbbodytxt"><br><div id="progress"></div><span id="edqlist" class="wbteachedit">&nbsp;</span><div id="qlist"></div></div>';
+            var contained = '<div id="qlistbox" class="wbbodytxt"><br><div id="progress" class="gui"></div><span id="edqlist" class="wbteachedit">&nbsp;</span><div id="qlist"></div></div>';
             //var addmore = '<div id="addmore" class="button">add</div>';
             return contained;
            }   
@@ -1693,7 +1695,9 @@ wb.render.normal  = {
             var qql = [];
             var qqdiv = [];
             var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
+            console.log("wb.render.qlist:",questlist);
             $j.post(mybase+'/renderq',{ container:container, questlist:questlist }, function(qrender) {
+              console.log("wb.render.qlist after renderq:",qrender);
               var qstart = 0, qant = qrender.length;
               if (contopt && contopt.antall) {
                // paged display
@@ -1735,10 +1739,10 @@ wb.render.normal  = {
                  //if (qant < qrender.length && (contopt.trinn == '0' || qu.attemptnum > 0 ) ) {
                  //var hidden =  (contopt.trinn == '0' || qu.attemptnum > 0 ) ? '' : ' hidden';
                  if (qant < qrender.length ) {
-                   qq += '<div id="nextpage" class="gradebutton '+gonext+'">&gt;&gt;</div>';
+                   qq += '<div id="nextpage" class="gui gradebutton '+gonext+'">&gt;&gt;</div>';
                  }
                  if (contopt.navi && contopt.navi == "1" && qstart > 0) {
-                   qq += '<div id="prevpage" class="gradebutton">&lt;&lt;</div>';
+                   qq += '<div id="prevpage" class="gui gradebutton">&lt;&lt;</div>';
                  }
               }
               sscore.userscore = Math.floor(sscore.userscore*100) / 100;
@@ -1783,10 +1787,10 @@ wb.render.normal  = {
                     //var hi = qu.param.hints.split(/\n|_&_/).slice(0,qu.hintcount).join('<br>');
                     var hi = qu.param.hints.join('<br>');
                     hints = '<div id="hint'+qu.qid+'_'+qu.id+'" title="Bruk av hint reduserer poengsummen med '+(+cost*100)
-                      +'% pr klikk " class="gethint">'+hi+'</div>';
+                      +'% pr klikk " class="gui gethint">'+hi+'</div>';
                   } else {
                     hints = '<div id="hint'+qu.qid+'_'+qu.id+'" title="Bruk av hint reduserer poengsummen med '
-                         +(cost*100)+'% pr klikk" class="gethint">Koster:'+cost+'</div>';
+                         +(cost*100)+'% pr klikk" class="gui gethint">Koster:'+cost+'</div>';
                   }
                 }
                 if (contopt.adaptiv && contopt.adaptiv == "1" || !(scored || attempt != '' && attempt > 0) ) {

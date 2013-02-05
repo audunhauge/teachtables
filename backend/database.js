@@ -1057,7 +1057,7 @@ var makemeet = function(user,query,host,callback) {
                 var myslots = idlist.split(',');
                 values = [];
                 for (var i in myslots) {
-                    var slot = myslots[i];
+                    var slot = myslots[i]-1;
                     values.push('(\'reservation\',123,'+user.id+','+current+','+myday+','+slot+','+roomid+',\''+roomname+'\',\''+title+'\')' );
                 }
                 //console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values '+ values.join(','));
