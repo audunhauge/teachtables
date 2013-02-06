@@ -878,7 +878,7 @@ var renderq = exports.renderq = function(user,query,callback) {
         //console.log("USING GENERATED question list",coo.qlistorder);
         //var qlist = coo.qlistorder.split(',');
         var qlist = coo.qlistorder;
-        if (!Array.isArray(qlist)) {
+        if (qlist && !Array.isArray(qlist)) {
             qlist = qlist.split(',');
         }
         var ref = {};
