@@ -890,7 +890,7 @@ var renderq = exports.renderq = function(user,query,callback) {
           rr.push(q.id);
         }
         var newlist = [];
-        for (var i=0; i< qlist.length; i++) {
+        if (qlist) for (var i=0; i< qlist.length; i++) {
           if (ref[qlist[i]]) {
             newlist.push(ref[qlist[i]]);
           } else {
