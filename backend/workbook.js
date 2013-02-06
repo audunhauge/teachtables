@@ -659,7 +659,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   after(function(coont) {
     if (coont && coont.rows) {
       var res = coont.rows[0];
-      var coo = JSON.parse(res.param);
+      var coo = parseJSON(res.param);
       // need to remember userid <--> anonym
       var qlist = coo.qlistorder;
       if (typeof(qlist) == "string") {
@@ -813,7 +813,7 @@ var renderq = exports.renderq = function(user,query,callback) {
             }
       var containerq = results.rows[0];
       var masterq = master.rows[0];
-      var moo = JSON.parse(masterq.qtext);
+      var moo = parseJSON(masterq.qtext);
       var shuffle = false;
       if (moo.contopt && (moo.contopt.randlist || moo.contopt.shuffle)) {
           shuffle = true;
@@ -823,7 +823,7 @@ var renderq = exports.renderq = function(user,query,callback) {
         // TODO make a true container here
         if (quiz.question[container]) {
           containerq = quiz.question[container];
-          var coo = JSON.parse(containerq.qtext);
+          var coo = parseJSON(containerq.qtext);
           containerq.attemptnum = 0;
           console.log("paaa 1");
         } else {
@@ -833,7 +833,7 @@ var renderq = exports.renderq = function(user,query,callback) {
           console.log("paaa 2");
         }
       } else {
-          var coo = JSON.parse(containerq.param);
+          var coo = parseJSON(containerq.param);
           if (shuffle) {
               // use original order (its a random shuffle or selection)
           } else {
@@ -1301,7 +1301,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
               }
               for (i=0, l = results.rows.length; i<l; i++) {
                 var res = results.rows[i];
-                var coo = JSON.parse(res.param);
+                var coo = parseJSON(res.param);
                 // need to remember userid <--> anonym
                 var qlist = coo.qlistorder;
                 if (typeof(qlist) == "string") {
