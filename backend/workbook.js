@@ -643,7 +643,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   // user is user driving this web page
   // uid is id of stud to show results for
   // we assume all questions have a user-response
-  // this should happen in renderq
+  // this should happen in  r e n d e r q
   // we don't insert empty user-answers here
   //  we do however check for sub-containers
   //  and recurse thru them gathering up total score
@@ -671,16 +671,16 @@ exports.displayuserresponse = function(user,uid,container,callback) {
               var ualist = { q:{}, c:{}, sc:myscore };
               if (results && results.rows) {
                 // clean the list - remove dups
-                var qlist = [];
+                var qqlist = [];
                 var usedlist = {};
                 for (var i=0; i< results.rows.length; i++) {
                   var qq = results.rows[i];
                   if (usedlist[qq.id] && usedlist[qq.id][qq.instance]) continue;
-                  qlist.push(qq);
+                  qqlist.push(qq);
                   if (!usedlist[qq.id]) usedlist[qq.id] = {};
                   if (!usedlist[qq.id][qq.instance]) usedlist[qq.id][qq.instance] = 1;
                 }
-                scoreQuestion(uid,qlist,ualist,myscore,function () {
+                scoreQuestion(uid,qqlist,ualist,myscore,function () {
                      callback(ualist);
                      var prosent = (myscore.tot) ? myscore.score/myscore.tot : 0;
                      client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [prosent,uid,container]);
@@ -702,7 +702,7 @@ var generateforall = exports.generateforall = function(user,query,callback) {
   // generate useranswer for all users
   var container    = +query.container;
   var parentid     = +query.parentid;
-  var questlist    = query.questlist ;  // used in renderq - just fetch it here to check
+  var questlist    = query.questlist ;  // used in r e n d e rq - just fetch it here to check
   var group        = query.group;
   var isteach = (user.department == 'Undervisning');
   if (isteach) {
