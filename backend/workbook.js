@@ -626,12 +626,10 @@ function scoreQuestion(uid,qlist,ualist,myscore,callback) {
            ua.param.options[oi] = unescape(ua.param.options[oi]); 
         }
         ua.response = parseJSON(ua.response);
-        /*
-        if (ua.qtype == 'multiple' || ua.qtype == 'dragdrop') {
-          console.log("reordering ",ua.param.fasit);
+        if (ua.qtype == 'multiple' ) {
+          //console.log("reordering ",ua.param.fasit);
           ua.param.fasit = quiz.reorder(ua.param.fasit,ua.param.optorder);
         }
-        */
         ualist.q[ua.qid][ua.instance] = ua;
         scoreQuestion(uid,qlist,ualist,myscore,callback);
       }
