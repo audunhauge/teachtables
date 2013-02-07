@@ -653,7 +653,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   var qlist = cparam.qlistorder;
   //console.log("CONTOPTS= ",contopt);
   //console.log("FASIT:",contopt.fasit,contopt.fasit && (+contopt.fasit & 1));
-  client.query( "select id,qid,param,userid,score from quiz_useranswer where qid=$1  ",[ container ],
+  client.query( "select id,userid,qid,param,score from quiz_useranswer where qid=$1 and userid=$2 ",[ container,uid ],
   after(function(coont) {
     if (coont && coont.rows) {
       var res = coont.rows[0];
@@ -1348,6 +1348,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
           uu = usas[res.userid][qid][i];
         } else {
           uu = qusas[res.userid][qid];
+          console.log("Useranswer at different instance id",i," ::  ",(usas[res.userid][qid]).map( function(a) { return a.instance; }) );
         } 
         score += +uu.score;
         if (quiz.question[qid]) tot += quiz.question[qid].points;   
