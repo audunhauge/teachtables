@@ -1271,6 +1271,12 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
   client.query( "select * from quiz_question where id = $1",[ containerid ],
   after(function(results) {
     container = results.rows[0];
+    var masterq = parseJSON(container.qtext);  // this is the ruling qlist
+    var shuffle = false;
+    if (masterq.contopt && (masterq.contopt.randlist || masterq.contopt.shuffle)) {
+          shuffle = true;
+    }
+    // we use this if quiz is NOT SHUFFLED
     var isteach = (user.department == 'Undervisning' && container.teachid == user.id );
     if (db.memlist[group]) {
       for (var i=0, l = db.memlist[group].length; i<l; i++) {
@@ -1293,21 +1299,27 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
               var i,l;
               var ret = {};
               var usas = {};
+              var qusas = {};
               for (i=0, l = uas.rows.length; i<l; i++) {
                 var u = uas.rows[i];
                 if (!usas[u.userid]) usas[u.userid] = {};
+                if (!qusas[u.userid]) qusas[u.userid] = {};
                 if (!usas[u.userid][u.qid]) usas[u.userid][u.qid] = [];
                 usas[u.userid][u.qid][u.instance] = u;
+                qusas[u.userid][u.qid] = u;
               }
               for (i=0, l = results.rows.length; i<l; i++) {
                 var res = results.rows[i];
                 var coo = parseJSON(res.param);
                 // need to remember userid <--> anonym
                 var qlist = coo.qlistorder;
+                if (!shuffle) {
+                    qlist = masterq.qlistorder;
+                }
                 if (typeof(qlist) == "string") {
                   qlist = qlist.split(',');
                 }
-                var sscore = getscore(res,qlist,usas);
+                var sscore = getscore(res,qlist,usas,qusas);
                 if (!isteach && res.userid != user.id) {
                   res.userid = alias[res.userid];
                 }
@@ -1324,16 +1336,21 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
      }));
   }));
 
-  function getscore(res,qlist,usas) {
+  function getscore(res,qlist,usas,qusas) {
     // qlist is the set of questions given to this user
-    // usas contains useranswers index by userid,qid
+    // usas contains useranswers index by userid,qid,instance
     var tot = 0;
     var score = 0;
     var fresh = 0;
     if (qlist && qlist.length ) for (var i=0; i<qlist.length; i++) {
       var qid = qlist[i];
-      if (usas[res.userid] && usas[res.userid][qid] && usas[res.userid][qid][i] != undefined) {
-        var uu = usas[res.userid][qid][i];
+      if (usas[res.userid] && usas[res.userid][qid]) {
+        var uu;
+        if (usas[res.userid][qid][i] != undefined) {
+          uu = usas[res.userid][qid][i];
+        } else {
+          uu = qusas[res.userid][qid];
+        } 
         score += +uu.score;
         if (quiz.question[qid]) tot += quiz.question[qid].points;   
         if (uu.time > fresh) fresh = uu.time;
