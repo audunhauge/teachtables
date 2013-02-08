@@ -1041,8 +1041,9 @@ exports.studresetcontainer = function(user,query,callback) {
       client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
       after(function(results) {
            var containerq = results.rows[0];    // quiz-container as stored for this user
-           client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
-           after(function(master) {
+           if (containerq) {
+            client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
+            after(function(master) {
               var masterq = master.rows[0];        // current version of quiz-container
               var moo = parseJSON(masterq.qtext);
               var attemptnum = 0;
@@ -1066,6 +1067,7 @@ exports.studresetcontainer = function(user,query,callback) {
                    callback(null);
               }));
          }));
+        }
       }));
   });
 }
