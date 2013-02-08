@@ -809,29 +809,24 @@ var renderq = exports.renderq = function(user,query,callback) {
                 }
               }
             }
-      var containerq = results.rows[0];
-      var masterq = master.rows[0];
+      var containerq = results.rows[0];    // quiz-container as stored for this user
+      var masterq = master.rows[0];        // current version of quiz-container
       var moo = parseJSON(masterq.qtext);
+      var attemptnum = 0;
       var shuffle = false;
+      var coo;
       if (moo.contopt && (moo.contopt.randlist || moo.contopt.shuffle)) {
           shuffle = true;
       }
+      //console.log("QLISTST ",questlist.map( function(a) { return a.id+a.qtype; }),contopt);
       if (!containerq) {
-        // no container generated yet, make a new one
-        // TODO make a true container here
-        if (quiz.question[container]) {
-          containerq = quiz.question[container];
-          var coo = parseJSON(containerq.qtext);
-          containerq.attemptnum = 0;
-          console.log("paaa 1");
-        } else {
-          containerq = masterq;
-          containerq.attemptnum = 0;
-          var coo = moo;
-          console.log("paaa 2");
-        }
+        // no container exists for this user - coo is given by quiz
+        attemptnum = 0;
+        coo = moo;
+        //console.log("paaa 2",coo);
       } else {
-          var coo = parseJSON(containerq.param);
+          coo = parseJSON(containerq.param);  // coo is fetched from useranswer
+          attemptnum = containerq.attemptnum;
           if (shuffle) {
               // use original order (its a random shuffle or selection)
           } else {
@@ -865,93 +860,9 @@ var renderq = exports.renderq = function(user,query,callback) {
           }
         }
       }
-      if ( !shuffle || containerq.attemptnum != 0) {
-        // we have questions in questlist
-        // we have the order (and number) in qlist
-        // BUT if we have questions not in  questlist
-        // THEN we must just set attemptnum to 0
-        // SO that new questions are generated
-        // THIS happens if the question has just been edited
-        // AND some of the questions deleted
-        //console.log("USING GENERATED question list",coo.qlistorder);
-        //var qlist = coo.qlistorder.split(',');
-        var qlist = coo.qlistorder;
-        if (qlist && !Array.isArray(qlist)) {
-            qlist = qlist.split(',');
-        }
-        var ref = {};
-        var rr = [];
-        var allPresent = true;  // assume we have these questions
-        for (var i=0; i< questlist.length; i++) {
-          var q = questlist[i];
-          ref[q.id] = q;
-          rr.push(q.id);
-        }
-        var newlist = [];
-        if (qlist) for (var i=0; i< qlist.length; i++) {
-          if (ref[qlist[i]]) {
-            newlist.push(ref[qlist[i]]);
-          } else {
-            // this question is no longer part of the container
-            // thus the quiz_useranswer is invalid
-            console.log("Invalid qlist from useranswer - trigger regen");
-            containerq.attemptnum = 0;
-            allPresent = false;
-          }
-        }
-        if (allPresent) questlist = newlist;
-      } else if ( containerq.attemptnum == 0) {
-        // first time rendering this container
-        // make random list if needed
-        //console.log("Contopts = ", contopt);
-        var always = []; // list of questions always used
-        var fresh = []; // templist with existing answers removed
-        // first check if we have existing answers 
-        // if we have - then use these if they still are on question-list
-        for (var i=0; i< questlist.length; i++) {
-            var q = questlist[i];
-            if (already[q.id]) {
-                // push this question into always
-                always.push(q);
-                already[q.id]--;
-            } else {
-                fresh.push(q);
-            }
-        }
-        questlist = fresh;
-        if (always.length == 0 && contopt.xcount && +contopt.xcount > 0) {
-            // the first N questions are to be used no matter what
-            // we slice them of
-            // only do this if always is still empty
-            // if not empty - then always contains already answered questions
-            var n = +contopt.xcount;
-            always = questlist.slice(0,n);
-            console.log("FIXED qlist : ",n,always,questlist);
-            questlist = questlist.slice(n);
-        }
-        if (contopt.randlist && contopt.randlist == "1") {
-          // pick N random questions
-          if (contopt.rcount && +contopt.rcount >= always.length && +contopt.rcount - always.length <= questlist.length) {
-             questlist = quiz.shuffle(questlist);
-             questlist = questlist.slice(0,+contopt.rcount - always.length);
-          }
-        }
-        questlist = always.concat(questlist);
-        if (contopt.shuffle && contopt.shuffle == "1") {
-          // must reshuffle so _always_ list gets mixed in
-          questlist = quiz.shuffle(questlist);
-          console.log("RANDOM QUESTIONS",uid);
-        }
-        // update for next time
-        coo.qlistorder = questlist.map(function(e) { return e.id }).join(',');
-        var para = JSON.stringify(coo)
-        //delete quiz.question[container];
-        query.shufflist = questlist;
-        client.query("update quiz_useranswer set param = $1,attemptnum =1 where userid=$2 and qid = $3",[ para,uid,container],
-          after(function(results) {
-               //console.log("update quiz_useranswer set param = $1,attemptnum =1 where userid=$2 and qid = $3",[ para,uid,container]);
-          }));
-      }
+      /// call in and generate question list TODO
+      questlist = generateQlist(shuffle,attemptnum,coo,questlist,already,contopt,uid,container);
+      //console.log("NOW QLISTST ",questlist.map( function(a) { return a.id+a.qtype; }),contopt);
       if (answers && answers.rows) {
 
               // ensure that we have useranswers for all (question,instance) we display
@@ -986,7 +897,7 @@ var renderq = exports.renderq = function(user,query,callback) {
               });
       } else {
                 callback(null);
-                console.log('UNEXPECTED, SURPRISING .. renderq found no useranswers');
+                console.log('UNEXPECTED, SURPRISING .. r enderq found no useranswers');
                 // we should not come here as the select should return atleast []
       }
       /// handle need for callback before inserting
@@ -1028,6 +939,80 @@ var renderq = exports.renderq = function(user,query,callback) {
   }));
 }
 
+function generateQlist(shuffle,attemptnum,coo,questlist,already,contopt,uid,container) {
+    if ( !shuffle || attemptnum != 0) {
+        var qlist = coo.qlistorder;
+        if (qlist && !Array.isArray(qlist)) {
+            qlist = qlist.split(',');
+        }
+        var ref = {};
+        var rr = [];
+        var allPresent = true;  // assume we have these questions
+        for (var i=0; i< questlist.length; i++) {
+          var q = questlist[i];
+          ref[q.id] = q;
+          rr.push(q.id);
+        }
+        var newlist = [];
+        if (qlist) for (var i=0; i< qlist.length; i++) {
+          if (ref[qlist[i]]) {
+            newlist.push(ref[qlist[i]]);
+          } else { // this question is no longer part of the container
+            attemptnum = 0;
+            allPresent = false;
+          }
+        }
+        if (allPresent) questlist = newlist;
+    } else if ( attemptnum == 0) {
+        questlist =  genNewQlistOrder(already,questlist,contopt,coo,uid,container);
+    }
+    return questlist;
+}
+
+
+function genNewQlistOrder(already,questlist,contopt,coo,uid,container) {
+    var always = []; // list of questions always used
+    var fresh = []; // templist with existing answers removed
+    for (var i=0; i< questlist.length; i++) {
+        var q = questlist[i];
+        if (already[q.id]) {
+            // push this question into always
+            always.push(q);
+            already[q.id]--;
+        } else {
+            fresh.push(q);
+        }
+    }
+    questlist = fresh;
+    if (always.length == 0 && contopt.xcount && +contopt.xcount > 0) {
+        // the first N questions are to be used no matter what
+        // we slice them of only do this if always is still empty
+        // if not empty - then always contains already answered questions
+        var n = +contopt.xcount;
+        always = questlist.slice(0,n);
+        questlist = questlist.slice(n);
+    }
+    if (contopt.randlist && contopt.randlist == "1") {
+      // pick N random questions
+      if (contopt.rcount && +contopt.rcount >= always.length && +contopt.rcount - always.length <= questlist.length) {
+         questlist = quiz.shuffle(questlist);
+         questlist = questlist.slice(0,+contopt.rcount - always.length);
+      }
+    }
+    questlist = always.concat(questlist);
+    if (contopt.shuffle && contopt.shuffle == "1") {
+      // must reshuffle so _always_ list gets mixed in
+      questlist = quiz.shuffle(questlist);
+    }
+    coo.qlistorder = questlist.map(function(e) { return e.id }).join(',');
+    var para = JSON.stringify(coo)
+    client.query("update quiz_useranswer set param = $1,attemptnum =1 where userid=$2 and qid = $3",[ para,uid,container],
+      after(function(results) {
+           //console.log("update quiz_useranswer set param = $1,attemptnum =1 where userid=$2 and qid = $3",[ para,uid,container]);
+      }));
+    return questlist;
+}
+
 exports.studresetcontainer = function(user,query,callback) {
   // deletes useranswers for (container)
   user = user || {};
@@ -1043,24 +1028,45 @@ exports.studresetcontainer = function(user,query,callback) {
   //var containerid  = +query.container;
   //var group        = query.group;
   getuseranswers(user,{ container:container, group:null },function(resp) {
-       // callback({ret:ret, ulist:ulist});
-       //console.log("studresetcontainer:GOT THIS RESULT:",resp);
-       if (resp && resp.ret && resp.ret[uid] ) {
+      // callback({ret:ret, ulist:ulist});
+      //console.log("studresetcontainer:GOT THIS RESULT:",resp);
+      if (resp && resp.ret && resp.ret[uid] ) {
           var score = resp.ret[uid].score;
           var tot = resp.ret[uid].tot;
           var percent = (tot > 0) ? score/tot : 0.0;
           var timest = 1234; //resp.ret[uid].start;
           //console.log("insert into quiz_history (userid,container,score,timest) values ($1,$2,$3,$4) ", [uid,container,percent,timest] );
           client.query("insert into quiz_history (userid,container,score,timest) values ($1,$2,$3,$4) ", [uid,container,percent,timest] );
-       }
-       delete quiz.containers[container];
-       delete quiz.contq[container];
-       // delete any symbols generated for this container
-       //console.log(sql,params);
-       client.query( sql,params,
-       after(function(results) {
-           callback(null);
-       }));
+      }
+      client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
+      after(function(results) {
+           var containerq = results.rows[0];    // quiz-container as stored for this user
+           client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
+           after(function(master) {
+              var masterq = master.rows[0];        // current version of quiz-container
+              var moo = parseJSON(masterq.qtext);
+              var attemptnum = 0;
+              var shuffle = false;
+              var coo = parseJSON(containerq.param);  // coo is fetched from useranswer
+              var qlist = moo.qlistorder;
+              if (qlist && !Array.isArray(qlist)) {
+                   qlist = qlist.split(',');
+              }
+              questlist = qlist.map(function(e) { return {id:e} });
+              //console.log("RESET:",questlist,moo.contopt,coo,uid,container);
+              delete quiz.containers[container];
+              delete quiz.contq[container];
+              // delete any symbols generated for this container
+              //console.log(sql,params);
+              client.query( sql,params,
+              after(function(results) {
+                   genNewQlistOrder([],questlist,moo.contopt,coo,uid,container);
+                   // executed for sideeffect of storing new qlist order in useranswer
+                   // for this container
+                   callback(null);
+              }));
+         }));
+      }));
   });
 }
 
