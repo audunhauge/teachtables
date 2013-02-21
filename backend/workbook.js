@@ -13,7 +13,6 @@ var after = require('./utils').after;
 var db = siteinf.database.db;
 
 
-
 exports.gimmeahint = function(user,query,callback) {
   // gets a hint from quiz.question
   // and increments hintcount in useranswer
@@ -399,7 +398,7 @@ exports.gettags = function(user,query,callback) {
   }));
 }
 
-exports.tags_defined = { is_empty : 1 };  // remember all tags defined in db
+var tags_defined = exports.tags_defined = { is_empty : 1 };  // remember all tags defined in db
 
 exports.settag = function(user,query,callback) {
   // given a tagstring and qlist
@@ -1210,6 +1209,7 @@ exports.getcontainer = function(user,query,callback) {
   if (container && quiz.contq[container]) {
      // we have the list of questions
      callback(quiz.contq[container]);
+     console.log("TAGLIST=",quiz.contq[container].taglist);
      //console.log("USING CONTAINER CACHE",container,quiz.contq[container]);
      return;
   }
@@ -1249,13 +1249,31 @@ exports.getcontainer = function(user,query,callback) {
       //console.log("came here ",results.rows);
           if (results && results.rows) {
             var qlist = [];
+            var qidlist = [];
             for (var i=0,l=results.rows.length; i<l; i++) {
               var qu = results.rows[i];
               quiz.question[qu.id] = qu;           // Cache 
+              qidlist.push(qu.id);                 // used to fetch tags
               qlist.push(quiz.display(qu,false));
             }
-            if (container) quiz.contq[container] = qlist;
-            callback(qlist);
+            if (container) quiz.contq[container] = { qlist:qlist, taglist:{} };
+            if (isteach) {
+              qidlist = qidlist.join(',');
+              client.query( "select distinct q.id,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
+                          + " inner join quiz_tag t on (t.id=qt.tid) where q.id in ( " + qidlist + " ) ",
+              after(function(taglist) {
+                //console.log(taglist.rows);
+                var taggart = {};
+                for (var i=0,l=taglist.rows.length; i<l; i++) {
+                    var tag = taglist.rows[i];
+                    taggart[tag.id] = tag.tagname;
+                }
+                if (container) quiz.contq[container] = { qlist:qlist, taglist:taggart};
+                callback({ qlist:qlist, taglist:taggart});
+              }));
+            } else {
+              callback({ qlist:qlist, taglist:{} });
+            }
           } else {
             callback(null);
           }
@@ -1270,12 +1288,22 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
   var group        = query.group;
   var contopt      = query.contopt;  // options set for this container
   var ulist = {};     // list of students for this test
+  var hist = {};
   var aid = 100000;
   var alias = {};  // map userid to alias
   //console.log( "select * from quiz_question where id = $1",[ containerid ]);
   //console.log("CONTOPT=",contopt);
   client.query( "select * from quiz_question where id = $1",[ containerid ],
   after(function(results) {
+   client.query( "select * from quiz_history where score > 0 and container = $1",[ containerid ],
+   after(function(history) {
+    // build history for each student
+    var i,l;
+    for (i=0, l = history.rows.length; i<l; i++) {
+       var res = history.rows[i];
+       if (!hist[res.userid])  hist[res.userid] = [];
+       hist[res.userid].push(res.score);
+    }
     container = results.rows[0];
     var masterq = parseJSON(container.qtext);  // this is the ruling qlist
     var shuffle = false;
@@ -1331,6 +1359,10 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
                 }
                 ulist[res.userid] = 2;            // mark as started
                 sscore.start = res.firstseen;
+                sscore.hist = '';
+                if (hist[res.userid]) {
+                  sscore.hist = hist[res.userid].join(',');
+                }
                 ret[res.userid] = (isteach || (contopt && contopt.rank == 1) || user.id == res.userid) ? sscore : 0;
               }
               //console.log("Ret ",ret," Users ",ulist);
@@ -1340,6 +1372,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
           callback( null);
         }
      }));
+   }));
   }));
 
   function getscore(res,qlist,usas,qusas) {

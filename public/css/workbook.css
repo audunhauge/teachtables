@@ -17,6 +17,25 @@
 }
 
 
+.sparkline {
+    position:relative;
+    display:block;
+    float:left;
+    width:25px;
+    height:16px;
+    border:solid green 1px;
+}
+
+.barbase, .bar {
+    position:absolute;
+    width:2px;
+    height:1px;
+    background:#633;
+}
+.barbase {
+    background:#393;
+}
+
 @media print { 
     div.qtext span.fillin input {
       width:8em;

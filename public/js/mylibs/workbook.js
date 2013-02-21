@@ -167,6 +167,20 @@ function showResults() {
     function startTime(d) {
       return d.getDate() + '/'+(1+d.getMonth())+ '/' + ("" +d.getFullYear()).substr(2) + ' ' + d.getHours() +':'+ d.getMinutes();
     }
+    function makeSparkline(txt) {
+        var spark = '<span class="sparkline">';
+        if (txt) {
+         var elm = txt.split(',');
+         for (var i=0,l=elm.length; i<l; i++) {
+            var num = +elm[i];
+            num = 16*Math.min(1,Math.max(0,num));
+            var tt = 16-num;
+            spark += '<div class="bar" style="height:'+num+'px; left:'+(3*i)+'px; top:'+tt+'px"></div>';
+         }
+        }
+        spark += '</span>';
+        return spark;
+    }
     var skala = wbinfo.courseinfo.contopt.skala;
     var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat</h1>'+trail+'<div id="results"></div></div>';
     //s += JSON.stringify(wbinfo.courseinfo.contopt);
@@ -182,18 +196,20 @@ function showResults() {
                 var score = (re.tot) ? re.score/re.tot : 0;
                 var gr = Math.round(100*score)/100;
                 var prosent = gr*100;
-                var first = (re.start) ? startTime( new Date(re.start)) : '' ;
-                var last = (re.fresh) ? startTime( new Date(re.fresh)) : '' ;
+                var hist = makeSparkline(re.hist);
+                var first = (re.start) ? startTime( new Date(re.start)) : '&nbsp;' ;
+                var last = (re.fresh) ? startTime( new Date(re.fresh)) : '&nbsp;' ;
                 var grade = score2grade(gr,skala);
                 reslist[uid] = { text:'<span class="kara">' + prosent.toFixed(0) + ' prosent </span>'
                          +  ((wbinfo.courseinfo.contopt.karak == 1) ?'<span class="kara">karakter '+grade+'</span>' : '' )
-                         + '<span class="kara"> '+first+'</span><span class="kara"> '+last+'</span>',
-                                        grade:gr, first:re.start, last:re.fresh };
+                         + '<span class="kara"> '+first+'</span><span class="kara"> '+last+'</span>'+hist,
+                                        grade:gr, first:re.start, last:re.fresh, hist:hist };
              }
              for (var uui in results.ulist) {
                //var started = results.ulist[uui];
                var fn = '--', 
                    ln = '--', 
+                   his = '--', 
                    gg = -1,
                    ff = -1,
                    ll = -1,
@@ -208,6 +224,7 @@ function showResults() {
                  gg = reslist[uui].grade;
                  ff = reslist[uui].first;
                  ll = reslist[uui].last;
+                 his = reslist[uui].hist;
                }
                displaylist[uui] =  '<div id="ures'+uui+'" class="userres'+active+'"><span class="fn">' + fn 
                  + '</span><span class="ln">' + ln + '</span>' + resultat + '</div>';
@@ -561,10 +578,13 @@ function renderPage() {
        prettyPrint();
 
     }
-    $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
+    $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(wqqlist) {
       // list of distinct questions - can not be used for displaying - as they may need
       // modification based on params stored in useranswers
       // the questions are 'stripped' of info giving correct answer
+        var taglist = wqqlist.taglist;
+        var qlist = wqqlist.qlist;
+        console.log("TAGLIST",taglist);
         var showlist = generateQlist(qlist);
         var pagenum = '';
         if (contopt.antall < qlist.length) {
@@ -917,7 +937,7 @@ function edqlist() {
       var subject = wbinfo.coursename.split('_')[0];
       $j.post(mybase+'/editqncontainer', { action:'create', container:wbinfo.containerid, subject:subject }, function(resp) {
          $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
-           wbinfo.qlist = qlist;
+           wbinfo.qlist = qlist.qlist;
            wbinfo.haveadded  += 1;
            edqlist();
          });
@@ -1318,7 +1338,7 @@ function editquestion(myid, target) {
    if (target == '#main') $j("#killquest").click(function() {
       $j.post(mybase+'/editquest', { action:'delete', qid:myid }, function(resp) {
          $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
-           wbinfo.qlist = qlist;
+           wbinfo.qlist = qlist.qlist;
            edqlist();
          });
       });
@@ -1516,13 +1536,13 @@ function dropquestion(myid) {
     if (cnt == 1) {
       $j.post(mybase+'/editqncontainer', {  action:'delete', qid:qid, container:wbinfo.containerid }, function(resp) {
            $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
-             wbinfo.qlist = qlist;
+             wbinfo.qlist = qlist.qlist;
              edqlist();
            });
         });
     } else {
       $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
-         wbinfo.qlist = qlist;
+         wbinfo.qlist = qlist.qlist;
          edqlist();
       });
     }
