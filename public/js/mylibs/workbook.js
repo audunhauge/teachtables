@@ -168,7 +168,9 @@ function showResults() {
       return d.getDate() + '/'+(1+d.getMonth())+ '/' + ("" +d.getFullYear()).substr(2) + ' ' + d.getHours() +':'+ d.getMinutes();
     }
     function makeSparkline(txt) {
-        var spark = '<span class="sparkline">';
+      var spark = '';
+      if (wbinfo.courseinfo.contopt.omstart && wbinfo.courseinfo.contopt.omstart == "1") {
+        spark = '<span class="sparkline">';
         if (txt) {
          var elm = txt.split(',');
          for (var i=0,l=elm.length; i<l; i++) {
@@ -179,7 +181,8 @@ function showResults() {
          }
         }
         spark += '</span>';
-        return spark;
+      }
+      return spark;
     }
     var skala = wbinfo.courseinfo.contopt.skala;
     var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat</h1>'+trail+'<div id="results"></div></div>';
@@ -188,7 +191,7 @@ function showResults() {
     $j(".result").click(function() {
           showResults();
         });
-    $j.getJSON(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
+    $j.post(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
            // results = { res:{ uid ... }, ulist:{ 12:1, 13:1, 14:2, 15:2 }
            if (results) {
              for (var uid in results.ret) {

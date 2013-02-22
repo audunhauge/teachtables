@@ -210,7 +210,7 @@ exports.displayuserresponse = function(req,res) {
 
 exports.getuseranswers = function(req,res) {
     if (req.session.user ) {
-      wb.getuseranswers(req.session.user, req.query, function(data) {
+      wb.getuseranswers(req.session.user, req.body, function(data) {
         res.send(data);
       });
     } else {

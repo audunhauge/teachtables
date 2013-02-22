@@ -154,7 +154,6 @@ app.post(base+'/saveconfig',             user.saveconfig);
 app.get(base+'/workbook',               workbook.workbook);         // get selected workbook
 app.get(base+'/getqcon',                workbook.getqcon);          // get questions from question-container
 app.get(base+'/getcontainer',           workbook.getcontainer);     // get container info
-app.get(base+'/getuseranswers',         workbook.getuseranswers); 
 app.get(base+'/displayuserresponse',    workbook.displayuserresponse); 
 app.get(base+'/wordindex',              workbook.wordindex); 
 app.get(base+'/getquestion',            workbook.getquestion); 
@@ -181,6 +180,7 @@ app.post(base+'/edittags',              workbook.edittags );
 app.post(base+'/settag',                workbook.settag );
 app.post(base+'/updateTags',            workbook.updateTags );
 app.post(base+'/addcomment',            workbook.addcomment );
+app.post(base+'/getuseranswers',        workbook.getuseranswers); 
 
 
 // meetings - absent - reservations

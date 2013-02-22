@@ -1209,7 +1209,6 @@ exports.getcontainer = function(user,query,callback) {
   if (container && quiz.contq[container]) {
      // we have the list of questions
      callback(quiz.contq[container]);
-     console.log("TAGLIST=",quiz.contq[container].taglist);
      //console.log("USING CONTAINER CACHE",container,quiz.contq[container]);
      return;
   }
@@ -1257,14 +1256,14 @@ exports.getcontainer = function(user,query,callback) {
               qlist.push(quiz.display(qu,false));
             }
             if (container) quiz.contq[container] = { qlist:qlist, taglist:{} };
-            if (isteach) {
+            if (isteach && qidlist.length) {
               qidlist = qidlist.join(',');
               client.query( "select distinct q.id,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
                           + " inner join quiz_tag t on (t.id=qt.tid) where q.id in ( " + qidlist + " ) ",
               after(function(taglist) {
                 //console.log(taglist.rows);
                 var taggart = {};
-                for (var i=0,l=taglist.rows.length; i<l; i++) {
+                if (taglist && taglist.rows) for (var i=0,l=taglist.rows.length; i<l; i++) {
                     var tag = taglist.rows[i];
                     if (!taggart[tag.id]) taggart[tag.id] = [];
                     taggart[tag.id].push(tag.tagname);
@@ -1395,18 +1394,17 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
         score += +uu.score;
         if (quiz.question[qid]) tot += quiz.question[qid].points;   
         if (uu.time > fresh) fresh = uu.time;
-      } else {
-        try {
-          console.log("NOTFOUND ",qid,res.userid,qid,i);
-        } catch(err) {
-          // console.log("REALLY not there ",qid,i);
-        }
-      }
+      } 
+       /*
+        else {
+          try {
+            console.log("No useranswer ",qid,res.userid,qid,i);
+          } catch(err) {
+            console.log("REALLY not there ",qid,i);
+          }
+       }
+       */
     }
-    //if (res.userid==10024) {
-      //console.log("uuUUUUUU",qlist,score,tot);
-    //}
-    //console.log("User ",res.userid,score,tot);
     return { score:score, tot:tot, fresh:fresh} ;
 
   }
