@@ -1191,6 +1191,7 @@ var qz = {
                        case 'sym:':
                           simple = false;  // callback done after sympy is finished
                                  // fixup for 3x => 3*x etc
+                          var completed = { comp:0, lock:0 };
                           var ufu  =  sympify(tch);    // user supplied function
                           var fafu =  sympify(uatxt);  // fasit function/expression
                           var intro = '# coding=utf-8\n'
@@ -1217,11 +1218,11 @@ var qz = {
                                      console.log(stdout);
                                      score = (stdout.trim() == '0') ? 1 : 0;
                                    }
-                                   callback(score,stdout);
+                                   callback(score,stdout,completed);
                                  }
                                });
                              } catch(err) {
-                                   callback(score,'error3');
+                                   callback(score,'error3',completed);
                              }
                           });
                          break;

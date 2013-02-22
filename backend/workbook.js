@@ -219,7 +219,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                       qua.param.optorder = '';
                       qua.qtype = myquest.qtype;
                       qua.points = myquest.points;
-                      if (completed.lock) {
+                      if (completed && completed.lock) {
                         callback({score:nugrade, att:0, qua:qua, completed:0} );
                       } else client.query( "update quiz_useranswer set score = $5,instance=$4,response=$1,"
                                     + "feedback='"+feedback+"', attemptnum = attemptnum + 1,time=$2 where id=$3",
@@ -667,7 +667,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
                      + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
         after(function(results) {
               var myscore = { score:0, tot:0};
-              var ualist = { q:{}, c:{}, sc:myscore };
+              var ualist = { q:{}, c:{}, sc:myscore, uid:uid };
               if (results && results.rows) {
                 // clean the list - remove dups
                 var qqlist = [];
@@ -705,26 +705,20 @@ var generateforall = exports.generateforall = function(user,query,callback) {
   var group        = query.group;
   var isteach = (user.department == 'Undervisning');
   if (isteach) {
-    var sql = "delete from quiz_useranswer where (qid =$1) ";
-    delete quiz.containers[container];
-    delete quiz.contq[container];
-    // delete any symbols generated for this container
-    client.query( sql,[container],
-    after(function(results) {
-        client.query( "delete from quiz_useranswer where cid = $1 and score = 0 and attemptnum = 0 and response = '' ",[ container],
-        after(function(results) {
           if (db.memlist[group]) {
             for (var i=0, l = db.memlist[group].length; i<l; i++) {
               var enr = db.memlist[group][i];
-              renderq({id:enr},query,function(resp) {
-                //console.log(resp);
+              getqcon( {id:enr},{container:container},function(resp) {
+                 console.log("RESP=",resp);
+                 getcontainer({id:enr},{container:container},function(resp) {
+                    renderq({id:enr},query,function(resp) {
+                    });
+                 });
               });
             }
           }
-          callback(null);
-        }));
-    }));
   }
+  callback(null);
 }
 
 var renderq = exports.renderq = function(user,query,callback) {
@@ -1012,12 +1006,29 @@ function genNewQlistOrder(already,questlist,contopt,coo,uid,container) {
     return questlist;
 }
 
+exports.deletestudresp = function(user,query,callback) {
+  // deletes a stud response for a given quiz - question
+  var container    = +query.container ;
+  var qid          = +query.qid ;
+  var uid          = user.id;
+  var params = [ container,uid ];
+  var sql = "delete from quiz_useranswer where qid=$1 and cid =$2 and userid=$3 ";
+  client.query( sql,[ qid,container,uid ],
+      after(function(results) {
+          callback(0);
+      }));
+}
+
 exports.studresetcontainer = function(user,query,callback) {
   // deletes useranswers for (container)
   user = user || {};
   var container    = +query.container ;
+  var userid       = +query.uid ;
   var uid          = user.id;
-  var instance     = +query.instance || 0;
+  var isteach = (user.department == 'Undervisning');
+  if (isteach && userid) {
+      uid = userid;
+  }
   var params = [ container,uid ];
   var sql = "delete from quiz_useranswer where (cid =$1) and userid=$2 ";
   //console.log("studresetcontainer::");
@@ -1104,7 +1115,7 @@ exports.resetcontainer = function(user,query,callback) {
   }));
 }
 
-exports.getqcon = function(user,query,callback) {
+var getqcon = exports.getqcon = function(user,query,callback) {
   // refetches container (the qtext for the container)
   // so that we have the correct sort-order for contained questions
   var container    = +query.container ;
@@ -1202,7 +1213,7 @@ var copyquest = exports.copyquest = function(user,query,callback) {
   }));
 }
 
-exports.getcontainer = function(user,query,callback) {
+var getcontainer = exports.getcontainer = function(user,query,callback) {
   // returns list of questions for a container or set of question-ids
   var container    = +query.container ;   // used if we pick questions from a container
   var givenqlist   = query.givenqlist ;  // we already have the question-ids as a list
@@ -1245,7 +1256,7 @@ exports.getcontainer = function(user,query,callback) {
   //console.log("WORKBOOK:getcontainer:",sql,param);
   client.query( sql, param,
     after(function(results) {
-      //console.log("came here ",results.rows);
+      console.log("GETCONTAINER came here ");
           if (results && results.rows) {
             var qlist = [];
             var qidlist = [];
@@ -1389,7 +1400,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
           uu = usas[res.userid][qid][i];
         } else {
           uu = qusas[res.userid][qid];
-          console.log("Useranswer at different instance id",i," ::  ",(usas[res.userid][qid]).map( function(a) { return a.instance; }) );
+          //console.log("Useranswer at different instance id",i," ::  ",(usas[res.userid][qid]).map( function(a) { return a.instance; }) );
         } 
         score += +uu.score;
         if (quiz.question[qid]) tot += quiz.question[qid].points;   

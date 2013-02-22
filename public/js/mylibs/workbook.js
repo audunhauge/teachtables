@@ -149,6 +149,47 @@ function subscribe_to(idd) {
     });
 }
 
+function crossResults() {
+    var group;
+    try {
+      group = wbinfo.coursename.split('_');
+      group = group[1];
+    } catch(err) {
+      group = '';
+    }
+    var trail = makeTrail();
+    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">CrossTab</h1>'
+             +trail+'<div id="results"></div></div>';
+    $j("#main").html(s);
+    $j.post(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
+           if (results) {
+             for (var uid in results.ret) {
+                 var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
+                 if (results.ret[uid] != undefined) {
+                    // var contopt = wbinfo.courseinfo.contopt;
+                    $j.getJSON(mybase+'/displayuserresponse',{ uid:uid, container:wbinfo.containerid }, function(results) {
+                      _updateScore = { uid:uid, res:results };
+                      var rr = unwindResults(results,sscore);
+                      var uid = results.uid;
+                      var skala = wbinfo.courseinfo.contopt.skala;
+                      score = Math.round(100*sscore.userscore)/100;
+                      tot = Math.round(100*sscore.maxscore)/100;
+                      var gr = Math.round(100*score/tot)/100;
+                      var grade = score2grade(gr,skala);
+                      var fn='-', ln='-',depp='-';
+                      var usr = getUser(uid);
+                      fn = usr.firstname.caps();
+                      ln = usr.lastname.caps();
+                      depp = usr.department;
+                      var header = '<h4 class="pb" >'+fn+' '+ln+' '+depp+'</h4>';
+                      $j("#results").append(header+rr);
+                      MathJax.Hub.Queue(["Typeset",MathJax.Hub,"main"]);
+                    });
+             }
+           }
+         }
+     });
+}
 
 
 function showResults() {
@@ -185,11 +226,15 @@ function showResults() {
       return spark;
     }
     var skala = wbinfo.courseinfo.contopt.skala;
-    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat</h1>'+trail+'<div id="results"></div></div>';
+    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat </h1><span class="cross" id="yy'+wbinfo.containerid+'">X</span>'
+             +trail+'<div id="results"></div></div>';
     //s += JSON.stringify(wbinfo.courseinfo.contopt);
     $j("#main").html(s);
     $j(".result").click(function() {
           showResults();
+        });
+    $j(".cross").click(function() {
+          crossResults();
         });
     $j.post(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
            // results = { res:{ uid ... }, ulist:{ 12:1, 13:1, 14:2, 15:2 }
@@ -323,7 +368,7 @@ function showUserResponse(uid,cid,results) {
       //var ss = wb.render.normal.displayQuest(rr,i,sscore,false);
       //var ss = JSON.stringify(results);
       _updateScore = { uid:uid, res:results };
-      var rr = unwindResults(results);
+      var rr = unwindResults(results,sscore);
       var skala = wbinfo.courseinfo.contopt.skala;
       score = Math.round(100*sscore.userscore)/100;
       tot = Math.round(100*sscore.maxscore)/100;
@@ -335,7 +380,9 @@ function showUserResponse(uid,cid,results) {
       ln = usr.lastname.caps();
       depp = usr.department;
       var header = '<h4>'+fn+' '+ln+' '+depp+'</h4>';
-      header += '<h4>'+score+" av "+tot+" Karakter: "+grade+'</h4>';
+      header += '<h4>'+score+" av "+tot+" Karakter: "+grade+'</h4>'
+        + ((teaches(userinfo.id,wbinfo.coursename)) ?
+         '<div title="Slett besvarelsen" id="renew" class="gui gradebutton">Slett</div>' : '');
       $j("#results").html(header+rr);
       $j('#results .score').editable( updateScore , {
                    indicator      : 'Saving...',
@@ -352,10 +399,16 @@ function showUserResponse(uid,cid,results) {
                    submit         : 'OK'
                });
       MathJax.Hub.Queue(["Typeset",MathJax.Hub,"main"]);
+      $j("#renew").click(function() {
+           $j.post(mybase+"/studresetcontainer",{ uid:uid, container:wbinfo.containerid},function(res) {
+             showResults();
+           });
+        });
     });
   }
+}
 
-  function unwindResults(res) {
+function unwindResults(res,sscore) {
       var rr = '';
       var ss = [];
       for (var qid in res.q) {
@@ -368,11 +421,9 @@ function showUserResponse(uid,cid,results) {
       }
       rr = ss.join('');
       for (var qid in res.c) {
-        rr += '<h4>'+res.c[qid].name+'</h4>'+unwindResults(res.c[qid]);
+        rr += '<h4>'+res.c[qid].name+'</h4>'+unwindResults(res.c[qid],sscore);
       }
       return rr;
-  }
-
 }
 
 
@@ -587,7 +638,6 @@ function renderPage() {
       // the questions are 'stripped' of info giving correct answer
         wbinfo.taglist = wqqlist.taglist;
         var qlist = wqqlist.qlist;
-        console.log("TAGLIST",taglist);
         var showlist = generateQlist(qlist);
         var pagenum = '';
         if (contopt.antall < qlist.length) {
@@ -1870,21 +1920,16 @@ wb.render.normal  = {
                                 } 
                                 var ff = fasit[iid] || '';
                                 var ret = '<textarea>'+vv+'</textarea>';
-                                ret += '<div class="fasit">'+unescape(ff)+'</div>';
+                                ret += '<div class="fasit gui">'+unescape(ff)+'</div>';
                                 iid++;
                                 return ret;
                               });
                           if (qu.feedback && qu.feedback != '' ) {
-                            adjusted += '<div class="fasit">'+unescape(qu.feedback) + '</div>';
+                            adjusted += '<div class="fasit gui">'+unescape(qu.feedback) + '</div>';
                           }
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext textareaq">'+adjusted;
                           if (iid > 0) {  // there are input boxes to be filled
-                              if (scored || attempt != '' && attempt > 0) {
-                                qtxt += '<span id="at'+qi+'" class="attempt">'+(attempt)+'</span>';
-                              }
-                              if (scored || attempt > 0 || score != '') {
-                                qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score">'+score+'</span>'
-                              }
+                              decoration();
                               qtxt += grademe;
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 
@@ -1901,23 +1946,18 @@ wb.render.normal  = {
                                   vv = chosen[iid];
                                 } 
                                 var ff = fasit[iid] || '';
-                                var ffy = (ff) ? '<span class="fasit">'+unescape(ff)+'</span>' : '';
+                                var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
                                 //ff=ff.replace(/%3A/g,':');
                                 var ret = '<input type="text" value="'+vv+'" />'+ffy;
                                 iid++;
                                 return ret;
                               });
                           if (qu.feedback && qu.feedback != '' ) {
-                            adjusted += '<div class="fasit">'+unescape(qu.feedback) + '</div>';
+                            adjusted += '<div class="fasit gui">'+unescape(qu.feedback) + '</div>';
                           }
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext fillinq">'+adjusted;
                           if (iid > 0) {  // there are input boxes to be filled
-                              if (scored || attempt != '' && attempt > 0) {
-                                qtxt += '<span id="at'+qi+'" class="attempt">'+(attempt)+'</span>';
-                              }
-                              if (scored || attempt > 0 || score != '') {
-                                qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score">'+score+'</span>'
-                              }
+                              decoration();
                               qtxt += grademe;
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 
@@ -1958,12 +1998,7 @@ wb.render.normal  = {
                                 shuffle(param.options);
                               }
                               qtxt += '<hr>';
-                              if (scored || attempt != '' && attempt > 0) {
-                                qtxt += '<span id="at'+qi+'" class="attempt">'+(attempt)+'</span>';
-                              }
-                              if (scored || attempt > 0 || score != '') {
-                                qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score">'+score+'</span>'
-                              }
+                              decoration();
                               qtxt += grademe;
                               qtxt += '<ul id="sou'+qu.qid+'_'+qi+'" class="qtext sourcelist connectedSortable">';
                               for (var i=0, l= param.options.length; i<l; i++) {
@@ -1976,7 +2011,7 @@ wb.render.normal  = {
                               }
                               qtxt += '</ul>';
                               if (fasit[0] && qu.param && qu.param.fasit) {
-                                 qtxt += '<ul class="sequence"><li>'+qu.param.fasit.join('<li>') + '</ul>'; 
+                                 qtxt += '<ul class="sequence gui"><li>'+qu.param.fasit.join('<li>') + '</ul>'; 
                               }
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 
@@ -1996,7 +2031,7 @@ wb.render.normal  = {
                                   ret = chosen[iid];
                                 } 
                                 var ff = fasit[iid] || '';
-                                var ffy = (ff) ? ' <span class="fasit">'+unescape(ff)+'</span>' : '';
+                                var ffy = (ff) ? ' <span class="fasit gui">'+unescape(ff)+'</span>' : '';
                                 iid++;
                                 return ret+ffy;
                               });
@@ -2008,12 +2043,7 @@ wb.render.normal  = {
                                 shuffle(param.options);
                               }
                               qtxt += '<hr>';
-                              if (scored || attempt != '' && attempt > 0) {
-                                qtxt += '<span id="at'+qi+'" class="attempt">'+(attempt)+'</span>';
-                              }
-                              if (scored || attempt > 0 || score != '') {
-                                qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score">'+score+'</span>'
-                              }
+                              decoration();
                               qtxt += grademe;
                               for (var i=0, l= param.options.length; i<l; i++) {
                                   var opt = param.options[i].split(',')[0];
@@ -2029,12 +2059,7 @@ wb.render.normal  = {
                       case 'multiple':
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted
                           if (!param.donotshow && param.options && param.options.length) {
-                              if (scored || attempt != '' && attempt > 0) {
-                                qtxt += '<span id="at'+qi+'" class="attempt">'+(attempt)+'</span>';
-                              }
-                              if (scored || attempt > 0 || score != '') {
-                                qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score">'+score+'</span>'
-                              }
+                              decoration();
                               qtxt += grademe;
                               for (var i=0, l= param.options.length; i<l; i++) {
                                   var opt = param.options[i];
@@ -2068,6 +2093,15 @@ wb.render.normal  = {
                     sscore.atid = 'at'+qi;
                   }
                   return '<div class="question qq'+qi+'" id="qq'+qu.qid+'_'+qi+'">' + hints+ qtxt + studnote + '</div>';
+
+                  function decoration() {
+                     if (scored || attempt != '' && attempt > 0) {
+                       qtxt += '<span id="at'+qi+'" class="attempt gui">'+(attempt)+'</span>';
+                     }
+                     if (scored || attempt > 0 || score != '') {
+                       qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score gui">'+score+'</span>'
+                     }
+                  }
             }
       }
 

@@ -56,6 +56,14 @@
       page-break-inside:avoid;
       border:solid 1px black;
     }
+
+    h4.pb {
+      page-break-before:always;
+    }
+
+    .gui {
+        display:none !important;
+    }
 }
 @media screen { 
     #wbmain {
