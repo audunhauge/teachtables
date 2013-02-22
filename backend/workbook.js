@@ -66,32 +66,32 @@ exports.editquest = function(user,query,callback) {
             }));
         break;
       case 'update':
-    	  var sql =  'update quiz_question set modified=$3, qtext=$4 ';
-    	  var params = [qid,teachid,now.getTime(),qtext];
-    	  var idd = 5;
-    	  if (query.qtype) {
-    		  sql += ',qtype=$'+idd;
-    		  params.push(qtype);
-    		  idd++;
-    	  }
-    	  if (query.name) {
-    		  sql += ',name=$'+idd;
-    		  params.push(name);
-    		  idd++;
-    	  }
-    	  if (query.points) {
-    		  sql += ',points=$'+idd;
-    		  params.push(points);
-    	  }
-    	  sql += ' where id=$1 and teachid=$2';
-    	  //console.log(sql,params);
-    	  client.query( sql, params,
-    			  after(function(results) {
-    				  delete quiz.question[qid];  // remove it from cache
-    				  callback( {ok:true, msg:"updated"} );
+        var sql =  'update quiz_question set modified=$3, qtext=$4 ';
+        var params = [qid,teachid,now.getTime(),qtext];
+        var idd = 5;
+        if (query.qtype) {
+          sql += ',qtype=$'+idd;
+          params.push(qtype);
+          idd++;
+        }
+        if (query.name) {
+          sql += ',name=$'+idd;
+          params.push(name);
+          idd++;
+        }
+        if (query.points) {
+          sql += ',points=$'+idd;
+          params.push(points);
+        }
+        sql += ' where id=$1 and teachid=$2';
+        //console.log(sql,params);
+        client.query( sql, params,
+            after(function(results) {
+              delete quiz.question[qid];  // remove it from cache
+              callback( {ok:true, msg:"updated"} );
                       // TODO here we may need to regen useranswer for container
-    			  }));
-    	  break;
+            }));
+        break;
       default:
         callback(null);
         break;
@@ -107,10 +107,10 @@ exports.updatecontainerscore = function(user,query,callback) {
 
 exports.addcomment = function(user,query,callback) {
   var uaid    = +query.uaid,   // id of useranswer to add comment to
-      uid     = +query.uid,    // the user 
+      uid     = +query.uid,    // the user
       qid     = +query.qid,    // question id
       iid     = +query.iid,    // instance id
-      uid     = +query.uid,    // the user 
+      uid     = +query.uid,    // the user
       comment = query.comment;  // the comment
   if (uid == user.id) {
     // stud-comment
@@ -126,7 +126,7 @@ exports.editscore = function(user,query,callback) {
   var qid    = +query.qid,
       iid    = +query.iid,    // instance id (we may have more than one instance of a question in a container, generated questions)
       cid    = +query.cid,    // the question (container) containing the question
-      uid    = +query.uid,    // the user 
+      uid    = +query.uid,    // the user
       nuval  = +query.nuval,  // the new score
       qua    = query.qua,
       uaid   = +qua.id,
@@ -165,7 +165,7 @@ exports.gradeuseranswer = function(user,query,callback) {
               }
             }));
         } else {
-            mycontainer = quiz.question[cid]; 
+            mycontainer = quiz.question[cid];
             callback(null, mycontainer);
         }
       },
@@ -183,7 +183,7 @@ exports.gradeuseranswer = function(user,query,callback) {
               }
             }));
         } else {
-            myquest = quiz.question[qid]; 
+            myquest = quiz.question[qid];
             callback(null, myquest);
         }
       }
@@ -212,7 +212,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                       qua.param = param;
                       qua.param.display = unescape(qua.param.display);
                       for (var oi in qua.param.options) {
-                           qua.param.options[oi] = unescape(qua.param.options[oi]); 
+                           qua.param.options[oi] = unescape(qua.param.options[oi]);
                       }
                       qua.response = parseJSON(ua);
                       qua.feedback = feedback;
@@ -283,8 +283,8 @@ exports.updateTags = function(user,query,callback) {
 
 exports.changesubject = function(user,query,callback) {
   // change subject field for a set of questions (owned by user)
-  var qidlist = query.qidlist;      // question list 
-  var subject = query.subject;      // question list 
+  var qidlist = query.qidlist;      // question list
+  var subject = query.subject;      // question list
   var teachid = +user.id;
   if (qidlist) { client.query( "update quiz_question set subject='"+subject+"' where id in ("+qidlist+") and teachid="+teachid,
          after(function(results) {
@@ -393,7 +393,7 @@ exports.gettags = function(user,query,callback) {
           if (!tags[ta.teachid]) tags[ta.teachid] = [];
           tags[ta.teachid].push(ta.tagname);
         }
-      } 
+      }
       callback(tags);
   }));
 }
@@ -422,7 +422,7 @@ exports.settag = function(user,query,callback) {
             var ta = results.rows[i];
             tags_defined[ta.tagname] = ta.id;
           }
-        } 
+        }
         maketag(uid,tagstr,qidlist,callback);
       }));
   } else {
@@ -443,7 +443,7 @@ function maketag(uid,tagstr,qidlist,callback) {
       if (results && results.rows && results.rows[0]) {
         // returned a valid id after insert
         tags_defined[tagstr] = results.rows[0].id;
-        do_maketag(uid,tagstr,qidlist,callback); 
+        do_maketag(uid,tagstr,qidlist,callback);
       } else {
         callback( { err:1, msg:"failed insert" } );
       }
@@ -481,7 +481,7 @@ exports.gettagsq = function(user,query,callback) {
           var ta = results.rows[i];
           tags.push(ta.tagname);
         }
-      } 
+      }
       callback(tags);
   }));
 }
@@ -508,7 +508,7 @@ exports.getquesttags = function(user,query,callback) {
             if (!qtlist.non[qta.teachid]) qtlist.non[qta.teachid] = [];
             qtlist.non[qta.teachid].push(qta);
           }
-        } 
+        }
         callback(qtlist);
     }));
   } else {
@@ -526,7 +526,7 @@ exports.getquesttags = function(user,query,callback) {
             if (!qtlist[qta.tagname][qta.teachid]) qtlist[qta.tagname][qta.teachid] = [];
             qtlist[qta.tagname][qta.teachid].push(qta);
           }
-        } 
+        }
         callback(qtlist);
     }));
   }
@@ -545,7 +545,7 @@ exports.getquestion = function(user,query,callback) {
   after(function(results) {
           if (results && results.rows && results.rows[0]) {
             var qu = results.rows[0];
-            quiz.question[qu.id] = qu;    // Cache 
+            quiz.question[qu.id] = qu;    // Cache
             var qobj = quiz.getQobj(qu.qtext,qu.qtype,qu.id);
             if (qu.sync != '') {
               // differs from parent
@@ -554,13 +554,13 @@ exports.getquestion = function(user,query,callback) {
               if (qobj.display == qu.sync.display && qobj.code == qu.sync.code) {
                   console.log("SYNC sees no diff ",qu);
                   qu.sync = '';
-              } 
+              }
             }
             qu.display = qobj.display;
-            if (qu.qtype == 'dragdrop' || qu.qtype == 'sequence' 
-              || qu.qtype == 'fillin' 
-              || qu.qtype == 'diff' 
-              || qu.qtype == 'numeric' 
+            if (qu.qtype == 'dragdrop' || qu.qtype == 'sequence'
+              || qu.qtype == 'fillin'
+              || qu.qtype == 'diff'
+              || qu.qtype == 'numeric'
               || qu.qtype == 'textarea') {
               // display is what we show the student
               // for some questions this is not the text we want to edit
@@ -622,7 +622,7 @@ function scoreQuestion(uid,qlist,ualist,myscore,callback) {
         ua.param = parseJSON(ua.param);
         ua.param.display = unescape(ua.param.display);
         for (var oi in ua.param.options) {
-           ua.param.options[oi] = unescape(ua.param.options[oi]); 
+           ua.param.options[oi] = unescape(ua.param.options[oi]);
         }
         ua.response = parseJSON(ua.response);
         if (ua.qtype == 'multiple' ) {
@@ -699,23 +699,36 @@ exports.displayuserresponse = function(user,uid,container,callback) {
 
 var generateforall = exports.generateforall = function(user,query,callback) {
   // generate useranswer for all users
-  var container    = +query.container;
-  var parentid     = +query.parentid;
-  var questlist    = query.questlist ;  // used in r e n d e rq - just fetch it here to check
-  var group        = query.group;
-  var isteach = (user.department == 'Undervisning');
+  var container = +query.container;
+  var parentid  = +query.parentid;
+  var questlist = query.questlist ;  // used in r e n d e rq - just fetch it here to check
+  var group     = query.group;
+  var isteach   = (user.department == 'Undervisning');
   if (isteach) {
           if (db.memlist[group]) {
-            for (var i=0, l = db.memlist[group].length; i<l; i++) {
-              var enr = db.memlist[group][i];
-              getqcon( {id:enr},{container:container},function(resp) {
-                 console.log("RESP=",resp);
-                 getcontainer({id:enr},{container:container},function(resp) {
-                    renderq({id:enr},query,function(resp) {
-                    });
-                 });
-              });
-            }
+              client.query("select * from quiz_useranswer where userid=$1 and qid=$2", [user.id,container],
+              after(function(master) {
+                // get hold of container one level up
+                if (master && master.rows) {
+                    var massa = master.rows.pop();
+                    if (massa && massa.cid) {
+                        // we now have containing container
+                        console.log("CONTAINING CONTAINER IS",massa.cid);
+                        for (var i=0, l = db.memlist[group].length; i<l; i++) (function(enr) {
+                          getcontainer({id:enr},{container:massa.cid},function(res) {
+                            console.log("generating outer container for ",enr)
+                            renderq({id:enr},{container:massa.cid,questlist:res.qlist},function(res) {
+                                getcontainer({id:enr},{container:container},function(res1) {
+                                   console.log("generating inner container for ",enr)
+                                   renderq({id:enr},{container:container,questlist:res1.qlist},function(res) {
+                                   });
+                                });
+                            });
+                          });
+                        }) (db.memlist[group][i]);
+                    }
+                }
+              }));
           }
   }
   callback(null);
@@ -723,21 +736,21 @@ var generateforall = exports.generateforall = function(user,query,callback) {
 
 var renderq = exports.renderq = function(user,query,callback) {
   // renders a list of questions
-  // each question may be repeated and displayed 
+  // each question may be repeated and displayed
   // differently depending on parameters
   // any questions/instances missing a useranswer
   // will have one inserted and parameters generated for it
   // all questions are assumed to be in quiz.question cache
-  var container    = +query.container;
-  var questlist    = query.questlist ;
-  var uid          = +user.id;
-  var justnow = new Date();
-  var now = justnow.getTime()
-  var contopt = {};
-  var message = null;
-  var ualist = {};
-  var already = {};  // list of questions with existing answers
-  var retlist = [];  // list to return
+  var container = +query.container;
+  var questlist = query.questlist ;
+  var uid       = +user.id;
+  var justnow   = new Date();
+  var now       = justnow.getTime()
+  var contopt   = {};
+  var message   = null;
+  var ualist    = {};
+  var already   = {};  // list of questions with existing answers
+  var retlist   = [];  // list to return
   // console.log( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ]);
   client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
   after(function(results) {
@@ -785,8 +798,9 @@ var renderq = exports.renderq = function(user,query,callback) {
                   ua.param.options = [];
                 }
 
+
                 for (var oi in ua.param.options) {
-                   ua.param.options[oi] = unescape(ua.param.options[oi]); 
+                   ua.param.options[oi] = unescape(ua.param.options[oi]);
                 }
                 ua.response = parseJSON(ua.response);
                 ua.param.optorder = '';
@@ -1119,6 +1133,7 @@ var getqcon = exports.getqcon = function(user,query,callback) {
   // refetches container (the qtext for the container)
   // so that we have the correct sort-order for contained questions
   var container    = +query.container ;
+  var usid         = +query.uid || user.id;
   var now = new Date();
   client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
   after(function(results) {
@@ -1130,7 +1145,7 @@ var getqcon = exports.getqcon = function(user,query,callback) {
                   // save first-seen time for this user
                   // this will be time of first show for this container
                  client.query( "update quiz_useranswer set firstseen = $1 where qid=$2 and userid=$3 and firstseen = 0",
-                             [now.getTime(), container, user.id ]);
+                             [now.getTime(), container, usid ]);
                } else {
                  console.log("No useranswer - must generate");
                  callback(results.rows[0]);
@@ -1262,7 +1277,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
             var qidlist = [];
             for (var i=0,l=results.rows.length; i<l; i++) {
               var qu = results.rows[i];
-              quiz.question[qu.id] = qu;           // Cache 
+              quiz.question[qu.id] = qu;           // Cache
               qidlist.push(qu.id);                 // used to fetch tags
               qlist.push(quiz.display(qu,false));
             }
@@ -1401,11 +1416,11 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
         } else {
           uu = qusas[res.userid][qid];
           //console.log("Useranswer at different instance id",i," ::  ",(usas[res.userid][qid]).map( function(a) { return a.instance; }) );
-        } 
+        }
         score += +uu.score;
-        if (quiz.question[qid]) tot += quiz.question[qid].points;   
+        if (quiz.question[qid]) tot += quiz.question[qid].points;
         if (uu.time > fresh) fresh = uu.time;
-      } 
+      }
        /*
         else {
           try {
@@ -1488,8 +1503,8 @@ exports.editqncontainer = function(user,query,callback) {
   var action    = query.action ;
   var container = +query.container ;  // id of existing container (a question)
   var qid       = +query.qid ;        // used if binding existing question
-  var name      = query.name  || '';        
-  var subject   = query.subject  || '';        
+  var name      = query.name  || '';
+  var subject   = query.subject  || '';
   var qtype     = query.qtype || 'multiple';
   var qtext     = query.qtext || '{}';
   var teachid   = +user.id;
@@ -1535,7 +1550,7 @@ exports.editqncontainer = function(user,query,callback) {
         // we assume this is tested for
         // drop a question from the container
         //console.log( "delete from question_container where cid=$1 and qid=$2 ", [container,qid]);
-        client.query( "delete from question_container where cid=$1 and qid=$2 ", [container,qid], 
+        client.query( "delete from question_container where cid=$1 and qid=$2 ", [container,qid],
         after(function(results) {
            client.query("delete from quiz_useranswer where cid =$1 and qid=$2",[container,qid],
            after(function(results) {
@@ -1593,7 +1608,7 @@ exports.makeWordIndex = function(user,query,callback) {
   var subjects = {};   // distinct subjects with qcount
   var questions = {};
   var containers = {};
-  // modified questions 
+  // modified questions
   client.query("select q.id from quiz_question q  left join quiz_question qp "
                + " on (q.parent = qp.id) where q.status != 9 and q.parent != 0 and q.modified < qp.modified and q.qtext != qp.qtext and q.teachid=$1",[teachid],
     after(function(unsynced) {
