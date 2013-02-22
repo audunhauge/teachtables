@@ -165,7 +165,9 @@ function makeMarks(qmatched) {
 function questEditor(clusterlist) {
   // filter clusterlist against questions - any missing assumed deleted
   clusterlist = clusterlist.filter(function (e) { return questions[e]; } );
-  $j.getJSON(mybase+'/getcontainer',{ givenqlist:clusterlist.join(',') }, function(qlist) {
+  $j.getJSON(mybase+'/getcontainer',{ givenqlist:clusterlist.join(',') }, function(wqqlist) {
+    var qlist = wqqlist.qlist;
+    wbinfo.taglist = wqqlist.taglist;
     var showqlist = wb.render.normal.editql(qlist,true);
     var act;
     if (qparam.teacher == userinfo.id) {
@@ -462,6 +464,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
                 var word = $j(this).text();
                 qparam.keyword = word;
                 var w0 = word.substr(0,1);
+                if (!wordobj[w0]) w0 = 'A';
                 var matchkey = wordobj[w0][qparam.keyword];
                 var qmatched = {};
                 if (matchkey) {

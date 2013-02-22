@@ -1266,7 +1266,8 @@ exports.getcontainer = function(user,query,callback) {
                 var taggart = {};
                 for (var i=0,l=taglist.rows.length; i<l; i++) {
                     var tag = taglist.rows[i];
-                    taggart[tag.id] = tag.tagname;
+                    if (!taggart[tag.id]) taggart[tag.id] = [];
+                    taggart[tag.id].push(tag.tagname);
                 }
                 if (container) quiz.contq[container] = { qlist:qlist, taglist:taggart};
                 callback({ qlist:qlist, taglist:taggart});

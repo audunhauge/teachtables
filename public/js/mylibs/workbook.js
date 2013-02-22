@@ -582,7 +582,7 @@ function renderPage() {
       // list of distinct questions - can not be used for displaying - as they may need
       // modification based on params stored in useranswers
       // the questions are 'stripped' of info giving correct answer
-        var taglist = wqqlist.taglist;
+        wbinfo.taglist = wqqlist.taglist;
         var qlist = wqqlist.qlist;
         console.log("TAGLIST",taglist);
         var showlist = generateQlist(qlist);
@@ -1640,17 +1640,22 @@ wb.render.normal  = {
             wantlist   = typeof(wantlist) != 'undefined' ? wantlist : false;
             var qq = '';
             var qql = [];
+            var taggers = wbinfo.taglist;
             for (var qidx in questlist) {
               qu = questlist[qidx];
               var shorttext = qu.display || '( no text )';
+              var taggy = '';
               shorttext = shorttext.replace(/</g,'&lt;');
               shorttext = shorttext.replace(/>/g,'&gt;');
+              if (taggers && taggers[qu.id]) {
+                  taggy = taggers[qu.id].join(' ');
+              }
               var tit = shorttext.replace(/['"]/g,'«');
               var qdiv = '<div class="equest" id="qq_'+qu.id+'_'+qidx+'">';
               if (wantlist) qdiv += '<input type="checkbox">';
               qdiv +=      '<span class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">' 
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
-                         + '<span class="qtype">&nbsp;' + qu.name + '</span><div class="qname"> '
+                         + '<span class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
                          + '</span><span class="qpoints">'+ qu.points +'</span><div class="edme"></div>';
               if (!wantlist) qdiv += '<div class="killer"></div>';
