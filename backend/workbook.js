@@ -1535,11 +1535,43 @@ exports.editqncontainer = function(user,query,callback) {
       case 'insert':
         // we bind existing questions to the container
         if (nuqs) {
-          var nuqids = '(' + nuqs.split(',').join(','+container+'),(') + ',' + container+')';
           //console.log( "insert into question_container (qid,cid) values " + nuqids);
-          client.query( "insert into question_container (qid,cid) values " + nuqids,
-              after(function(results) {
-                callback( {ok:true, msg:"updated" } );
+          client.query( "select q.id from quiz_question q inner join question_container c on (q.id = c.qid) "
+                       + " where q.qtype='quiz' and q.id in ("+nuqs+" ) and q.teachid=$1", [teachid],
+              after(function(existing) {
+                  // existing is list of quiz ids already used
+                  // so instead of just inserting these quiz-es  we duplicate them and insert the dups
+                  // ANY other questions are just dropped
+                  if (existing && existing.rows && existing.rows.length) {
+                      console.log("Already quiz ",existing.rows);
+                      var givenqlist = existing.rows.map(function (e) {
+                          return e.id;
+                      });
+                      console.log(givenqlist);
+                      client.query( "insert into quiz_question (name,points,qtype,qtext,qfasit,teachid,created,modified,parent,subject) "
+                                    + " select  name,points,qtype,qtext,qfasit,"+teachid+",created,"+(now.getTime())+",id,subject  "
+                                    + " from quiz_question q where q.status != 9 and q.id in ("+givenqlist+") returning id ",
+                        after(function(results) {
+                          // duplicate the tags
+                          client.query( " insert into quiz_qtag select qt.tid,q.id from quiz_question q "
+                              + " inner join quiz_qtag qt on (q.parent = qt.qid) "
+                              + " where q.parent != 0 and q.modified = $2 and q.teachid=$1" , [ teachid, now.getTime() ] );
+                           var thedupes = results.rows.map(function (e) {
+                             return e.id;
+                           });
+                           var nuqids = '(' + thedupes.join(','+container+'),(') + ',' + container+')';
+                           client.query( "insert into question_container (qid,cid) values " + nuqids,
+                               after(function(results) {
+                                 callback( {ok:true, msg:"updated" } );
+                               }));
+                    }));
+                  } else {
+                   var nuqids = '(' + nuqs.split(',').join(','+container+'),(') + ',' + container+')';
+                   client.query( "insert into question_container (qid,cid) values " + nuqids,
+                       after(function(results) {
+                         callback( {ok:true, msg:"updated" } );
+                       }));
+                  }
               }));
         } else {
           callback( {ok:true, msg:"emptylist" } );
