@@ -1308,6 +1308,10 @@ exports.crosstable = function(user,query,callback) {
                 for (var oi in uu.param.options) {
                    uu.param.options[oi] = unescape(uu.param.options[oi]);
                 }
+                if (uu.qtype == 'multiple' ) {
+                  //console.log("reordering ",ua.param.fasit);
+                  uu.param.fasit = quiz.reorder(uu.param.fasit,uu.param.optorder);
+                }
                 uu.response = parseJSON(uu.response);
                 rlist.push(uu);
               }
