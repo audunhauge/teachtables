@@ -132,55 +132,56 @@ app.configure('development', function(){
 */
 app.get(base,                           routes.index);                                // gives start-page
 app.get(base+'/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
-app.get(base+'/getsql',                 routes.getsql);          
-app.get(base+'/freedays',               routes.freedays);          
-app.get(base+'/getexams',               routes.getexams);          
+app.get(base+'/getsql',                 routes.getsql);
+app.get(base+'/freedays',               routes.freedays);
+app.get(base+'/getexams',               routes.getexams);
 app.get(base+'/plain',                  routes.plain);              // simplified overview
 app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
 
-app.post(base+'/editcourse',             routes.editcourse);            
-app.post(base+'/edituser',               routes.edituser);           
-app.post(base+'/editgroup',              routes.editgroup);          
+app.post(base+'/editcourse',             routes.editcourse);
+app.post(base+'/edituser',               routes.edituser);
+app.post(base+'/editgroup',              routes.editgroup);
 
 
 // user - info login config
 app.get(base+'/login',                  user.login);                // logg in
 app.get(base+'/ses',                    user.ses);                  // get login info (check if logged in)
 
-app.post(base+'/saveconfig',             user.saveconfig);          
+app.post(base+'/saveconfig',             user.saveconfig);
 
 
 // workbook
 app.get(base+'/workbook',               workbook.workbook);         // get selected workbook
 app.get(base+'/getqcon',                workbook.getqcon);          // get questions from question-container
 app.get(base+'/getcontainer',           workbook.getcontainer);     // get container info
-app.get(base+'/displayuserresponse',    workbook.displayuserresponse); 
-app.get(base+'/wordindex',              workbook.wordindex); 
-app.get(base+'/getquestion',            workbook.getquestion); 
-app.get(base+'/gettags',                workbook.gettags); 
-app.get(base+'/gettagsq',               workbook.gettagsq); 
-app.get(base+'/getquesttags',           workbook.getquesttags); 
-app.get(base+'/getworkbook',            workbook.getworkbook); 
-app.get(base+'/update_subscription',    workbook.update_subscription); 
-app.get(base+'/gimmeahint',             workbook.gimmeahint); 
+app.get(base+'/displayuserresponse',    workbook.displayuserresponse);
+app.get(base+'/wordindex',              workbook.wordindex);
+app.get(base+'/getquestion',            workbook.getquestion);
+app.get(base+'/gettags',                workbook.gettags);
+app.get(base+'/gettagsq',               workbook.gettagsq);
+app.get(base+'/getquesttags',           workbook.getquesttags);
+app.get(base+'/getworkbook',            workbook.getworkbook);
+app.get(base+'/update_subscription',    workbook.update_subscription);
+app.get(base+'/gimmeahint',             workbook.gimmeahint);
 app.get(base+'/updatecontainerscore',   workbook.updatecontainerscore );
 app.get(base+'/exportcontainer',        workbook.exportcontainer );
 app.get(base+'/copyquest',              workbook.copyquest );
 
 app.post(base+'/generateforall',        workbook.generateforall );
-app.post(base+'/renderq',               workbook.renderq);          
-app.post(base+'/gradeuseranswer',       workbook.gradeuseranswer); 
-app.post(base+'/editscore',             workbook.editscore); 
-app.post(base+'/editquest',             workbook.editquest); 
-app.post(base+'/editqncontainer',       workbook.editqncontainer); 
-app.post(base+'/studresetcontainer',    workbook.studresetcontainer); 
+app.post(base+'/renderq',               workbook.renderq);
+app.post(base+'/gradeuseranswer',       workbook.gradeuseranswer);
+app.post(base+'/editscore',             workbook.editscore);
+app.post(base+'/editquest',             workbook.editquest);
+app.post(base+'/editqncontainer',       workbook.editqncontainer);
+app.post(base+'/studresetcontainer',    workbook.studresetcontainer);
 app.post(base+'/resetcontainer',        workbook.resetcontainer );
 app.post(base+'/changesubject',         workbook.changesubject );
 app.post(base+'/edittags',              workbook.edittags );
 app.post(base+'/settag',                workbook.settag );
 app.post(base+'/updateTags',            workbook.updateTags );
 app.post(base+'/addcomment',            workbook.addcomment );
-app.post(base+'/getuseranswers',        workbook.getuseranswers); 
+app.post(base+'/getuseranswers',        workbook.getuseranswers);
+app.post(base+'/crosstable',            workbook.crosstable);
 
 
 // meetings - absent - reservations
@@ -198,7 +199,7 @@ app.post(base+'/makemeet',           meetings.makemeet );
 
 
 
-// plans 
+// plans
 app.get(base+'/getaplan',               plans.getaplan );
 app.get(base+'/getallplans',            plans.getallplans );
 app.get(base+'/myplans',                plans.myplans );
@@ -216,7 +217,7 @@ app.post(base+'/save_fagplan',           plans.save_fagplan );
 
 
 // timetables
-app.get(base+'/timetables',             timetables.timetables);    
+app.get(base+'/timetables',             timetables.timetables);
 app.post(base+'/save_timetable',         timetables.save_timetable);
 
 
@@ -225,9 +226,9 @@ app.get(base+'/alltests',               tests.alltests);            // all tests
 app.post(base+'/save_test',             tests.save_test );
 app.get(base+'/savehd',                 plans.savehd );
 
-// shows - tickets  
+// shows - tickets
 // get shows and sell tickets
-app.post(base+'/buytickets',          show.buytickets);            
+app.post(base+'/buytickets',          show.buytickets);
 app.post(base+'/editshow',            show.editshow );
 app.get(base+'/tickets',              show.tickets );
 app.get(base+'/show',                 show.show );                  // get list of shows for this user
@@ -240,12 +241,12 @@ app.get(base+'/getstarblessdates',      starb.getstarblessdates);
 app.get(base+'/createstarbless',        starb.createstarbless);
 app.get(base+'/savestarbless',          starb.savestarbless);
 app.get(base+'/killstarbless',          starb.killstarbless);
-app.get(base+'/elevstarb',              starb.elevstarb);                 
-app.get(base+'/fjernelev',              starb.fjernelev);           
-app.get(base+'/regstud',                starb.regstud);              
-app.get(base+'/teachstarb',             starb.teachstarb);       
-app.get(base+'/starbkey',               starb.starbkey);          
-app.get(base+'/ipad ',                  starb.ipad );               
+app.get(base+'/elevstarb',              starb.elevstarb);
+app.get(base+'/fjernelev',              starb.fjernelev);
+app.get(base+'/regstud',                starb.regstud);
+app.get(base+'/teachstarb',             starb.teachstarb);
+app.get(base+'/starbkey',               starb.starbkey);
+app.get(base+'/ipad ',                  starb.ipad );
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

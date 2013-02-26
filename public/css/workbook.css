@@ -7,6 +7,11 @@
       margin-right:auto;
 }
 
+#crosstab {
+      margin:5px;
+      padding:10px;
+}
+
 #qlistbox {
   position:relative;
   width:90%;

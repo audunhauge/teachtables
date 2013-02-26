@@ -107,36 +107,21 @@ exports.updatecontainerscore = function(user,query,callback) {
 
 exports.addcomment = function(user,query,callback) {
   var uaid    = +query.uaid,   // id of useranswer to add comment to
-      uid     = +query.uid,    // the user
-      qid     = +query.qid,    // question id
-      iid     = +query.iid,    // instance id
-      uid     = +query.uid,    // the user
       comment = query.comment;  // the comment
-  if (uid == user.id) {
-    // stud-comment
-    client.query( "update quiz_useranswer set usercomment = $1 where id=$2",[comment,uaid]);
-  } else if (user.department == 'Undervisning') {
+  if (user.department == 'Undervisning') {
     // teach comment
     client.query( "update quiz_useranswer set teachcomment = $1 where id=$2",[comment,uaid]);
+  } else {
+    client.query( "update quiz_useranswer set usercomment = $1 where id=$2 and userid=$3",[comment,uaid,user.id]);
+    // stud-comment
   }
   callback(123);
 }
 
 exports.editscore = function(user,query,callback) {
-  var qid    = +query.qid,
-      iid    = +query.iid,    // instance id (we may have more than one instance of a question in a container, generated questions)
-      cid    = +query.cid,    // the question (container) containing the question
-      uid    = +query.uid,    // the user
-      nuval  = +query.nuval,  // the new score
-      qua    = query.qua,
-      uaid   = +qua.id,
-      oldval = +qua.score,    // prev score
-      diff   =  nuval-oldval;
-  console.log("REGRADE",qid,iid,cid,uid,qua,nuval,oldval,diff,qua.id);
+  var uaid   = +query.uaid,
+      nuval  = +query.nuval;  // the new score
   client.query( "update quiz_useranswer set score = "+nuval+" where id="+uaid);
-  console.log( "update quiz_useranswer set score = $1 where id=$3", [nuval,uaid]);
-  client.query( "update quiz_useranswer set score = score + "+diff+" where userid="+uid+" and qid="+cid);
-  console.log( "update quiz_useranswer set score = score + $1 where userid=$2 and qid=$3", [diff,uid,cid]);
   callback(123);
 }
 
@@ -1307,6 +1292,32 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
 }
 
 
+exports.crosstable = function(user,query,callback) {
+  var containerid  = +query.container;
+  var isteach = (user.department == 'Undervisning' );
+  if (isteach) {
+    // get all useranswers to all questions in this quiz
+          client.query(  "select q.points,q.qtype,q.name,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
+                 + " where qua.cid = $1", [ containerid ],
+          after(function(uas) {
+              var rlist = [];
+              for (var i=0; i<uas.rows.length; i++) {
+                var uu = uas.rows[i];
+                uu.param = parseJSON(uu.param);
+                uu.param.display = unescape(uu.param.display);
+                for (var oi in uu.param.options) {
+                   uu.param.options[oi] = unescape(uu.param.options[oi]);
+                }
+                uu.response = parseJSON(uu.response);
+                rlist.push(uu);
+              }
+              callback(rlist);
+          }));
+  } else {
+      callback(null);
+  }
+}
+
 var getuseranswers = exports.getuseranswers = function(user,query,callback) {
   // get useranswers for a container
   // all questions assumed to be in quiz.question cache
@@ -1776,6 +1787,7 @@ exports.makeWordIndex = function(user,query,callback) {
                        var con = cont.rows[cc];
                        if (!questions[con.cid]) continue;  // ignore containers for other teach
                        if (!questions[con.qid]) continue;  // ignore questions for other teach
+                       if (!questions[con.cid].name) continue;  // ignore containers without name
                        if (!containers[con.cid]) containers[con.cid] = {};
                        containers[con.cid][con.qid] = 1;
                     }

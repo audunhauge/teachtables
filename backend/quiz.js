@@ -77,7 +77,7 @@ function normalizeFunction(txt,nosubst) {
   nosubst = (typeof nosubst != "undefined") ? 1 : 0;
   var fu = txt.replace(/ /g,'').replace(/exp/gm,'©');
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
-      fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } ); 
+      fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
       fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });
       fu = fu.replace(/tt/gm,'t*t');
       fu = fu.replace(/tt/gm,'t*t');
@@ -116,7 +116,7 @@ var qz = {
      // gives back a shuffled string, 'abcd'.length == optionCount
      // 'abcd'  becomes 'dacb' etc - giving the order for options
      var str = '';
-     var bag = 'abcdefghijklmnopqrstuvwxyz'.substr(0,optionCount); 
+     var bag = 'abcdefghijklmnopqrstuvwxyz'.substr(0,optionCount);
      // bugger them that use more options in a quiz!
      for (var i=0; i< optionCount; i++) {
        var idx = Math.floor(Math.random()*bag.length);
@@ -169,7 +169,7 @@ var qz = {
          did = 0;
          qobj.display = qobj.display.replace(/\[\[([^ª]+?)\]\]/mg,function(m,ch) {
              draggers[did] = ch;
-	     var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="fillin">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+             var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="fillin">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
              did++;
              return sp;
          });
@@ -211,7 +211,7 @@ var qz = {
                catname = catname.substr(1);
                orderclass = 'order ';
              }
-	     var sp = '<div class="catt">'+catname+'</div><ul id="dd'+qid+'_'
+             var sp = '<div class="catt">'+catname+'</div><ul id="dd'+qid+'_'
                  + cid + '" class="'+orderclass+'sequence connectedSortable"><li class="hidden" >zzzz</li>ª</ul>';
              cid++;
              return sp;
@@ -231,7 +231,7 @@ var qz = {
                  // thus questions like : place x on the third position: [[ ]] [[ ]] [[x]] [[ ]]
                  // works basically like checkbox - but can place the box anywhere in text
                  // TODO we may not need to do anything here
-             } 
+             }
              draggers[did] = ch;
 	         var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="drop">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
              did++;
@@ -296,7 +296,7 @@ var qz = {
   , diagram:function(text,qid,instance) {
      // draw some diagrams
      //   histogram
-     //   bar 
+     //   bar
      //   line,linreg,expreg
      /*
            dataprovider = 'var data = [];\n'
@@ -341,7 +341,7 @@ var qz = {
                // TODO fix this - pick out width and height
                if (text.indexOf('replot') >= 0)  {
                   tegn = '<div id="redraw'+qid+'_'+instance+'" class="gradebutton">Tegn</div>';
-               } 
+               }
                var w=200,h=200;
                params.replace(/height:([0-9]+)/gm,function(m,a) { h = a; } );
                params.replace(/width:([0-9]+)/gm,function(m,a) { w = a; } );
@@ -354,7 +354,7 @@ var qz = {
            case 'plot':
                if (text.indexOf('replot') >= 0)  {
                   tegn = '<div id="redraw'+qid+'_'+instance+'" class="gradebutton">Tegn</div>';
-               } 
+               }
                var elm = [];
                params.replace(/{([^ª]+?)}/mg,function(mm,cc) {
                     elm.push(cc);
@@ -383,7 +383,7 @@ var qz = {
            case 'vfield':
                if (text.indexOf('replot') >= 0)  {
                   tegn = '<div id="redraw" class="gradebutton">Tegn</div>';
-               } 
+               }
                var elm = [];
                params.replace(/{([^ª]+?)}/mg,function(mm,cc) {
                      elm.push(cc);
@@ -458,7 +458,7 @@ var qz = {
                    + '     .attr("y2", 20+h -y(0)- .5)\n'
                    + '     .style("stroke", "#000");\n'
                    + '}\n'
-                   + ((userdata) ? ( 
+                   + ((userdata) ? (
                        '$j("#hist'+qid+'_'+instance+'_'+idx+'").undelegate(".gradebutton","click");\n'
                      + '$j("#hist'+qid+'_'+instance+'_'+idx+'").delegate(".gradebutton","click",function() {\n'
                      + '   data = [];\n'
@@ -542,7 +542,7 @@ var qz = {
                    + '     .attr("text-anchor", "top") // text-align: right\n'
                    + '     .text(String);\n'
                    + '}\n'
-                   + ((userdata) ? ( 
+                   + ((userdata) ? (
                        '$j("#hist'+qid+'_'+instance+'_'+idx+'").undelegate(".gradebutton","click");\n'
                      + '$j("#hist'+qid+'_'+instance+'_'+idx+'").delegate(".gradebutton","click",function() {\n'
                      + '   data = [];\n'
@@ -725,7 +725,7 @@ var qz = {
        return 0;
        });
      return text;
-   }  
+   }
  , quadreg:function(x, y) {
          var a0 = 1,
              a1 = 0,
@@ -874,14 +874,14 @@ var qz = {
    }
    return list;
  }
- , shuffle:function(arr) {  
+ , shuffle:function(arr) {
    for (var i=arr.length-1; i>0; i--) {
      var j = Math.round(Math.random()*i);
      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
    }
    return arr;
  }
- , range:function(lo,hi,step) {  
+ , range:function(lo,hi,step) {
    // range(1,10,1) => [1,2,3,4,5,6,7,8,9]
    // range(1,4,0.1) => [1.0, 1.1, 1.2, 1.3 .. 3.9]
    var list = [], i=lo;
@@ -890,11 +890,11 @@ var qz = {
    }
    return list;
  }
- , fix:function(arr,p) {  
+ , fix:function(arr,p) {
    // maps all numbers to fixed
    return arr.map(function(n) { var nn = new Number(n); return nn.toFixed(p); });
  }
- , poly:function(clist,v) {  
+ , poly:function(clist,v) {
    //  L,v => f(v) => Number
    // given a list of consts will return a polynom in variable v
    // as a function of v
@@ -906,10 +906,10 @@ var qz = {
       s = '('+s+')*'+v+'+'+c;
    }
    //console.log(s);
-   var f = new Function(v,'return '+s); 
+   var f = new Function(v,'return '+s);
    return { fu:f, txt:s };
  }
- , round:function(x,p) { 
+ , round:function(x,p) {
     // we really dont want 1.2000000000001
     var tmp =  Math.round(x*Math.pow(10,p))/Math.pow(10,p);
     var str = ""+tmp;
@@ -939,7 +939,7 @@ var qz = {
               A:0, B:0, C:0, D:0, E:0, F:0, G:0, H:0, I:0, J:0, K:0, L:0, M:0, N:0, O:0,
               P:0, Q:0, R:0, S:0, T:0, U:0, V:0, W:0, X:0, Y:0, Z:0
        , sin:Math.sin ,cos:Math.cos, tan:Math.tan
-       , pow:Math.pow 
+       , pow:Math.pow
        , abs:Math.abs
        , sqrt:Math.sqrt
        , fix:qz.fix
@@ -1001,18 +1001,18 @@ var qz = {
        qobj.display = qz.asymp(qobj.display);        // generate graph for ££ draw(graph(x,y,operator ..) ££
        qobj.display = qz.diagram(qobj.display,q.id,instance);    // generate graph for €€ plot(sin(x)) €€
        qobj.display = escape(qobj.display);
-       if (question.qtype == 'dragdrop' 
-           || question.qtype == 'sequence' 
-           || question.qtype == 'numeric' 
-           || question.qtype == 'diff' 
+       if (question.qtype == 'dragdrop'
+           || question.qtype == 'sequence'
+           || question.qtype == 'numeric'
+           || question.qtype == 'diff'
            || question.qtype == 'fillin' ) {
          qobj.options = qobj.fasit;
        }
        if (qobj.hints != '') qobj.hints = qz.macro(qobj.hints);
        for (var i in qobj.options) {
-         qobj.options[i] = escape(qz.macro(qobj.options[i])); 
+         qobj.options[i] = escape(qz.macro(qobj.options[i]));
        }
-       qobj.daze = qz.macro(qobj.daze,container); 
+       qobj.daze = qz.macro(qobj.daze,container);
        qobj.pycode = '';  // remove pycode and code - they are not needed in useranswer
        // only used to generate params susbtituted into display
        qobj.code = '';
@@ -1046,8 +1046,8 @@ var qz = {
        }
        callback(qobj);
      });
-    
-   }	       
+
+   }
  ,  display: function(qu,options) {
            // takes a question and returns a formatted display text
            options = typeof(options) != 'undefined' ?  options : true;
@@ -1085,7 +1085,7 @@ var qz = {
            // that are needed for displaying and grading the response
            // the question from db may be mangled (reordered etc) so
            // we need info about how its mangled or how dynamic content
-           // has been generated 
+           // has been generated
            // contopt - options for this container - sent from user web page
            var feedback = '';  // default feedback
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
@@ -1150,7 +1150,7 @@ var qz = {
            switch(aquest.qtype) {
              case 'numeric':
                  //var fasit = qobj.fasit;
-                 // for numeric the fasit is a template like this  
+                 // for numeric the fasit is a template like this
                  //   33.13:0.5         the answer is 33.13 +- 0.5
                  //   32.0..33.5        the answer must be in the interval [32.0,33.5]
                  //   nor:m,s           the answer x is scored as e^-((1/(2) * ((x-m)/s)^2
@@ -1173,7 +1173,7 @@ var qz = {
                      var num = +ff;             // get numeric value
                      var tol = 0.0000001;       // default tolerance
                      var uanum = ua[ii].replace(',','.');  // user input 3,141 => 3.14
-                     uanum = +uanum;       // numeric value of user input 
+                     uanum = +uanum;       // numeric value of user input
                      var uatxt = ua[ii];
                      switch (swi) {
                        case 'nor:':
@@ -1484,7 +1484,7 @@ var qz = {
                          // this sequence is a large part of this question
                          // we dont need adjustment if we have many small sequences
                          // as then its hard placing an element in the correct sequence
-                         // in the first place - getting the order right is simple addon 
+                         // in the first place - getting the order right is simple addon
                          var adj = adjust[Math.min(63,mytot+daze)] * mytot;
                          feedback[ii].adj = adj;
                          //console.log(myuco,adj);
@@ -1621,7 +1621,7 @@ var qz = {
                       callback(score,feedback,completed);
 
                   }));
-             } else { 
+             } else {
                  if (symb.limit && symb.limit <= qgrade) {
                   var tempq = parseJSON(aquiz.qtext);
                   var skip = symb.skip ? symb.skip : tempq.qlistorder.length;

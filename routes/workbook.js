@@ -30,6 +30,18 @@ exports.editqncontainer = function(req, res) {
     }
 };
 
+exports.crosstable = function(req,res) {
+    if (req.session.user && req.session.user.department == 'Undervisning') {
+      wb.crosstable(req.session.user,req.body,function(msg) {
+         res.send(msg);
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+
+}
+
+
 exports.editquest = function(req, res) {
     // insert/update/delete a question
     if (req.session.user && req.session.user.department == 'Undervisning') {

@@ -28,7 +28,7 @@ function hsv2rgb(h, s, v) {
         b = [p, p, t, v, v, q][mod];
 
    var rgb = [ r * 255, g * 255, b * 255 ];
-   return '#' + rgb.map(function(x){ 
+   return '#' + rgb.map(function(x){
       return ("0" + Math.round(x).toString(16)).slice(-2);
     }).join('');
 }
@@ -117,7 +117,7 @@ function showinfo(ty,lim,fil) {
   var qmatched = {};
   for (var star in cluster) {
     if (cluster[star] < +qparam.limit) continue;
-    var q = questions[star]; 
+    var q = questions[star];
     if (qparam.filter != 'all' && q && q.qtype != qparam.filter) continue;
     if (qparam.subj != 'all' && q && q.subject != qparam.subj) continue;
     if (clusterlist.indexOf(star) >= 0) continue;  // already in list
@@ -128,33 +128,33 @@ function showinfo(ty,lim,fil) {
     qmatched[qid] = 1;
   }
   makeMarks(qmatched);
-  questEditor(clusterlist) 
+  questEditor(clusterlist)
 }
 
 function show_unsynced(qmatched) {
-  // marks nodes (questions in node plot) 
+  // marks nodes (questions in node plot)
     qmatched = {};
     for (var i in unsynced) {
-        var qi = unsynced[i]; 
+        var qi = unsynced[i];
         qmatched[qi] = 1;
     }
     svg.selectAll("circle")
        .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return (qmatched[ty]) ? "yellow" : teachcolors(q.origin); } )
        //.style("stroke", function(d,i) { return (qmatched[d.name]) ? "#ff3322" : "#222"; } )
-       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } ); 
+       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } );
 }
 
 function makeMarks(qmatched) {
-  // marks nodes (questions in node plot) 
+  // marks nodes (questions in node plot)
   // and returns list of matched questions given filter-settings
     svg.selectAll("circle")
        .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return (qmatched[ty]) ? "yellow" : teachcolors(q.origin); } )
        .style("stroke", function(d,i) { return (qmatched[d.name]) ? "#ff3322" : "#222"; } )
-       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } ); 
+       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } );
 
     var clusterlist = [];       // array of connected questions
     for (var star in qmatched) {
-      var q = questions[star]; 
+      var q = questions[star];
       if (qparam.filter != 'all' && q && q.qtype != qparam.filter) continue;
       if (qparam.subj != 'all' && q && q.subject != qparam.subj) continue;
       clusterlist.push(star);
@@ -289,11 +289,11 @@ function tellme(s) {
 
 function  setupworld(data) {
           clearInterval(stopme);
-          if (data == undefined) { 
+          if (data == undefined) {
              $j("#rapp").html("Du har ingen spørsmål, er ikke logget inn eller er ikke lærer");
              return;
           }
-           
+
           tlist = 0;   // only show questions that I have created myself
 
           qdata = data;
@@ -306,9 +306,10 @@ function  setupworld(data) {
           for (var qq in quizz) {
             quizlist.push( { label:questions[qq].name.substr(0,25), value:qq } );
           }
+          quizlist.sort(function(a,b) {  return a.label.localeCompare(b.label); }  );
           console.log( userinfo.config.subscription);
           teachlist = data.teachlist.filter( function (e) { return database.teachers[e.teachid] } );  // remove not teachers
-          teachlist = teachlist.filter( function (e) { return e.teachid == userinfo.id 
+          teachlist = teachlist.filter( function (e) { return e.teachid == userinfo.id
               || userinfo.config && userinfo.config.subscription && userinfo.config.subscription[e.teachid]; });
           teachnames = teachlist.map( function (e) { var t = database.teachers[e.teachid]; return t ? t.firstname + ' ' + t.lastname : '' } );  // namelist
           teachids = teachlist.map( function (e) { return e ? e.teachid : 0 });
@@ -386,11 +387,11 @@ function makeForcePlot(filter,limit,keyword,subj) {
           su = su.concat(subjectArray).concat(['all','empty']);
           var sel = gui( { elements:{ "filter":{ klass:"", value:filter,  type:"select", options:qtypes }
                     , "joy"  :{ klass:"oi", value:qparam.joy,  type:"select", options:['and','or','not','only'] }
-                    //, "teacher":{ klass:"oi", value:qparam.teacher,  type:"select" , options:teachlist } 
-                    , "quizz":{ klass:"oi", value:qparam.teacher,  type:"select" , options:quizlist } 
-                    , "tags":{ klass:"oi", value:qparam.tag,  type:"select" , options:taglist } 
+                    //, "teacher":{ klass:"oi", value:qparam.teacher,  type:"select" , options:teachlist }
+                    , "quizz":{ klass:"oi", value:qparam.teacher,  type:"select" , options:quizlist }
+                    , "tags":{ klass:"oi", value:qparam.tag,  type:"select" , options:taglist }
                     , "subj"  :{ klass:"oi", value:qparam.subj,  type:"select", options:su }
-                    , "limit":{ klass:"", value:limit,  type:"select", 
+                    , "limit":{ klass:"", value:limit,  type:"select",
                     options:[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,30] }  } } );
           $j("#filterbox").html(sel.filter);
           $j("#quizbox").html(sel.quizz);
@@ -422,7 +423,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
                   var clust = makeMarks(qmatched);
                   makeJoin(clust);
                   if (clusterlist.length > 0) {
-                    questEditor(clusterlist) 
+                    questEditor(clusterlist)
                   } else {
                     $j("#info").html(ss.quiz.nomatchtype);
                   }
@@ -438,7 +439,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
                   var clust = makeMarks(qmatched);
                   makeJoin(clust);
                   if (clusterlist.length > 0) {
-                    questEditor(clusterlist) 
+                    questEditor(clusterlist)
                   } else {
                     $j("#info").html(ss.quiz.nomatchtype);
                   }
@@ -472,7 +473,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
                   var clust = makeMarks(qmatched);
                   makeJoin(clust);
                   if (clusterlist.length > 0) {
-                    questEditor(clusterlist) 
+                    questEditor(clusterlist)
                   } else {
                     $j("#info").html(ss.quiz.nomatchtype);
                   }
@@ -490,14 +491,14 @@ function makeForcePlot(filter,limit,keyword,subj) {
              var re = relations[i];
              //words += re.join(',') + "<br>";
              if (re[0] > +limit) {
-               var q = questions[re[1]]; 
+               var q = questions[re[1]];
                if (!q || filter != 'all' && q.qtype != filter) continue;
                if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
                // if (subj != 'all' && q.subject != subj) continue;
                if (subj == 'empty') {
                  if (q.subject != undefined && q.subject != '') continue;
                } else if (subj != 'all' && q.subject != subj) continue;
-               var q = questions[re[2]]; 
+               var q = questions[re[2]];
                if (!q) continue;
                if (filter != 'all' && q.qtype != filter) continue;
                if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
@@ -508,13 +509,13 @@ function makeForcePlot(filter,limit,keyword,subj) {
           }
           for (var i=0; i < relations.length; i+=1) {
              var re = relations[i];
-             var q = questions[re[1]]; 
+             var q = questions[re[1]];
              if (!q || filter != 'all' && q.qtype != filter) continue;
              if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
              if (subj == 'empty') {
                if (q.subject != undefined && q.subject != '') continue;
              } else if (subj != 'all' && q.subject != subj) continue;
-             var q = questions[re[2]]; 
+             var q = questions[re[2]];
              if (!q || filter != 'all' && q.qtype != filter) continue;
              if (subj != 'all' && q.subject != subj) continue;
              if ( q.origin && q.origin != 0 && q.origin != tlist) continue;
@@ -541,8 +542,8 @@ function makeForcePlot(filter,limit,keyword,subj) {
             if (q.qtype == filter || filter == "all") {
               nodes[q.id] = { name:q.id };
               nodecount++;
-            } 
-          } 
+            }
+          }
           var helpinfo = '<ul><li>Klikk på spørsmål for å redigere.<li>Velg type fra kombo<li>Du kan flytte denne boksen'
                      + '<li>Velg antall felles ord for å lage link (mindre verdi gir flere linker)'
                      + '<li>JAdda'
@@ -551,7 +552,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
 
           // Compute the distinct nodes from the links.
           links.forEach(function(link) {
-            var q = questions[link.source]; 
+            var q = questions[link.source];
             //console.log(now.getTime() - q.created);
             if (!nodes[link.source]) nodecount++;
             if (!nodes[link.target]) nodecount++;
@@ -570,11 +571,11 @@ function makeForcePlot(filter,limit,keyword,subj) {
           }
           //$j("#info").html(40*Math.sqrt(1+nodecount));
 
-          var w = 50*Math.sqrt(1+nodecount), 
-              h = Math.max(250,w); 
+          var w = 50*Math.sqrt(1+nodecount),
+              h = Math.max(250,w);
 
           w += 130;  // extra space for labels
-          
+
 
           tcolors.domain(["multiple","dragdrop","fillin","numeric","info","textarea","math","diff","sequence"]);
           teachcolors.domain(teachids);

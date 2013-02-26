@@ -158,6 +158,72 @@ function crossResults() {
       group = '';
     }
     var trail = makeTrail();
+    var s = '<div id="crosstab"><h1 class="result" id="tt'+wbinfo.containerid+'">CrossTab</h1>'
+             +trail+'<div id="results"></div></div>';
+    $j("#main").html(s);
+    $j.post(mybase+'/crosstable',{ container:wbinfo.containerid}, function(results) {
+           console.log(results);
+           var cross = {};
+           var userlist = [];
+           for (var uai in results) {
+               var ua = results[uai];
+               if (!cross[ua.qid]) cross[ua.qid] = {};
+               cross[ua.qid][ua.userid] = ua;
+               if (userlist.indexOf(ua.userid) < 0) {
+                   userlist.push(ua.userid);
+               }
+           }
+           var ss = '<table><tr><th>QNR/Elev</th>';
+           for (var uui in userlist) {
+              var uu = userlist[uui];
+              var usr = getUser(uu);
+              fn = usr.firstname.caps();
+              ln = usr.lastname.caps();
+              ss += '<th>'+fn+'&nbsp;'+ln+'</th>';
+           }
+           ss += '</tr>';
+           for (var qid in cross) {
+               var cro = cross[qid];
+               ss += '<tr><th>'+qid+'</th>';
+               for (var uui in userlist) {
+                   var uu = userlist[uui];
+                   ss += '<td>';
+                   if (cro[uu]) {
+                    var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
+                    ss += wb.render.normal.displayQuest(cro[uu],1,{},sscore,0,cro[uu].param.fasit);
+                   }
+                   ss += '</td>';
+               }
+               ss += '</tr>';
+           }
+           ss += '</table>';
+           $j("#results").html(ss);
+           MathJax.Hub.Queue(["Typeset",MathJax.Hub,"results"]);
+          $j('#results .score').editable( updateScore , {
+                       indicator      : 'Saving...',
+                       tooltip        : 'Click to edit...',
+                       submit         : 'OK'
+                   });
+          $j('#results .addcomment').editable( updateComment , {
+                       indicator      : 'Saving...',
+                       type           : 'textarea',
+                       getValue       : getComment,
+                       width          : '12em',
+                       height         : '12em',
+                       style          : 'display:block',
+                       submit         : 'OK'
+                   });
+     });
+}
+function longList() {
+    var group;
+    try {
+      group = wbinfo.coursename.split('_');
+      group = group[1];
+    } catch(err) {
+      group = '';
+    }
+    var trail = makeTrail();
     var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">CrossTab</h1>'
              +trail+'<div id="results"></div></div>';
     $j("#main").html(s);
@@ -168,7 +234,6 @@ function crossResults() {
                  if (results.ret[uid] != undefined) {
                     // var contopt = wbinfo.courseinfo.contopt;
                     $j.getJSON(mybase+'/displayuserresponse',{ uid:uid, container:wbinfo.containerid }, function(results) {
-                      _updateScore = { uid:uid, res:results };
                       var rr = unwindResults(results,sscore);
                       var uid = results.uid;
                       var skala = wbinfo.courseinfo.contopt.skala;
@@ -332,29 +397,22 @@ function getComment(content) {
 function updateComment(val,settings) {
   var myid = this.id;
   var uaid = myid.substr(3);
-  var uid = _updateScore.uid;
-  $j.post(mybase+'/addcomment', { comment:val,  uaid:uaid, uid:uid }, function(comment) {
+  $j.post(mybase+'/addcomment', { comment:val,  uaid:uaid }, function(comment) {
       // no action yet ..
       // REDRAW question so that comment shows
   });
   return val;
 }
 
-var _updateScore;
-
 function updateScore(val,settings) {
   var myid = this.id;
   var elm = myid.substr(2).split('_');
-  var qid = elm[0], iid = elm[1];
-  var uid = _updateScore.uid;
-  var res = _updateScore.res;
-  var qua = res.q[qid][iid];
-
-  //console.log(qid,iid,uid,res);
-  $j.post(mybase+'/editscore', { nuval:val,  iid:iid, qid:qid, cid:wbinfo.containerid, uid:uid, qua:qua }, function(ggrade) {
+  var qid = elm[0], iid = elm[1], uaid= elm[2],points=elm[3];
+  val =  Math.min(+val,+points);
+  $j.post(mybase+'/editscore', { nuval:val,  uaid:uaid}, function(ggrade) {
       // no action yet ..
   });
-  return Math.min(+val,qua.points);
+  return Math.min(+val,points);
 }
 
 
@@ -367,7 +425,6 @@ function showUserResponse(uid,cid,results) {
     $j.getJSON(mybase+'/displayuserresponse',{ uid:uid, container:wbinfo.containerid }, function(results) {
       //var ss = wb.render.normal.displayQuest(rr,i,sscore,false);
       //var ss = JSON.stringify(results);
-      _updateScore = { uid:uid, res:results };
       var rr = unwindResults(results,sscore);
       var skala = wbinfo.courseinfo.contopt.skala;
       score = Math.round(100*sscore.userscore)/100;
@@ -432,7 +489,6 @@ function renderPage() {
   // if questions pr page is given
   // then render that many + button for next page
   //   also if navi is set then render back button when not on first page
-  _updateScore = { uid:userinfo.id, res:{} };
   $j.getJSON(mybase+'/getqcon',{ container:wbinfo.containerid }, function(container) {
     tablets = { usedlist:{} };    // forget any stored info for dragndrop for tablets on rerender
     if (!container) {
@@ -2099,7 +2155,7 @@ wb.render.normal  = {
                        qtxt += '<span id="at'+qi+'" class="attempt gui">'+(attempt)+'</span>';
                      }
                      if (scored || attempt > 0 || score != '') {
-                       qtxt += '<span id="sc'+qu.qid+'_'+qi+'" class="score gui">'+score+'</span>'
+                       qtxt += '<span id="sc'+qu.qid+'_'+qi+'_'+qu.id+'_'+qu.points+'" class="score gui">'+score+'</span>'
                      }
                   }
             }
