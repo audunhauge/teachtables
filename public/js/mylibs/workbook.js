@@ -61,7 +61,7 @@ function makeTrail() {
 
 function score2grade(score,grad) {
   grad= typeof(grad) != 'undefined' ? grad: 'medium';
-  grades   = {
+  var grades   = {
     easy: {    // the TEST is easy - the grading is tuf at the top
       0.00: '1',
       0.21: '1+',

@@ -51,7 +51,7 @@ function synopsis(coursename,plandata,tests) {
     var links = [];    // builds popup-buttons for test showing affected studs
     var heldag = [];    // full-day-tests for some or all studs in this group
     for (var j=0; j<5; j++) {
-        pro = prover[jd+j];
+        var pro = prover[jd+j];
         var title = [];
         var testitle = [];
         if (database.freedays[jd+j]) {
@@ -76,7 +76,7 @@ function synopsis(coursename,plandata,tests) {
             heldag[j].push(fag+' '+hd[fag].value);
             s += '<div title="'+title.join('<br>')+'" class="totip tinyohd" style="left:'+(j*6)+'px;"></div>';
           }
-        } 
+        }
         if (pro) {
           // var hdager = pro.hd[j].split('zz');
           // sjekk mot vanlige prøver i andre grupper
@@ -121,7 +121,7 @@ function vis_fagplaner(uid,thisjd) {
       var jd = database.firstweek;
       for (section in  plandata) {
           if (jd == thisjd) {
-            var summary = plandata[section]+'|||||'; 
+            var summary = plandata[section]+'|||||';
             summary = summary.replace(/&amp;nbsp;/g,' ');
             summary = summary.replace(/\<br\>/g,' ');
             summary = summary.replace(/\<p\>/g,' ');
@@ -146,7 +146,7 @@ function show_alleprover(filter,faggrupper) {
     // filter lar deg velge fra [heldag,prøve]
     // faggrupper  { "3inf5":1,"3304":1,"3nor6":1 }
     //   bare vis prøver/heldag for fag/grupper
-    promises.toggle_year = function() { 
+    promises.toggle_year = function() {
           show_alleprover(filter,faggrupper);
         };
     if (showyear == 1) {
@@ -177,7 +177,7 @@ function show_alleprover(filter,faggrupper) {
                 var cat = (category) ? category[fag] || 0 : 0;
                 proveliste += '<span class="heldag klasse' + fag.substr(0,1) + ' cat' + cat  + '">' + fag + ' ' + hd[fag].value + '</span>';
               }
-          } 
+          }
           for (var k=0; k< pr.length; k++) {
               var pro = pr[k];
               var faggruppe = pro.shortname.split('_');
@@ -189,7 +189,7 @@ function show_alleprover(filter,faggrupper) {
                     // show members as a list (on hover)
                     var userlist = memberlist[gruppe];
                     var antall = userlist.length;
-                    members = makepop(members,userlist,gruppe,'','','<span class="proveinfo">'+ pro.username 
+                    members = makepop(members,userlist,gruppe,'','','<span class="proveinfo">'+ pro.username
                                + " " +pro.value+" ("+antall+' elever)</span>');
                     members = '<ul class="nav alleprover">' + members + '</ul>';
                 }
@@ -203,7 +203,7 @@ function show_alleprover(filter,faggrupper) {
     }
     s += "</table>";
     $j("#main").html(s);
-}    
+}
 
 function show_heldag() {
   $j.bbq.pushState("#hdtest");
@@ -258,14 +258,14 @@ function show_allstarbless() {
       s += "</table>";
       $j("#main").html(s);
     });
-}    
+}
 
 
 function getUserSubj(uid) {
   // finner alle prøver for en bruker
   var minefaggrupper = {};
   if (timetables && timetables.teach[uid]) {
-    // we have a teach 
+    // we have a teach
     // a teach dosn't have all the tests for a given group
     // a group may be connected to different subjects.
     var minefag = database.teachcourse[uid];
@@ -288,15 +288,15 @@ function getUserSubj(uid) {
         }
         minefaggrupper[group] = 1;
       }
-    } 
+    }
   }
   return minefaggrupper;
 }
 
 function show_all(thisweek,options) {
     // viser hele årsplanen (ikke prøver og heldag)
-    promises.toggle_year = function() { 
-          show_all(thisweek,options); 
+    promises.toggle_year = function() {
+          show_all(thisweek,options);
         };
     options   = typeof(options) != 'undefined' ? options : 0;
     var hdchecked = (options & 1) ? 'checked="true"' : '';
@@ -318,7 +318,7 @@ function show_all(thisweek,options) {
      + "<th>Tor</th><th>Fre</th><th>Merknad</th></tr>";
     var tfooter ="</table>";
     s += theader;
-    start = (showyear == 0) ? thisweek  : database.nextyear.firstweek; 
+    start = (showyear == 0) ? thisweek  : database.nextyear.firstweek;
     stop =  (showyear == 0) ? database.lastweek  : database.nextyear.lastweek;
     var week = julian.week(start);
     if (week > 30 && week < 45) {
@@ -403,14 +403,14 @@ function show_all(thisweek,options) {
                       var val = e.value.replace(/1.+9/,"heldag");
                       return (""+ e.shortname + ' '+ e.username+' '+val);
                     }).join('<br>'));
-              //xtra += '<span title="prøve" class="enprove">x</span>'; 
+              //xtra += '<span title="prøve" class="enprove">x</span>';
               xtra += ' prøve';
               */
           }
           //xtra = (xtra) ? '<div class="gui textcenter hinted">'+xtra+'</div>' : '';
           txt = (e.days[j] || '') + xtra;
         }
-        var title = tlist.join('<br>'); 
+        var title = tlist.join('<br>');
         title = (title) ? 'title="'+title+'"' : '';
         s += '<td ' + title + ' class="'+tdclass+totip+'">' + txt + "</td>";
       }
@@ -436,7 +436,7 @@ function show_all(thisweek,options) {
 function getfagliste(uid) {
     var minefag = [];
     if (timetables && timetables.teach[uid]) {
-      // we have a teach 
+      // we have a teach
       isteach = true;
       minefag = database.teachcourse[uid];
       fagenemine = minefag;
@@ -452,7 +452,7 @@ function getfagliste(uid) {
             minefag.push(fag+"_"+group);
           }
         }
-      } 
+      }
     }
     return minefag;
 }
@@ -533,7 +533,7 @@ function oldplans() {
                  s += '<li><a href="#">' + tr + '</a><ul>';
                  for (var fgg in grouping[gg][tr]) {
                    if (grouping[gg][tr][fgg].length > 1) {
-                     s += '<li><a href="#">' + fgg + '</a><ul><li><a class="elink" href="#"' 
+                     s += '<li><a href="#">' + fgg + '</a><ul><li><a class="elink" href="#"'
                        + ($j.map(grouping[gg][tr][fgg],function(e,i) {
                                  return ' id="eg'+e[1]+'">'+e[0];
                              })).join('</a></li><li><a class="elink" href="#"')
@@ -585,14 +585,14 @@ function teachattend() {
           attention[i] = room + ' ' + mm;
         }
       }
-    } 
+    }
     var prover = alleprover;
     var theader ="<table class=\"year\" >"
      + "<tr><th>Uke</th><th>Man</th><th>Tir</th><th>Ons</th>"
      + "<th>Tor</th><th>Fre</th><th>Merknad</th></tr>";
     var tfooter ="</table>";
     var s = theader;
-    start =  database.firstweek; 
+    start =  database.firstweek;
     stop =   database.lastweek;
     var week = julian.week(start);
     var i,j;
@@ -663,7 +663,7 @@ function myattend(stuid) {
      + "<th>Tor</th><th>Fre</th><th>Merknad</th></tr>";
     var tfooter ="</table>";
     var s = theader;
-    start =  database.firstweek; 
+    start =  database.firstweek;
     stop =   database.lastweek;
     var week = julian.week(start);
     var i,j;
@@ -776,7 +776,7 @@ function regstarb(julday,room) {
        room = $j("#chroom").val().toUpperCase();
        newroomid = database.roomids[room] || 0;
        if (newroomid == 0 ) {
-         alert("Velg rom først"); 
+         alert("Velg rom først");
          return;
        }
        if (roomid == 0) {
@@ -789,7 +789,7 @@ function regstarb(julday,room) {
           return;
        }
        if (valgte.length == 0 ) {
-         alert("Velg elever først"); 
+         alert("Velg elever først");
          return;
        }
        var starbelever = idvalgte.join(',');
@@ -856,7 +856,7 @@ function tabular_view(groupid) {
     var theader ='<table class="starbtab" >';
     var tfooter ="</table>";
     var s = '<div id="toggleview" class="button gui float">Siste uker</div>'+ theader;
-    start =  database.firstweek; 
+    start =  database.firstweek;
     stop =   database.lastweek;
     var week = julian.week(start);
     var i,j;
@@ -933,7 +933,7 @@ function weekattend(groupid) {
     var theader ='<table >';
     var tfooter ="</table>";
     var s = '<div id="toggleview" class="button gui float">Hele året</div>'+ theader;
-    start =  database.firstweek; 
+    start =  database.firstweek;
     stop =   database.lastweek;
     var week = julian.week(start);
     var i,j;
@@ -996,8 +996,8 @@ function weekattend(groupid) {
 
 function show_next4() {
     // vis neste fire uker
-    promises.toggle_year = function() { 
-          show_next4(); 
+    promises.toggle_year = function() {
+          show_next4();
         };
     if (showyear == 1) {
       $j("#main").html('<div id="timeplan">Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.</div>');
@@ -1085,7 +1085,7 @@ function makeplans() {
        var ss = 'Dine planer:';
        var planlist = {};
        plannames = {};
-       var courseids = [];   // all your courses 
+       var courseids = [];   // all your courses
        for (var i in data.plan) {
          var p = data.plan[i];
          if (!planlist[p.id]) {
@@ -1093,7 +1093,7 @@ function makeplans() {
            planlist[p.id] = p;
            planlist[p.id].courses = [];
            planlist[p.id].ccex = {};  // quick check to fing courses not connected
-           planlist[p.id].text = p.name + ' ' + p.subject 
+           planlist[p.id].text = p.name + ' ' + p.subject
          }
        }
        for (var j in data.course) {
@@ -1107,7 +1107,7 @@ function makeplans() {
        for (var pid in planlist) {
          var plan = planlist[pid];
          var info = 'Rediger';
-         if (plan.courses.length == 0) { 
+         if (plan.courses.length == 0) {
            info += '<div class="killer">x</div> ';
          } else {
            var mycc = ($j.map(plan.courses,function(e,i) {
@@ -1119,7 +1119,7 @@ function makeplans() {
            + '</div><span rel="#testdialog" id="ppid'+pid+'" class="resme">'+info+'</span></div>';
        }
        ss += '<p><form>Navn : <input id="pname" type="text"> Fag :<input id="subject" type="text"></form><div id="addplan" class="button">Ny plan</div>';
-       $j("#planlist").html( ss); 
+       $j("#planlist").html( ss);
        $j("div.elink").click(function() {
            event.stopPropagation()
            var myid = this.id.substr(2);
@@ -1128,7 +1128,7 @@ function makeplans() {
              });
          });
        var inf;  // info about the plan we are editing
-       var buttons = $j(".close").click(function (event) { 
+       var buttons = $j(".close").click(function (event) {
          if (buttons.index(this) == 1) return;
          var choo = [];
          $j(".redfont").each(function(i,e) {
@@ -1181,7 +1181,7 @@ function makeplans() {
                  $j(this).toggleClass("redfont");
               });
 
-         }).overlay({ 
+         }).overlay({
                 mask: {
                         color: '#ebecff',
                         loadSpeed: 200,
