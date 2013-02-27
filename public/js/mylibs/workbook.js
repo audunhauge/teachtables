@@ -176,6 +176,26 @@ function crossResults() {
            var ss = '<table><tr><th>QNR/Elev</th>';
            for (var uui in userlist) {
               var uu = userlist[uui];
+              ss += '<th>'+uu+'</th>';
+           }
+           ss += '</tr>';
+           for (var qid in cross) {
+               var cro = cross[qid];
+               ss += '<tr><th>'+qid+'</th>';
+               for (var uui in userlist) {
+                   var uu = userlist[uui];
+                   ss += '<td>';
+                   if (cro[uu]) {
+                    ss += 'X';
+                   }
+                   ss += '</td>';
+               }
+               ss += '</tr>';
+           }
+           ss += '</table>';
+           ss += '<table><tr><th>QNR/Elev</th>';
+           for (var uui in userlist) {
+              var uu = userlist[uui];
               var usr = getUser(uu);
               fn = usr.firstname.caps();
               ln = usr.lastname.caps();
