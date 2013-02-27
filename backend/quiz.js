@@ -1136,6 +1136,7 @@ var qz = {
            var ua;
            var cost = (contopt) ? contopt.attemptcost || 0.1 : 0.1;  // grade cost pr attempt
            var hintcost = (contopt) ? contopt.hintcost || 0.05 : 0.1;  // grade cost pr hint
+           var fiib = (contopt) ? contopt.fiidback || 'none' : 'none';
            //console.log("CONTOPT=",contopt);
            useranswer = useranswer.replace(/&lt;/g,'<');
            useranswer = useranswer.replace(/&gt;/g,'>');
@@ -1163,10 +1164,12 @@ var qz = {
                  var ucorr = 0;    // user correct choices
                  var uerr = 0;     // user false choices
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   var feedb = '-';  // mark as failed
                    tot++;
                    var ff = unescape(fasit[ii]);
                    if (ff == ua[ii]  ) {        // MARK: exact answer
                      ucorr++;
+                     feedb = '1';  // mark as correct
                    } else {
                      var swi = ff.substr(0,4);  // check for nor: sym: eva: reg: lis:
                      var tch = ff.substr(4);    // remainder after removing prefix
@@ -1184,6 +1187,7 @@ var qz = {
                          var sco = Math.pow(2.712818284,-(0.5*ex*ex));
                          if (sco > 0.05) {
                            ucorr += sco;
+                           feedb = '1';  // mark as correct
                          } else {
                            uerr++;
                          }
@@ -1238,6 +1242,7 @@ var qz = {
                          console.log(exp,lolim,hilim,ufu);
                          if (exp == ufu) {
                              ucorr++;     // good match for regular expression
+                             feedb = '1';  // mark as correct
                          } else {
                            if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              // user supplied function numericly tested against fasit
@@ -1268,6 +1273,7 @@ var qz = {
                                uerr++;
                              } else {
                                ucorr += 1 - sco;
+                               feedb = '1';  // mark as correct
                              }
                            }
                          }
@@ -1281,6 +1287,7 @@ var qz = {
                                });
                            if ( isgood) {
                              ucorr++;     // good match for regular expression
+                             feedb = '1';  // mark as correct
                            } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              uerr++;
                            }
@@ -1313,12 +1320,14 @@ var qz = {
                          //console.log(num,tol,uanum);
                          if ( ff == 'any' || Math.abs(num - uanum) <= tol) {
                            ucorr++;
+                           feedb = '1';  // mark as correct
                          } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                            uerr++;
                          }
                          break;
                      }
                    }
+                   if (fiib != 'none') feedback += feedb;
                  }
                  //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
                  if (tot > 0) {

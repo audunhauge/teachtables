@@ -1543,7 +1543,7 @@ function editquestion(myid, target) {
            var trinn = (dialog.contopt.trinn != undefined) ? dialog.contopt.trinn : 0;
            var karak = (dialog.contopt.karak != undefined) ? dialog.contopt.karak : 0;
            var rank = (dialog.contopt.rank != undefined) ? dialog.contopt.rank : 0;
-           var fiidback = (dialog.contopt.fiidback != undefined) ? dialog.contopt.fiidback : 0;
+           var fiidback = (dialog.contopt.fiidback != undefined) ? dialog.contopt.fiidback : 'none';
            var randlist = (dialog.contopt.randlist != undefined) ? dialog.contopt.randlist : 0;
            var shuffle = (dialog.contopt.shuffle != undefined) ? dialog.contopt.shuffle : 0;
            var omstart = (dialog.contopt.omstart != undefined) ? dialog.contopt.omstart : 0;
@@ -1917,15 +1917,18 @@ wb.render.normal  = {
                 var param = qu.param;
                 param.display = param.display.replace(/«/g,'"');
                 param.display = param.display.replace(/»/g,"'");
-                // don't show below the word FASIT if it exists in the display text
+                // TODO don't show below the word FASIT if it exists in the display text
                 // this should be done on server - so user never recieves FASIT before he should
                 // this is NOT DEPENDENT on fasit setting ( shows correct answers )
                 // After FASIT you can display a graph, give some explanation
                 // typically not give correct answer - but an explanation
                 var parts = param.display.split(/FASIT/);
                 // fasit.length != 0 if displaying results for a user
+                param.display = parts[0];
                 if ( fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) ) {
                     param.display = parts[0];
+                } else if (contopt && contopt.fiidback && contopt.fiidback != 'none') {
+                    param.display = parts.join('<h4>FASIT</h4>');
                 }
                 score = Math.round(score*100)/100;
                 var delta = score || 0;
@@ -1953,6 +1956,7 @@ wb.render.normal  = {
                 if (param.donotshow) {
                   adjusted = '';
                 }
+                var checkmarks = [];  // mark correct if feedback for numeric
                 var qtxt = ''
                   switch(qu.qtype) {
                       case 'quiz':
@@ -2014,6 +2018,10 @@ wb.render.normal  = {
                           }
                           break;
                       case 'numeric':
+                          if (qu.feedback && qu.feedback != 'none' ) {
+                            checkmarks = qu.feedback.split('');
+                            qu.feedback = '';
+                          }
                       case 'fillin':
                           var iid = 0;
                           adjusted = adjusted.replace(/(&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
@@ -2022,9 +2030,11 @@ wb.render.normal  = {
                                   vv = chosen[iid];
                                 }
                                 var ff = fasit[iid] || '';
+                                var cor = '<span class="heck">&nbsp;</span>';
+                                var chk = (checkmarks[iid] && checkmarks[iid]=='1') ? cor : '';
                                 var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
                                 //ff=ff.replace(/%3A/g,':');
-                                var ret = '<input type="text" value="'+vv+'" />'+ffy;
+                                var ret = '<input type="text" value="'+vv+'" />'+chk+ffy;
                                 iid++;
                                 return ret;
                               });

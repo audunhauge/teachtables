@@ -3,7 +3,7 @@
 // global hash to ease change of state and reload of closures
 minfo = {
    title      : ''
- , message    : ''       
+ , message    : ''
  , ignore     : ''
  , kort       : ''      // true if shortmeeting (shortslots)
  , shortslots : {}      // for meetings lasting less than full slot
@@ -13,7 +13,7 @@ minfo = {
  , sendmail   : true
  , response   : 'accept'
  , day        : ''
-};  
+};
 
 
 
@@ -220,7 +220,7 @@ function findFreeTime() {
     meetings = data.meetings;
     var stulist = [];  // names of studs if we have some in memory
     if (! jQuery.isEmptyObject(timeregister)) {
-      // the teach has memorized someone 
+      // the teach has memorized someone
       // find all teachers who teach this stud
       // and set chosen to this list
       var memList = [];
@@ -254,7 +254,7 @@ function findFreeTime() {
                   }
                 }
               }
-            } 
+            }
         }
       }
     }
@@ -263,7 +263,7 @@ function findFreeTime() {
     s += '<div class="gui" id=\"velg\">Velg rom for møte<select id="chroom">';
     //s+= '<option value="0"> --velg-- </option>';
     for (var i in database.roomnames) {
-         var e = database.roomnames[i]; 
+         var e = database.roomnames[i];
          s+= '<option value="'+i+'">' + e  +  "</option>";
     }
     s+= '</select><div id="wiz"></div></div>';
@@ -276,7 +276,7 @@ function findFreeTime() {
     choosefrom = $j.extend({}, teachers);
     // studChooser(targetdiv,memberlist,info,tabfield,fieldlist)
     var fieldlist = {AvdLeder:1,lastname:1, institution:1 };
-    var remap ={ AvdLeder:{field:'institution', 
+    var remap ={ AvdLeder:{field:'institution',
                  map:{ 'Realfag':'Berit', 'Samfunnsfag':'Eva', "Filologi":"Eva", 'Bibliotekar':"Eva",'Kontoret':'Atle',
                        'Musikk':'Erling', 'DansDrama':'Ruth', "Språk":'Ruth','IT':'Lest','Admin':'Kirsti'} }};
     studChooser("#stage",choosefrom,minfo.chosen,'institution', fieldlist,remap );
@@ -315,7 +315,7 @@ function findFreeTime() {
        s += '<table id="meetplan">'
         +    '<caption>'
         +       '<div class="button blue" id="prv">&lt;</div><span id="capmeetplan">Uke '
-        +        +julian.week(jd)+' '+show_date(jd) 
+        +        +julian.week(jd)+' '+show_date(jd)
         +       '</span><div class="button blue "id="nxt">&gt;</div>';
         +    '</caption>'
       s += '<tbody id="meetplanbody"><tr><th></th>';
@@ -345,8 +345,8 @@ function findFreeTime() {
           }
           var freetime = biglump[day][slot];
           if (freetime) {
-            var tt = ''; 
-            var zz = ''; 
+            var tt = '';
+            var zz = '';
             var tdcount = 0;
             if (freetime[roomname]) {
                     for (var tti in userlist) {
@@ -459,7 +459,7 @@ function findFreeTime() {
                   //freeslots[tid] = 0;
                   $j("#inter"+tid).addClass("already");
                 }
-              } 
+              }
              }
           }
         }
@@ -635,7 +635,7 @@ function findFreeTime() {
                        kort:kort, shortslots:shortslots, roomname:roomname,
                        message:message, title:minfo.title, resroom:resroom, sendmail:sendmail,
                        konf:konf, roomid:minfo.roomid, day:aday, idlist:idlist, action:"insert" },function(resp) {
-             $j.getJSON(mybase+ "/getmeet", 
+             $j.getJSON(mybase+ "/getmeet",
                   function(data) {
                      meetings = data;
                      freeTimeTable(userlist,minfo.roomid,minfo.delta);
@@ -668,7 +668,7 @@ function myMeetings(meetid,delta) {
   // show list of meetings (your meetings)
   meetid = typeof(meetid) != 'undefined' ?  +meetid : 0;
   delta = typeof(delta) != 'undefined' ?  +delta : 0;    // week offset from current date
-  $j.getJSON(mybase+ "/getmeet", function(data) { 
+  $j.getJSON(mybase+ "/getmeet", function(data) {
     meetings = data.meetings;
     var s='<div id="timeviser"><h1 id="oskrift">Mine møter</h1>';
     s+= '<div id="freeplan"></div>';
@@ -683,7 +683,7 @@ function myMeetings(meetid,delta) {
       }
       if (meetings[jd+day]) {
         var mee = meetings[jd+day];
-        var minf = {};  
+        var minf = {};
         // details of all meetings
         for (var uui in mee) {
           for (var mmi in mee[uui]) {
@@ -713,7 +713,7 @@ function myMeetings(meetid,delta) {
             var meetdate = julian.jdtogregorian(jd+day);
             var meetime =  meetTimeStart(idlist,avalue,shortslots);
             var myown = (abba.teachid == userinfo.id) ? ' myown' : '';
-            var meetdiv = '<div  class="meetlist'+active+' acc'+abba.klass+myown+'"><span class="meetinfo">' 
+            var meetdiv = '<div  class="meetlist'+active+' acc'+abba.klass+myown+'"><span class="meetinfo">'
                           + '<input  class="meetchk" type="checkbox" >' + abba.name
                           +'</span><span class="meetdato">' + meetime + ' ' + romdager[day]+' '
                           +meetdate.day+'.'+meetdate.month+'</span><span class="ulist">'
@@ -817,7 +817,7 @@ function editMeeting(meetingid,meetid,delta) {
           } else {
              s += '<h5><div id="rej" class="button">KanIkke</div></h5>';
           }
-      } 
+      }
       s += '<h3>Deltakere</h3><ul><li>'+teachlist.join('</li><li>') + '</ul>';
       s += (metinfo.kort) ? '<br>Short meeting' : '';
       $j("#killmeet").click(function() {
@@ -836,7 +836,6 @@ function editMeeting(meetingid,meetid,delta) {
                  myMeetings(meetid,delta);
               });
        });
-      
     } else {
       $j("#main").html('No such meeting pending');
     }

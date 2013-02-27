@@ -41,6 +41,10 @@
     background:#393;
 }
 
+span.heck {
+  background:#3d3;
+}
+
 @media print { 
     div.qtext span.fillin input {
       width:8em;
