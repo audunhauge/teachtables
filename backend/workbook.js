@@ -32,6 +32,7 @@ function emptyCache() {
                 }));
               } else if (cachecounter == 0 && r.description != hname ) {
                   quiz.question = {};
+                  quiz.empty = true;
                      // this empties the question cache
                   console.log("EMPTIED CACHE")
                   cachecounter++;
@@ -89,6 +90,7 @@ exports.editquest = function(user,query,callback) {
   client.query( "update subject set description = $1 where subjectname ='cache'",[hname],
      after(function(res) {
          quiz.question = {};
+         quiz.empty = true;
      }));
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
@@ -771,6 +773,14 @@ var renderq = exports.renderq = function(user,query,callback) {
   var ualist    = {};
   var already   = {};  // list of questions with existing answers
   var retlist   = [];  // list to return
+  if (quiz.empty) {
+      // the question cache has been reset
+      // can not show anything before getcontainer is redone
+      message = { points:0, qtype:'info', param: { display: '<h1>Klikk på navnet på quiz-en i stien over</h1>Må hente question cache på nytt.' } };
+      retlist.unshift(message);
+      callback(retlist);
+      return;
+  }
   // console.log( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ]);
   client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
   after(function(results) {
@@ -1295,6 +1305,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
           if (results && results.rows) {
             var qlist = [];
             var qidlist = [];
+            quiz.empty = false;
             for (var i=0,l=results.rows.length; i<l; i++) {
               var qu = results.rows[i];
               quiz.question[qu.id] = qu;           // Cache
