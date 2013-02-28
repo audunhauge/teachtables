@@ -2018,11 +2018,11 @@ wb.render.normal  = {
                           }
                           break;
                       case 'numeric':
+                      case 'fillin':
                           if (qu.feedback && qu.feedback != 'none' ) {
                             checkmarks = qu.feedback.split('');
                             qu.feedback = '';
                           }
-                      case 'fillin':
                           var iid = 0;
                           adjusted = adjusted.replace(/(&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
                                 var vv = ''

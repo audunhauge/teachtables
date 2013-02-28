@@ -11,7 +11,38 @@ var julian = require('./julian');
 var async = require('async');
 var after = require('./utils').after;
 var db = siteinf.database.db;
+var os = require('os');
+var hname = os.hostname();
+var cachecounter = 0;
 
+
+setInterval(emptyCache,15000);  // check if cache needs to be emptied
+
+function emptyCache() {
+  client.query( "select * from subject where subjectname ='cache' ",
+     after(function(res) {
+         if (res && res.rows && res.rows[0]) {
+             var r = res.rows[0];
+             if (r.description != '') {
+              if (cachecounter > 3 ) {
+                client.query( "update subject set description = '' where subjectname ='cache'",
+                after(function(res) {
+                  cachecounter = 0;
+                  console.log("DONE EMPTIED CACHE")
+                }));
+              } else if (cachecounter == 0 && r.description != hname ) {
+                  quiz.question = {};
+                     // this empties the question cache
+                  console.log("EMPTIED CACHE")
+                  cachecounter++;
+              } else {
+                  cachecounter++;
+                  console.log("COUNTING CACHE")
+              }
+             }
+         }
+     }));
+}
 
 exports.gimmeahint = function(user,query,callback) {
   // gets a hint from quiz.question
@@ -54,7 +85,11 @@ exports.editquest = function(user,query,callback) {
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
-  delete quiz.question[qid];  // remove it from cache
+  //delete quiz.question[qid];  // remove it from cache
+  client.query( "update subject set description = $1 where subjectname ='cache'",[hname],
+     after(function(res) {
+         quiz.question = {};
+     }));
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':

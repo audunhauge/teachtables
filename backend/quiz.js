@@ -233,7 +233,7 @@ var qz = {
                  // TODO we may not need to do anything here
              }
              draggers[did] = ch;
-	         var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="drop">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+             var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="drop">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
              did++;
              return sp;
          });
@@ -669,11 +669,11 @@ var qz = {
              if (exp == '' ) {
                continue ;
              }
-	     try {
-	        with(symb){ eval('('+exp+')') };
-	     } catch(err) {
+         try {
+            with(symb){ eval('('+exp+')') };
+         } catch(err) {
                console.log("EVAL-ERROR err=",err," EXPRESSION=",exp,":::");
-	     }
+         }
      }
      //console.log("SYMB=",symb);
    }
@@ -684,14 +684,14 @@ var qz = {
      var idx = 0;
      if (!text || text == '') return text;
      text = text.replace(/\#([a-zA-Z])/g,function(m,ch) {
-	     return symb[ch] || 0;
+         return symb[ch] || 0;
        });
      text = text.replace(/\#{([a-zA-Z]+)}/g,function(m,c1) {
        if (symb.con[c1]) return symb.con[c1] || 0;
        return 0;
        });
      text = text.replace(/\#([a-zA-Z])/g,function(m,ch) {
-	     return symb[ch] || 0;
+         return symb[ch] || 0;
        });
      // if any #{ ... } left - try them as expressions
      // so #{a+2} will fetch #a and add 2
@@ -704,7 +704,7 @@ var qz = {
            // thus if you need two d6 dice that are independent (independent random vars)
            // you can use da6 db6 dc6 .. dz6
            // rolled dice are stored in symb.dice
-	   exp = exp.replace(/(d[a-z][0-9]+)/g,function(m,ch) {
+           exp = exp.replace(/(d[a-z][0-9]+)/g,function(m,ch) {
                if (symb.dice[ch]) {
                     return symb.dice[ch];
                } else {
@@ -712,8 +712,8 @@ var qz = {
                     symb.dice[ch] = 1 + Math.floor(Math.random()*dd);
                     return symb.dice[ch];
                }
-	   });
-	   with(symb){ calc = eval('('+exp+')') };
+           });
+           with(symb){ calc = eval('('+exp+')') };
            return calc;
          } catch(err) {
             return exp;
@@ -1344,10 +1344,12 @@ var qz = {
                  var uerr = 0;     // user false choices
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    tot++;
+                   var feedb = '-';  // mark as failed
                    var ff = unescape(fasit[ii]);
                    var fasil = ff.split(',');
                    if (ff == ua[ii] || fasil.indexOf(ua[ii]) >= 0 ) {
                      ucorr++;
+                     feedb = '1';  // mark as correct
                    } else {
                      // first do a check using fasit as a regular expression
                      //console.log("trying regexp");
@@ -1360,6 +1362,7 @@ var qz = {
                            });
                        if ( isgood) {
                          ucorr++;     // good match for regular expression
+                         feedb = '1';  // mark as correct
                        } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                          uerr++;
                        }
@@ -1370,6 +1373,7 @@ var qz = {
                        }
                      }
                    }
+                   if (fiib != 'none') feedback += feedb;
                  }
                  //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
                  if (tot > 0) {
