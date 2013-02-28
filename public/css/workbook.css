@@ -41,9 +41,6 @@
     background:#393;
 }
 
-span.heck {
-  background:#3d3;
-}
 
 @media print { 
     div.qtext span.fillin input {
@@ -420,6 +417,10 @@ div.qtext .medium span.fillin input {
 div.qtext .large span.fillin input {
   width:20em;
   text-align:right;
+}
+
+div.qtext span.fillin input.heck {
+  background:#50f052 !important;
 }
 
 span.addcomment {

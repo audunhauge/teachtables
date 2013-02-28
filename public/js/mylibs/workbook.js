@@ -2030,11 +2030,11 @@ wb.render.normal  = {
                                   vv = chosen[iid];
                                 }
                                 var ff = fasit[iid] || '';
-                                var cor = '<span class="heck">&nbsp;</span>';
+                                var cor = 'class="heck"';
                                 var chk = (checkmarks[iid] && checkmarks[iid]=='1') ? cor : '';
                                 var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
                                 //ff=ff.replace(/%3A/g,':');
-                                var ret = '<input type="text" value="'+vv+'" />'+chk+ffy;
+                                var ret = '<input '+chk+' type="text" value="'+vv+'" />'+ffy;
                                 iid++;
                                 return ret;
                               });

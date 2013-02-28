@@ -32,7 +32,6 @@ function emptyCache() {
                 }));
               } else if (cachecounter == 0 && r.description != hname ) {
                   quiz.question = {};
-                  quiz.empty = true;
                      // this empties the question cache
                   console.log("EMPTIED CACHE")
                   cachecounter++;
@@ -86,12 +85,8 @@ exports.editquest = function(user,query,callback) {
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
-  //delete quiz.question[qid];  // remove it from cache
-  client.query( "update subject set description = $1 where subjectname ='cache'",[hname],
-     after(function(res) {
-         quiz.question = {};
-         quiz.empty = true;
-     }));
+  quiz.question = {};
+  client.query( "update subject set description = $1 where subjectname ='cache'",[hname]);
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':
@@ -773,7 +768,17 @@ var renderq = exports.renderq = function(user,query,callback) {
   var ualist    = {};
   var already   = {};  // list of questions with existing answers
   var retlist   = [];  // list to return
-  if (quiz.empty) {
+  // check that we have complete cache
+  /*
+  for (var qi in questlist) {
+      var qu = questlist[qi];
+      if (!quiz.question[qu.id]) {
+          quiz.question = {};
+          break;
+      }
+  }
+  */
+  if (Object.keys(quiz.question).length == 0) {
       // the question cache has been reset
       // can not show anything before getcontainer is redone
       message = { points:0, qtype:'info', param: { display: '<h1>Klikk på navnet på quiz-en i stien over</h1>Må hente question cache på nytt.' } };
@@ -944,6 +949,11 @@ var renderq = exports.renderq = function(user,query,callback) {
                     if (qu == undefined) {
                       // forgot to delete useranswer?
                       console.log("HOW DID THIS HAPPEN?",questlist,i);
+                    }
+                    if (!quiz.question[qu.id]) {
+                        console.log("CACHE MISS",qu.id,quiz.question);
+                        cb();
+                        return;
                     }
                     if (ualist[qu.id] && ualist[qu.id][i]) {
                       retlist[i] = ualist[qu.id][i];
@@ -1305,7 +1315,6 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
           if (results && results.rows) {
             var qlist = [];
             var qidlist = [];
-            quiz.empty = false;
             for (var i=0,l=results.rows.length; i<l; i++) {
               var qu = results.rows[i];
               quiz.question[qu.id] = qu;           // Cache
