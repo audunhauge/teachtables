@@ -591,6 +591,12 @@ span.imgdiff {
 span.imgdragdrop {
   background:transparent url(img/dragdrop.gif) no-repeat;
 }
+span.imgrandom {
+  background:transparent url(img/random.gif) no-repeat;
+}
+span.imgnumeric {
+  background:transparent url(img/numeric.gif) no-repeat;
+}
 span.imgsequence {
   background:transparent url(img/sequence.gif) no-repeat;
 }
