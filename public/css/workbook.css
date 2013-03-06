@@ -419,8 +419,35 @@ div.qtext .large span.fillin input {
   text-align:right;
 }
 
-div.qtext span.fillin input.heck {
+div.qtext span.fillin input.heck0 {
   background:#50f052 !important;
+}
+div.qtext span.fillin input.heck1 {
+  background:#60d052 !important;
+}
+div.qtext span.fillin input.heck2 {
+  background:#70c052 !important;
+}
+div.qtext span.fillin input.heck3 {
+  background:#80b052 !important;
+}
+div.qtext span.fillin input.heck4 {
+  background:#90a052 !important;
+}
+div.qtext span.fillin input.heck5 {
+  background:#a09052 !important;
+}
+div.qtext span.fillin input.heck6 {
+  background:#a08052 !important;
+}
+div.qtext span.fillin input.heck7 {
+  background:#907052 !important;
+}
+div.qtext span.fillin input.heck8 {
+  background:#806052 !important;
+}
+div.qtext span.fillin input.heck9 {
+  background:#705052 !important;
 }
 
 span.addcomment {

@@ -30,10 +30,10 @@ function emptyCache() {
                   cachecounter = 0;
                   console.log("DONE EMPTIED CACHE")
                 }));
-              } else if (cachecounter == 0 && r.description != hname ) {
+              } else if (cachecounter == 0 ) {
                   quiz.question = {};
-                     // this empties the question cache
-                  console.log("EMPTIED CACHE")
+                  delete quiz.question[r.description];
+                  console.log("EMPTIED CACHE for qid=",r.description);
                   cachecounter++;
               } else {
                   cachecounter++;
@@ -85,8 +85,7 @@ exports.editquest = function(user,query,callback) {
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
-  quiz.question = {};
-  client.query( "update subject set description = $1 where subjectname ='cache'",[hname]);
+  //quiz.question = {};
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':
@@ -120,6 +119,8 @@ exports.editquest = function(user,query,callback) {
         client.query( sql, params,
             after(function(results) {
               delete quiz.question[qid];  // remove it from cache
+              if (qtype == 'quiz') client.query( "update subject set description = $1 where subjectname ='cache'",[qid]);
+              // mark this quiz as changed so other servers can reread - clear cache
               callback( {ok:true, msg:"updated"} );
                       // TODO here we may need to regen useranswer for container
             }));
@@ -569,7 +570,7 @@ exports.getquestion = function(user,query,callback) {
               qu.sync = quiz.getQobj(qu.sync,qu.qtype,qu.id);
               qu.sync.modified = qu.synctime;
               if (qobj.display == qu.sync.display && qobj.code == qu.sync.code) {
-                  console.log("SYNC sees no diff ",qu);
+                  //console.log("SYNC sees no diff ",qu);
                   qu.sync = '';
               }
             }

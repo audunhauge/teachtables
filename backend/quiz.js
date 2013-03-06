@@ -1187,7 +1187,7 @@ var qz = {
                          var sco = Math.pow(2.712818284,-(0.5*ex*ex));
                          if (sco > 0.05) {
                            ucorr += sco;
-                           feedb = '1';  // mark as correct
+                           feedb = Math.floor((1-sco)*10);
                          } else {
                            uerr++;
                          }
