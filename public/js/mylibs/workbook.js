@@ -1221,7 +1221,7 @@ function setupWB(heading) {
                  + ' <tr>  <th>Tekst</th>   <td colspan="3" ><textarea id="text">'+text+'</textarea></td></tr>'
                  + ' <tr>  <th>Layout</th>  <td>'+layout+'</td>'
                  + '   <th>Layout</th>  <td>ertioyiu</td></tr>'
-                 + ' <tr>  <th>Jalla</th>  <td>dsfkjhhsd kjsdfhkjh</td>'
+                 + ' <tr>  <th>Jalla</th>  <td>HEALS</td>'
                  + '   <th>khjk</th>  <td>dfghkj sdhfkjh</td></tr>'
                  + ' <tr>  <th></th>   <td><div id="save" class="button">Lagre</div></td></tr>'
                  + '</table>'
@@ -1283,6 +1283,7 @@ function editquestion(myid, target) {
    dialog.contopt = q.contopt || {};
    var qdescript = descript[q.qtype] || q.qtype;
    var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,info,textarea,random,container,quiz".split(','));
+   var status = makeSelect('active',q.status,"Active,Testing,Error".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -1311,7 +1312,7 @@ function editquestion(myid, target) {
    var s = '<div id="wbmain">' + head + '<div id="qlistbox"><div id="editform">'
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
-        + '<tr><th>Type</th><td>'+selectype+'</td></tr>'
+        + '<tr><th>Type</th><td>'+selectype+' Status '+status+'</td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr>'
         + '</table>'
@@ -1601,29 +1602,29 @@ function editquestion(myid, target) {
                           }
                };
            var res = gui(elements);
-           s += 'Instillinger for prøven: <div id="inputdiv">'
-             + '<div title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
-             + '<div title="Prøve utilgjengelig før denne datoen">Start {start}</div>'
-             + '<div title="Prøve utilgjengelig etter denne datoen">Stop {stop}</div>'
-             + '<div title="Velger ut N fra spørsmålslista">Utvalg fra liste {randlist}</div>'
-             + '<div title="Bruk uansett de første N spørsmålene, alle vil da få disse.">Faste spørsmål {xcount}</div>'
-             + '<div title="Antall spørsmål som skal trekkes (i tillegg til de faste)">Antall tilfeldig valgte {rcount}</div>'
-             + '<div title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
-             + '<div title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
-             + '<div title="Nivå for fasit visning">Fasit {fasit}</div>'
-             + '<div title="Tilbakemeldinger for hvert spørsmål">Feedback{fiidback} </div>'
-             + '<div title="Karakterskala som skal brukes, easy for en lett prøve (streng vurdering), hard gir snill vurdering">Skala {skala}</div>'
-             + '<div title="Skal karakter vises">Karakter{karak} </div>'
-             + '<div title="Rangering i klassen">Rank{rank} </div>'
-             + '<div title="Antall spørsmål pr side">Antall pr side {antall}</div>'
-             + '<div title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
-             + '<div title="Trinnvis visning av hjelpehint">Hjelpehint{hints}</div>'
-             + '<div title="Pris for visning av hjelpehint">  Hintpris{hintcost}</div>'
-             + '<div title="Kan bla tilbake i prøven">Navigering {navi}</div>'
-             + '<div title="Neste spørsmål vises dersom 80% riktig eller mer enn 4 forsøk">Trinnvis {trinn}</div>'
-             + '<div title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
-             + '<div title="Kan svare flere ganger mot poengtap (10%)">Adaptiv {adaptiv}</div>'
-             + '<div title="  Pris for adaptiv">  Adaptpris{attemptcost}</div>'
+           s += '<h4>Instillinger for prøven</h4> <div id="inputdiv">'
+             + '<div class="underlined" title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
+             + '<div class="underlined" title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
+             + '<div class="underlined" title="Prøve utilgjengelig før denne datoen">Start {start}</div>'
+             + '<div class="underlined" title="Prøve utilgjengelig etter denne datoen">Stop {stop}</div>'
+             + '<div class="underlined" title="Velger ut N fra spørsmålslista">Utvalg fra liste {randlist}</div>'
+             + '<div class="underlined" title="Bruk uansett de første N spørsmålene, alle vil da få disse.">Faste spørsmål {xcount}</div>'
+             + '<div class="underlined" title="Antall spørsmål som skal trekkes (i tillegg til de faste)">Antall tilfeldig valgte {rcount}</div>'
+             + '<div class="underlined" title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
+             + '<div class="underlined" title="Nivå for fasit visning">Fasit {fasit}</div>'
+             + '<div class="underlined" title="Tilbakemeldinger for hvert spørsmål">Feedback{fiidback} </div>'
+             + '<div class="underlined" title="Karakterskala som skal brukes, easy for en lett prøve (streng vurdering), hard gir snill vurdering">Skala {skala}</div>'
+             + '<div class="underlined" title="Skal karakter vises">Karakter{karak} </div>'
+             + '<div class="underlined" title="Rangering i klassen">Rank{rank} </div>'
+             + '<div class="underlined" title="Antall spørsmål pr side">Antall pr side {antall}</div>'
+             + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
+             + '<div class="underlined" title="Trinnvis visning av hjelpehint">Hjelpehint{hints}</div>'
+             + '<div class="underlined" title="Pris for visning av hjelpehint">  Hintpris{hintcost}</div>'
+             + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
+             + '<div class="underlined" title="Neste spørsmål vises dersom 80% riktig eller mer enn 4 forsøk">Trinnvis {trinn}</div>'
+             + '<div class="underlined" title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
+             + '<div class="underlined" title="Kan svare flere ganger mot poengtap (10%)">Adaptiv {adaptiv}</div>'
+             + '<div class="underlined" title="  Pris for adaptiv">  Adaptpris{attemptcost}</div>'
              + '</div></div>';
            s = s.supplant(res);
            break;
