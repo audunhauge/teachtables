@@ -14,9 +14,10 @@ var db = siteinf.database.db;
 var os = require('os');
 var hname = os.hostname();
 var cachecounter = 0;
+var lasttime = 0;       // last time we modified cache
 
 
-setInterval(emptyCache,15000);  // check if cache needs to be emptied
+setInterval(emptyCache,2000);  // check if cache needs to be emptied
 
 function emptyCache() {
   client.query( "select * from subject where subjectname ='cache' ",
@@ -24,22 +25,36 @@ function emptyCache() {
          if (res && res.rows && res.rows[0]) {
              var r = res.rows[0];
              if (r.description != '') {
-              if (cachecounter > 3 ) {
+              var obj = parseJSON(r.description);
+             console.log("cache",obj);
+              // description = { hname:hostname, qid:id of changed question, lasttime:time of change }
+              if (cachecounter > 3  || (cachecounter > 2 && obj.hname == hname) ) {
+                // owner gets first chance at removing
                 client.query( "update subject set description = '' where subjectname ='cache'",
                 after(function(res) {
                   cachecounter = 0;
-                  console.log("DONE EMPTIED CACHE")
+                  console.log("DONE UPDATE CACHE")
                 }));
-              } else if (cachecounter == 0 ) {
-                  quiz.question = {};
-                  delete quiz.question[r.description];
-                  console.log("EMPTIED CACHE for qid=",r.description);
+              } else if (cachecounter == 0) {
+                  //if (obj.hname != hname) {
+                      // this is not our own
+                    var now = new Date();
+                    if (lasttime < obj.lasttime) {
+                        lasttime = now.getTime();
+                        client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid],
+                        after(function(res) {
+                          quiz.question[obj.qid] = res.rows[0];
+                          console.log("UPDATED CACHE",res.rows[0]);
+                        }));
+                    }
                   cachecounter++;
               } else {
                   cachecounter++;
                   console.log("COUNTING CACHE")
               }
              }
+         } else {
+             cachecounter = 0;
          }
      }));
 }
@@ -79,13 +94,25 @@ exports.editquest = function(user,query,callback) {
   var qidlist = query.qidlist;      // question list - only delete
   var name    = query.name || '';
   var qtype   = query.qtype || '';
+  var qcache   = query.cache || '';  // do we need to update cache
   var qtext   = JSON.stringify(query.qtext) || '';
   var teachid = +user.id;
   var points  = query.points || '';
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
+<<<<<<< HEAD
   //quiz.question = {};
+=======
+  if (qtype == 'quiz' || qcache == '1') {
+    var obj = {};
+    obj.qid = qid;
+    obj.lasttime = now.getTime();
+    obj.hname = hname;
+    var strobj = JSON.stringify(obj);
+    client.query( "update subject set description = $1 where subjectname ='cache'",[strobj]);
+  }
+>>>>>>> dd5f9fd39ad17888ea2ba581b7c9c3ea9f35030b
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':

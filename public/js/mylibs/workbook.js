@@ -856,7 +856,7 @@ function generateQlist(qlist) {
         if (changed) {
           console.log("CHANGED ",trulist,wbinfo.qlistorder,points);
           wbinfo.courseinfo.qlistorder = trulist;
-          $j.post(mybase+'/editquest', { action:'update', points:points, qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
+          $j.post(mybase+'/editquest', { action:'update',cache:1,  points:points, qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
           });
         }
 
@@ -906,7 +906,7 @@ function edqlist() {
               trulist.push(ser[i].split('_')[1]);
             }
             wbinfo.courseinfo.qlistorder = trulist;
-            $j.post(mybase+'/editquest', { action:'update', qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
+            $j.post(mybase+'/editquest', { action:'update', cache:1, qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
             });
           }
        });
@@ -932,7 +932,7 @@ function edqlist() {
                }
                $j.post(mybase+'/editqncontainer', { action:'insert', container:wbinfo.containerid, nuqs:nufilter.join(',') }, function(resp) {
                     wbinfo.courseinfo.qlistorder = wbinfo.courseinfo.qlistorder.concat(nulist);
-                    $j.post(mybase+'/editquest', { action:'update', qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
+                    $j.post(mybase+'/editquest', { action:'update', cache:1, qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
                       //workbook(wbinfo.coursename);
                       renderPage();
                     });
@@ -1260,7 +1260,6 @@ function setupWB(heading) {
 
 var dialog = { daze:'', contopt:{} };  // pesky dialog
 
-
 function editquestion(myid, target) {
   // given a quid - edit the question
  target   = typeof(target) != 'undefined' ? target : '#main';
@@ -1269,6 +1268,7 @@ function editquestion(myid, target) {
                , textarea:'Free text'
                , numeric:'Numeric answers'
                , fillin:'Textbox'
+               , random:'Random pick based on tag'
                , diff:'Difference'
                , container:'SubChapter'
                , quiz:'A quiz'
@@ -1282,7 +1282,7 @@ function editquestion(myid, target) {
    dialog.daze = q.daze || '';
    dialog.contopt = q.contopt || {};
    var qdescript = descript[q.qtype] || q.qtype;
-   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,info,textarea,container,quiz".split(','));
+   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,info,textarea,random,container,quiz".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -1447,7 +1447,6 @@ function editquestion(myid, target) {
         var contopt = {};
         var containeropts = $j("#inputdiv .copts");
         if (containeropts.length > 0) {
-          var ssum = '';
           for (var coi = 0; coi < containeropts.length; coi++) {
             var inp = containeropts[coi];
             contopt[inp.name] = inp.value;
@@ -1495,12 +1494,14 @@ function editquestion(myid, target) {
          var mytags = tags[userinfo.id] || [];
          var tlist = [];
          $j.getJSON(mybase+'/gettagsq', { qid:myid }, function(mtags) {
+           qtags = mtags;
            for (var i=0,l=mytags.length; i<l; i++) {
              var tag = mytags[i];
              var chk = ($j.inArray(tag,mtags) >= 0) ? 'checked="checked"' : '';
              tlist.push('<div id="tt'+tag+'" class="tagdiv"><input  class="tagr" type="checkbox" '+chk+'><div class="tagg">'+tag+'</div></div>');
            }
            $j("#mytags").html(tlist.join(''));
+           $j("#qtags").html(mtags.join(','));
          });
        });
     }
@@ -1522,6 +1523,27 @@ function editquestion(myid, target) {
            s += 'Daze and Confuse (csv fog list: daze,confuse) : '
              + '<input id="daze" name="daze" type="text" value ="'+dialog.daze+'" />'
              + '</div>';
+           break;
+        case 'random':
+           qdisplay = '';
+           var seltype = dialog.contopt.seltype || 'all';
+           var count = dialog.contopt.count || '3';
+           var elements = {
+                 defaults:{  type:"text", klass:"copts" }
+               , elements:{
+                     seltype:       {  type:"select", klass:"copts",  value:seltype,
+                                      options:[{ value:"all"},{ value:"multiple"},{ value:"numeric"},{ value:"fillin"},{ value:"dragdrop"} ] }
+                   , count:         {  klass:"copts num4",  value:count }
+                 }
+               };
+           var res = gui(elements);
+           s += '<b>Disse tags er valgt:</b><br><div id="qtags"></div><p>';
+           s += 'Instillinger for random: <div id="inputdiv">'
+             + '<div title="Velg ut så mange spørsmål dersom mulig">Antall utvalgte {count}</div>'
+             + '<div title="Bruk _all_ for alle typer (bare multiple,numeric,dragdrop,fillin)">Begrens til denne typen {seltype}</div>'
+             + '</div></div>';
+           s = s.supplant(res);
+           break;
            break;
         case 'container':
            qdisplay = '';
@@ -1661,7 +1683,7 @@ function dropquestion(myid) {
     if (qii == qid) cnt++;
   }
   wbinfo.qlistorder.splice(instance,1);
-  $j.post(mybase+'/editquest', { action:'update', qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
+  $j.post(mybase+'/editquest', { action:'update',cache:1,  qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
     if (cnt == 1) {
       $j.post(mybase+'/editqncontainer', {  action:'delete', qid:qid, container:wbinfo.containerid }, function(resp) {
            $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
