@@ -101,9 +101,6 @@ exports.editquest = function(user,query,callback) {
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
-<<<<<<< HEAD
-  //quiz.question = {};
-=======
   if (qtype == 'quiz' || qcache == '1') {
     var obj = {};
     obj.qid = qid;
@@ -112,7 +109,6 @@ exports.editquest = function(user,query,callback) {
     var strobj = JSON.stringify(obj);
     client.query( "update subject set description = $1 where subjectname ='cache'",[strobj]);
   }
->>>>>>> dd5f9fd39ad17888ea2ba581b7c9c3ea9f35030b
   //console.log(qid,name,qtype,qtext,teachid,points);
   switch(action) {
       case 'delete':
