@@ -154,7 +154,7 @@ exports.editquest = function(user,query,callback) {
             // TODO here we may need to regen useranswer for container
             client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[qid],
                 after(function(res) {
-                    quiz.question[obj.qid] = res.rows[0];
+                    quiz.question[qid] = res.rows[0];
                 }));
           }));
         break;
