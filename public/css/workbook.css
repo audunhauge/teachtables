@@ -408,6 +408,15 @@ div.underlined {
     border-bottom:solid 1px rgba(90,0,0,0.1);
 }
 
+div.status1 { /* testing */
+    background:#ccf !important;
+}
+div.status2 { /* fixme */
+    background:#fec !important;
+}
+div.status3 { /* error */
+    background:#f33 !important;
+}
 
 div.qtext span.fillin input {
   width:4em;
@@ -614,6 +623,12 @@ span.img {
   padding-right:4px;
 }
 
+span.imgquiz {
+  background:transparent url(img/quizz.png) no-repeat;
+}
+span.imgcontainer {
+  background:transparent url(img/container.png) no-repeat;
+}
 span.imgmultiple {
   background:transparent url(img/multiple.gif) no-repeat;
 }
@@ -627,7 +642,7 @@ span.imgrandom {
   background:transparent url(img/random.gif) no-repeat;
 }
 span.imgnumeric {
-  background:transparent url(img/numeric.gif) no-repeat;
+  background:transparent url(img/numeric.png) no-repeat;
 }
 span.imgsequence {
   background:transparent url(img/sequence.gif) no-repeat;

@@ -94,6 +94,7 @@ exports.editquest = function(user,query,callback) {
   var qidlist = query.qidlist;      // question list - only delete
   var name    = query.name || '';
   var qtype   = query.qtype || '';
+  var status  = query.status;
   var qcache   = query.cache || '';  // do we need to update cache
   var qtext   = JSON.stringify(query.qtext) || '';
   var teachid = +user.id;
@@ -128,6 +129,11 @@ exports.editquest = function(user,query,callback) {
           params.push(qtype);
           idd++;
         }
+        if (query.status != undefined) {
+          sql += ',status=$'+idd;
+          params.push(status);
+          idd++;
+        }
         if (query.name) {
           sql += ',name=$'+idd;
           params.push(name);
@@ -140,13 +146,17 @@ exports.editquest = function(user,query,callback) {
         sql += ' where id=$1 and teachid=$2';
         //console.log(sql,params);
         client.query( sql, params,
-            after(function(results) {
-              delete quiz.question[qid];  // remove it from cache
-              if (qtype == 'quiz') client.query( "update subject set description = $1 where subjectname ='cache'",[qid]);
-              // mark this quiz as changed so other servers can reread - clear cache
-              callback( {ok:true, msg:"updated"} );
-                      // TODO here we may need to regen useranswer for container
-            }));
+          after(function(results) {
+            delete quiz.question[qid];  // remove it from cache
+            if (qtype == 'quiz') client.query( "update subject set description = $1 where subjectname ='cache'",[qid]);
+            // mark this quiz as changed so other servers can reread - clear cache
+            callback( {ok:true, msg:"updated"} );
+            // TODO here we may need to regen useranswer for container
+            client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid],
+                after(function(res) {
+                    quiz.question[obj.qid] = res.rows[0];
+                }));
+          }));
         break;
       default:
         callback(null);
@@ -831,6 +841,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                 ua.points = q.points;
                 ua.qtype = q.qtype;
                 ua.name = q.name;
+                ua.status = q.status;
                 ua.subject = q.subject;
                 if (!ualist[ua.qid]) {
                   ualist[ua.qid] = {};
@@ -1021,8 +1032,8 @@ function generateQlist(shuffle,attemptnum,coo,questlist,already,contopt,uid,cont
         var allPresent = true;  // assume we have these questions
         for (var i=0; i< questlist.length; i++) {
           var q = questlist[i];
-          ref[q.id] = q;
           rr.push(q.id);
+          ref[q.id] = q;
         }
         var newlist = [];
         if (qlist) for (var i=0; i< qlist.length; i++) {
@@ -1130,7 +1141,7 @@ exports.studresetcontainer = function(user,query,callback) {
       after(function(results) {
            var containerq = results.rows[0];    // quiz-container as stored for this user
            if (containerq) {
-            client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
+            client.query( "select q.* from quiz_question q where q.status = 0 and q.id =$1",[ container ],
             after(function(master) {
               var masterq = master.rows[0];        // current version of quiz-container
               var moo = parseJSON(masterq.qtext);
@@ -1328,7 +1339,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
         + "from quiz_question q  left join quiz_question qp on (q.parent = qp.id) where q.id in (  "
         + " select q.id from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status != 9 and qc.cid = $1 ) " )
           :
-          "select q.*,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status != 9 and qc.cid =$1";
+          "select q.*,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status = 0 and qc.cid =$1";
     param = [ container ];
     //console.log("HERE 2");
   }

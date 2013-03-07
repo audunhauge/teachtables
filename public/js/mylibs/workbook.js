@@ -1281,9 +1281,11 @@ function editquestion(myid, target) {
    dialog.hints = q.hints || '';
    dialog.daze = q.daze || '';
    dialog.contopt = q.contopt || {};
+   var statlist = "Active,Testing,Fixme,Error".split(',');
+   var stat = statlist[q.status];
+   var status = makeSelect('status',stat,statlist);
    var qdescript = descript[q.qtype] || q.qtype;
    var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,info,textarea,random,container,quiz".split(','));
-   var status = makeSelect('active',q.status,"Active,Testing,Error".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -1312,7 +1314,7 @@ function editquestion(myid, target) {
    var s = '<div id="wbmain">' + head + '<div id="qlistbox"><div id="editform">'
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
-        + '<tr><th>Type</th><td>'+selectype+' Status '+status+'</td></tr>'
+        + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Active spørsmål vises i en prøve."> Status '+status+'</span></td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr>'
         + '</table>'
@@ -1456,10 +1458,12 @@ function editquestion(myid, target) {
         var daze = $j("input[name=daze]").val();
         dialog.daze = daze;
         var qtype = $j("select[name=qtype]").val();
+        var qstatustxt = $j("select[name=status]").val();
+        var qstatus = statlist.indexOf(qstatustxt);
         var qname = $j("input[name=qname]").val();
         var newqtx = { display:$j("#qdisplay").val(), options:q.options, fasit:q.fasit, code:dialog.qcode,
                         pycode:dialog.pycode, hints:dialog.hints, daze:daze, contopt:contopt };
-        $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname,
+        $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname, status:qstatus,
                                 qtype:qtype, points:dialog.qpoints }, function(resp) {
            editquestion(myid,target);
         });
@@ -1938,6 +1942,7 @@ wb.render.normal  = {
                 var score = qu.score || 0;
                 var chosen = qu.response;
                 var param = qu.param;
+                var status = qu.status;
                 param.display = param.display.replace(/«/g,'"');
                 param.display = param.display.replace(/»/g,"'");
                 // TODO don't show below the word FASIT if it exists in the display text
@@ -2192,6 +2197,11 @@ wb.render.normal  = {
                     var teachtxt = qu.teachcomment.replace(/['"]/g,'«');
                     studnote += '<div  id="com'+qu.id+'" title="'+teachtxt+'" class="teachnote addcomment"></div>';
                   }
+                  var statusclass = '';
+                  if (status != undefined && status != 0) {
+                      statusclass = ' status'+status;
+
+                  }
                   qtxt = '<span class="qnumber">Spørsmål '+qnum + qname
                     +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt;
                   if (sscore.qdiv != undefined) {
@@ -2200,7 +2210,7 @@ wb.render.normal  = {
                     sscore.scid = 'sc'+qi;
                     sscore.atid = 'at'+qi;
                   }
-                  return '<div class="question qq'+qi+'" id="qq'+qu.qid+'_'+qi+'">' + hints+ qtxt + studnote + '</div>';
+                  return '<div class="question '+statusclass+' qq'+qi+'" id="qq'+qu.qid+'_'+qi+'">' + hints+ qtxt + studnote + '</div>';
 
                   function decoration() {
                      if (scored || attempt != '' && attempt > 0) {
