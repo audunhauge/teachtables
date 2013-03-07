@@ -620,7 +620,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
               .text(function(d) { var info = tags[d.name] ? tags[d.name].join(',').substr(0,16): d.name ; return info;  });
 
           text.append("image")
-              .attr("xlink:href","img/quizz.png")
+              .attr("xlink:href",mybase + "/img/quizz.png")
               .attr("xlink:href", function(d,i) { var ty = d.name; var q = questions[ty]; var img =(imgnames[q.qtype]) ? imgnames[q.qtype] : q.qtype + ".gif";
                          return "img/"+img; } )
               .attr("width",16)
