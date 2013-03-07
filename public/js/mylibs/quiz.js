@@ -33,8 +33,7 @@ function hsv2rgb(h, s, v) {
     }).join('');
 }
 
-
-
+var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png"};
 var qparam = { tag:'any', subj:'all', filter:"multiple", joy:"only", limit:"17", keyword:"all" };
 var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric'.split(' ');
 var mylink;
@@ -601,15 +600,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
               .attr("class", function(d) { return "link " + d.type; })
               .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
 
-          var circle = svg.append("svg:g").selectAll("circle")
-              .data(force.nodes())
-            .enter().append("svg:circle")
-              .attr("r", function(d,i) { var ty = d.name; var q = questions[ty]; return 3+Math.max(0,1.1*Math.log(0.01+ q.wcount));})
-              //.style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return tcolors(q.qtype); } )
-              .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return teachcolors(q.origin); } )
-              //.style("stroke", function(d,i) { var ty = d.name; var q = questions[ty]; return teachcolors(q.origin); } )
-              .on("click",function(d,i) { showinfo(d.name,qparam.limit,qparam.filter); } )
-              .call(force.drag);
+
 
           var text = svg.append("svg:g").selectAll("g")
               .data(force.nodes())
@@ -627,7 +618,24 @@ function makeForcePlot(filter,limit,keyword,subj) {
               .attr("x", 8)
               .attr("y", ".31em")
               .text(function(d) { var info = tags[d.name] ? tags[d.name].join(',').substr(0,16): d.name ; return info;  });
-              //.text(function(d) { return tags[d.name] ? tags[d.name].join(',') : d.name ; });
+
+          text.append("image")
+              .attr("xlink:href","img/quizz.png")
+              .attr("xlink:href", function(d,i) { var ty = d.name; var q = questions[ty]; var img =(imgnames[q.qtype]) ? imgnames[q.qtype] : q.qtype + ".gif";
+                         return "img/"+img; } )
+              .attr("width",16)
+              .attr("height",16)
+              .attr("x",-8)
+              .attr("y",-8)
+
+          var circle = svg.append("svg:g").selectAll("circle")
+              .data(force.nodes())
+            .enter().append("svg:circle")
+              .attr("r", 9)
+              .attr("fill-opacity", 0.15)
+              .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return teachcolors(q.origin); } )
+              .on("click",function(d,i) { showinfo(d.name,qparam.limit,qparam.filter); } )
+              .call(force.drag);
 
           // Use elliptical arc path segments to doubly-encode directionality.
           function tick() {
