@@ -152,7 +152,7 @@ exports.editquest = function(user,query,callback) {
             // mark this quiz as changed so other servers can reread - clear cache
             callback( {ok:true, msg:"updated"} );
             // TODO here we may need to regen useranswer for container
-            client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid],
+            client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[qid],
                 after(function(res) {
                     quiz.question[obj.qid] = res.rows[0];
                 }));
