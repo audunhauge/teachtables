@@ -1004,6 +1004,11 @@ function edqlist() {
                     totag++;
                     for(var i in qtlist[tname][userinfo.id]) {
                       var qqa =qtlist[tname][userinfo.id][i];
+                      var status = qqa.status;
+                      var statusclass = '';
+                      if (status != undefined && status != 0) {
+                        statusclass = ' status'+status;
+                      }
                       var param = {};
                       try {
                         param = JSON.parse(qqa.qtext);
@@ -1023,7 +1028,7 @@ function edqlist() {
                           shorttext = shorttext.replace(/</g,'&lt;');
                           shorttext = shorttext.replace(/>/g,'&gt;');
                           var tit = tagsforq[qqa.id].join(',');
-                          var qdiv = '<div title="'+tit+'" class="equest listqq '+duup+'" id="zqq_'+qqa.id+'"><span class="qid">'
+                          var qdiv = '<div title="'+tit+'" class="equest listqq '+statusclass+duup+'" id="zqq_'+qqa.id+'"><span class="qid">'
                                      + qqa.id+ '</span><span class="img img'+qqa.qtype+'"></span>'
                                      + '<span >' + qqa.qtype + '</span><span > '
                                      + qqa.name + '</span><span >' + shorttext.substr(0,20)
@@ -1281,7 +1286,7 @@ function editquestion(myid, target) {
    dialog.hints = q.hints || '';
    dialog.daze = q.daze || '';
    dialog.contopt = q.contopt || {};
-   var statlist = "Active,Testing,Fixme,Error".split(',');
+   var statlist = "Normal,Partial,Testing,Fixme,Error".split(',');
    var stat = statlist[q.status];
    var status = makeSelect('status',stat,statlist);
    var qdescript = descript[q.qtype] || q.qtype;
@@ -1314,7 +1319,8 @@ function editquestion(myid, target) {
    var s = '<div id="wbmain">' + head + '<div id="qlistbox"><div id="editform">'
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
-        + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Active spørsmål vises i en prøve."> Status '+status+'</span></td></tr>'
+        + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Normal,Partial spørsmål vises i en prøve. Partial betyr del av serie"> Status '
+        + status + '</span></td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr>'
         + '</table>'
@@ -1799,6 +1805,11 @@ wb.render.normal  = {
             var taggers = wbinfo.taglist;
             for (var qidx in questlist) {
               qu = questlist[qidx];
+              var status = qu.status;
+              var statusclass = '';
+              if (status != undefined && status != 0) {
+                statusclass = ' status'+status;
+              }
               var shorttext = qu.display || '( no text )';
               var taggy = '';
               shorttext = shorttext.replace(/</g,'&lt;');
@@ -1807,7 +1818,7 @@ wb.render.normal  = {
                   taggy = taggers[qu.id].join(' ');
               }
               var tit = shorttext.replace(/['"]/g,'«');
-              var qdiv = '<div class="equest" id="qq_'+qu.id+'_'+qidx+'">';
+              var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
               if (wantlist) qdiv += '<input type="checkbox">';
               qdiv +=      '<span class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
@@ -2200,7 +2211,6 @@ wb.render.normal  = {
                   var statusclass = '';
                   if (status != undefined && status != 0) {
                       statusclass = ' status'+status;
-
                   }
                   qtxt = '<span class="qnumber">Spørsmål '+qnum + qname
                     +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt;

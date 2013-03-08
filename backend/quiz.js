@@ -1069,6 +1069,7 @@ var qz = {
            qobj.qtype = qu.qtype;
            qobj.points = qu.points;
            qobj.name = qu.name;
+           qobj.status = qu.status;
            qobj.sync = qu.sync;
            qobj.subject = qu.subject;
            qobj.created = qu.created;

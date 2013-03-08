@@ -550,7 +550,7 @@ exports.getquesttags = function(user,query,callback) {
   // SPECIAL CASE tagstring == 'non' - find all questions with no tag
   if (tagstring == 'non') {
     var qtlist = { 'non':[] };
-    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
         + " where qt.qid is null and q.teachid=$1 and q.subject=$2 and q.status != 9 order by modified desc", [uid,subject],
     after(function(results) {
         if (results && results.rows && results.rows[0]) {
@@ -566,7 +566,7 @@ exports.getquesttags = function(user,query,callback) {
     // no quotes - just plain words - comma separated
     var tags = " ( '" + tagstring.split(',').join("','") + "' )";
     var qtlist = {};
-    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.status,q.teachid,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
         + " inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and q.subject=$2 and q.status != 9 and t.tagname in  " + tags,[ uid,subject ],
     after(function(results) {
         //console.log("GETQTAG ",results.rows);
@@ -1141,7 +1141,7 @@ exports.studresetcontainer = function(user,query,callback) {
       after(function(results) {
            var containerq = results.rows[0];    // quiz-container as stored for this user
            if (containerq) {
-            client.query( "select q.* from quiz_question q where q.status = 0 and q.id =$1",[ container ],
+            client.query( "select q.* from quiz_question q where q.status < 2 and q.id =$1",[ container ],
             after(function(master) {
               var masterq = master.rows[0];        // current version of quiz-container
               var moo = parseJSON(masterq.qtext);
@@ -1339,7 +1339,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
         + "from quiz_question q  left join quiz_question qp on (q.parent = qp.id) where q.id in (  "
         + " select q.id from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status != 9 and qc.cid = $1 ) " )
           :
-          "select q.*,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status = 0 and qc.cid =$1";
+          "select q.*,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status < 2 and qc.cid =$1";
     param = [ container ];
     //console.log("HERE 2");
   }
@@ -1706,9 +1706,11 @@ exports.editqncontainer = function(user,query,callback) {
 
 skipwords = {};
 shortlist = ' akkurat aldri alene all alle allerede alltid alt alts_a andre annen annet _ar _arene at av b_ade bak bare'
-  + ' skriv finn klikk f_olgende svar bruk husk deretter begynne gj_or bedre begge begynte beste betyr blant ble blev bli blir blitt b_or bort borte bra bruke burde byen da dag dagen dager'
+  + ' skriv finn klikk f_olgende svar bruk husk deretter begynne gj_or bedre begge begynte beste betyr blant ble blev bli blir blitt b_or bort borte '
+  + ' bra bruke burde byen da dag dagen dager'
   + ' d_arlig de navnet navn deg del dem den denne der dere deres derfor dermed dersom dessuten det dette din disse d_oren du eg egen egentlig'
-  + ' eget egne ei hvilke inneholder kalles skjer p_astandene brukes ulike merk hvilken oppgave foreg_ar plasser h_orer ovenfor ein eit eksempel eller ellers en enda ene eneste enkelte enn enn_a er et ett etter f_a fall fant far f_ar faren fast f_att'
+  + ' eget egne ei hvilke inneholder kalles skjer p_astandene brukes ulike merk hvilken oppgave foreg_ar plasser h_orer ovenfor ein eit eksempel '
+  + ' eller ellers en enda ene eneste enkelte enn enn_a er et ett etter f_a fall fant far f_ar faren fast f_att'
   + ' fem fikk finne finner finnes fire fjor flere fleste f_olge folk f_olte for f_or foran fordi forhold f_orst f_orste forteller fortsatt fra'
   + ' fr_a fram frem fremdeles full funnet ga g_a gamle gammel gang gangen ganger ganske g_ar g_att gi gikk gir gitt gjelder kryss p_astander passer gjennom gjerne gj_or gjorde'
   + ' gj_ore gjort glad god gode godt grunn gud ha hadde ham han hans har hatt hele heller helst helt henne hennes her hjelp hjem hjemme'
@@ -1723,6 +1725,8 @@ shortlist = ' akkurat aldri alene all alle allerede alltid alt alts_a andre anne
   + ' snart som spurte st_a stadig st_ar sted stedet sterkt stille sto stod stor store st_orre st_orste stort stund sv_ert svarte synes syntes ta'
   + ' tar tatt tenke tenker tenkt tenkte ti tid tiden tidende tidligere til tilbake tillegg ting to tok tre trenger tro trodde tror under unge ut'
   + ' ute uten utenfor v_ere v_ert vanskelig vant var v_ar v_are v_art ved vei veien vel ventet verden vet vi videre viktig vil vilde ville virkelig'
+  + ' code pycode hints contopt hidden start stop randlist xcount rcount shuffle locked fasit skala medium karak rank antall komme hints hintcost navi'
+  + ' trinn omstart adaptiv attemptcost qlistorder'
   + ' vise viser visst visste viste vite';
   shortlist.replace(/(\w+)\s/g,function(m,wo) {
          skipwords[wo] = 1;
@@ -1793,7 +1797,7 @@ exports.makeWordIndex = function(user,query,callback) {
                         str = str.replace(/å/g,'_a');
                         str = str.replace(/ø/g,'_o');
                         str = str.replace(/æ/g,'_e');
-                        str.replace(/([A-Z_a-z]+)[-+.,;:() *\f\n\r\t\v\u00A0\u2028\u2029]/g,function(m,wo) {
+                        str.replace(/([A-Z_a-z]+)[-+.<>{},;\[\]:() *\f\n\r\t\v\u00A0\u2028\u2029]/g,function(m,wo) {
                             if (wo.length < 3) return '';
                             wo = wo.toLowerCase();
                             if (skipwords[wo]) {
@@ -1801,6 +1805,7 @@ exports.makeWordIndex = function(user,query,callback) {
                             }
                             wo = wo.replace(/_a/g,'å').replace(/_o/g,'ø').replace(/_e/g,'æ');
                             if (wo.length < 3) return '';
+                            if (wo.indexOf('_') > -1) return '';
                             wcount++;
                             var w0 = wo.substr(0,1);
                             if (!wordlist[w0]) w0 = 'A';

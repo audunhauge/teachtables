@@ -408,13 +408,16 @@ div.underlined {
     border-bottom:solid 1px rgba(90,0,0,0.1);
 }
 
-div.status1 { /* testing */
+div.status1 { /* partial */
+    background:#deb !important;
+}
+div.status2 { /* testing */
     background:#ccf !important;
 }
-div.status2 { /* fixme */
+div.status3 { /* fixme */
     background:#fec !important;
 }
-div.status3 { /* error */
+div.status4 { /* error */
     background:#f33 !important;
 }
 
