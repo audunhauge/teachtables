@@ -175,16 +175,17 @@ function crossResults() {
                if (userlist.indexOf(ua.userid) < 0) {
                    userlist.push(ua.userid);
                }
-               if (!questcount[ua.qid]) questcount[ua.qid] = 0;
-               questcount[ua.qid]++;
+               if (!questcount[ua.qid]) questcount[ua.qid] = { num:0, score:0 };
+               questcount[ua.qid].num++;
+               questcount[ua.qid].score += ua.score;
                if (!userscore[ua.userid]) userscore[ua.userid] = 0;
                userscore[ua.userid] += ua.score;
            }
            var qorder = [];
            for (var q in questcount) {
-               qorder.push( {id:q, count:questcount[q]});
+               qorder.push( {id:q, count:questcount[q].num, score:questcount[q].score});
            }
-           qorder.sort(function(a,b) { return b.count - a.count;  })
+           qorder.sort(function(a,b) { var d = b.count - a.count; return (d) ? d : b.score-a.score;  })
 
            var userorder = [];
            for (var u in userscore) {
@@ -233,6 +234,7 @@ function crossResults() {
                    }
                    ss += '<td '+tclass+'>'+txt+'</td>';
                }
+               ss += '<td>'+(qorder[qidi].score.toFixed(1))+'</td>';
                ss += '</tr>';
            }
            // give sum totals for each stud
