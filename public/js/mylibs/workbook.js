@@ -229,7 +229,8 @@ function crossResults() {
                     if (!totalscore[uu]) totalscore[uu] = 0;
                     sumscore[uu] += +displayscore;
                     totalscore[uu] += +ucro.points;
-                    displayscore = (displayscore) ? displayscore.toFixed(2) : '<span class="redfont">&nbsp;0&nbsp;</span>';
+                    displayscore = displayscore.toFixed(2);
+                    displayscore = (ucro.attemptnum) ? displayscore : '<span class="redfont">&nbsp;0&nbsp;</span>';
                     txt = displayscore;
                    }
                    ss += '<td '+tclass+'>'+txt+'</td>';
