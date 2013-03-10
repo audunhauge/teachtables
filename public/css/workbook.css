@@ -748,7 +748,8 @@ div.studnote, div.teachnote {
     color:#393;
     border:solid rgba(30,100,0,0.2) 1px;
     margin-left:22px;
-    white-space:pre;
+    white-space:pre-wrap;
+    max-width:400px;
 }
 
 div.teachnote {
