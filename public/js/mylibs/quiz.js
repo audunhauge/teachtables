@@ -119,7 +119,7 @@ function showinfo(ty,lim,fil) {
     if (cluster[star] < +qparam.limit) continue;
     var q = questions[star];
     if (qparam.filter != 'all' && q && q.qtype != qparam.filter) continue;
-    if (qparam.subj != 'all' && q && q.subject != qparam.subj) continue;
+    if ((qparam.subj == 'empty' && q.subject != '' ) || qparam.subj != 'all' && q && q.subject != qparam.subj) continue;
     if (clusterlist.indexOf(star) >= 0) continue;  // already in list
     clusterlist.push(star);
   }
@@ -150,7 +150,9 @@ function makeMarks(qmatched) {
     svg.selectAll("circle")
        .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return (qmatched[ty]) ? "yellow" : teachcolors(q.origin); } )
        //.style("stroke", function(d,i) { return (qmatched[d.name]) ? "#ff3322" : "#222"; } )
-       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } );
+       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "4.0px" : "1.5px"; } )
+       .style("stroke", function(d,i){ var ty = d.name; var q = questions[ty]; return (qmatched[d.name]) ? "#da2" :statuscolor[q.status]; } )
+       ;
 
     var clusterlist = [];       // array of connected questions
     for (var star in qmatched) {
