@@ -165,48 +165,103 @@ function crossResults() {
            console.log(results);
            var cross = {};
            var userlist = [];
+           var questcount = {};  // count how many of each
+           var userscore = {};
            for (var uai in results) {
                var ua = results[uai];
+               if (ua.points == 0 || ua.qtype == 'info') continue;
                if (!cross[ua.qid]) cross[ua.qid] = {};
                cross[ua.qid][ua.userid] = ua;
                if (userlist.indexOf(ua.userid) < 0) {
                    userlist.push(ua.userid);
                }
+               if (!questcount[ua.qid]) questcount[ua.qid] = 0;
+               questcount[ua.qid]++;
+               if (!userscore[ua.userid]) userscore[ua.userid] = 0;
+               userscore[ua.userid] += ua.score;
            }
-           var ss = '<table><tr><th>QNR/Elev</th>';
-           for (var uui in userlist) {
-              var uu = userlist[uui];
-              ss += '<th>'+uu+'</th>';
+           var qorder = [];
+           for (var q in questcount) {
+               qorder.push( {id:q, count:questcount[q]});
+           }
+           qorder.sort(function(a,b) { return b.count - a.count;  })
+
+           var userorder = [];
+           for (var u in userscore) {
+               userorder.push( {id:u, score:userscore[u]});
+           }
+           userorder.sort(function(a,b) { return b.score - a.score;  })
+           console.log("USERORDER",userorder);
+
+           var ss = '<p><p><p><p><p><table><tr><th>QNR/Elev</th>';
+           for (var uui =0; uui < userorder.length; uui++) {
+              var uu = userorder[uui].id;
+              var elev = id2elev[uu];
+              if (elev)  {
+                ss += '<td><div class="rel"><div id="stu'+uu+'" class="angled stud">' + elev.firstname.caps()+ ' ' + elev.lastname.caps() + '</div></div></td>';
+              } else {
+                elev = teachers[uu];
+                if (elev)  {
+                  ss += '<td><div class="rel"><div id="stu'+uu+'" class="angled stud">' + elev.firstname.caps()+ ' ' + elev.lastname.caps() + '</div></div></td>';
+                }
+              }
+              //ss += '<th>'+uu+'</th>';
            }
            ss += '</tr>';
-           for (var qid in cross) {
+           var sumscore = {};
+           var totalscore = {};
+           for (var qidi in qorder) {
+               var qid = qorder[qidi].id;
                var cro = cross[qid];
                ss += '<tr><th>'+qid+'</th>';
-               for (var uui in userlist) {
-                   var uu = userlist[uui];
-                   ss += '<td>';
+               for (var uui =0; uui < userorder.length; uui++) {
+                   var uu = userorder[uui].id;
+                   var txt = '';
+                   var tclass = '';
                    if (cro[uu]) {
-                    ss += 'X';
+                    var ucro = cro[uu];
+                    var displayscore = ucro.score;
+                    if (ucro.usercomment && ucro.usercomment != '') tclass += ' prliste';
+                    if (ucro.teachcomment && ucro.teachcomment != '') tclass += ' bluelined';
+                    if (tclass) tclass = 'class="'+tclass+'"';
+                    if (!sumscore[uu]) sumscore[uu] = 0;
+                    if (!totalscore[uu]) totalscore[uu] = 0;
+                    sumscore[uu] += +displayscore;
+                    totalscore[uu] += +ucro.points;
+                    displayscore = (displayscore) ? displayscore.toFixed(2) : '<span class="redfont">&nbsp;0&nbsp;</span>';
+                    txt = displayscore;
                    }
-                   ss += '</td>';
+                   ss += '<td '+tclass+'>'+txt+'</td>';
                }
                ss += '</tr>';
            }
+           // give sum totals for each stud
+           ss += '<tr><th>Total</th>';
+           for (var uui =0; uui < userorder.length; uui++) {
+                   var uu = userorder[uui].id;
+                   ss += '<td>';
+                   var score = sumscore[uu].toFixed(1);
+                   ss += score;
+                   ss += ' / '+ totalscore[uu] || 0;
+                   ss += '</td>';
+           }
+           ss += '</tr>';
            ss += '</table>';
-           ss += '<table><tr><th>QNR/Elev</th>';
-           for (var uui in userlist) {
-              var uu = userlist[uui];
+           ss += '<p><p><table><tr><th>QNR/Elev</th>';
+           for (var uui =0; uui < userorder.length; uui++) {
+              var uu = userorder[uui].id;
               var usr = getUser(uu);
               fn = usr.firstname.caps();
               ln = usr.lastname.caps();
               ss += '<th>'+fn+'&nbsp;'+ln+'</th>';
            }
            ss += '</tr>';
-           for (var qid in cross) {
+           for (var qidi in qorder) {
+               var qid = qorder[qidi].id;
                var cro = cross[qid];
                ss += '<tr><th>'+qid+'</th>';
-               for (var uui in userlist) {
-                   var uu = userlist[uui];
+               for (var uui =0; uui < userorder.length; uui++) {
+                   var uu = userorder[uui].id;
                    ss += '<td>';
                    if (cro[uu]) {
                     var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
@@ -244,7 +299,7 @@ function longList() {
       group = '';
     }
     var trail = makeTrail();
-    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">CrossTab</h1>'
+    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Long List</h1>'
              +trail+'<div id="results"></div></div>';
     $j("#main").html(s);
     $j.post(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
@@ -311,8 +366,9 @@ function showResults() {
       return spark;
     }
     var skala = wbinfo.courseinfo.contopt.skala;
-    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat </h1><span class="cross" id="yy'+wbinfo.containerid+'">X</span>'
-             +trail+'<div id="results"></div></div>';
+    var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat </h1>'
+             +trail+' &nbsp; <span class="bluefont cross" id="yy'+wbinfo.containerid+'">CrossTab</span>'
+             + ' &nbsp; <span class="bluefont long" id="yy'+wbinfo.containerid+'">LongList</span><div id="results"></div></div>';
     //s += JSON.stringify(wbinfo.courseinfo.contopt);
     $j("#main").html(s);
     $j(".result").click(function() {
@@ -320,6 +376,9 @@ function showResults() {
         });
     $j(".cross").click(function() {
           crossResults();
+        });
+    $j(".long").click(function() {
+          longList();
         });
     $j.post(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
            // results = { res:{ uid ... }, ulist:{ 12:1, 13:1, 14:2, 15:2 }
@@ -640,7 +699,7 @@ function renderPage() {
                    type           : 'textarea',
                    getValue       : getComment,
                    width          : '12em',
-                   height         : '12em',
+                   height         : '2em',
                    style          : 'display:block',
                    submit         : 'OK'
                });
@@ -2200,13 +2259,15 @@ wb.render.normal  = {
                   var qnum = +qi + 1;
                   var qname = (qu.name && qu.name != '') ? '<span class="questname">'+qu.name+'</span>' : '';
                   var studnote = ''; // <div class="studnote"></div>
-                  if (qu.usercomment && qu.usercomment != '') {
-                    var stutxt = qu.usercomment.replace(/['"]/g,'«');
-                    studnote = '<div  id="com'+qu.id+'" title="'+stutxt+'" class="studnote addcomment">'+stutxt+'</div>';
-                  }
-                  if (qu.teachcomment && qu.teachcomment != '') {
-                    var teachtxt = qu.teachcomment.replace(/['"]/g,'«');
-                    studnote += '<div  id="com'+qu.id+'" title="'+teachtxt+'" class="teachnote addcomment"></div>';
+                  if (scored || (attempt != '' && attempt > 0))  {
+                    if (userinfo.id == qu.userid || (qu.usercomment && qu.usercomment != '')) {
+                      var stutxt = qu.usercomment.replace(/['"]/g,'«');
+                      studnote = '<div  id="com'+qu.id+'" title="'+stutxt+'" class="studnote addcomment">'+stutxt+'</div>';
+                    }
+                    if (teaches(userinfo.id,wbinfo.coursename) || (qu.teachcomment && qu.teachcomment != '')) {
+                      var teachtxt = qu.teachcomment.replace(/['"]/g,'«');
+                      studnote += '<div  id="com'+qu.id+'" title="'+teachtxt+'" class="teachnote addcomment">'+teachtxt+'</div>';
+                    }
                   }
                   var statusclass = '';
                   if (status != undefined && status != 0) {
@@ -2215,7 +2276,7 @@ wb.render.normal  = {
                   qtxt = '<span class="qnumber">Spørsmål '+qnum + qname
                     +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt;
                   if (sscore.qdiv != undefined) {
-                    sscore.qdiv = hints+qtxt;
+                    sscore.qdiv = hints+qtxt+studnote;
                     sscore.qdivid = 'qq'+qu.qid+'_'+qi;
                     sscore.scid = 'sc'+qi;
                     sscore.atid = 'at'+qi;
@@ -2223,7 +2284,7 @@ wb.render.normal  = {
                   return '<div class="question '+statusclass+' qq'+qi+'" id="qq'+qu.qid+'_'+qi+'">' + hints+ qtxt + studnote + '</div>';
 
                   function decoration() {
-                     if (scored || attempt != '' && attempt > 0) {
+                     if (scored || (attempt != '' && attempt > 0)) {
                        qtxt += '<span id="at'+qi+'" class="attempt gui">'+(attempt)+'</span>';
                      }
                      if (scored || attempt > 0 || score != '') {
