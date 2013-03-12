@@ -9,7 +9,7 @@ function show_date(jd) {
   var startdate = julian.jdtogregorian(startjd);
   var enddate = julian.jdtogregorian(startjd+6);
   if (startdate.year == enddate.year) {
-     var dato = "" + startdate.day + "." + startdate.month 
+     var dato = "" + startdate.day + "." + startdate.month
          + "-" + enddate.day + "." + enddate.month + " " + startdate.year;
   } else {
      var dato = "" + startdate.day + "." + startdate.month + "." + startdate.year + " - "
@@ -21,8 +21,8 @@ function show_date(jd) {
 function show_thisweek(delta) {
     // viser denne uka, årsplanen + timeplan
     //var uid = userinfo.id;
-    promises.toggle_year = function() { 
-          show_thisweek(delta); 
+    promises.toggle_year = function() {
+          show_thisweek(delta);
         };
     delta = typeof(delta) != 'undefined' ?  +delta : 0;  // vis timeplan for en anne uke
     $j.bbq.pushState("#thisweek");
@@ -131,7 +131,7 @@ function addonTimePlan(delta,mos) {
                 if (inlogged && isteach) {
                   var room = $j(this).attr("room");
                   var day = $j(this).attr("day");
-                  if (database.thisjd >= thisweek + +day) 
+                  if (database.thisjd >= thisweek + +day)
                      regstarb(thisweek + +day,room);
                 }
               } else {
@@ -177,7 +177,7 @@ function addonCoursePlans(delta) {
          mostly[cat]++;
          if (mostly[cat] >= mostly[mos]) mos = cat;
       }
-    } 
+    }
     return {plan:planliste,mos:mos };
 }
 
@@ -237,7 +237,7 @@ function build_timetable(timeplan,plan,filter,planspan) {
         }
         if (timeplan[pt[1]][pt[0]] == spa + cell + sto) continue;
         // don't add if we already have exact same data
-        timeplan[pt[1]][pt[0]] += spa + cell + sto; 
+        timeplan[pt[1]][pt[0]] += spa + cell + sto;
      }
      return {timeplan:timeplan, clean:clean, cleanroom:cleanroom};
 }
@@ -249,7 +249,7 @@ function makepop(cell,userlist,username,gruppe,filter,heading) {
     // elevlista for tuple (gruppe,username)
     if (popmemoizer[cell+gruppe+username]) {
         return popmemoizer[cell+gruppe+username];
-    } 
+    }
     if (userlist) {
         var elev;
         var elist = [];
@@ -269,8 +269,8 @@ function makepop(cell,userlist,username,gruppe,filter,heading) {
                 elist.push(""+elev.firstname.caps()+" "+elev.lastname.caps()+" "+elev.department);
             }
         }
-        ce = '<li><a href="#">'+cell+'</a><ul class="gui"><li><a href="#">' 
-            + elist.join('</a></li><li><a href="#">') 
+        ce = '<li><a href="#">'+cell+'</a><ul class="gui"><li><a href="#">'
+            + elist.join('</a></li><li><a href="#">')
             + '</a></li></ul></li>';
     } else {
         ce = '<li><a href="#">'+cell+'</a></li>';
@@ -295,9 +295,9 @@ function getAbsentBecauseTest(jd,fagliste) {
       }
       heldag.push( { hd:fag+' '+ahd.value, slots:slots, elever:fagliste.fagelev[fag] } );
     }
-  } 
+  }
   return heldag;
-}        
+}
 
 
 function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
@@ -368,7 +368,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
           if (timetable[j] && timetable[j][i] && timetable[j][i][room] && timetable[j][i][room].eventtype == 'hd') {
             // there is a reservation for this slot due to full day test
             cell = '<span class="hdrom">'+timetable[j][i][room].value+'</span>';
-          } 
+          }
           if (timeplan.timeplan[i] && timeplan.timeplan[i][j]) {
             cell = (cell == '&nbsp;') ? timeplan.timeplan[i][j] : cell + timeplan.timeplan[i][j] ;
           }
@@ -377,7 +377,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
             if (timetable[j][i][room].name != room) {  // change of room
               cell += '<span class="rombytte">'+timetable[j][i][room].name+'</span>';
             }
-          } 
+          }
           if (timeplan.timeplan[i] && timeplan.timeplan[i][j]) {
              if (edit && isadmin && filter == 'teach') cell = '<div id="'+uid+'_'+j+"_"+i+'" class="edit">' + cell + '</div>';
              if (filter == 'RAD') {
@@ -388,11 +388,11 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
              bad = ' bad';
              header = 'x';
              subject = 'nana';
-             if (timeplan.clean[i] && timeplan.clean[i][j]) { 
+             if (timeplan.clean[i] && timeplan.clean[i][j]) {
                subject = timeplan.clean[i][j].split('_')[1] || '';
              }
-             if (!absentDueTest[j]) 
-               absentDueTest[j] = {}; 
+             if (!absentDueTest[j])
+               absentDueTest[j] = {};
              if (!absentDueTest[j][subject]) {
                var elever = memberlist[subject];
                var andre = getOtherCG(elever);
@@ -406,7 +406,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
                 if (xcell.indexOf('redfont') > 0) {
                     header = '<span class="pinkfont">'+header+'</span>';
                 }
-                xcell = '<ul class="nav'+bad+'"><li><a href="#">'+header+'</a><ul>' 
+                xcell = '<ul class="nav'+bad+'"><li><a href="#">'+header+'</a><ul>'
                        + xcell
                        + '</ul></li></ul>';
              } else {
@@ -423,7 +423,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
                 // skip if we are in unaffected slot
               }
               for (var el in absentDueTest[j][subject][abs].elever) {
-               var elev = absentDueTest[j][subject][abs].elever[el]; 
+               var elev = absentDueTest[j][subject][abs].elever[el];
                if (students[elev] && !already[elev] ) {
                  already[elev] = 1;
                  abslist.push(short_sweet_name(elev));
@@ -491,9 +491,9 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
                       +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny totip absentia">'+abslist.length+'</div>';
             }
           }
-          if (cell == '&nbsp;' && edit && isadmin && filter == 'teach')  { 
+          if (cell == '&nbsp;' && edit && isadmin && filter == 'teach')  {
               cell = '<div id="'+uid+'_'+j+"_"+i+'" class="edit">' + cell + '</div>';
-          } 
+          }
           s += '<td><div class="retainer">' + cell + xcell + abs +'</div></td>';
        }
        s+= "</tr>";
@@ -530,7 +530,7 @@ function vistimeplan(data,uid,filter,isuser,delta,edit) {
   if (isuser != 'isuser' && memberlist[uid]) {
     // this is a group or class
     var elever = memberlist[uid];
-    var andre = getOtherCG(elever); 
+    var andre = getOtherCG(elever);
     plan.prover = grouptest(plan.prover, andre.gru, jd);
   }
   //if (isuser != 'isuser' && timetables.room[uid]) {
@@ -539,7 +539,7 @@ function vistimeplan(data,uid,filter,isuser,delta,edit) {
     xtraplan = getReservations(uid,delta);
   }
   valgtPlan = plan;        // husk denne slik at vi kan lagre i timeregister
-  if (filter == 'group' || filter == 'room' || filter == 'klass' || filter == 'gr' || filter == 'fg') { 
+  if (filter == 'group' || filter == 'room' || filter == 'klass' || filter == 'gr' || filter == 'fg') {
     user = {firstname:uid,lastname:''};
   } else {
     user = (teachers[uid]) ?  teachers[uid] : (students[uid]) ? students[uid] : {firstname:'', lastname:''};
@@ -612,11 +612,11 @@ function vis_timeplan_helper(userplan,uid,filter,isuser,visfagplan,delta,edit) {
   var freetime = {};  // hash used by timeplan editor - blocked if defined for a slot
   if (database.userinfo.isadmin) {
     var fagliste = '';
-    if (database.teachcourse[uid]) fagliste = '<div>'+database.teachcourse[uid].map(function(e,i) {  
-        return '<span tag="course" class="ccc course">'+e+'</span>'; } 
+    if (database.teachcourse[uid]) fagliste = '<div>'+database.teachcourse[uid].map(function(e,i) {
+        return '<span tag="course" class="ccc course">'+e+'</span>'; }
         ).join(' ') + '</div>';
-    var romliste = '<div>' + database.roomnamelist.map(function(e,i) {  
-        return '<span tag="room" class="ccc room">'+e+'</span>'; } 
+    var romliste = '<div>' + database.roomnamelist.map(function(e,i) {
+        return '<span tag="room" class="ccc room">'+e+'</span>'; }
         ).join(' ') + '</div>';
     $j("#timed").html(fagliste+romliste);
     $j("#timed").undelegate(".ccc","click");
@@ -627,7 +627,7 @@ function vis_timeplan_helper(userplan,uid,filter,isuser,visfagplan,delta,edit) {
           $j(".edit").removeClass("blockedgroup");
           $j(".edit").removeClass("blockedroom");
           $j(".edit").removeClass("blockedteach");
-          myinf[tag] = $j(this).text(); 
+          myinf[tag] = $j(this).text();
           freetime.blocked = [ {},{},{},{},{},{},{} ];
           if (myinf.room && myinf.course) {
             var rtt = timetables.room[myinf.room];
@@ -694,13 +694,13 @@ function vis_timeplan_helper(userplan,uid,filter,isuser,visfagplan,delta,edit) {
             var roomid = database.roomids[myinf.room];
             var courseid = database.cname2id[myinf.course];
             $j("#oskrift").html('<span class="redfont">Saving ...</span>');
-            $j.post(mybase+ "/save_timetable", { teachid:myinf.tid, rid:roomid, cid:courseid, 
+            $j.post(mybase+ "/save_timetable", { teachid:myinf.tid, rid:roomid, cid:courseid,
                  name:myinf.course, value:myinf.room,
                  day:myinf.day, slot:myinf.slot },function(msg) {
                  $j("#oskrift").html('<span class="redfont">'+msg.msg+'</span>');
                  $j.getJSON(mybase+ "/timetables",
                    function(data) {
-                     timetables = unflatten(data);
+                     timetables = unflatten(data.flatlist);
                      vis_valgt_timeplan({id:uid}, filter,visfagplan,isuser,edit);
                    });
              });
@@ -799,7 +799,7 @@ function vis_klassetimeplan() {
     s+= '<div class="gui" id=\"velg\">Velg klassen du vil se timeplanen for <select id="velgbruker">';
     s+= '<option value="0"> --velg-- </option>';
     for (i=0;i< ant; i++) {
-       e = bru[i]; 
+       e = bru[i];
        s+= '<option value="'+i+'">' + e  +  "</option>";
     }
     s+= "</select></div>";
@@ -834,7 +834,7 @@ function vis_romtimeplan() {
     s+= '<div class="gui" id=\"velg\">Velg rommet du vil se timeplanen for <select id="velgbruker">';
     s+= '<option value="0"> --velg-- </option>';
     for (var i in bru) {
-       var e = bru[i]; 
+       var e = bru[i];
        s+= '<option value="'+i+'">' + e  +  "</option>";
     }
     s+= "</select></div>";
@@ -849,7 +849,7 @@ function vis_elevtimeplan() {
     s+= '<option value="0"> --velg-- </option>';
     for (var i in studentIds) {
        var idx = studentIds[i];  // stud-ids are in sorted order, students are ordered by id .. not so nice
-       var e = students[idx]; 
+       var e = students[idx];
        s+= '<option value="'+idx+'">' + e.department + " " + " " + e.institution+ " " + e.lastname.caps() + " " + e.firstname.caps()  +  "</option>";
     }
     s+= "</select></div>";
@@ -864,7 +864,7 @@ function vis_teachtimeplan() {
     s+= '<option value="0"> --velg-- </option>';
     var sorted = [];
     for (var i in teachers) {
-       e = teachers[i]; 
+       e = teachers[i];
        sorted.push({text:e.username + " " + e.lastname.caps() + " " + e.firstname.caps(), idx:i});
     }
     sorted.sort(function (a,b) { return (a.text > b.text) ? 1 : -1 });
@@ -878,18 +878,19 @@ function vis_teachtimeplan() {
 }
 
 function edit_teachtimeplan() {
+    itemtype = 'teach';
     var s='<div id="timeviser"><h1 id="oskrift">Edit teach-timetables</h1>';
     s+= '<div class="gui" id="velg">Velg lærer du vil redigere timeplanen for <select id="velgbruker">';
     s+= '<option value="0"> --velg-- </option>';
     var sorted = [];
-    $j.post(mybase+ "/save_timetable", { teachid:0 },function(msg) { 
+    $j.post(mybase+ "/save_timetable", { teachid:0 },function(msg) {
                  $j.getJSON(mybase+ "/timetables", { reload:1 },
                    function(data) {
-                     timetables = unflatten(data);
+                     timetables = unflatten(data.flatlist);
                    });
            } );
     for (var i in teachers) {
-       e = teachers[i]; 
+       e = teachers[i];
        sorted.push({text:e.username + " " + e.lastname.caps() + " " + e.firstname.caps(), idx:i});
     }
     sorted.sort(function (a,b) { return (a.text > b.text) ? 1 : -1 });
@@ -909,7 +910,7 @@ function getcourseplan(cgr,delta) {
   // just try each in turn and return first found
   if (timetables && timetables.course[cgr]) {
     var elever = memberlist[cgr];
-    var andre = getOtherCG(elever); 
+    var andre = getOtherCG(elever);
     var xplan = [];
     for (gr in andre.gru) {
       // get timetables for all other groups for these studs
@@ -919,7 +920,7 @@ function getcourseplan(cgr,delta) {
   }
   if (timetables && timetables.group[cgr]) {
     var elever = memberlist[cgr];
-    var andre = getOtherCG(elever); 
+    var andre = getOtherCG(elever);
     var xplan = [];
     for (gri in andre.gru) {
       // get timetables for all other groups for these studs
@@ -999,7 +1000,7 @@ function getOtherCG(studlist) {
         }
     }
     return {fag:fag, gru:gru, fagelev:fagelev, blok:blok };
-}    
+}
 
 
 
@@ -1025,12 +1026,12 @@ function getuserplan(uid) {
         }
       }
       return { plan:myplan };
-    } 
+    }
   }
   return [];
 }
 
-function coursetests(coursename,jd) {  
+function coursetests(coursename,jd) {
   // returns list of tests for given course
   // { jdmonday:[{day:0..4, slots:"1,2,3"}]  }
   // the key is jd for monday each week with test, value is list of tests {day,slots}
@@ -1054,7 +1055,7 @@ function coursetests(coursename,jd) {
 }
 
 
-function grouptest(prover,grouplist,jd) {  
+function grouptest(prover,grouplist,jd) {
   // updates table of tests for given grouplist, given jd
   // assumes jd is monday of desired week
   for (var day = 0; day<5; day++) {
@@ -1085,7 +1086,7 @@ function grouptest(prover,grouplist,jd) {
 }
 
 
-function add_tests(uid,jd) {  
+function add_tests(uid,jd) {
   // returns table of tests for uid for given week
   // assumes jd is monday of desired week
   var prover = {};
@@ -1107,7 +1108,7 @@ function add_tests(uid,jd) {
               prover[dd][day] = fag + ' ' + hdf;
             }
           }
-      } 
+      }
     }
     if (alleprover[jd + day]) {
       for (var pr in alleprover[jd + day]) {

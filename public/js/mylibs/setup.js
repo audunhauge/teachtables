@@ -268,9 +268,9 @@ function gotoPage() {
                   var userplan = getcourseplan(usr,deltamemory);
                   vis_timeplan_helper(userplan,usr,target,false,false,deltamemory);
                 } else {
-                  $j.getJSON(mybase+ "/timetables", 
+                  $j.getJSON(mybase+ "/timetables",
                     function(data) {
-                        timetables = unflatten(data);
+                        timetables = unflatten(data.flatlist);
                         updateFagplanMenu();
                         var userplan = getcourseplan(usr,deltamemory);
                         vis_timeplan_helper(userplan,usr,target,false,false,deltamemory);
@@ -286,9 +286,9 @@ function gotoPage() {
                   var userplan = getuserplan(+usr);
                   vis_timeplan_helper(userplan,+usr,target,'isuser',true,deltamemory);
                 } else {
-                  $j.getJSON(mybase+ "/timetables", 
+                  $j.getJSON(mybase+ "/timetables",
                     function(data) {
-                        timetables = unflatten(data);
+                        timetables = unflatten(data.flatlist);
                         updateFagplanMenu();
                         var userplan = getuserplan(+usr);
                         vis_timeplan_helper(userplan,+usr,target,'isuser',true,0);
@@ -305,7 +305,7 @@ function gotoPage() {
 
   }
 }
-  
+
 
 function take_action() {
     // decide what to show at startup based on action parameter
@@ -322,7 +322,7 @@ function take_action() {
             vis_valgt_timeplan({ id:1343, username:"Wench Mack"},url,filter);
 
             var s =   '<li class="current"><a href="#">Rådgivere</a></li>'
-                    + '<li><a id="dahi" href="#">Hilde Dalen</a></li>' 
+                    + '<li><a id="dahi" href="#">Hilde Dalen</a></li>'
                     + '<li><a id="hasi" href="#">Sigmund Hauge</a></li>'
                     + '<li><a id="mawe" href="#">Wenche Mack</a></li>';
             $j("#nav").html(s);
@@ -355,9 +355,9 @@ function take_action() {
 
         case 'plan':
             if (showplan != '') {
-                 $j.getJSON(mybase+ "/timetables", 
+                 $j.getJSON(mybase+ "/timetables",
                     function(data) {
-                        timetables = unflatten(data);
+                        timetables = unflatten(data.flatlist);
                         getcourseplans();
                     });
 
@@ -379,51 +379,60 @@ var alreadyappended = false;
 function setup_teach() {
     if (alreadyappended) return;
     alreadyappended = true;
-    var romvalg = '<ul>';                     
-    romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>'; 
+    var romvalg = '<ul>';
+    romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>';
     for (var i in romliste) {
         var etasje = romliste[i];
-        romvalg += '<li><a href="#">' + i + 'xx</a><ul>'; 
+        romvalg += '<li><a href="#">' + i + 'xx</a><ul>';
         for (var j =0; j< etasje.length; j++) {
             var rom = etasje[j];
-            romvalg += '<li><a id="rom'+rom+'" href="#">'+rom+'</a></li>'; 
+            romvalg += '<li><a id="rom'+rom+'" href="#">'+rom+'</a></li>';
             linktilrom.push(rom);
         }
-        romvalg += '</ul></li>'; 
+        romvalg += '</ul></li>';
     }
-    romvalg += '<li><a id="resrapp" href="#">'+ss.setup.rapport+'</a></li>'; 
+    romvalg += '<li><a id="resrapp" href="#">'+ss.setup.rapport+'</a></li>';
     romvalg += '</ul>';
 
     // prepare for subscriptions
     if (! teachers) {
         teachers = database.teachers;
     }
-    var subscript = '<ul>';                     
+    var subscript = '<ul>';
     var minefag = database.teachcourse[userinfo.id] ? database.teachcourse[userinfo.id].join(' ') : '';
     var myown = database.subscribe.teachers[userinfo.id];
-    for (var i in database.subscribe.subjects) {
-        var i_teach_this = (minefag.indexOf(i) >= 0);
-        if (!i_teach_this && (!myown || myown.indexOf(i) < 0)) continue;
-        var su = database.subscribe.subjects[i];
-        if (su.length == 1 && su[0] == userinfo.id) continue;
-        subscript += '<li><a href="#">' + i + '</a><ul>'; 
-        for (var j =0; j< su.length; j++) {
-            var cla = '';
-            var te = su[j];
-            if (te == userinfo.id) continue;
-            var tea = teachers[te] || { firstname:'',lastname:'' };
-            var teaname = tea.firstname.caps();
-            if (subscriptlist[te] && subscriptlist[te][i]) {
-                // we subscribe - mark with n2
-                cla = ' class="n2" ';
+    var usedup = {};  // so we dont get two divs with same id
+    function buildSubscript(limited) {
+        var suru = '';
+        for (var i in database.subscribe.subjects) {
+            var i_teach_this = (minefag.indexOf(i) >= 0);
+            if (!limited && !i_teach_this && (!myown || myown.indexOf(i) < 0)) continue;
+            var su = database.subscribe.subjects[i];
+            if (su.length == 1 && su[0] == userinfo.id) continue;
+            if (usedup[i]) continue;
+            usedup[i] = 1;
+            suru += '<li><a href="#">' + i + '</a><ul>';
+            for (var j =0; j< su.length; j++) {
+                var cla = '';
+                var te = su[j];
+                if (te == userinfo.id) continue;
+                var tea = teachers[te] || { firstname:'',lastname:'' };
+                var teaname = tea.firstname.caps();
+                if (subscriptlist[te] && subscriptlist[te][i]) {
+                    // we subscribe - mark with n2
+                    cla = ' class="n2" ';
+                }
+                suru += '<li><a id="suru'+te+'_'+i+'" href="#" '+cla+'>'+teaname+'</a></li>';
+                mysubscript.push(te+'_'+i);
             }
-            subscript += '<li><a id="suru'+te+'_'+i+'" href="#" '+cla+'>'+teaname+'</a></li>'; 
-            mysubscript.push(te+'_'+i);
+            suru += '</ul></li>';
         }
-        subscript += '</ul></li>'; 
+        return suru;
     }
-    subscript += '</ul>';
+    var subscript  = '<ul>' + buildSubscript(0) + '</ul>';
+    var csubscript = '<ul>' + buildSubscript(1) + '</ul>';
     $j("#subscribe").after(subscript);
+    $j("#csubscribe").after(csubscript);
     $j.get(mybase+ "/update_subscription");
 
     var s = '<li><a id="romres" href="#">'+ss.setup.reserv+'</a>'+romvalg+'</li>'
@@ -459,7 +468,7 @@ function setup_teach() {
     });
     // legg inn clickhandler for alle rom
     // hent reserveringer for rommene
-    $j.getJSON(mybase+ "/myplans", 
+    $j.getJSON(mybase+ "/myplans",
       function(data) {
         myplans = {};
         for (var i in data) {
@@ -472,7 +481,7 @@ function setup_teach() {
         }
       });
     // fetch current users
-    $j.getJSON(mybase+ "/ses", 
+    $j.getJSON(mybase+ "/ses",
       function(data) {
         online = [];
         for (var i in data) {
@@ -484,7 +493,7 @@ function setup_teach() {
         usersonline = online.join(', ');
       });
 
-    $j.getJSON(mybase+ "/reserv", 
+    $j.getJSON(mybase+ "/reserv",
          function(data) {
             $j("#nav").append(s);
             $j("#ledigrom").click(function() {
@@ -606,7 +615,7 @@ function get_login() {
 function belongsToCategory(uid,cat) {
   // return true if user has a course in this list of categories - cat = { cat1:1, cat2:1  ... }
   if (timetables && timetables.teach && timetables.teach[uid]) {
-    // we have a teach 
+    // we have a teach
     var minefag = database.teachcourse[uid];
     for (var j in minefag) {
       var fagcourse = minefag[j];
@@ -629,7 +638,7 @@ function belongsToCategory(uid,cat) {
           if (cat[database.category[fag]]) return true;
         }
       }
-    } 
+    }
   }
   return false;
 }
@@ -737,11 +746,11 @@ function getusers() {
         blocks = newblocks;
     });
     // hent ut planlagt fravær for teach
-    $j.getJSON(mybase+ "/getabsent", 
+    $j.getJSON(mybase+ "/getabsent",
          function(data) {
            absent = data;
          });
-    $j.getJSON(mybase+ "/reserv", 
+    $j.getJSON(mybase+ "/reserv",
          function(data) {
             reservations = unflatreserv(data);
          });
@@ -749,7 +758,7 @@ function getusers() {
 
 function getcourseplans() {
   // fetch timetables and courseplans
-  $j.getJSON(mybase+ "/timetables", 
+  $j.getJSON(mybase+ "/timetables",
         function(data) {
             timetables = unflatten(data.flatlist);
             if (promises.timetables) {
@@ -762,7 +771,7 @@ function getcourseplans() {
             updateFagplanMenu();
      });
   var url = '/allplans';
-  $j.getJSON(mybase+ url, 
+  $j.getJSON(mybase+ url,
   function(allplans) {
       allefagplaner = allplans;
       courseplans = {};
@@ -776,7 +785,7 @@ function getcourseplans() {
               s += '<li><a href="#">' + teach + '</a><ul>';
               for (var fag in fagene) {
                   var idd = fag+'z'+teach+'z'+avdeling;
-                  var compliance = allefagplaner.compliance[teach][fag]; 
+                  var compliance = allefagplaner.compliance[teach][fag];
                   var comp = Math.floor(Math.log(1 +compliance.sum * compliance.count/44))
                   s += '<li><a class="fag'+comp+'" id="'+idd+'" href="#">' + fag + '</a></li>';
                   var plandata = allefagplaner.courseplans[avdeling][teach][fag];
@@ -818,7 +827,7 @@ function getcourseplans() {
                   action = 'default';
                   show_thisweek();
           }
-      
+
       }
       if (promises.allplans) {
         // some functions have some actions pending on my data
@@ -829,12 +838,12 @@ function getcourseplans() {
       }
 
   });
-}            
+}
 
 
 
 $j(document).ready(function() {
-    $j.getJSON(mybase+ "/basic",{ navn:user }, 
+    $j.getJSON(mybase+ "/basic",{ navn:user },
          function(data) {
            database = data;
            userinfo = data.userinfo;
@@ -845,8 +854,8 @@ $j(document).ready(function() {
                data.userinfo = data.ulist[0];
                s += '<div class="gradback centered sized1"><table class="summary"><caption>'+data.ulist.length+'</caption><tr>' + $j.map(data.ulist,function(e,i) {
                     e.gr = e.gr || '';
-                    return ('<td><a href="?navn='+e.firstname 
-                      + ' ' + e.lastname+'">' + e.firstname + ' ' + e.lastname +  '</a></td><td>' 
+                    return ('<td><a href="?navn='+e.firstname
+                      + ' ' + e.lastname+'">' + e.firstname + ' ' + e.lastname +  '</a></td><td>'
                       + e.department + '</td><td> ' + e.institution +'</td><td>'+ e.gr + '</td>');
                  }).join('</tr><tr>') + '</tr></table></div>';
                action = 'velg';
@@ -902,7 +911,7 @@ $j(document).ready(function() {
     $j("#alleprover").addClass("disabled");
     // this is disabled until we have loaded all tests
     // will only show if response from mysql is slow
-    $j.getJSON(mybase+ "/alltests", 
+    $j.getJSON(mybase+ "/alltests",
          function(data) {
             alleprover = data;
             $j("#alleprover").click(function(event) {
@@ -935,7 +944,7 @@ $j(document).ready(function() {
     $j("#denne").click(function(event) {
         event.preventDefault();
         show_thisweek();
-    }); 
+    });
     $j("#timeplaner").click(function(event) {
         event.preventDefault();
         valg = 'elev';
@@ -943,7 +952,7 @@ $j(document).ready(function() {
     });
     $j("#logout").click(function(event) {
         event.preventDefault();
-        $j.get(mybase+ "/logout"); 
+        $j.get(mybase+ "/logout");
         inlogged = false;
         window.location= mybase;
     });

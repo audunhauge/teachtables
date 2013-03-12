@@ -279,10 +279,6 @@ function questEditor(clusterlist) {
   });
 }
 
-function subscribe() {
-  console.log(database.subscribe);
-}
-
 function tellme(s) {
     if (startup) {
         alert(s);

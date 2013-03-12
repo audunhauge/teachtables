@@ -1198,39 +1198,52 @@ var qz = {
                           simple = false;  // callback done after sympy is finished
                                  // fixup for 3x => 3*x etc
                           var completed = { comp:0, lock:0 };
-                          var ufu  =  sympify(tch);    // user supplied function
-                          var fafu =  sympify(uatxt);  // fasit function/expression
-                          var intro = '# coding=utf-8\n'
-                                 + 'from sympy import *\n';
-                          var text = 'x = Symbol("x")\n'
-                                 +   'a=sympify("'+ufu+'")\n'
-                                 +   'b=sympify("'+fafu+'")\n'
-                                 +   'c=a-b\n'
-                                 +   'print simplify(c)\n';
-                          var now = new Date().getTime();
-                          var score = 0;
-                          console.log(intro+text);
-                          fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
-                             if (err) { callback(score,'error1'); throw err; }
-                              try {
-                               var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
-                                 fs.unlink('/tmp/symp'+now);
-                                 console.log("err=",stderr,"out=",stdout,"SOO");
-                                 if (error) {
-                                   console.log(error,stderr);
-                                   callback(score,'error2');
-                                 } else {
-                                   if (stdout && stdout != '') {
-                                     console.log(stdout);
-                                     score = (stdout.trim() == '0') ? 1 : 0;
-                                   }
-                                   callback(score,stdout,completed);
+                          if (uatxt == undefined || uatxt == '') {
+                            callback(score,'no input',completed);
+                          } else {
+                               var ufu  =  sympify(tch);    // user supplied function
+                               var fafu =  sympify(uatxt);  // fasit function/expression
+                               var intro = '# coding=utf-8\n'
+                                     + 'from sympy import *\n';
+                               var text = 'x = Symbol("x")\n'
+                                     +   'a=sympify("'+ufu+'")\n'
+                                     +   'b=sympify("'+fafu+'")\n'
+                                     +   'c=a-b\n'
+                                     +   'print simplify(c)\n';
+                               var now = new Date().getTime();
+                               var score = 0;
+                               console.log(intro+text);
+                               fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
+                                 if (err) { callback(score,'error1'); throw err; }
+                                  try {
+                                   var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
+                                     fs.unlink('/tmp/symp'+now);
+                                     console.log("err=",stderr,"out=",stdout,"SOO");
+                                     if (error) {
+                                       console.log(error,stderr);
+                                       callback(score,'error2',completed);
+                                     } else {
+                                       if (stdout && stdout != '') {
+                                         console.log(stdout);
+                                         var eta = +stdout.trim();
+                                         if (eta == 0 || Math.abs(eta) < 0.001 ) {
+                                           score = 1
+                                         } else {
+                                           score = 0;
+                                         }
+                                         var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
+                                         var adjust = score * (1 - cutcost - hintcost*hintcount);
+                                         //console.log(qgrade,adjust,attnum,cost);
+                                         score = aquest.points * Math.max(0,adjust);
+                                       }
+                                       callback(score,stdout,completed);
+                                     }
+                                   });
+                                 } catch(err) {
+                                       callback(score,'error3',completed);
                                  }
                                });
-                             } catch(err) {
-                                   callback(score,'error3',completed);
-                             }
-                          });
+                          }
                          break;
                        case 'eva:':
                          //   eva:exp,a,b       the answer x is scored as eval(x) == exp, for 20 rand in [a,b]

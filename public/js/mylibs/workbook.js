@@ -1013,8 +1013,10 @@ function edqlist() {
     var taggis = {};
     var subject = wbinfo.coursename.split('_')[0];
     var containername = wbinfo.trail;
-    containername = containername[containername.length-1].name;
-    subject = subject + ','+containername;
+    if (containername && containername.length) {
+      containername = containername[containername.length-1].name;
+      subject = subject + ','+containername;
+    }
     $j.getJSON(mybase+'/gettags', { subject:subject }, function(tags) {
          var mytags = tags[userinfo.id] || [];
          var tlist = [];
@@ -1092,6 +1094,7 @@ function edqlist() {
                           var duup = already ? 'duup' : '';
                           shorttext = shorttext.replace(/</g,'&lt;');
                           shorttext = shorttext.replace(/>/g,'&gt;');
+                          shorttext = shorttext.toLowerCase();
                           var tit = tagsforq[qqa.id].join(',');
                           var qdiv = '<div title="'+tit+'" class="equest listqq '+statusclass+duup+'" id="zqq_'+qqa.id+'"><span class="qid">'
                                      + qqa.id+ '</span><span class="img img'+qqa.qtype+'"></span>'
