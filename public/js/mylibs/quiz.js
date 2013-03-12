@@ -33,6 +33,7 @@ function hsv2rgb(h, s, v) {
     }).join('');
 }
 
+var statuscolor = "111,77f,7f7,7ff,f00".split(',');
 var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png"};
 var qparam = { tag:'any', subj:'all', filter:"multiple", joy:"only", limit:"17", keyword:"all" };
 var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric'.split(' ');
@@ -118,7 +119,7 @@ function showinfo(ty,lim,fil) {
     if (cluster[star] < +qparam.limit) continue;
     var q = questions[star];
     if (qparam.filter != 'all' && q && q.qtype != qparam.filter) continue;
-    if (qparam.subj != 'all' && q && q.subject != qparam.subj) continue;
+    if ((qparam.subj == 'empty' && q.subject != '' ) || qparam.subj != 'all' && q && q.subject != qparam.subj) continue;
     if (clusterlist.indexOf(star) >= 0) continue;  // already in list
     clusterlist.push(star);
   }
@@ -140,7 +141,7 @@ function show_unsynced(qmatched) {
     svg.selectAll("circle")
        .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return (qmatched[ty]) ? "yellow" : teachcolors(q.origin); } )
        //.style("stroke", function(d,i) { return (qmatched[d.name]) ? "#ff3322" : "#222"; } )
-       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } );
+       //.style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } );
 }
 
 function makeMarks(qmatched) {
@@ -148,8 +149,10 @@ function makeMarks(qmatched) {
   // and returns list of matched questions given filter-settings
     svg.selectAll("circle")
        .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return (qmatched[ty]) ? "yellow" : teachcolors(q.origin); } )
-       .style("stroke", function(d,i) { return (qmatched[d.name]) ? "#ff3322" : "#222"; } )
-       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "3.5px" : "1.5px"; } );
+       //.style("stroke", function(d,i) { return (qmatched[d.name]) ? "#ff3322" : "#222"; } )
+       .style("stroke-width",function(d,i) { return (qmatched[d.name]) ? "4.0px" : "1.5px"; } )
+       .style("stroke", function(d,i){ var ty = d.name; var q = questions[ty]; return (qmatched[d.name]) ? "#da2" :statuscolor[q.status]; } )
+       ;
 
     var clusterlist = [];       // array of connected questions
     for (var star in qmatched) {
@@ -632,6 +635,8 @@ function makeForcePlot(filter,limit,keyword,subj) {
             .enter().append("svg:circle")
               .attr("r", 9)
               .attr("fill-opacity", 0.15)
+              .style("stroke", function(d,i){ var ty = d.name; var q = questions[ty]; return statuscolor[q.status]; } )
+              .style("stroke-width",function(d,i) { var ty = d.name; var q = questions[ty]; return (1+ +q.status)+"px"; } )
               .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return teachcolors(q.origin); } )
               .on("click",function(d,i) { showinfo(d.name,qparam.limit,qparam.filter); } )
               .call(force.drag);

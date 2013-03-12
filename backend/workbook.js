@@ -1649,18 +1649,30 @@ exports.editqncontainer = function(user,query,callback) {
                        + " where q.qtype='quiz' and q.id in ("+nuqs+" ) and q.teachid=$1", [teachid],
               after(function(existing) {
                   // existing is list of quiz ids already used
-                  // so instead of just inserting these quiz-es  we duplicate them and insert the dups
+                  // WE ONLY DO ONE QUIZ any others just dropped
+                  // so instead of just inserting this quiz  we duplicate it and insert the dups
                   // ANY other questions are just dropped
                   if (existing && existing.rows && existing.rows.length) {
                       console.log("Already quiz ",existing.rows);
-                      var givenqlist = existing.rows.map(function (e) {
-                          return e.id;
-                      });
-                      console.log(givenqlist);
+                      var dupcon = existing.rows[0].id;
+                      console.log("Duplicating",dupcon);
                       client.query( "insert into quiz_question (name,points,qtype,qtext,qfasit,teachid,created,modified,parent,subject) "
                                     + " select  name,points,qtype,qtext,qfasit,"+teachid+",created,"+(now.getTime())+",id,subject  "
-                                    + " from quiz_question q where q.status != 9 and q.id in ("+givenqlist+") returning id ",
+                                    + " from quiz_question q where q.status != 9 and q.id = "+dupcon+" returning id ",
                         after(function(results) {
+                          var nucon = results.rows[0].id;
+                          // duplicate link to contained questions
+                          //   this doesnt duplicate contained questions
+                          //   but inserts record in question_container that
+                          //   shows this question used in this quiz
+                          client.query( "select c.qid from question_container c where c.cid =$1", [dupcon],
+                            after(function(conttq) {
+                               var contained = conttq.rows.map(function (e) {
+                                 return e.qid;
+                               });
+                               var nuqids = '(' + contained.join(','+nucon+'),(') + ',' + nucon+')';
+                               client.query( "insert into question_container (qid,cid) values " + nuqids);
+                            }));
                           // duplicate the tags
                           client.query( " insert into quiz_qtag select qt.tid,q.id from quiz_question q "
                               + " inner join quiz_qtag qt on (q.parent = qt.qid) "

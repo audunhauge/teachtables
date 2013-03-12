@@ -316,6 +316,10 @@ ul.prliste {
 }
 
 
+.bluelined {
+    border-bottom: solid blue 2px;
+}
+
 .catt0, .catt1, .catt2, .catt3, .catt4, .catt10, .catt11, .catt12 {
   font-size:0.9em;
 }
@@ -1154,6 +1158,10 @@ div.tinyohd {
 
 .greenfont {
     color:green !important;
+}
+
+.bluefont {
+    color:blue !important;
 }
 
 .pinkfont {

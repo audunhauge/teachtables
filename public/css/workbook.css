@@ -745,19 +745,31 @@ div.grademe {
 }
 
 div.studnote, div.teachnote {
-    position:absolute;
-    background:transparent url(img/studnote.png) no-repeat;
-    top:25px;
-    right:-20px;
-    width:45px;
-    height:45px;
-    font-size:0px;
+    color:#393;
+    border:solid rgba(30,100,0,0.2) 1px;
+    margin-left:22px;
+    white-space:pre-wrap;
+    max-width:400px;
 }
 
 div.teachnote {
-    background:transparent url(img/teachnote.png) no-repeat;
-    top:45px;
-    right:-25px;
+    color:#339;
+}
+
+div.studnote:before {
+  content:'S:';
+  display:block;
+  position:absolute;
+  color:blue;
+  left:3px;
+}
+
+div.teachnote:before {
+  content:'T:';
+  display:block;
+  position:absolute;
+  color:red;
+  left:3px;
 }
 
 div.question:hover  div.grademe {
