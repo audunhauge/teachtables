@@ -950,6 +950,9 @@ function edqlist() {
     $j("#qlist").html(dia);
     var taggis = {};
     var subject = wbinfo.coursename.split('_')[0];
+    var containername = wbinfo.trail;
+    containername = containername[containername.length-1].name;
+    subject = subject + ','+containername;
     $j.getJSON(mybase+'/gettags', { subject:subject }, function(tags) {
          var mytags = tags[userinfo.id] || [];
          var tlist = [];

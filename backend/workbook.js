@@ -433,10 +433,11 @@ exports.edittags = function(user,query,callback) {
 exports.gettags = function(user,query,callback) {
   // returns all tags for a subject { teachid:[tag,..], ... }
   var uid    = user.id;
-  var subject = query.subject;
   var tags = {};
+  var subjects = query.subject.split(',');
+  var sublist = "( '" + subjects.join("','") + "' )";
   client.query( "select distinct q.teachid,t.tagname from quiz_tag t inner join quiz_qtag qt on (qt.tid=t.id) inner join quiz_question q on (q.id = qt.qid) "
-      + " where q.teachid = $1 and q.subject=$2 and q.status != 9 order by t.tagname ", [uid,subject],
+      + " where q.teachid = $1 and q.subject in "+sublist+" and q.status != 9 order by t.tagname ", [uid],
   after(function(results) {
       if (results && results.rows && results.rows[0]) {
         for (var i=0,l=results.rows.length; i<l; i++) {
@@ -540,7 +541,8 @@ exports.gettagsq = function(user,query,callback) {
 exports.getquesttags = function(user,query,callback) {
   // returns all questions with given tags
   // returns { tagname:{ teachid:[qid,..], ... }
-  var subject = query.subject;
+  var subjects = query.subject.split(',');
+  var sublist = "( '" + subjects.join("','") + "' )";
   if (user.department != 'Undervisning') {
       callback(null);
       return;
@@ -551,7 +553,8 @@ exports.getquesttags = function(user,query,callback) {
   if (tagstring == 'non') {
     var qtlist = { 'non':[] };
     client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
-        + " where qt.qid is null and q.teachid=$1 and q.subject=$2 and q.status != 9 order by modified desc", [uid,subject],
+        + " where qt.qid is null and q.teachid=$1 and q.subject in "+sublist
+        + " and q.status != 9 order by modified desc", [uid],
     after(function(results) {
         if (results && results.rows && results.rows[0]) {
           for (var i=0,l=results.rows.length; i<l; i++) {
@@ -567,7 +570,8 @@ exports.getquesttags = function(user,query,callback) {
     var tags = " ( '" + tagstring.split(',').join("','") + "' )";
     var qtlist = {};
     client.query( "select q.id,q.qtype,q.qtext,q.name,q.status,q.teachid,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
-        + " inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and q.subject=$2 and q.status != 9 and t.tagname in  " + tags,[ uid,subject ],
+        + " inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and q.subject in "+sublist
+        + " and q.status != 9 and t.tagname in  " + tags,[ uid ],
     after(function(results) {
         //console.log("GETQTAG ",results.rows);
         if (results && results.rows && results.rows[0]) {
