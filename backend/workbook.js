@@ -1270,6 +1270,7 @@ exports.update_subscription = function(user) {
           for (var su in sub[tea] ) {
               var sql = "select id from quiz_question where status != 9 and teachid=$1 and parent = 0 and qtype != 'quiz' and subject=$2 "
                        + " and id not in (select parent from quiz_question where status != 9 and parent != 0 and teachid=$3 and subject = $2) ";
+              console.log("SUBSCRIBING:",sql,tea,su,user.id);
               client.query( sql, [tea,su,user.id],
               after(function(results) {
                     if (results.rows && results.rows.length) {
