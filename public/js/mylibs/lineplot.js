@@ -4,7 +4,7 @@ function normalizeFunction(txt,nosubst) {
   nosubst = (typeof nosubst != "undefined") ? 1 : 0;
   var fu = txt.replace(/ /g,'').replace(/exp/gm,'©');
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
-      fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } ); 
+      fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
       fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });
       fu = fu.replace(/tt/gm,'t*t');
       fu = fu.replace(/tt/gm,'t*t');
@@ -104,7 +104,7 @@ function lineplot(param) {
   if (jitter) {
     for (i=0; i< data.length; i++) {
       dat = data[i];
-      for (j= 0; j < dat.length; j++) { 
+      for (j= 0; j < dat.length; j++) {
         dat[j] += jitter*(Math.random()-0.5);
       }
     }
@@ -131,14 +131,14 @@ function lineplot(param) {
           .attr("transform", "translate(0, "+h+")") ,
       line = d3.svg.line()
           .x(function(d,i) { return x(iix(i)); })
-          .y(function(d) { if(isNaN(d)) { return h+10;}; 
+          .y(function(d) { if(isNaN(d)) { return h+10;};
                            if (+d < (yrange[0]-2) ) return h+10;
                            if (+d > (yrange[1]+2) ) return -h-10;
                            return -1 * y(d); });
 
   // plotting
   if (interpolate) line.interpolate(interpolate);
-    // draw the line thru points 
+    // draw the line thru points
   if (drawline || !datapoints) {
     for (i=0; i< data.length; i++) {
       var dat = data[i];
@@ -146,8 +146,13 @@ function lineplot(param) {
     }
   }
 
+  var lineFunction = d3.svg.line()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .interpolate("linear");
+
   // mark the datapoint
-  if (datapoints) 
+  if (datapoints)
     for (var ii=0; ii< data.length; ii++) {
       var dat = data[ii];
       for (var jj=0; jj< dat.length; jj++) {
@@ -159,6 +164,26 @@ function lineplot(param) {
         .attr("r", 1)
       }
     }
+
+    /*
+  if (param.vectors) {
+    console.log("some vectors found",param.vectors);
+    // assumed to be [    [a,b,c,d], ....     ]
+    for (var pp=0; pp< param.vectors.length; pp++) {
+      var poi = param.vectors[pp];
+      var pp0x = poi[0];
+      var pp0y = poi[1];
+      var pp1x = poi[2];
+      var pp1y = poi[3];
+      //g.append("svg:path").attr("d", line(dat)).attr("stroke",plotcolors(i) );
+      g.append("path")
+                 .attr("d", lineFunction(lineData))
+                 .attr("stroke", "blue")
+                 .attr("stroke-width", 2)
+                 .attr("fill", "none");
+    }
+  }
+  */
 
   if (param.points) {
     //console.log("some points found",param.points);
@@ -223,14 +248,14 @@ function lineplot(param) {
     }
 
   }
-  
+
     // x-axis
   var xp = -1*y(0);
   xp = (xp < 0) ? xp : -5;
-  xp = (xp > -h) ? xp : -5; 
+  xp = (xp > -h) ? xp : -5;
   var yp = x(0);
   yp = (yp > 0) ? yp : 5;
-  yp = (yp < w) ? yp : 5; 
+  yp = (yp < w) ? yp : 5;
   g.append("svg:line")
       .attr("x1", x(iix(0)))
       .attr("y1", xp)
@@ -247,7 +272,7 @@ function lineplot(param) {
       .attr("y2", -1 * y(yrange[1]))
       .attr("stroke", "black" )
       .attr("stroke-width", 0.3)
-  
+
   if (w>100 && h>100) {
     // only draw ticks and labels if
     // plot is reasonably big
@@ -275,7 +300,7 @@ function lineplot(param) {
         .attr("text-anchor", "right")
         .attr("dy", -2)
         .attr("dx", 2)
-    
+
     g.selectAll(".xTicks")
         .data(x.ticks(xticks))
         .enter().append("svg:line")
@@ -447,10 +472,10 @@ function vfield(param) {
     }
 
   }
-  
+
     // x-axis
-  var xp =  -margin; 
-  var yp =  margin; 
+  var xp =  -margin;
+  var yp =  margin;
   g.append("svg:line")
       .attr("x1", x(iix(0)))
       .attr("y1", -margin)
@@ -481,7 +506,7 @@ function vfield(param) {
       .attr("y2", -1 * y(yrange[1]))
       .attr("stroke", "black" )
       .attr("stroke-width", 0.3)
-  
+
   if (w>100 && h>100) {
     // only draw ticks and labels if
     // plot is reasonably big
@@ -509,7 +534,7 @@ function vfield(param) {
         .attr("text-anchor", "right")
         .attr("dy", -2)
         .attr("dx", 2)
-    
+
     g.selectAll(".xTicks")
         .data(x.ticks(xticks))
         .enter().append("svg:line")

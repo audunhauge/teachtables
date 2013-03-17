@@ -12,7 +12,6 @@ var client = siteinf.client;
 var after = require('./utils').after;
 var saveconf = require('./user').save_config;
 
-
 var parseJSON = exports.parseJSON = function (str) {
   // take just about any string - ignore errors
   if (str && str != '') {

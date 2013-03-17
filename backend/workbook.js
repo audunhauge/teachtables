@@ -373,7 +373,7 @@ exports.edittags = function(user,query,callback) {
         }
         break;
       case 'untag':
-        console.log("delete from quiz_qtag qt using quiz_tag t where t.tagname=$2 and t.id = qt.tid and qt.qid in ("+qidlist+") ",teachid,tagname);
+        console.log("delete from quiz_qtag qt using quiz_tag t where t.tagname=$1 and t.id = qt.tid and qt.qid in ("+qidlist+") ",tagname);
         if (qidlist) {
           client.query("delete from quiz_qtag qt using quiz_tag t where t.tagname=$1 and t.id = qt.tid and qt.qid in ("+qidlist+") "
             , [tagname],
