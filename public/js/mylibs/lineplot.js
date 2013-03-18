@@ -48,6 +48,8 @@ function lineplot(param) {
 
   var funs,f,fu,ufu,i,j,t,py,dat,futs;
 
+  // define arrow-head symbol
+
   if (param.userfu) {      // functions picked from text input on page
     funs = param.userfu;
     for (f= 0; f<funs.length; f++) {
@@ -136,6 +138,19 @@ function lineplot(param) {
                            if (+d > (yrange[1]+2) ) return -h-10;
                            return -1 * y(d); });
 
+  vis.append("marker")
+      .attr("id", "arrowhead")
+      .attr("refX", 9)
+      .attr("refY", 5)
+      .attr("viewBox","0 0 10 10")
+      .attr("markerWidth", 4)
+      .attr("markerHeight", 3)
+      .attr("markerUnits", "strokeWidth")
+      .attr("fill","white" )
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0 0 L 10 5 L 0 10 Z");
+
   // plotting
   if (interpolate) line.interpolate(interpolate);
     // draw the line thru points
@@ -146,10 +161,6 @@ function lineplot(param) {
     }
   }
 
-  var lineFunction = d3.svg.line()
-        .x(function(d) { return d.x; })
-        .y(function(d) { return d.y; })
-        .interpolate("linear");
 
   // mark the datapoint
   if (datapoints)
@@ -165,25 +176,30 @@ function lineplot(param) {
       }
     }
 
-    /*
+    //*
   if (param.vectors) {
     console.log("some vectors found",param.vectors);
     // assumed to be [    [a,b,c,d], ....     ]
     for (var pp=0; pp< param.vectors.length; pp++) {
       var poi = param.vectors[pp];
-      var pp0x = poi[0];
-      var pp0y = poi[1];
-      var pp1x = poi[2];
-      var pp1y = poi[3];
-      //g.append("svg:path").attr("d", line(dat)).attr("stroke",plotcolors(i) );
-      g.append("path")
-                 .attr("d", lineFunction(lineData))
-                 .attr("stroke", "blue")
-                 .attr("stroke-width", 2)
-                 .attr("fill", "none");
+      var d1 = {}, d2 = {};
+      d1.x = x(poi[0]);
+      d1.y = y(poi[1]);
+      d2.x = x(poi[2]);
+      d2.y = y(poi[3]);
+      g.append("svg:line")
+        .attr("x1",d1.x)
+        .attr("y1",-1*d1.y)
+        .attr("stroke", plotcolors(pp) )
+        .attr("x2", d2.x)
+        .attr("y2", -1*d2.y)
+        .attr("fill", "black")
+        .attr("stroke-width", 2)
+        .attr("marker-end", "url(#arrowhead)")
+        ;
     }
   }
-  */
+  // */
 
   if (param.points) {
     //console.log("some points found",param.points);

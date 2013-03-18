@@ -21,6 +21,10 @@
   min-height:200px;
 }
 
+marker#arrowhead {
+      stroke: #000;
+    }
+
 
 .sparkline {
     position:relative;

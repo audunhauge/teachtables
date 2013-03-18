@@ -1089,7 +1089,7 @@ var qz = {
            // contopt - options for this container - sent from user web page
            var feedback = '';  // default feedback
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
-           var symb = {};
+           var gsymb = {};
            if (contopt.trinn == "1" && qobj.code && qobj.code.indexOf('control') >= 0) {
                console.log("GRADING -",contopt);
                // control = 1  \n limit = 0.9 assumed to be in code section
@@ -1104,11 +1104,11 @@ var qz = {
                // So q1 correctly answered will cause q2,q3,q4 to be correctly answered
                // and student can skip these (reciving full score)
                // failing q1 will open q2 q3 q4 wich will baby-step student to correct solution
-               symb.limit = 0.9; // grade needed to set completed for all the rest
-               symb.skip = 0;    // how many questions to mark as completed, 0 => all the remaining
-               symb.lock = 0;    // this question needs to be answered correctly to continue with remaining
+               gsymb.limit = 0.9; // grade needed to set completed for all the rest
+               gsymb.skip = 0;    // how many questions to mark as completed, 0 => all the remaining
+               gsymb.lock = 0;    // this question needs to be answered correctly to continue with remaining
                                  //    used as password/lock
-               symb.key = '';    // this question depends on key question (may be in other quiz)
+               gsymb.key = '';    // this question depends on key question (may be in other quiz)
                var text = qobj.code.trim();
                if (text != '' ) {
                  var lines = text.split(/\n/);
@@ -1120,7 +1120,7 @@ var qz = {
                    if ("limskiplockey".indexOf(exp.substr(0,3)) == -1) continue;
                    // ignore any javascript not related to locking a container
                    try {
-                       with(symb){ eval('('+exp+')') };
+                       with(gsymb){ eval('('+exp+')') };
                    } catch(err) {
                            //console.log("EVAL-ERROR err=",err," EXPRESSION=",exp,":::");
                    }
@@ -1149,6 +1149,9 @@ var qz = {
            if (!ua) {
              ua = [];
            }
+           //symb.con = {}; symb.con.ua = ua;
+           //console.log(qz.containers[container]);
+           //console.log("TESTING USERANSWER AS SYMBOL",symb);
            switch(aquest.qtype) {
              case 'numeric':
                  //var fasit = qobj.fasit;
@@ -1618,19 +1621,19 @@ var qz = {
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
              var completed = { comp:0, lock:0 };
-             console.log(symb);
-             if (symb.lock && symb.limit && symb.limit <= qgrade) {
+             console.log(gsymb);
+             if (gsymb.lock && gsymb.limit && gsymb.limit <= qgrade) {
                completed.lock = 1;
              }
-             if (symb.key) {
+             if (gsymb.key) {
                  // this question is unanswerable until question aa:bb is answered
                  //   in container aa there is a question with name bb
                  //   if this has a score > 0 then accept answer
                  completed.lock = 1;
-                 var keyel = symb.key.split(':');
+                 var keyel = gsymb.key.split(':');
                  var cname = keyel[0];
                  var qname = keyel[1] || '';
-                 feedback = 'Must complete: '+symb.key+' (container:question)';
+                 feedback = 'Must complete: '+gsymb.key+' (container:question)';
                  var sql = 'select  u.score,u.id,c.name from quiz_question q inner join quiz_useranswer u on (q.id = u.qid) '
                         +  ' inner join quiz_question c on (u.cid = c.id) where q.name=$1 and c.name=$2 and u.userid=$3';
                 client.query( sql,[ qname,cname,user.id],
@@ -1649,9 +1652,9 @@ var qz = {
 
                   }));
              } else {
-                 if (symb.limit && symb.limit <= qgrade) {
+                 if (gsymb.limit && gsymb.limit <= qgrade) {
                   var tempq = parseJSON(aquiz.qtext);
-                  var skip = symb.skip ? symb.skip : tempq.qlistorder.length;
+                  var skip = gsymb.skip ? gsymb.skip : tempq.qlistorder.length;
                   remaining = tempq.qlistorder.slice(instance+1,instance+skip+1);
                   console.log("UNLOCK ALL",instance,remaining,tempq.qlistorder);
                   completed.comp = 1;
