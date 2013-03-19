@@ -1145,7 +1145,9 @@ exports.studresetcontainer = function(user,query,callback) {
       after(function(results) {
            var containerq = results.rows[0];    // quiz-container as stored for this user
            if (containerq) {
-            client.query( "select q.* from quiz_question q where q.status < 2 and q.id =$1",[ container ],
+            // NOTE here we ignore status for container - any deleted containers
+            // or containers with status != 0,1 must work here anyway.
+            client.query( "select q.* from quiz_question q where q.id =$1",[ container ],
             after(function(master) {
               var masterq = master.rows[0];        // current version of quiz-container
               var moo = parseJSON(masterq.qtext);
@@ -1270,7 +1272,7 @@ exports.update_subscription = function(user) {
           for (var su in sub[tea] ) {
               var sql = "select id from quiz_question where status != 9 and teachid=$1 and parent = 0 and qtype != 'quiz' and subject=$2 "
                        + " and id not in (select parent from quiz_question where status != 9 and parent != 0 and teachid=$3 and subject = $2) ";
-              console.log("SUBSCRIBING:",sql,tea,su,user.id);
+              //console.log("SUBSCRIBING:",sql,tea,su,user.id);
               client.query( sql, [tea,su,user.id],
               after(function(results) {
                     if (results.rows && results.rows.length) {

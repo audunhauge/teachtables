@@ -802,6 +802,10 @@ function renderPage() {
                     $j("#qlistbox").undelegate(".grademe","click");
                     $j("#qlistbox").delegate(".grademe","click", function() {
                         var myid = $j(this).parent().attr("id");
+                        if (myid == undefined) {
+                            $j("#quiz").html("Feil i html for dette spørsmålet ...");
+                            return;
+                        }
                         $j("#"+myid+" div.gradebutton").html("Lagrer..");
                         $j("#"+myid+" div.gradebutton").addClass("working");
                         var elm = myid.substr(5).split('_');  // fetch questionid and instance id (is equal to index in display-list)
