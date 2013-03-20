@@ -622,6 +622,7 @@ exports.getquestion = function(user,query,callback) {
               // restore original text
               qu.display = qobj.origtext;
             }
+            qu.qlistorder = qobj.qlistorder;
             qu.fasit = qobj.fasit;
             qu.cats = qobj.cats;
             qu.options = qobj.options;

@@ -890,6 +890,8 @@ function generateQlist(qlist) {
           var qu = qlist[qi];
           ql[qu.id] = qu;
         }
+        // check if each question is in qlistorder
+        // missing questions will be added to qlistorder
         for (var qi in ql) {
           var hit = false;
           for (var qli in wbinfo.qlistorder) {
@@ -1358,6 +1360,7 @@ function editquestion(myid, target) {
    dialog.hints = q.hints || '';
    dialog.daze = q.daze || '';
    dialog.contopt = q.contopt || {};
+   dialog.qlistorder = q.qlistorder;
    var statlist = "Normal,Partial,Testing,Fixme,Error".split(',');
    var stat = statlist[q.status];
    var status = makeSelect('status',stat,statlist);
@@ -1539,8 +1542,13 @@ function editquestion(myid, target) {
         var qstatustxt = $j("select[name=status]").val();
         var qstatus = statlist.indexOf(qstatustxt);
         var qname = $j("input[name=qname]").val();
+        // wbinfo.courseinfo.qlistorder = trulist;
         var newqtx = { display:$j("#qdisplay").val(), options:q.options, fasit:q.fasit, code:dialog.qcode,
                         pycode:dialog.pycode, hints:dialog.hints, daze:daze, contopt:contopt };
+        if (dialog.qlistorder) {
+            newqtx.qlistorder = dialog.qlistorder;
+            // this preserves any question-list for quiz/container
+        }
         $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname, status:qstatus,
                                 qtype:qtype, points:dialog.qpoints }, function(resp) {
            editquestion(myid,target);
