@@ -1396,7 +1396,7 @@ exports.crosstable = function(user,query,callback) {
   if (isteach) {
     // get all useranswers to all questions in this quiz
           client.query(  "select q.points,q.qtype,q.name,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
-                 + " where qua.cid = $1", [ containerid ],
+                 + " where qua.cid = $1 order by id desc", [ containerid ],
           after(function(uas) {
               var rlist = [];
               for (var i=0; i<uas.rows.length; i++) {

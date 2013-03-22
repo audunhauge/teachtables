@@ -167,8 +167,11 @@ function crossResults() {
            var userlist = [];
            var questcount = {};  // count how many of each
            var userscore = {};
+           var useduser = {};  // done this user-question combo already
            for (var uai in results) {
                var ua = results[uai];
+               if (useduser[ua.qid +'_'+ua.userid]) continue;
+               useduser[ua.qid +'_'+ua.userid] = 1;
                if (ua.points == 0 || ua.qtype == 'info') continue;
                if (!cross[ua.qid]) cross[ua.qid] = {};
                cross[ua.qid][ua.userid] = ua;
@@ -176,14 +179,16 @@ function crossResults() {
                    userlist.push(ua.userid);
                }
                if (!questcount[ua.qid]) questcount[ua.qid] = { num:0, score:0 };
-               questcount[ua.qid].num++;
-               questcount[ua.qid].score += ua.score;
+               if (ua.attemptnum) {
+                 questcount[ua.qid].num++;
+                 questcount[ua.qid].score += ua.score;
+               }
                if (!userscore[ua.userid]) userscore[ua.userid] = 0;
                userscore[ua.userid] += ua.score;
            }
            var qorder = [];
            for (var q in questcount) {
-               qorder.push( {id:q, count:questcount[q].num, score:questcount[q].score});
+               qorder.push( {id:q, count:questcount[q].num, score:questcount[q].score, discrim:0 } );
            }
            qorder.sort(function(a,b) { var d = b.count - a.count; return (d) ? d : b.score-a.score;  })
 
@@ -192,9 +197,32 @@ function crossResults() {
                userorder.push( {id:u, score:userscore[u]});
            }
            userorder.sort(function(a,b) { return b.score - a.score;  })
-           console.log("USERORDER",userorder);
 
-           var ss = '<p><p><p><p><p><table><tr><th>QNR/Elev</th>';
+           // for questions answered by more than 10
+           // calculate discrimination ability (separates the studs into two groups)
+           // mark those where 40% of score is given to 5 best studs
+           var numstud = userorder.length;
+           for (var qidi in qorder) {
+               var qord = qorder[qidi];
+               if (qord.count < 10) continue;   // to few to make judgement
+               var qid = qord.id;
+               var cro = cross[qid];
+               var top5 = 0;
+               for (var uui =0; uui < 5; uui++) {
+                   var uu = userorder[uui].id;
+                   if (cro[uu]) {
+                       top5 += cro[uu].score;
+                   }
+               }
+               // now if top5 > 0.4 times total for this question then this
+               // question discriminates efficiently
+               if (qord.score > 0) { // && top5/qord.score > 10/qord.count) {
+                   qord.discrim = ((top5/qord.score) / (5/qord.count)).toFixed(1);
+               }
+           }
+
+
+           var ss = '<p><p><p><p><p><table><tr><th>QNR/Elev</th><td>DISC</td>';
            for (var uui =0; uui < userorder.length; uui++) {
               var uu = userorder[uui].id;
               var elev = id2elev[uu];
@@ -212,9 +240,23 @@ function crossResults() {
            var sumscore = {};
            var totalscore = {};
            for (var qidi in qorder) {
-               var qid = qorder[qidi].id;
+               var qord = qorder[qidi];
+               var qid = qord.id;
                var cro = cross[qid];
-               ss += '<tr><th>'+qid+'</th>';
+               var disc = '';
+               // mark questions if they discriminate well (or inverted)
+               if (qord.discrim) {
+                   if (qord.discrim > 1.2) {
+                      disc = '<span class="greenfont">'+qord.discrim+'</span>';
+                   } else if (qord.discrim < 1) {
+                      disc = '<span class="redfont">'+qord.discrim+'</span>';
+                   } else {
+                      disc = qord.discrim;
+                   }
+               }
+               var disc = qord.discrim ? ((qord.discrim > 1.2) ? '<span class="greenfont">'+qord.discrim+'</span>'
+                    : qord.discrim    ) : '';
+               ss += '<tr><th>'+qid+'</th><td>' + disc +'</td>';
                for (var uui =0; uui < userorder.length; uui++) {
                    var uu = userorder[uui].id;
                    var txt = '';
@@ -235,11 +277,11 @@ function crossResults() {
                    }
                    ss += '<td '+tclass+'>'+txt+'</td>';
                }
-               ss += '<td>'+(qorder[qidi].score.toFixed(1))+'</td>';
+               ss += '<td>'+(qord.score.toFixed(1))+'</td>';
                ss += '</tr>';
            }
            // give sum totals for each stud
-           ss += '<tr><th>Total</th>';
+           ss += '<tr><th colspan=2 >Total</th>';
            for (var uui =0; uui < userorder.length; uui++) {
                    var uu = userorder[uui].id;
                    ss += '<td>';
