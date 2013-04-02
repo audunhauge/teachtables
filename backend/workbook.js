@@ -1326,7 +1326,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
   if (givenqlist && givenqlist != '') {
     // process the specified questions
     if (isteach) {
-      sql = "select q.*,case when q.parent != 0 and q.qtext != qp.qtext then "
+      sql = "select q.*,qp.teachid as pid, case when q.parent != 0 and q.qtext != qp.qtext then "
           + " case when qp.modified > q.modified then 3 else 2 end "        // sync diff
           + " else case when q.parent != 0 then 1 else 0 end  "
           + " end as sync "
@@ -1334,20 +1334,20 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
       // sync will be 2 if parent,child differ - 1 if differ but parent older (child has recent change)
       // the teacher may decide to edit, then its nice to have diff from parent-question if its a copy
     } else {
-      sql = "select q.*,0 as sync from quiz_question q where q.id in ("+givenqlist+") ";
+      sql = "select q.*,0 as pid, 0 as sync from quiz_question q where q.id in ("+givenqlist+") ";
     }
     param = [];
     //console.log("HERE 1");
   } else {
     // pick questions from container
-    sql = (isteach) ? ( " select q.*,case when q.parent != 0 and q.qtext != qp.qtext then "
+    sql = (isteach) ? ( " select q.*,qp.teachid as pid, case when q.parent != 0 and q.qtext != qp.qtext then "
         + " case when qp.modified > q.modified then 3 else 2 end "        // sync diff
         + " else case when q.parent != 0 then 1 else 0 end  "
         + "end as sync "
         + "from quiz_question q  left join quiz_question qp on (q.parent = qp.id) where q.id in (  "
         + " select q.id from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status != 9 and qc.cid = $1 ) " )
           :
-          "select q.*,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status < 2 and qc.cid =$1";
+          "select q.*,0 as pid,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status < 2 and qc.cid =$1";
     param = [ container ];
     //console.log("HERE 2");
   }
@@ -1707,13 +1707,23 @@ exports.editqncontainer = function(user,query,callback) {
         // we assume this is tested for
         // drop a question from the container
         //console.log( "delete from question_container where cid=$1 and qid=$2 ", [container,qid]);
-        client.query( "delete from question_container where cid=$1 and qid=$2 ", [container,qid],
-        after(function(results) {
-           client.query("delete from quiz_useranswer where cid =$1 and qid=$2",[container,qid],
-           after(function(results) {
-               callback( {ok:true, msg:"dropped" } );
-           }));
-        }));
+        if (nuqs) {
+          // delete a list of questions
+          client.query( "delete from question_container where cid=$1 and qid in ("+nuqs+") ", [container],
+          after(function(results) {
+             client.query("delete from quiz_useranswer  where cid=$1 and qid in ("+nuqs+") ", [container],
+             after(function(results) {
+                 callback( {ok:true, msg:"dropped" } );
+             }));
+          }));
+        } else
+          client.query( "delete from question_container where cid=$1 and qid=$2 ", [container,qid],
+          after(function(results) {
+             client.query("delete from quiz_useranswer where cid =$1 and qid=$2",[container,qid],
+             after(function(results) {
+                 callback( {ok:true, msg:"dropped" } );
+             }));
+          }));
         break;
       default:
         callback(null);

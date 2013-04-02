@@ -1074,6 +1074,7 @@ var qz = {
            qobj.created = qu.created;
            qobj.modified = qu.modified;
            qobj.parent = qu.parent;
+           qobj.pid = qu.pid;
            return qobj;
 
          }

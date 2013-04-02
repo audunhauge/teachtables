@@ -1138,16 +1138,17 @@ function edqlist() {
                       if (mmu || !already) {
                         if (!qids[qqa.id]) {
                           qids[qqa.id] = 0;
-                          var shorttext = param.display || '&lt; no text &gt;';
+                          var shorttext = param.display || '( no text )';
                           var duup = already ? 'duup' : '';
                           shorttext = shorttext.replace(/</g,'&lt;');
                           shorttext = shorttext.replace(/>/g,'&gt;');
                           shorttext = shorttext.toLowerCase();
+                          shorttext = shorttext.replace(/['"]/g,'«');
                           var tit = tagsforq[qqa.id].join(',');
                           var qdiv = '<div title="'+tit+'" class="equest listqq '+statusclass+duup+'" id="zqq_'+qqa.id+'"><span class="qid">'
                                      + qqa.id+ '</span><span class="img img'+qqa.qtype+'"></span>'
                                      + '<span >' + qqa.qtype + '</span><span > '
-                                     + qqa.name + '</span><span >' + shorttext.substr(0,20)
+                                     + qqa.name + '</span><span title="'+shorttext+'">' + shorttext.substr(0,20)
                                      + '</span></div>';
                           qqlist.push([qqa.id,qdiv]);
                         }
@@ -1250,11 +1251,24 @@ function editbind() {
                 var myid = $j(this).parent().attr("id").split('_')[1];
                 editquestion(myid);
             });
+        $j("#sortable").undelegate("#killem","click");
+        $j("#sortable").delegate("#killem","click", function() {
+           var tagged = $j("#sortable input:checked");
+           var morituri = [];  // we who are about to die
+           for (var i=0,l=tagged.length; i<l; i++) {
+             var b = tagged[i];
+             var qid = $j(b).parent().attr("id").substr(3);
+             morituri.push(qid); // question id
+           }
+           dropquestion(morituri);
+        });
+        /*
         $j("#sortable").undelegate(".killer","click");
         $j("#sortable").delegate(".killer","click", function() {
                 var myid = $j(this).parent().attr("id");
                 dropquestion(myid);
             });
+            */
 }
 
 function workbook(coursename) {
@@ -1806,19 +1820,34 @@ function editquestion(myid, target) {
  });
 }
 
-function dropquestion(myid) {
-  var elm = myid.split('_');
-  var qid = elm[1], instance = elm[2];
-  var cnt = 0;
+function dropquestion(morituri) {
+  var dead = [];    // these we must kill
+  var remove = {};  // 1 for removed
+  var qcount = {};  // count duplicates
+  var nuorder = []; // new qlistorder after removing
   for (var id in wbinfo.qlistorder) {
-    // check for duplicates
     var qii = wbinfo.qlistorder[id];
-    if (qii == qid) cnt++;
+    if (!qcount[qii]) qcount[qii] = 0;
+    qcount[qii] ++;
   }
-  wbinfo.qlistorder.splice(instance,1);
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    remove[instance] = 1;
+    qcount[qid]--;
+    if (qcount[qid] < 1) {
+      dead.push(qid);
+    }
+  }
+  for (var i=0,l=wbinfo.qlistorder.length; i<l; i++) {
+    if (remove[i]) continue;
+    nuorder.push(wbinfo.qlistorder[i]);
+  }
+  wbinfo.qlistorder = nuorder;
   $j.post(mybase+'/editquest', { action:'update',cache:1,  qtext:wbinfo.courseinfo, qid:wbinfo.containerid }, function(resp) {
-    if (cnt == 1) {
-      $j.post(mybase+'/editqncontainer', {  action:'delete', qid:qid, container:wbinfo.containerid }, function(resp) {
+    if (dead.length != 0) {
+      $j.post(mybase+'/editqncontainer', {  action:'delete', nuqs:dead.join(','), container:wbinfo.containerid }, function(resp) {
            $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
              wbinfo.qlist = qlist.qlist;
              edqlist();
@@ -1932,6 +1961,11 @@ wb.render.normal  = {
               if (status != undefined && status != 0) {
                 statusclass = ' status'+status;
               }
+              var owner = ' title="Min"'; // name of original owner
+              if (qu.parent && qu.pid) {
+                  owner = teachers[qu.pid];
+                  owner = ' title="' + owner.firstname + '" ';
+              }
               var shorttext = qu.display || '( no text )';
               var taggy = '';
               shorttext = shorttext.replace(/</g,'&lt;');
@@ -1941,13 +1975,14 @@ wb.render.normal  = {
               }
               var tit = shorttext.replace(/['"]/g,'«');
               var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
-              if (wantlist) qdiv += '<input type="checkbox">';
-              qdiv +=      '<span class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
+              //if (wantlist) qdiv += '<input type="checkbox">';
+              qdiv += '<input type="checkbox">';
+              qdiv +=      '<span '+owner+' class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
-                         + '<span class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
+                         + '<span title="'+qu.name+'" class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
                          + '</span><span class="qpoints">'+ qu.points +'</span><div class="edme"></div>';
-              if (!wantlist) qdiv += '<div class="killer"></div>';
+              //if (!wantlist) qdiv += '<div class="killer"></div>';
               qdiv += '</div>';
               qql.push(qdiv);
             }
@@ -1968,6 +2003,8 @@ wb.render.normal  = {
                 if (wbinfo.trail == '') {
                   qq += '<p class="bigf">Anbefalt: klikk på add.';
                 }
+              } else {
+                qq += '<span id="killem">slett valgte</span>';
               }
               if (wbinfo.haveadded < 2) {
                 // first new question
@@ -2320,7 +2357,7 @@ wb.render.normal  = {
                           break;
                   }
                   var qnum = +qi + 1;
-                  var qname = (qu.name && qu.name != '') ? '<span class="questname">'+qu.name+'</span>' : '';
+                  var qname = (qu.name && qu.name != '') ? '<span title="'+qu.name+'" class="questname">'+qu.name+'</span>' : '';
                   var studnote = ''; // <div class="studnote"></div>
                   if (scored || (attempt != '' && attempt > 0))  {
                     if (userinfo.id == qu.userid || (qu.usercomment && qu.usercomment != '')) {
