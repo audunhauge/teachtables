@@ -1962,7 +1962,7 @@ wb.render.normal  = {
                 statusclass = ' status'+status;
               }
               var owner = ' title="Min"'; // name of original owner
-              if (qu.parent && qu.pid) {
+              if (qu.parent && qu.pid && teachers[qu.pid]) {
                   owner = teachers[qu.pid];
                   owner = ' title="' + owner.firstname + '" ';
               }
@@ -2009,13 +2009,11 @@ wb.render.normal  = {
               if (wbinfo.haveadded < 2) {
                 // first new question
                 qq += '<p class="bigf">For å redigere setter du markøren over et spørsmål og klikker på blyanten.'
-                   +  '  Klikk på rød running for å fjerne spørsmålet.'
+                   +  '  Marker (kryss av) og klikk på <b>slett valgte</b> rett under spørsmålslista for å slette.'
                    +  '</p><p class="bigf">For å lage en quiz endrer du spørsmålstypen til quiz, '
                    +  ' dette gjør du ved å redigere spørsmålet (blyant ved mus over) og '
-                   +  ' når redigeringsvinduet kommer fram - klikk på blyanten '
-                   +  ' under Detaljer. Nå får du et nytt vindu hvor du kan velge typer '
-                   +  ' fra en rullegardin. Velg quiz og klikk oppdater for å lage en quiz. '
-                   +  ' Klikk på den grønne Lagre knappen for å lagre endringene'
+                   +  ' når redigeringsvinduet kommer fram kan velge type '
+                   +  ' fra en rullegardin. Velg quiz og klikk på den grønne Lagre knappen'
                    +  '</p><p class="bigf">'
                    +  '<ul><li>add - lag nye spørsmål</li><li>attach - koble inn eksisterende</li>'
                    +  '<li>reset - slett besvarelser og generer nye spørsmål</li><li>regen - gjenskap elevbesvarelser med endringer</li>'
@@ -2029,7 +2027,7 @@ wb.render.normal  = {
        , qrend:function(contopt,iid,qid,qua,qrender,scorelist,callback) {
          // renderer for a single question
               //var qu = qrender[iid];
-              if (qid != qua.qid) alert("error "+qid+":"+qua.qid);
+              if (qid != qua.qid) alert("Rekkefølgen på spørsmål i denne quizen er endra - kan ikke vurdere. Lærer må ta reset.");
               var sscore = { userscore:0, maxscore:0, qdiv:'', scorelist:scorelist };
               var qdiv = wb.render.normal.displayQuest(qua,iid,contopt,sscore,1);
               var sum = 0;

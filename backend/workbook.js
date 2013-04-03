@@ -115,7 +115,7 @@ exports.editquest = function(user,query,callback) {
       case 'delete':
         if (!qidlist) qidlist = qid;
         // set status to 9 - indicates deleted
-        client.query( 'update quiz_question set status=9 where id in ('+qidlist+') and teachid=$1', [teachid],
+        client.query( "update quiz_question set status=9 where id in ('+qidlist+') and qtype != 'container' and qtype != 'quiz' and teachid=$1", [teachid],
             after(function(results) {
                 callback( {ok:true, msg:"updated"} );
             }));
@@ -284,7 +284,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                     });
                   } else {
                       console.log("Error while grading- missing user answer for displayed question");
-                      callback({score:0, att:0 } );
+                      callback({score:0, att:0,qua:{param:{display:""}} } );
                   }
           }));
         } else {
