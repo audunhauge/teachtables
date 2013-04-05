@@ -1266,6 +1266,9 @@ div.locked:before {
 div.clock:before {
   background:transparent url(img/clock-icon.png) no-repeat;
 }
+div.trinn:before {
+  background:transparent url(img/trinn.png) no-repeat;
+}
 
 span.container {
   font-size:0.8em;

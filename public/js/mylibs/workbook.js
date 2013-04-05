@@ -2181,6 +2181,9 @@ wb.render.normal  = {
                           if (mycopt && mycopt.locked == "1") {
                             return '<div class="cont quiz locked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
+                          if (mycopt && mycopt.trinn == "1") {
+                            return '<div class="cont trinn quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          }
                           return '<div class="cont quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           break;
                       case 'container':
