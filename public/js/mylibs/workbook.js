@@ -434,8 +434,11 @@ function showProgress() {
                 s += '</tr>';
                 for (var i=0,l=ulist.length; i<l; i++) {
                     var u = ulist[i];
-                    var e = getUser(u);
-                    s += '<tr><th>'+e.firstname+'</th>';
+                    var e = u;
+                    if (students[u]){
+                        e = students[u].firstname;
+                    }
+                    s += '<tr><th>'+e+'</th>';
                     for (var j=0,l=korder.length; j<l; j++) {
                         var k = korder[j];
                         var kk = (cross[u] && cross[u][k]) ? cross[u][k] : '';
