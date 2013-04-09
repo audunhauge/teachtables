@@ -432,14 +432,14 @@ function showProgress() {
                    s += '<td><div class="rel"><div class="angled stud">' + klist[k] + '</div></div></td>';
                 }
                 s += '</tr>';
-                for (var i=0,l=ulist.length; i<l; i++) {
+                for (var i=0,ul=ulist.length; i<ul; i++) {
                     var u = ulist[i];
                     var e = u;
                     if (students[u]){
                         e = students[u].firstname;
                     }
                     s += '<tr><th>'+e+'</th>';
-                    for (var j=0,l=korder.length; j<l; j++) {
+                    for (var j=0,kl=korder.length; j<kl; j++) {
                         var k = korder[j];
                         var kk = (cross[u] && cross[u][k]) ? cross[u][k] : '';
                         s += '<td> &nbsp; '+kk+'</td>'
