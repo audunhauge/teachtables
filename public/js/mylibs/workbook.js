@@ -7,7 +7,7 @@
 //       can contain (quiz,question,container)
 
 var wb = { render: {} };
-var wbinfo = { trail:[], page:{}, missing:{} , haveadded:0 };
+var wbinfo = { trail:[], page:{}, missing:{} , haveadded:0, maxscore:0 };
 // trail is breadcrumb for navigation
 // missing is number of unasnwered questions in a quiz
 // haveadded will be > 0 if teach has added a new question this session
@@ -335,6 +335,7 @@ function crossResults() {
                    });
      });
 }
+
 function longList() {
     var group;
     try {
@@ -376,6 +377,78 @@ function longList() {
      });
 }
 
+function showProgress() {
+    var course,group;
+    try {
+      course = wbinfo.coursename.split('_');
+      group = course[1];
+      course = course[0];
+    } catch(err) {
+      course = '';
+      group = '';
+    }
+    if (course && group) {
+        var elever = memberlist[group];
+        if (!elever) return;
+        wbinfo.trail.push({id:0,name:"progress" });
+        var trail = makeTrail();
+        var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
+                 +trail+'<div id="results"></div></div>';
+        $j("#main").html(s);
+        $j.get(mybase+'/progressview',{ subject:course, studlist:elever.join(',')}, function(results) {
+            if (results) {
+                var cross = {};
+                var ulist = [];
+                var klist = {};
+                var ucount = {};
+                var kcount = {};
+                var korder = [];
+                for (var i=0,l=results.length; i<l; i++) {
+                    var r = results[i];
+                    if (!cross[r.u]) {
+                        cross[r.u] = {};
+                        ulist.push(r.u);
+                    }
+                    if (!klist[r.k]) {
+                        klist[r.k] = r.n;
+                        korder.push(r.k);
+                    }
+                    cross[r.u][r.k] = r.c;
+                    if (!kcount[r.k]) {
+                        kcount[r.k] = 0;
+                    }
+                    kcount[r.k] ++;
+                    if (!ucount[r.u]) {
+                        ucount[r.u] = 0;
+                    }
+                    ucount[r.u] ++;
+                }
+                ulist.sort(function(a,b) { return ucount[b] - ucount[a];} )
+                korder.sort(function(a,b) { return kcount[b] - kcount[a];} )
+                var s = '<p><p><br><p><table>';
+                s += '<tr><th></th>';
+                for (var i=0,l=korder.length; i<l; i++) {
+                    var k = korder[i];
+                   s += '<td><div class="rel"><div class="angled stud">' + klist[k] + '</div></div></td>';
+                }
+                s += '</tr>';
+                for (var i=0,l=ulist.length; i<l; i++) {
+                    var u = ulist[i];
+                    var e = getUser(u);
+                    s += '<tr><th>'+e.firstname+'</th>';
+                    for (var j=0,l=korder.length; j<l; j++) {
+                        var k = korder[j];
+                        var kk = (cross[u] && cross[u][k]) ? cross[u][k] : '';
+                        s += '<td> &nbsp; '+kk+'</td>'
+                    }
+                    s += '</tr>';
+                }
+                s += '</table>';
+                $j("#results").html(s);
+            }
+         });
+     }
+}
 
 function showResults() {
     var group;
@@ -695,6 +768,9 @@ function renderPage() {
           delete tablets.dropvalue;
         }
     });
+    $j(".wbhead").click(function() {
+        if (userinfo.department == 'Undervisning') showProgress();
+    });
     $j("#main").undelegate("div.gethint","click");
     $j("#main").delegate("div.gethint","click", function() {
           var myid = this.id;
@@ -829,6 +905,7 @@ function renderPage() {
                 $j("#qlist").html( renderq.showlist);
                 $j("#progress").html( '<div id="page">'+pagenum+'</div><div id="maxscore">'
                             +renderq.maxscore+'</div><div id="uscore">'+renderq.uscore+'</div>');
+                wbinfo.maxscore = renderq.maxscore;
                 afterEffects();
                 if (contopt.omstart && contopt.omstart == "1") {
                     $j("#progress").append('<div title="Gi meg ett nytt sett med spørsmål" id="renew" class="gui gradebutton">Lag nye</div>');
@@ -1272,7 +1349,7 @@ function editbind() {
 }
 
 function workbook(coursename) {
-    wbinfo = { trail:[], page:{}, missing:{} , haveadded:0 };
+    wbinfo = { trail:[], page:{}, missing:{} , haveadded:0, maxscore:0 };
     wbinfo.coursename = coursename;
     wbinfo.courseid = database.cname2id[coursename];
     var plandata = courseplans[coursename];
@@ -2035,7 +2112,8 @@ wb.render.normal  = {
                 sum += scorelist[i];
               }
               callback( { sscore:sscore, sumscore:sum });
-              //$j.post('/updatecontainerscore', {  cid:wbinfo.containerid, sum:sum });
+              var quizscore = wbinfo.maxscore ? sum/wbinfo.maxscore : sum ;
+              //$j.post(mybase + '/updatecontainerscore', {  cid:wbinfo.containerid, sum:quizscore });
          }
 
        , qlist:function(container,questlist,contopt, callback) {
@@ -2187,7 +2265,7 @@ wb.render.normal  = {
                           return '<div class="cont quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           break;
                       case 'container':
-                          return '<div class="cont container" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          return '<div class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';
                           break;
                       case 'diff':
                       case 'textarea':

@@ -753,6 +753,28 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   }));
 }
 
+var progressview = exports.progressview = function(user,query,callback) {
+  // show progress for all users in this workbook
+  var subject  = query.subject;
+  var studlist = query.studlist ;  // list of student ids
+  var isteach   = (user.department == 'Undervisning');
+  var progress = [];
+  console.log("select qu.userid, qu.cid,count(qu.score) from quiz_useranswer qu inner join quiz_question q on (q.id = qu.qid) "
+      + "where q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist+") group by qu.userid,qu.cid order by userid,cid", [subject,user.id]);
+  if (isteach) {
+      client.query("select q.name as n,qu.userid as u, qu.cid as k,count(qu.score) as c "
+      + "from quiz_useranswer qu inner join quiz_question q on (q.id = qu.cid) "
+      + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist
+      + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,user.id],
+     after(function(prog) {
+         if (prog && prog.rows) {
+             progress = prog.rows;
+         }
+         callback(progress);
+     }));
+  } else callback(progress);
+}
+
 var generateforall = exports.generateforall = function(user,query,callback) {
   // generate useranswer for all users
   var container = +query.container;
