@@ -419,11 +419,12 @@ function showProgress() {
                     }
                     kcount[r.k] ++;
                     if (!ucount[r.u]) {
-                        ucount[r.u] = 0;
+                        ucount[r.u] = { count:0, score:0};
                     }
-                    ucount[r.u] ++;
+                    ucount[r.u].count += r.c;
+                    ucount[r.u].score += r.s;
                 }
-                ulist.sort(function(a,b) { return ucount[b] - ucount[a];} )
+                ulist.sort(function(a,b) { return ucount[b].score - ucount[a].score;} )
                 korder.sort(function(a,b) { return kcount[b] - kcount[a];} )
                 var s = '<p><p><br><p><table>';
                 s += '<tr><th></th>';
@@ -431,6 +432,7 @@ function showProgress() {
                     var k = korder[i];
                    s += '<td><div class="rel"><div class="angled stud">' + klist[k] + '</div></div></td>';
                 }
+                s += '<th>num</th><th>score</th><th>avg</th>';
                 s += '</tr>';
                 for (var i=0,ul=ulist.length; i<ul; i++) {
                     var u = ulist[i];
@@ -444,6 +446,8 @@ function showProgress() {
                         var kk = (cross[u] && cross[u][k]) ? cross[u][k] : '';
                         s += '<td> &nbsp; '+kk+'</td>'
                     }
+                    ucount[u].avg = ucount[u].count > 0 ? ucount[u].score / ucount[u].count : 0;
+                    s += '<td>'+ ucount[u].count + '</td><td>'+ucount[u].score.toFixed(2)+'</td><td>'+ucount[u].avg.toFixed(2)+'</td>';
                     s += '</tr>';
                 }
                 s += '</table>';
