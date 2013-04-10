@@ -990,7 +990,7 @@ $j(document).ready(function() {
         event.preventDefault();
         edit_bortfall(userinfo.id);
     });
-    $j("#quiz").click(function(event) {
+    $j("#quizedit").click(function(event) {
         event.preventDefault();
         quizDemo();
     });

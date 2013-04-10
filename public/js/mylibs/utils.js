@@ -102,7 +102,7 @@ if (!String.prototype.quote) {
         }
         return o + '"';
     };
-} 
+}
 
 if (!String.prototype.supplant) {
     String.prototype.supplant = function (o) {
@@ -175,9 +175,9 @@ function gui(elements) {
     switch (elm.type) {
       case 'yesno':
         s += '>';
-        elm.checked = (+elm.value == 1) ? ' selected="selected"' : ''; 
+        elm.checked = (+elm.value == 1) ? ' selected="selected"' : '';
         s += '<option value="1"{checked} >ja</option>'.supplant(elm);
-        elm.checked = (+elm.value == 0) ? ' selected="selected"' : ''; 
+        elm.checked = (+elm.value == 0) ? ' selected="selected"' : '';
         s += '<option value="0"{checked} >nei</option>'.supplant(elm);
         s += '</select>';
         break;
@@ -222,13 +222,13 @@ function gui(elements) {
 }
 
 function formatweekdate(jd) {
-    // given a julian day will return 3.4 - 9.4 
+    // given a julian day will return 3.4 - 9.4
     var greg = julian.jdtogregorian(jd);
     var d1 = new Date(greg.year, greg.month-1, greg.day);
     greg = julian.jdtogregorian(jd+4);
     var d2 = new Date(greg.year, greg.month-1, greg.day);
     return "" + d1.getDate() + '.' + (d1.getMonth()+1) + '-'+d2.getDate()+ '.'  + (d2.getMonth()+1);
-}    
+}
 
 function addTime(a,b) {
   // adds two hh.mm
@@ -402,26 +402,26 @@ function unflatten(data) {
                 teachtimetable[uid] = [];
               }
               teachtimetable[uid].push([day, slot, course, room, '',uid]);
-              
+
               // indexed by group name
               if (!grouptimetable[group]) {
                 grouptimetable[group] = [];
               }
               grouptimetable[group].push([day, slot, course, room,'', uid]);
-              
-              
+
+
               // indexed by room name
               if (!roomtimetable[room]) {
                 roomtimetable[room] = [];
               }
               roomtimetable[room].push([day, slot, course, room,'', uid]);
-              
+
               // indexed by coursename (course_group)
               if (!coursetimetable[course]) {
                 coursetimetable[course] = [];
               }
               coursetimetable[course].push([day, slot, course, room,'', uid]);
-          }   
+          }
   return { course:coursetimetable, room:roomtimetable, group:grouptimetable, teach:teachtimetable, stud:studtimetable  };
 
 }
@@ -479,4 +479,3 @@ var Url = {
         return string;
     }
 }
-

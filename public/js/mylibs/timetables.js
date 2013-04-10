@@ -754,10 +754,16 @@ function vis_timeplan(s,bru,filter,isuser,edit) {
            updateMemory();
        }
     });
+    /*
+    $j('#velgbruker').bind('keyup', 'down', function(){
+       var idx = $j("#velgbruker option:selected").val();
+       vis_valgt_timeplan(bru[idx],filter,isuser,isuser,edit);
+    });
     $j("#velgbruker").keyup(function() {
        var idx = $j("#velgbruker option:selected").val();
        vis_valgt_timeplan(bru[idx],filter,isuser,isuser,edit);
     });
+    */
     $j("#velgbruker").change(function() {
        var idx = $j("#velgbruker option:selected").val();
        vis_valgt_timeplan(bru[idx],filter,isuser,isuser,edit);

@@ -163,9 +163,9 @@ app.get(base+'/getquesttags',           workbook.getquesttags);
 app.get(base+'/getworkbook',            workbook.getworkbook);
 app.get(base+'/update_subscription',    workbook.update_subscription);
 app.get(base+'/gimmeahint',             workbook.gimmeahint);
-app.get(base+'/updatecontainerscore',   workbook.updatecontainerscore );
 app.get(base+'/exportcontainer',        workbook.exportcontainer );
 app.get(base+'/copyquest',              workbook.copyquest );
+app.get(base+'/progressview',           workbook.progressview );
 
 app.post(base+'/generateforall',        workbook.generateforall );
 app.post(base+'/renderq',               workbook.renderq);
@@ -182,6 +182,7 @@ app.post(base+'/updateTags',            workbook.updateTags );
 app.post(base+'/addcomment',            workbook.addcomment );
 app.post(base+'/getuseranswers',        workbook.getuseranswers);
 app.post(base+'/crosstable',            workbook.crosstable);
+app.post(base+'/updatecontainerscore',  workbook.updatecontainerscore );
 
 
 // meetings - absent - reservations
@@ -191,10 +192,10 @@ app.get(base+'/rejectmeet',             meetings.rejectmeet );
 app.get(base+'/acceptmeet',             meetings.acceptmeet );
 app.get(base+'/reserv',                 meetings.reserv );
 app.get(base+'/getabsent',              meetings.getabsent );
-app.post(base+'/makereserv',             meetings.makereserv );
+app.post(base+'/makereserv',            meetings.makereserv );
 app.post(base+'/save_excursion',        meetings.save_excursion );
 app.post(base+'/save_absent',           meetings.save_absent );
-app.post(base+'/makemeet',           meetings.makemeet );
+app.post(base+'/makemeet',              meetings.makemeet );
 
 
 
@@ -211,14 +212,14 @@ app.post(base+'/modifyplan',            plans.modifyplan );
 app.post(base+'/save_simple',           plans.save_simple );
 app.post(base+'/savehd',                plans.savehd );
 app.post(base+'/saveblokk',             plans.saveblokk );
-app.post(base+'/save_vurd',              plans.save_vurd );
-app.post(base+'/save_totfagplan',        plans.save_totfagplan );
-app.post(base+'/save_fagplan',           plans.save_fagplan );
+app.post(base+'/save_vurd',             plans.save_vurd );
+app.post(base+'/save_totfagplan',       plans.save_totfagplan );
+app.post(base+'/save_fagplan',          plans.save_fagplan );
 
 
 // timetables
 app.get(base+'/timetables',             timetables.timetables);
-app.post(base+'/save_timetable',         timetables.save_timetable);
+app.post(base+'/save_timetable',        timetables.save_timetable);
 
 
 // tests - exams
@@ -228,10 +229,10 @@ app.get(base+'/savehd',                 plans.savehd );
 
 // shows - tickets
 // get shows and sell tickets
-app.post(base+'/buytickets',          show.buytickets);
-app.post(base+'/editshow',            show.editshow );
-app.get(base+'/tickets',              show.tickets );
-app.get(base+'/show',                 show.show );                  // get list of shows for this user
+app.post(base+'/buytickets',            show.buytickets);
+app.post(base+'/editshow',              show.editshow );
+app.get(base+'/tickets',                show.tickets );
+app.get(base+'/show',                   show.show );                  // get list of shows for this user
 
 app.get(base+'/starb',                  starb.starb);                 // start page for study time
 app.get(base+'/attendance',             starb.attendance );

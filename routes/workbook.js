@@ -41,6 +41,16 @@ exports.crosstable = function(req,res) {
 
 }
 
+exports.progressview = function(req, res) {
+    // get progress rapport for this workbook
+    if (req.session.user && req.session.user.department == 'Undervisning') {
+      wb.progressview(req.session.user,req.query,function(progress) {
+         res.send(progress);
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+};
 
 exports.editquest = function(req, res) {
     // insert/update/delete a question

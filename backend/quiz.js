@@ -885,6 +885,7 @@ var qz = {
    // range(1,10,1) => [1,2,3,4,5,6,7,8,9]
    // range(1,4,0.1) => [1.0, 1.1, 1.2, 1.3 .. 3.9]
    var list = [], i=lo;
+   if (hi <= lo) return list;
    while (i<hi) {
      list.push(qz.round(i,2)); i+=step;
    }
@@ -1075,6 +1076,7 @@ var qz = {
            qobj.created = qu.created;
            qobj.modified = qu.modified;
            qobj.parent = qu.parent;
+           qobj.pid = qu.pid;
            return qobj;
 
          }

@@ -115,7 +115,7 @@ exports.editquest = function(user,query,callback) {
       case 'delete':
         if (!qidlist) qidlist = qid;
         // set status to 9 - indicates deleted
-        client.query( 'update quiz_question set status=9 where id in ('+qidlist+') and teachid=$1', [teachid],
+        client.query( "update quiz_question set status=9 where id in ('+qidlist+') and qtype != 'container' and qtype != 'quiz' and teachid=$1", [teachid],
             after(function(results) {
                 callback( {ok:true, msg:"updated"} );
             }));
@@ -284,7 +284,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                     });
                   } else {
                       console.log("Error while grading- missing user answer for displayed question");
-                      callback({score:0, att:0 } );
+                      callback({score:0, att:0,qua:{param:{display:""}} } );
                   }
           }));
         } else {
@@ -622,6 +622,7 @@ exports.getquestion = function(user,query,callback) {
               // restore original text
               qu.display = qobj.origtext;
             }
+            qu.qlistorder = qobj.qlistorder;
             qu.fasit = qobj.fasit;
             qu.cats = qobj.cats;
             qu.options = qobj.options;
@@ -750,6 +751,28 @@ exports.displayuserresponse = function(user,uid,container,callback) {
       callback(null);
     }
   }));
+}
+
+var progressview = exports.progressview = function(user,query,callback) {
+  // show progress for all users in this workbook
+  var subject  = query.subject;
+  var studlist = query.studlist ;  // list of student ids
+  var isteach   = (user.department == 'Undervisning');
+  var progress = [];
+  console.log("select qu.userid, qu.cid,count(qu.score) from quiz_useranswer qu inner join quiz_question q on (q.id = qu.qid) "
+      + "where q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist+") group by qu.userid,qu.cid order by userid,cid", [subject,user.id]);
+  if (isteach) {
+      client.query("select q.name as n,qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
+      + "from quiz_useranswer qu inner join quiz_question q on (q.id = qu.cid) "
+      + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist
+      + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,user.id],
+     after(function(prog) {
+         if (prog && prog.rows) {
+             progress = prog.rows;
+         }
+         callback(progress);
+     }));
+  } else callback(progress);
 }
 
 var generateforall = exports.generateforall = function(user,query,callback) {
@@ -1145,7 +1168,9 @@ exports.studresetcontainer = function(user,query,callback) {
       after(function(results) {
            var containerq = results.rows[0];    // quiz-container as stored for this user
            if (containerq) {
-            client.query( "select q.* from quiz_question q where q.status < 2 and q.id =$1",[ container ],
+            // NOTE here we ignore status for container - any deleted containers
+            // or containers with status != 0,1 must work here anyway.
+            client.query( "select q.* from quiz_question q where q.id =$1",[ container ],
             after(function(master) {
               var masterq = master.rows[0];        // current version of quiz-container
               var moo = parseJSON(masterq.qtext);
@@ -1322,7 +1347,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
   if (givenqlist && givenqlist != '') {
     // process the specified questions
     if (isteach) {
-      sql = "select q.*,case when q.parent != 0 and q.qtext != qp.qtext then "
+      sql = "select q.*,qp.teachid as pid, case when q.parent != 0 and q.qtext != qp.qtext then "
           + " case when qp.modified > q.modified then 3 else 2 end "        // sync diff
           + " else case when q.parent != 0 then 1 else 0 end  "
           + " end as sync "
@@ -1330,20 +1355,20 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
       // sync will be 2 if parent,child differ - 1 if differ but parent older (child has recent change)
       // the teacher may decide to edit, then its nice to have diff from parent-question if its a copy
     } else {
-      sql = "select q.*,0 as sync from quiz_question q where q.id in ("+givenqlist+") ";
+      sql = "select q.*,0 as pid, 0 as sync from quiz_question q where q.id in ("+givenqlist+") ";
     }
     param = [];
     //console.log("HERE 1");
   } else {
     // pick questions from container
-    sql = (isteach) ? ( " select q.*,case when q.parent != 0 and q.qtext != qp.qtext then "
+    sql = (isteach) ? ( " select q.*,qp.teachid as pid, case when q.parent != 0 and q.qtext != qp.qtext then "
         + " case when qp.modified > q.modified then 3 else 2 end "        // sync diff
         + " else case when q.parent != 0 then 1 else 0 end  "
         + "end as sync "
         + "from quiz_question q  left join quiz_question qp on (q.parent = qp.id) where q.id in (  "
         + " select q.id from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status != 9 and qc.cid = $1 ) " )
           :
-          "select q.*,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status < 2 and qc.cid =$1";
+          "select q.*,0 as pid,0 as sync from quiz_question q inner join question_container qc on (q.id = qc.qid) where q.status < 2 and qc.cid =$1";
     param = [ container ];
     //console.log("HERE 2");
   }
@@ -1392,7 +1417,7 @@ exports.crosstable = function(user,query,callback) {
   if (isteach) {
     // get all useranswers to all questions in this quiz
           client.query(  "select q.points,q.qtype,q.name,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
-                 + " where qua.cid = $1", [ containerid ],
+                 + " where qua.cid = $1 and qua.attemptnum > 0 order by id desc", [ containerid ],
           after(function(uas) {
               var rlist = [];
               for (var i=0; i<uas.rows.length; i++) {
@@ -1703,13 +1728,23 @@ exports.editqncontainer = function(user,query,callback) {
         // we assume this is tested for
         // drop a question from the container
         //console.log( "delete from question_container where cid=$1 and qid=$2 ", [container,qid]);
-        client.query( "delete from question_container where cid=$1 and qid=$2 ", [container,qid],
-        after(function(results) {
-           client.query("delete from quiz_useranswer where cid =$1 and qid=$2",[container,qid],
-           after(function(results) {
-               callback( {ok:true, msg:"dropped" } );
-           }));
-        }));
+        if (nuqs) {
+          // delete a list of questions
+          client.query( "delete from question_container where cid=$1 and qid in ("+nuqs+") ", [container],
+          after(function(results) {
+             client.query("delete from quiz_useranswer  where cid=$1 and qid in ("+nuqs+") ", [container],
+             after(function(results) {
+                 callback( {ok:true, msg:"dropped" } );
+             }));
+          }));
+        } else
+          client.query( "delete from question_container where cid=$1 and qid=$2 ", [container,qid],
+          after(function(results) {
+             client.query("delete from quiz_useranswer where cid =$1 and qid=$2",[container,qid],
+             after(function(results) {
+                 callback( {ok:true, msg:"dropped" } );
+             }));
+          }));
         break;
       default:
         callback(null);
