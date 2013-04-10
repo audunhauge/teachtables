@@ -11,6 +11,7 @@ var jdiff = require('./jdiff');
 var client = siteinf.client;
 var after = require('./utils').after;
 var saveconf = require('./user').save_config;
+var studans = {}; // cache of stud answers
 
 var parseJSON = exports.parseJSON = function (str) {
   // take just about any string - ignore errors
@@ -1090,7 +1091,7 @@ var qz = {
            var feedback = '';  // default feedback
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
            var gsymb = {};
-           if (contopt.trinn == "1" && qobj.code && qobj.code.indexOf('control') >= 0) {
+           if (contopt.trinn == "1" && qobj.code && (qobj.code.indexOf('control') >= 0)) {
                console.log("GRADING -",contopt);
                // control = 1  \n limit = 0.9 assumed to be in code section
                // this question can complete this set of questions if correctly answered
@@ -1126,7 +1127,7 @@ var qz = {
                    }
                  }
                }
-               //console.log("LOG: grade symb : ",symb);
+               console.log("LOG: symb : ",symb);
            }
            qobj.origtext = '' ; // only used in editor
            var simple = true;   // use the callback at end of function
@@ -1149,9 +1150,7 @@ var qz = {
            if (!ua) {
              ua = [];
            }
-           //symb.con = {}; symb.con.ua = ua;
-           //console.log(qz.containers[container]);
-           //console.log("TESTING USERANSWER AS SYMBOL",symb);
+           var now = new Date().getTime();
            switch(aquest.qtype) {
              case 'numeric':
                  //var fasit = qobj.fasit;
@@ -1212,7 +1211,6 @@ var qz = {
                                      +   'b=sympify("'+fafu+'")\n'
                                      +   'c=a-b\n'
                                      +   'print simplify(c)\n';
-                               var now = new Date().getTime();
                                var score = 0;
                                console.log(intro+text);
                                fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
@@ -1621,7 +1619,7 @@ var qz = {
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
              var completed = { comp:0, lock:0 };
-             console.log(gsymb);
+             console.log("GSYMB=",gsymb);
              if (gsymb.lock && gsymb.limit && gsymb.limit <= qgrade) {
                completed.lock = 1;
              }

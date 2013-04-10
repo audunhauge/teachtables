@@ -2127,8 +2127,10 @@ wb.render.normal  = {
                       case 'numeric':
                       case 'fillin':
                           if (qu.feedback && qu.feedback != 'none' ) {
-                            checkmarks = qu.feedback.split('');
-                            qu.feedback = '';
+                            if (/[0\-]+/.test(qu.feedback)) {
+                              checkmarks = qu.feedback.split('');
+                              qu.feedback = '';
+                            }
                           }
                           var iid = 0;
                           adjusted = adjusted.replace(/(&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
