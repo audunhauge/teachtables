@@ -392,7 +392,7 @@ function showProgress() {
         if (!elever) return;
         wbinfo.trail.push({id:0,name:"progress" });
         var trail = makeTrail();
-        var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
+        var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
                  +trail+'<div id="results"></div></div>';
         $j("#main").html(s);
         $j.get(mybase+'/progressview',{ subject:course, studlist:elever.join(',')}, function(results) {
