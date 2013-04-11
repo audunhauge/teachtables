@@ -2311,7 +2311,7 @@ wb.render.normal  = {
                       case 'numeric':
                       case 'fillin':
                           if (qu.feedback && qu.feedback != 'none' ) {
-                            if (/[0\-]+/.test(qu.feedback)) {
+                            if (/[01]+/.test(qu.feedback)) {
                               checkmarks = qu.feedback.split('');
                               qu.feedback = '';
                             }
