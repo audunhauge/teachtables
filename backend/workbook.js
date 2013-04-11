@@ -767,7 +767,7 @@ var progressview = exports.progressview = function(user,query,callback) {
      after(function(prog) {
          if (prog && prog.rows) {
              progress = prog.rows;
-             if (1 || !isteach) {
+             if (!isteach) {
                  var ii=0;
                  var remap = {};
                  for (var i=0,l=progress.length; i < l; i++) {
