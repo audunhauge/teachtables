@@ -387,6 +387,11 @@ function showProgress() {
       course = '';
       group = '';
     }
+    var teachid = 0;
+    if (database.courseteach && database.courseteach[wbinfo.coursename]) {
+        teachid = database.courseteach[wbinfo.coursename].teach[0];
+    }
+    if (teachid == 0) return;
     if (course && group) {
         var elever = memberlist[group];
         if (!elever) return;
@@ -395,7 +400,7 @@ function showProgress() {
         var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
                  +trail+'<div id="results"></div></div>';
         $j("#main").html(s);
-        $j.get(mybase+'/progressview',{ subject:course, studlist:elever.join(',')}, function(results) {
+        $j.get(mybase+'/progressview',{ teachid:teachid, subject:course, studlist:elever.join(',')}, function(results) {
             if (results) {
                 var cross = {};
                 var ulist = [];
@@ -413,7 +418,7 @@ function showProgress() {
                         klist[r.k] = r.n;
                         korder.push(r.k);
                     }
-                    cross[r.u][r.k] = r.c;
+                    cross[r.u][r.k] = r.s.toFixed(0)+':'+r.c;
                     if (!kcount[r.k]) {
                         kcount[r.k] = 0;
                     }
@@ -439,6 +444,8 @@ function showProgress() {
                     var e = u;
                     if (students[u]){
                         e = students[u].firstname;
+                    } else {
+                        e = '--';
                     }
                     s += '<tr><th>'+e+'</th>';
                     for (var j=0,kl=korder.length; j<kl; j++) {
@@ -776,7 +783,7 @@ function renderPage() {
         }
     });
     $j(".wbhead").click(function() {
-        if (userinfo.department == 'Undervisning') showProgress();
+        showProgress();
     });
     $j("#main").undelegate("div.gethint","click");
     $j("#main").delegate("div.gethint","click", function() {

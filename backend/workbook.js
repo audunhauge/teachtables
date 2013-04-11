@@ -756,21 +756,34 @@ exports.displayuserresponse = function(user,uid,container,callback) {
 var progressview = exports.progressview = function(user,query,callback) {
   // show progress for all users in this workbook
   var subject  = query.subject;
+  var teachid  = query.teachid;
   var studlist = query.studlist ;  // list of student ids
   var isteach   = (user.department == 'Undervisning');
   var progress = [];
-  if (isteach) {
       client.query("select q.name as n,qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
       + "from quiz_useranswer qu inner join quiz_question q on (q.id = qu.cid) "
       + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist
-      + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,user.id],
+      + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,teachid],
      after(function(prog) {
          if (prog && prog.rows) {
              progress = prog.rows;
+             if (1 || !isteach) {
+                 var ii=0;
+                 var remap = {};
+                 for (var i=0,l=progress.length; i < l; i++) {
+                     var r = progress[i];
+                     if (r.u != user.id) {
+                         if (!remap[r.u]) {
+                             remap[r.u] = 'anonym' + ii++;
+                         }
+                         r.u = remap[r.u];
+                     }
+
+                 }
+             }
          }
          callback(progress);
      }));
-  } else callback(progress);
 }
 
 var generateforall = exports.generateforall = function(user,query,callback) {

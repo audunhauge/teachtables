@@ -43,7 +43,7 @@ exports.crosstable = function(req,res) {
 
 exports.progressview = function(req, res) {
     // get progress rapport for this workbook
-    if (req.session.user && req.session.user.department == 'Undervisning') {
+    if (req.session.user ) {
       wb.progressview(req.session.user,req.query,function(progress) {
          res.send(progress);
       });
