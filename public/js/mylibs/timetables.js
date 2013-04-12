@@ -1107,8 +1107,8 @@ function add_tests(uid,jd) {
           if (faggrupper[fag]) {
             prover.tests[jd+day] = { shortname:fag,value:hd[fag].value };
             for (var dd=0; dd < 9; dd++) {
-              if (!prover[dd]) {    // ingen rad definert ennå
-                  prover[dd] = {};  // ny rad
+              if (!prover[dd]) {    // make new entry
+                  prover[dd] = {};
               }
               var hdf = hd[fag].value.replace('heldag','hd').replace('hovedmål','hm').replace('sidemål','sm');
               prover[dd][day] = fag + ' ' + hdf;

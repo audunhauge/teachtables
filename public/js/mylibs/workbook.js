@@ -379,6 +379,7 @@ function longList() {
 
 function showProgress() {
     var course,group;
+    var justnow = new Date();
     try {
       course = wbinfo.coursename.split('_');
       group = course[1];
@@ -418,16 +419,17 @@ function showProgress() {
                         klist[r.k] = r.n;
                         korder.push(r.k);
                     }
-                    cross[r.u][r.k] = r.s.toFixed(0)+':'+r.c;
+                    cross[r.u][r.k] = { score:r.s.toFixed(0), count:r.c, time:r.t };
                     if (!kcount[r.k]) {
                         kcount[r.k] = 0;
                     }
                     kcount[r.k] ++;
                     if (!ucount[r.u]) {
-                        ucount[r.u] = { count:0, score:0};
+                        ucount[r.u] = { count:0, score:0, last:0};
                     }
                     ucount[r.u].count += r.c;
                     ucount[r.u].score += r.s;
+                    ucount[r.u].last = Math.max(ucount[r.u].last, r.t)
                 }
                 ulist.sort(function(a,b) { return ucount[b].score - ucount[a].score;} )
                 korder.sort(function(a,b) { return kcount[b] - kcount[a];} )
@@ -437,7 +439,7 @@ function showProgress() {
                     var k = korder[i];
                    s += '<td><div class="rel"><div class="angled stud">' + klist[k] + '</div></div></td>';
                 }
-                s += '<th>num</th><th>score</th><th>avg</th>';
+                s += '<th>num</th><th>score</th><th>avg</th><th>Sist</th>';
                 s += '</tr>';
                 for (var i=0,ul=ulist.length; i<ul; i++) {
                     var u = ulist[i];
@@ -450,11 +452,26 @@ function showProgress() {
                     s += '<tr><th>'+e+'</th>';
                     for (var j=0,kl=korder.length; j<kl; j++) {
                         var k = korder[j];
-                        var kk = (cross[u] && cross[u][k]) ? cross[u][k] : '';
-                        s += '<td> &nbsp; '+kk+'</td>'
+                        var kk = (cross[u] && cross[u][k]) ? cross[u][k] : undefined;
+                        var ss = '';
+                        var klass = '';
+                        if (kk) {
+                            var color = Math.floor(Math.log(1+((justnow.getTime() - kk.time)/(1000*60*60*24))));
+                            klass = ' class="heck'+color+'" ';
+                            ss = kk.score+':'+kk.count;
+                        }
+                        s += '<td'+klass+'> &nbsp; '+ss+'</td>'
+                    }
+                    var last = '';
+                    var klass = '';
+                    if (ucount[u].last) {
+                        last = startTime( new Date(ucount[u].last));
+                        ss = Math.floor(Math.log(1+((justnow.getTime() - ucount[u].last)/(1000*60*60*24))));
+                        klass = ' class="heck'+ss+'" ';
                     }
                     ucount[u].avg = ucount[u].count > 0 ? ucount[u].score / ucount[u].count : 0;
                     s += '<td>'+ ucount[u].count + '</td><td>'+ucount[u].score.toFixed(2)+'</td><td>'+ucount[u].avg.toFixed(2)+'</td>';
+                    s += '<td'+klass+'>'+last+'</td>'
                     s += '</tr>';
                 }
                 s += '</table>';
@@ -462,6 +479,10 @@ function showProgress() {
             }
          });
      }
+}
+
+function startTime(d) {
+  return d.getDate() + '/'+(1+d.getMonth())+ '/' + ("" +d.getFullYear()).substr(2) + ' ' + d.getHours() +':'+ d.getMinutes();
 }
 
 function showResults() {
@@ -477,9 +498,6 @@ function showResults() {
     var showorder = [];   // will be sorted by choice on display page name/grade/time etc
     var displaylist = {};
     var trail = makeTrail();
-    function startTime(d) {
-      return d.getDate() + '/'+(1+d.getMonth())+ '/' + ("" +d.getFullYear()).substr(2) + ' ' + d.getHours() +':'+ d.getMinutes();
-    }
     function makeSparkline(txt) {
       var spark = '';
       if (wbinfo.courseinfo.contopt.omstart && wbinfo.courseinfo.contopt.omstart == "1") {

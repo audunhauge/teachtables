@@ -760,7 +760,7 @@ var progressview = exports.progressview = function(user,query,callback) {
   var studlist = query.studlist ;  // list of student ids
   var isteach   = (user.department == 'Undervisning');
   var progress = [];
-      client.query("select q.name as n,qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
+      client.query("select q.name as n,max(qu.time) as t, qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
       + "from quiz_useranswer qu inner join quiz_question q on (q.id = qu.cid) "
       + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist
       + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,teachid],

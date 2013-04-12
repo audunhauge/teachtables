@@ -1,4 +1,5 @@
 // show/edit meetings
+// also find suitable invigilators for exams/ term tests
 
 // global hash to ease change of state and reload of closures
 minfo = {
@@ -15,6 +16,19 @@ minfo = {
  , day        : ''
 };
 
+
+function invigilator() {
+  var jd = database.startjd + 7*minfo.delta;
+  var s = [];
+  for (var j in database.heldag) {
+    var h = database.heldag[j];
+    for (var f in h) {
+      s.push(f+' '+h[f].value);
+    }
+  }
+  $j("#timeviser").html(s.join('<br>'));
+
+}
 
 
 function reduceSlots(userlist,roomname,jd) {
@@ -271,6 +285,9 @@ function findFreeTime() {
     s+= '<div id="stage"></div>';
     s+= "</div>";
     $j("#main").html(s);
+    $j("#oskrift").click(function() {
+             invigilator();
+          });
     var activeday = { "0":{}, "1":{}, "2":{}, "3":{}, "4":{} };
     var aday = '';
     choosefrom = $j.extend({}, teachers);
