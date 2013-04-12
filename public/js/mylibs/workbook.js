@@ -456,8 +456,10 @@ function showProgress() {
                         var ss = '';
                         var klass = '';
                         if (kk) {
-                            var color = Math.floor(Math.log(1+((justnow.getTime() - kk.time)/(1000*60*60*24))));
-                            klass = ' class="heck'+color+'" ';
+                            var daysago = Math.floor((justnow.getTime() - ucount[u].last)/(1000*60*60*24));
+                            var color = Math.floor(Math.log(1+daysago));
+                            klass = daysago ? ' title="For '+daysago+' dager siden"' : ' title="Today"';
+                            klass += ' class="heck'+color+'" ';
                             ss = kk.score+':'+kk.count;
                         }
                         s += '<td'+klass+'> &nbsp; '+ss+'</td>'
@@ -466,8 +468,10 @@ function showProgress() {
                     var klass = '';
                     if (ucount[u].last) {
                         last = startTime( new Date(ucount[u].last));
-                        ss = Math.floor(Math.log(1+((justnow.getTime() - ucount[u].last)/(1000*60*60*24))));
-                        klass = ' class="heck'+ss+'" ';
+                        var daysago = Math.floor((justnow.getTime() - ucount[u].last)/(1000*60*60*24));
+                        var color = Math.floor(Math.log(1+daysago));
+                        klass = daysago ? ' title="For '+daysago+' dager siden"' : ' title="Today"';
+                        klass += ' class="heck'+color+'" ';
                     }
                     ucount[u].avg = ucount[u].count > 0 ? ucount[u].score / ucount[u].count : 0;
                     s += '<td>'+ ucount[u].count + '</td><td>'+ucount[u].score.toFixed(2)+'</td><td>'+ucount[u].avg.toFixed(2)+'</td>';
