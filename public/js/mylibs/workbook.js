@@ -456,7 +456,7 @@ function showProgress() {
                         var ss = '';
                         var klass = '';
                         if (kk) {
-                            var daysago = Math.floor((justnow.getTime() - ucount[u].last)/(1000*60*60*24));
+                            var daysago = Math.floor((justnow.getTime() - kk.time)/(1000*60*60*24));
                             var color = Math.floor(Math.log(1+daysago));
                             klass = daysago ? ' title="For '+daysago+' dager siden"' : ' title="Today"';
                             klass += ' class="heck'+color+'" ';
