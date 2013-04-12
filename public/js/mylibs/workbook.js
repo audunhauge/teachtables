@@ -401,8 +401,10 @@ function showProgress() {
         var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
                  +trail+'<div id="results"></div></div>';
         $j("#main").html(s);
-        $j.get(mybase+'/progressview',{ teachid:teachid, subject:course, studlist:elever.join(',')}, function(results) {
-            if (results) {
+        $j.get(mybase+'/progressview',{ teachid:teachid, subject:course, studlist:elever.join(',')}, function(res) {
+            if (res.progress) {
+                var history = res.history;
+                var results = res.progress;
                 var cross = {};
                 var ulist = [];
                 var klist = {};
@@ -453,6 +455,11 @@ function showProgress() {
                     for (var j=0,kl=korder.length; j<kl; j++) {
                         var k = korder[j];
                         var kk = (cross[u] && cross[u][k]) ? cross[u][k] : undefined;
+                        if (!kk) {
+                            if (history[u] && history[u][k]) {
+                                kk = {score:Math.round(6*history[u][k].score),count:0,time:history[u][k].time};
+                            }
+                        }
                         var ss = '';
                         var klass = '';
                         if (kk) {

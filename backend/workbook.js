@@ -760,29 +760,52 @@ var progressview = exports.progressview = function(user,query,callback) {
   var studlist = query.studlist ;  // list of student ids
   var isteach   = (user.department == 'Undervisning');
   var progress = [];
+  var history  = {};
       client.query("select q.name as n,max(qu.time) as t, qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
       + "from quiz_useranswer qu inner join quiz_question q on (q.id = qu.cid) "
       + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist
       + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,teachid],
      after(function(prog) {
          if (prog && prog.rows) {
-             progress = prog.rows;
-             if (!isteach) {
-                 var ii=0;
-                 var remap = {};
-                 for (var i=0,l=progress.length; i < l; i++) {
-                     var r = progress[i];
-                     if (r.u != user.id) {
-                         if (!remap[r.u]) {
-                             remap[r.u] = 'anonym' + ii++;
-                         }
-                         r.u = remap[r.u];
-                     }
-
-                 }
-             }
+           progress = prog.rows;
+           client.query("select qh.userid as u, max(qh.score) as m, max(qh.timest) as t, qh.container as k from quiz_history qh inner join quiz_question q on (q.id = qh.container) "
+              + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qh.userid in ("+studlist
+              + ") group by qh.userid,qh.container ", [subject,teachid],
+          after(function(hist) {   // history used if no current answers for container - user reset
+            console.log(history);
+            if (!isteach) {
+                var ii=0;
+                var remap = {};
+                for (var i=0,l=progress.length; i < l; i++) {
+                      var r = progress[i];
+                      if (r.u != user.id) {
+                           if (!remap[r.u]) {
+                               remap[r.u] = 'anonym' + ii++;
+                           }
+                           r.u = remap[r.u];
+                      }
+                }
+            }
+            // remap history also (studs not see others)
+            if (hist && hist.rows) {
+                var histo = hist.rows;
+                for (var i=0,l=histo.length; i < l; i++) {
+                    var r = histo[i];
+                    if (!isteach && r.u != user.id) {
+                        if (!remap[r.u]) {
+                           remap[r.u] = 'anonym' + ii++;
+                        }
+                        r.u = remap[r.u];
+                    }
+                    if (!history[r.u]) history[r.u] = {};
+                    history[r.u][r.k] = { score:r.m, time:r.t };
+                }
+            }
+            callback({progress:progress,history:history});
+          }));
+         } else {
+           callback({progress:progress,history:history});
          }
-         callback(progress);
      }));
 }
 
@@ -1171,7 +1194,8 @@ exports.studresetcontainer = function(user,query,callback) {
           var score = resp.ret[uid].score;
           var tot = resp.ret[uid].tot;
           var percent = (tot > 0) ? score/tot : 0.0;
-          var timest = 1234; //resp.ret[uid].start;
+          var justnow   = new Date();
+          var timest = justnow.getTime();
           //console.log("insert into quiz_history (userid,container,score,timest) values ($1,$2,$3,$4) ", [uid,container,percent,timest] );
           client.query("insert into quiz_history (userid,container,score,timest) values ($1,$2,$3,$4) ", [uid,container,percent,timest] );
       }
