@@ -737,7 +737,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
                 }
                 scoreQuestion(uid,qqlist,ualist,myscore,function () {
                      callback(ualist);
-                     var prosent = (myscore.tot) ? myscore.score/myscore.tot : 0;
+                     var prosent = (myscore.tot > 0) ? myscore.score/myscore.tot : 0;
                      client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [prosent,uid,container]);
                   });
               } else {
@@ -761,11 +761,22 @@ var progressview = exports.progressview = function(user,query,callback) {
   var isteach   = (user.department == 'Undervisning');
   var progress = [];
   var history  = {};
-      client.query("select q.name as n,max(qu.time) as t, qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
+  var quizzes  = {};
+  // first fetch params for all quizzes owned by this teach
+  client.query("select q.id as i,q.qtext from quiz_question q "
+      + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 ", [subject,teachid],
+  after(function(quizz) {
+    var qz = quizz.rows;
+    for (var i=0,l=qz.length; i < l; i++) {
+          var r = qz[i];
+          var qopts = parseJSON(r.qtext);
+          quizzes[r.i] = qopts.contopt;
+    }
+    client.query("select q.name as n, max(qu.time) as t, qu.userid as u, qu.cid as k,count(qu.score) as c,sum(qu.score) as s "
       + "from quiz_useranswer qu inner join quiz_question q on (q.id = qu.cid) "
       + "where q.qtype = 'quiz' and q.teachid=$2 and q.subject=$1 and qu.attemptnum > 0 and qu.userid in ("+studlist
       + ") group by qu.userid,qu.cid,q.name order by userid,cid", [subject,teachid],
-     after(function(prog) {
+    after(function(prog) {
          if (prog && prog.rows) {
            progress = prog.rows;
            client.query("select qh.userid as u, max(qh.score) as m, max(qh.timest) as t, qh.container as k from quiz_history qh inner join quiz_question q on (q.id = qh.container) "
@@ -801,12 +812,13 @@ var progressview = exports.progressview = function(user,query,callback) {
                     history[r.u][r.k] = { score:r.m, time:r.t };
                 }
             }
-            callback({progress:progress,history:history});
+            callback({progress:progress,history:history, quiz:quizzes});
           }));
          } else {
-           callback({progress:progress,history:history});
+           callback({progress:progress,history:history, quiz:quizzes});
          }
      }));
+  }));
 }
 
 var generateforall = exports.generateforall = function(user,query,callback) {
@@ -1199,7 +1211,7 @@ exports.studresetcontainer = function(user,query,callback) {
           //console.log("insert into quiz_history (userid,container,score,timest) values ($1,$2,$3,$4) ", [uid,container,percent,timest] );
           client.query("insert into quiz_history (userid,container,score,timest) values ($1,$2,$3,$4) ", [uid,container,percent,timest] );
       }
-      client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
+      client.query( "select param from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
       after(function(results) {
            var containerq = results.rows[0];    // quiz-container as stored for this user
            if (containerq) {

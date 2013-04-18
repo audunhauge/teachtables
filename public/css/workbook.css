@@ -1253,6 +1253,7 @@ div.container:before, div.quiz:before {
   width:32px;
   height:32px;
 }
+
 div.container:before {
   background:transparent url(img/book.gif) no-repeat;
 }
@@ -1267,6 +1268,9 @@ div.clock:before {
 }
 div.trinn:before {
   background:transparent url(img/trinn.png) no-repeat;
+}
+div.exam:before {
+  background:transparent url(img/exam.png) no-repeat;
 }
 
 span.container {

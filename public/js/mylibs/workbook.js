@@ -405,6 +405,7 @@ function showProgress() {
             if (res.progress) {
                 var history = res.history;
                 var results = res.progress;
+                var quizzes = res.quiz;
                 var cross = {};
                 var ulist = [];
                 var klist = {};
@@ -438,7 +439,8 @@ function showProgress() {
                 var s = '<p><p><br><p><table>';
                 s += '<tr><th></th>';
                 for (var i=0,l=korder.length; i<l; i++) {
-                    var k = korder[i];
+                   var k = korder[i];
+                   if (quizzes[k].exam == "1") continue;
                    s += '<td><div class="rel"><div class="angled stud">' + klist[k] + '</div></div></td>';
                 }
                 s += '<th>num</th><th>score</th><th>avg</th><th>Sist</th>';
@@ -1830,6 +1832,7 @@ function editquestion(myid, target) {
            var hintcost = dialog.contopt.hintcost || '0.05';
            var attemptcost = dialog.contopt.attemptcost || '0.1';
            var trinn = (dialog.contopt.trinn != undefined) ? dialog.contopt.trinn : 0;
+           var exam = (dialog.contopt.exam != undefined) ? dialog.contopt.exam : 0;
            var karak = (dialog.contopt.karak != undefined) ? dialog.contopt.karak : 0;
            var rank = (dialog.contopt.rank != undefined) ? dialog.contopt.rank : 0;
            var fiidback = (dialog.contopt.fiidback != undefined) ? dialog.contopt.fiidback : 'none';
@@ -1847,6 +1850,7 @@ function editquestion(myid, target) {
                  , navi:          {  type:"yesno", value:navi }
                  , hints:         {  type:"yesno", value:hints }
                  , trinn:         {  type:"yesno", value:trinn }
+                 , exam:          {  type:"yesno", value:exam }
                  , locked:        {  type:"yesno", value:locked }
                  , hidden:        {  type:"yesno", value:hidden }
                  , omstart:       {  type:"yesno", value:omstart }
@@ -1869,7 +1873,9 @@ function editquestion(myid, target) {
                };
            var res = gui(elements);
            s += '<h4>Instillinger for prøven</h4> <div id="inputdiv">'
+             + '<div class="underlined" title="Prøve - test med karakter">Prøve{exam}</div>'
              + '<div class="underlined" title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
+             + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
              + '<div class="underlined" title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
              + '<div class="underlined" title="Prøve utilgjengelig før denne datoen">Start {start}</div>'
              + '<div class="underlined" title="Prøve utilgjengelig etter denne datoen">Stop {stop}</div>'
@@ -2301,6 +2307,9 @@ wb.render.normal  = {
                           }
                           if (mycopt && mycopt.locked == "1") {
                             return '<div class="cont quiz locked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          }
+                          if (mycopt && mycopt.exam == "1") {
+                            return '<div class="cont exam quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
                           if (mycopt && mycopt.trinn == "1") {
                             return '<div class="cont trinn quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';

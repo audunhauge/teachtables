@@ -16,17 +16,68 @@ minfo = {
  , day        : ''
 };
 
+var busyteachdayslot;  // f(day,slot) => busy teachlist
+var allteachers;
+
 
 function invigilator() {
-  var jd = database.startjd + 7*minfo.delta;
-  var s = [];
-  for (var j in database.heldag) {
-    var h = database.heldag[j];
-    for (var f in h) {
-      s.push(f+' '+h[f].value);
+  if (!busyteachdayslot) {
+    // set up quick lookup table for teach/day/slot
+    // an entry for a teach means this teach is free
+    busyteachdayslot = {};
+    allteachers = _.keys(teachers);   // get array of teachids
+    for (var d=0; d<6; d++) {
+      busyteachdayslot[d] = {};
+      for (var s=0; s<12; s++) {
+        busyteachdayslot[d][s] = [];
+      }
+    }
+    for (var rid in teachers) {
+      var tt = timetables.teach[rid];
+      if (!tt) continue;
+      for (var t=0,tl=tt.length; t < tl; t++) {
+        var ts = tt[t];
+        busyteachdayslot[ts[0]][ts[1]].push(rid);
+      }
     }
   }
-  $j("#timeviser").html(s.join('<br>'));
+  var jd = database.startjd + 7*minfo.delta;
+  var s = ['<p>'];
+  var d = 0;  // delta from julday - 0..6
+  for (var j in database.heldag) {
+    if (j < jd || j > jd+7) continue;
+    d = j-jd;
+    var h = database.heldag[j];
+    for (var f in h) {
+      var groups = [];
+      var vigis = [];
+      if (database.coursesgr && database.coursesgr[f] ) {
+        groups = database.coursesgr[f];
+        if (groups.length > 12) {
+          continue;  // ignore overlarge groups
+          console.log(f,"too large")
+        }
+        for (var i=0,l=groups.length; i<l; i++) {
+          var g = groups[i];
+          var tt = timetables.group[g];
+          var grptable = _.range(10);
+          if (tt) {
+            for (var t=0,tl=tt.length; t < tl; t++) {
+              // we are now looking at a timetable slot [day,slot,subj,room,didly,teachid]
+              var ts = tt[t];
+              if (ts[0] != d) continue;
+              var tea = teachers[ts[5]];
+              grptable[ts[1]] = ts[1] +' time '+tea.firstname+' på '+ts[3];
+            }
+            vigis.push(g+':'+grptable.join(',') );
+            var canuse = _.difference(allteachers.slice(),)
+          }
+        }
+        s.push(f+' '+h[f].value + '<br>'+ vigis.join('<br>'));
+      }
+    }
+  }
+  $j("#timeviser").html(s.join('<p>'));
 
 }
 
