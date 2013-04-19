@@ -446,7 +446,7 @@ function showProgress(dotest) {
                 s += '<tr><th></th>';
                 for (var i=0,l=korder.length; i<l; i++) {
                    var k = korder[i];
-                   s += '<td><div class="rel"><div title="'+k+'" class="angled stud">' + klist[k] + '</div></div></td>';
+                   s += '<td><div class="rel"><div id="'+k+'" title="'+k+'" class="angled stud">' + klist[k] + '</div></div></td>';
                 }
                 s += '<th>num</th><th>score</th><th>avg</th><th>Sist</th>';
                 s += '</tr>';
@@ -496,6 +496,10 @@ function showProgress(dotest) {
                 $j("#results").html(s);
                 $j("#testornot").click(function() {
                       showProgress(1);
+                    });
+                $j("#results").undelegate(".angled","click");
+                $j("#results").delegate(".angled","click", function() {
+                        editquestion(this.id);
                     });
             }
          });
