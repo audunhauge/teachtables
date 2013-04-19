@@ -436,8 +436,8 @@ function showProgress(dotest) {
                     if (!ucount[r.u]) {
                         ucount[r.u] = { count:0, score:0, last:0};
                     }
-                    ucount[r.u].count += r.c;
-                    ucount[r.u].score += r.s;
+                    ucount[r.u].count += +r.c;
+                    ucount[r.u].score += +r.s;
                     ucount[r.u].last = Math.max(ucount[r.u].last, r.t)
                 }
                 ulist.sort(function(a,b) { return ucount[b].score - ucount[a].score;} )
