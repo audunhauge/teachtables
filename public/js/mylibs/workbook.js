@@ -377,7 +377,10 @@ function longList() {
      });
 }
 
-function showProgress() {
+var showtest = false;
+function showProgress(dotest) {
+    showtest   = showtest ? false : true ;
+    var testtxt = showtest ? 'Prøve' : 'Quiz';
     var course,group;
     var justnow = new Date();
     try {
@@ -396,7 +399,9 @@ function showProgress() {
     if (course && group) {
         var elever = memberlist[group];
         if (!elever) return;
-        wbinfo.trail.push({id:0,name:"progress" });
+        if (dotest == undefined) {
+            wbinfo.trail.push({id:0,name:"progress" });
+        }
         var trail = makeTrail();
         var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
                  +trail+'<div id="results"></div></div>';
@@ -414,6 +419,7 @@ function showProgress() {
                 var korder = [];
                 for (var i=0,l=results.length; i<l; i++) {
                     var r = results[i];
+                    if (showtest == (quizzes[r.k].exam == "1")) continue;
                     if (!cross[r.u]) {
                         cross[r.u] = {};
                         ulist.push(r.u);
@@ -422,7 +428,7 @@ function showProgress() {
                         klist[r.k] = r.n;
                         korder.push(r.k);
                     }
-                    cross[r.u][r.k] = { score:r.s.toFixed(0), count:r.c, time:r.t };
+                    cross[r.u][r.k] = { score:Math.round(+r.s), count:r.c, time:r.t };
                     if (!kcount[r.k]) {
                         kcount[r.k] = 0;
                     }
@@ -436,12 +442,11 @@ function showProgress() {
                 }
                 ulist.sort(function(a,b) { return ucount[b].score - ucount[a].score;} )
                 korder.sort(function(a,b) { return kcount[b] - kcount[a];} )
-                var s = '<p><p><br><p><table>';
+                var s = '<span id="testornot">'+testtxt+'</span><p><p><br><p><table>';
                 s += '<tr><th></th>';
                 for (var i=0,l=korder.length; i<l; i++) {
                    var k = korder[i];
-                   if (quizzes[k].exam == "1") continue;
-                   s += '<td><div class="rel"><div class="angled stud">' + klist[k] + '</div></div></td>';
+                   s += '<td><div class="rel"><div title="'+k+'" class="angled stud">' + klist[k] + '</div></div></td>';
                 }
                 s += '<th>num</th><th>score</th><th>avg</th><th>Sist</th>';
                 s += '</tr>';
@@ -489,6 +494,9 @@ function showProgress() {
                 }
                 s += '</table>';
                 $j("#results").html(s);
+                $j("#testornot").click(function() {
+                      showProgress(1);
+                    });
             }
          });
      }
