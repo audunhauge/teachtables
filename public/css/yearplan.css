@@ -549,9 +549,10 @@ div.rel {
 }
 
 div.angled {
+  overflow:hidden;
   position:absolute;
   width: 200px;
-  height: 25px;
+  height: 22px;
   top:-100px;
   left:-20px;
   -moz-transform-origion:left;

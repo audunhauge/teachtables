@@ -378,7 +378,11 @@ function longList() {
 }
 
 var showtest = false;
+var colorize = 0;
 function showProgress(dotest) {
+    if (!dotest) {
+        showtest = false;
+    }
     showtest   = showtest ? false : true ;
     var testtxt = showtest ? 'Prøve' : 'Quiz';
     var course,group;
@@ -402,15 +406,17 @@ function showProgress(dotest) {
         if (dotest == undefined) {
             wbinfo.trail.push({id:0,name:"progress" });
         }
-        var trail = makeTrail();
+        //var trail = makeTrail();
         var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">Progress</h1>'
-                 +trail+'<div id="results"></div></div>';
+                 +'<div id="results"></div></div>';
+                 //+trail+'<div id="results"></div></div>';
         $j("#main").html(s);
         $j.get(mybase+'/progressview',{ teachid:teachid, subject:course, studlist:elever.join(',')}, function(res) {
             if (res.progress) {
                 var history = res.history;
                 var results = res.progress;
                 var quizzes = res.quiz;
+                var maxk = {};
                 var cross = {};
                 var ulist = [];
                 var klist = {};
@@ -429,6 +435,7 @@ function showProgress(dotest) {
                         korder.push(r.k);
                     }
                     cross[r.u][r.k] = { score:Math.round(+r.s), count:r.c, time:r.t };
+                    maxk[r.k] = maxk[r.k] ? Math.max(+r.s,maxk[r.k]) : +r.s;
                     if (!kcount[r.k]) {
                         kcount[r.k] = 0;
                     }
@@ -442,7 +449,7 @@ function showProgress(dotest) {
                 }
                 ulist.sort(function(a,b) { return ucount[b].score - ucount[a].score;} )
                 korder.sort(function(a,b) { return kcount[b] - kcount[a];} )
-                var s = '<span id="testornot">'+testtxt+'</span><p><p><br><p><table>';
+                var s = '<span id="testornot">'+testtxt+'</span> <span id="colordate">date</span> <span id="colorscore">score</span><p><p><br><p><table>';
                 s += '<tr><th></th>';
                 for (var i=0,l=korder.length; i<l; i++) {
                    var k = korder[i];
@@ -472,6 +479,9 @@ function showProgress(dotest) {
                         if (kk) {
                             var daysago = Math.floor((justnow.getTime() - kk.time)/(1000*60*60*24));
                             var color = Math.floor(Math.log(1+daysago));
+                            if (colorize == 1) {
+                              color = Math.max(0,Math.floor( 10*(maxk[k]-kk.score)/maxk[k] ));
+                            }
                             klass = daysago ? ' title="For '+daysago+' dager siden"' : ' title="Today"';
                             klass += ' class="heck'+color+'" ';
                             ss = kk.score+':'+kk.count;
@@ -496,6 +506,14 @@ function showProgress(dotest) {
                 $j("#results").html(s);
                 $j("#testornot").click(function() {
                       showProgress(1);
+                    });
+                $j("#colordate").click(function() {
+                      colorize = 0;
+                      showProgress();
+                    });
+                $j("#colorscore").click(function() {
+                      colorize = 1;
+                      showProgress();
                     });
                 $j("#results").undelegate(".angled","click");
                 $j("#results").delegate(".angled","click", function() {

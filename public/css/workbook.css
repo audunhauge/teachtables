@@ -308,6 +308,7 @@ text.shadow {
   display:none;
 }
 
+
 #taginfo {
   position:absolute;
   top:20px;
@@ -469,6 +470,9 @@ div.qtext .large span.fillin input {
 }
 .heck9 {
   background:#705052 !important;
+}
+.heck10 {
+  background:#603022 !important;
 }
 
 span.addcomment {

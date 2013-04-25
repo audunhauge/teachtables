@@ -70,7 +70,7 @@ function invigilator() {
               grptable[ts[1]] = ts[1] +' time '+tea.firstname+' på '+ts[3];
             }
             vigis.push(g+':'+grptable.join(',') );
-            var canuse = _.difference(allteachers.slice(),)
+            //var canuse = _.difference(allteachers.slice(),)
           }
         }
         s.push(f+' '+h[f].value + '<br>'+ vigis.join('<br>'));
