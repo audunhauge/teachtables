@@ -4,6 +4,7 @@ var pg = require('pg');
 var sys = require('util');
 var crypto = require('crypto');
 var async = require('async');
+var request = require('request');
 var sendemail = require('nodemailer');
 var connectionString = siteinf.connectionString;
 
@@ -38,7 +39,7 @@ function stripRooms(text) {
   }
   return clean.join(' ');
 }
-  
+
 
 var julian = require('./julian');
 
@@ -76,7 +77,7 @@ var db = {
                     ,"1MDA":"jgkr5f", "1MDB":"zzzdef", "2STA":"3mcdet", "2STB":"yyRqef", "2STC":"a220oO"
                     ,"2STD":"44ncgf", "2STE":"ttLK3f", "2STF":"orldw5", "2DDA":"mcb66f", "2MUA":"mvbdef", "3STA":"bnghrr","3STB":"65s33g"
                     ,"3STC":"oi2def", "3STD":"qwuN1x", "3STE":"mgjr44", "3DDA":"iggyef", "3MUA":"abzdef"}
-    
+
                         // hash of class mapping to keys { '1STA':'3cfx65', ... }
                         // a 6 char base64 key giving access to search on specific class members
 
@@ -155,8 +156,8 @@ var saveteachabsent = function(user,query,callback) {
                          var server  = sendemail.createTransport("SMTP",{
                               service:"Gmail",
                               auth: {
-                                user:   "skeisvang.skole", 
-                                pass:   "123naturfag", 
+                                user:   "skeisvang.skole",
+                                pass:   "123naturfag",
                               }
                          });
                          var mailOptions = {
@@ -630,7 +631,7 @@ var saveTimetableSlot = function(user,query,callback) {
   if (rid > 0 && cid >0) {
     try {
     client.query("insert into calendar (julday,teachid,roomid,courseid,day,slot,value,name,eventtype) values "
-         + " ($1,$2,$3,$4,$5,$6,$7,$8,'timetable') " , [jd,teachid,rid,cid,day,slot,value,name], 
+         + " ($1,$2,$3,$4,$5,$6,$7,$8,'timetable') " , [jd,teachid,rid,cid,day,slot,value,name],
                  after(function(results) {
                     callback( {ok:true, msg:"inserted"} );
                 }));
@@ -866,7 +867,7 @@ var genstarb = function(user,params,callback) {
   var antall    = +params.antall    || 0;
   var romid     = +params.romid     || 0;
   var duration  = +params.duration  || 0;
-  
+
   if (uid < 10000 || duration < 3 || duration > 80 || starth < 12 || starth > 14 || startm < 0 || startm > 59 ) {
     callback( { "key":0 } );
     return;
@@ -974,7 +975,7 @@ var changeStateMeet  = function(query,state,callback) {
    var meetid = +query.meetid;
    if (!isNaN(userid) && !isNaN(meetid) ) {
      client.query('update calendar set class=$3 where eventtype=\'meet\' and userid=$1 and courseid=$2 returning id  ',
-       [userid,meetid,state] , 
+       [userid,meetid,state] ,
        after(function(results) {
            callback(results);
        }));
@@ -1025,8 +1026,8 @@ var makemeet = function(user,query,host,callback) {
         var calledback = false;
         var participants = [];
         var klass = (konf == 'ob') ? 1 : 0 ;
-        var meetinfo = JSON.stringify({message:message, idlist:idlist, owner:user.id, 
-                                       sendmail:sendmail, title:title, message:message, 
+        var meetinfo = JSON.stringify({message:message, idlist:idlist, owner:user.id,
+                                       sendmail:sendmail, title:title, message:message,
                                        chosen:chosen, kort:kort, shortslots:shortslots });
         client.query(
           'insert into calendar (eventtype,julday,userid,roomid,name,value,class) values (\'meeting\',$1,$2,$3,$4,$5,$6)  returning id',
@@ -1068,7 +1069,7 @@ var makemeet = function(user,query,host,callback) {
               console.log("SENDMAIL=",sendmail);
               if (sendmail == 'yes') {
                 if (kort) {
-                  idlist = slot;  // swap the time-slot back in 
+                  idlist = slot;  // swap the time-slot back in
                 }
                 var greg = julian.jdtogregorian(current + myday);
                 var d1 = new Date(greg.year, greg.month-1, greg.day);
@@ -1076,13 +1077,13 @@ var makemeet = function(user,query,host,callback) {
                 var server  = sendemail.createTransport("SMTP",{
                       service:"Gmail",
                       auth: {
-                        user:   "skeisvang.skole", 
-                        pass:   "123naturfag", 
+                        user:   "skeisvang.skole",
+                        pass:   "123naturfag",
                       }
                  });
 
-                var basemsg = '\n\nMøte på Skeisvang\n=====================\n\n'+title+'\n=====================\n\n' 
-                         + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Time: ' + idlist 
+                var basemsg = '\n\nMøte på Skeisvang\n=====================\n\n'+title+'\n=====================\n\n'
+                         + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Time: ' + idlist
                          + '\n  Tid: ' + meetstart + '\n  Sted: rom '+roomname;
                 basemsg  += "\n\n" + "  Deltagere:\n   * " + participants.join('\n   * ');
                 basemsg  += "\n\n" + "  Ansvarlig: " + owner;
@@ -1162,7 +1163,7 @@ var makereserv = function(user,query,callback) {
 
 
 var getReservations = function(callback) {
-  // returns a hash of all reservations 
+  // returns a hash of all reservations
   client.query(
       'select id,userid,day,slot,courseid,roomid,name,value,julday,eventtype from calendar cal '
        + "      WHERE roomid > 0 and eventtype in ('heldag', 'reservation') and julday >= $1 order by julday,day,slot" , [ db.startjd - 34 ] ,
@@ -1183,15 +1184,15 @@ var getReservations = function(callback) {
                 var vvalue = (res.name+' '+stripRooms(res.value));
                 for (var j=0;j<9;j++) {
                   res.slot = j;
-                  //reservations[julday].push({id: res.id, userid: res.userid, day: res.day, 
+                  //reservations[julday].push({id: res.id, userid: res.userid, day: res.day,
                   //               slot: j, itemid: res.roomid, name:roomname , value:vvalue, eventtype:'hd' });
                   reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ j + ','
-                                           + res.courseid + ','+res.roomid+','+ roomname + ','+ vvalue + ',hd' ); 
+                                           + res.courseid + ','+res.roomid+','+ roomname + ','+ vvalue + ',hd' );
                 }
               } else {
                 //reservations[julday].push(res);
                 reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ res.slot + ','
-                                           + res.courseid + ','+res.roomid+','+ res.name + ','+ res.value + ','+ res.eventtype ); 
+                                           + res.courseid + ','+res.roomid+','+ res.name + ','+ res.value + ','+ res.eventtype );
               }
           }
           callback(reservations);
@@ -1201,7 +1202,7 @@ var getReservations = function(callback) {
 
 var getTimetables = function(isad,callback) {
   // fetch all timetable data
-  // returns a hash { course:{ "3inf5_3304":[ [1,2,"3inf5_3304","R210",'',654 ], ... ] , ... } , 
+  // returns a hash { course:{ "3inf5_3304":[ [1,2,"3inf5_3304","R210",'',654 ], ... ] , ... } ,
   //                    room:{ "r210":      [ [1,2,"3inf5_3304",654 ..
   //                   group:{ "3304":      [ [1,2,"3inf5_3304","r210",'',654], ..],  "3sta":[... ] ... }
   //                   teach:{ "654":       [ [1,2,"3inf5_3304","r210",'',654], ..],  "1312":[... ] ... }
@@ -1221,7 +1222,7 @@ var getTimetables = function(isad,callback) {
           var teachtimetable = {};
           var studtimetable = {};
           var flatlist = [];
-          if (results && results.rows) 
+          if (results && results.rows)
           for (var i=0,k= results.rows.length; i < k; i++) {
               var lesson = results.rows[i];
               var course = lesson.name;
@@ -1312,7 +1313,7 @@ var getcourses = function() {
       + ' inner join members me on (me.groupid = en.groupid) group by c.id,c.shortname,c.category,me.groupid having count(me.id) > 1 order by count(me.id)',
       after(function (results) {
           var ghash = {}; // only push group once
-          var courselist = []; 
+          var courselist = [];
           for (var i=0,k= results.rows.length; i < k; i++) {
               var course = results.rows[i];
               //if (course.cc <1) continue;
@@ -1366,7 +1367,7 @@ var getcourses = function() {
                       if (!blokkmem[group][amem.userid]) {
                         db.memlist[group].push(amem.userid);
                         blokkmem[group][amem.userid] = 1;
-                      } 
+                      }
                     // build person : grouplist
                       if (!db.memgr[amem.userid]) {
                         db.memgr[amem.userid] = [];
@@ -1376,7 +1377,7 @@ var getcourses = function() {
                         db.memgr[amem.userid].push(group);
                         blokkgr[amem.userid][group] = 1;
                       }
-                  } 
+                  }
                   client.query(
                       'select c.id,c.shortname,t.userid from teacher t inner join course c on (c.id = t.courseid)',
                       after( function (results) {
@@ -1426,7 +1427,7 @@ var getcourses = function() {
                                       if (!blokkmem[ggmem.groupid][ggmem.userid]) {
                                         db.memlist[ggmem.groupid].push(ggmem.userid);
                                         blokkmem[ggmem.groupid][ggmem.userid] = 1;
-                                      } 
+                                      }
                                     }
                                   }));
                               }));
@@ -1453,6 +1454,33 @@ var getroomids = function() {
       }));
 }
 
+var getinvigilators = exports.getinvigilators  = function () {
+    // fetch list of invigilators and other info connected to exams/termtests
+    request('https://docs.google.com/spreadsheet/pub?key=0AkY2PNer2OpXdG1LSXJndm1uRTMwZGI3MkxxMElDaEE&output=csv',
+        function (error, response, body) {
+         if (!error && response.statusCode == 200) {
+            var list = body.split('\n');
+            var vigilis = {};
+            for (var i in list) {
+                var line = list[i];
+                console.log("Line",line);
+                var elm = line.split(',');
+                if (elm[1] != 'Rom') {
+                    var dd = elm[0].split('-');
+                    var jjd = julian.greg2jul(+dd[1],+dd[2],+dd[0]);
+                    var room = elm[1];
+                    var groups = elm[2];
+                    var slots = elm.slice(3);
+                    if (!vigilis[jjd]) vigilis[jjd] = {};
+                    vigilis[jjd][room] = {groups:groups,slots:slots};
+                }
+            }
+            db.vigilis = vigilis;
+            console.log(vigilis);
+        }
+    })
+}
+
 var getActiveWorkbooks = exports.getActiveWorkbooks  = function () {
   client.query('select c.shortname,ques.id from quiz q inner join quiz_question ques on (ques.id = q.cid) '
                + 'inner join course c on (q.courseid = c.id)', after(function(results) {
@@ -1466,7 +1494,7 @@ var getActiveWorkbooks = exports.getActiveWorkbooks  = function () {
      db.workbook = wb;
   }));
   // get list of teacher/subject for subscription
-  client.query("select distinct teachid,subject from quiz_question where teachid > 100 and subject != '' " ,   
+  client.query("select distinct teachid,subject from quiz_question where teachid > 100 and subject != '' " ,
    after(function(results) {
      var subscribe = { teachers:{}, subjects:{} };
      if (results && results.rows) {
@@ -1604,6 +1632,7 @@ var getBasicData = function() {
   db.coursesgr    = {}   ;
   db.memgr        = {}   ;
   db.teachcourse  = {}   ;
+  db.vigilis      = {}   ;
   console.log("getting basic data");
   checkSetup();
   getroomids();
@@ -1612,6 +1641,7 @@ var getBasicData = function() {
   getfreedays();
   getyearplan();
   getexams();
+  getinvigilators();
   getActiveWorkbooks();
 };
 
@@ -1628,7 +1658,7 @@ module.exports.getcourses = getcourses;
 module.exports.getReservations = getReservations;
 module.exports.makereserv = makereserv;
 module.exports.makemeet = makemeet;
-module.exports.changeStateMeet = changeStateMeet;  
+module.exports.changeStateMeet = changeStateMeet;
 module.exports.getmeet = getmeet;
 module.exports.getmeeting = getmeeting;
 module.exports.getTimetables = getTimetables;

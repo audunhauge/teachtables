@@ -60,6 +60,33 @@ exports.goodAutoincrements = function () {
   client.query("SELECT setval('course_id_seq', max(id)) FROM course");
 }
 
+
+exports.feide = function(token, ini4, now, pid, callback) {
+  client.query(
+      "select * from users where ini4 = $1 " , [ ini4 ] ,
+      after(function(results) {
+            if (results && results.rows) {
+               for (var i=0; i< results.rows.length; i++) {
+                 var cand = results.rows[i];
+                 if (cand.feide) {
+                  // check if we have the right person
+                  var mdfei = crypto.createHash('md5').update(now + '' + cand.feide).digest("hex");
+                  console.log("Token=",token," FF=",mdfei);
+                  if (mdfei == token) {
+                      callback(cand);
+                     return;
+                  }
+                 }
+               }
+            }
+            console.log("Failed ",token,pid);
+            callback(null);
+      }
+  ));
+}
+
+
+
 exports.authenticate = function(login, password, its, callback) {
   var username = login || 'nn';
   client.query(

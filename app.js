@@ -130,6 +130,14 @@ app.configure('development', function(){
 /*
 *   ROUTES
 */
+
+app.get(base +'/saml', function(req, res) {
+  res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php')
+  //res.redirect( 'http://node.teachtables.net/simplesaml/getlogin.php')
+});
+
+
+
 app.get(base,                           routes.index);                                // gives start-page
 app.get(base+'/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
 app.get(base+'/getsql',                 routes.getsql);
@@ -145,6 +153,7 @@ app.post(base+'/editgroup',              routes.editgroup);
 
 // user - info login config
 app.get(base+'/login',                  user.login);                // logg in
+app.get(base+'/feide',                  user.feide);                // logg in with feide (simplesaml)
 app.get(base+'/ses',                    user.ses);                  // get login info (check if logged in)
 
 app.post(base+'/saveconfig',             user.saveconfig);

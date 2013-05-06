@@ -6,6 +6,7 @@
 var database = siteinf.database;
 var db = database.db;
 var addons = siteinf.addons;
+var base = siteinf.base;
 
 var usr = require('../backend/user');
 
@@ -26,6 +27,29 @@ exports.saveconfig = function(req, res) {
       });
   }
 };
+
+exports.feide =function(req, res) {
+  if (req.query.token) {
+      var tok = req.query.token;
+      var ini4 = req.query.ini;
+      var now = req.query.now;
+      var pid = req.query.pid;
+      console.log("FEIDE:",ini4,tok);
+      usr.feide(tok, ini4, now, pid, function(user) {
+         if (user) {
+           req.session.user = user;
+           res.redirect(base + "?navn="+user.firstname + " " + user.lastname);
+         } else {
+           console.log("FAILED");
+           res.redirect(base);
+         }
+      });
+      return;
+  }
+  res.redirect(base);
+};
+
+
 
 exports.login =function(req, res) {
   if (!req.query.username && req.session.user) {
