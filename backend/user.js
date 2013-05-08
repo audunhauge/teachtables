@@ -73,6 +73,7 @@ exports.feide = function(token, ini4, now, pid, callback) {
                   var mdfei = crypto.createHash('md5').update(now + '' + cand.feide).digest("hex");
                   console.log("Token=",token," FF=",mdfei);
                   if (mdfei == token) {
+                      cand.isadmin = siteinf.admin[cand.username] || false;
                       callback(cand);
                      return;
                   }
