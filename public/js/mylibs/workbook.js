@@ -484,7 +484,7 @@ function showProgress(dotest) {
                             }
                             klass = daysago ? ' title="For '+daysago+' dager siden"' : ' title="Today"';
                             klass += ' class="heck'+color+'" ';
-                            ss = kk.score+':'+kk.count;
+                            ss = '<span class="ures" id="'+u+'_'+k+'" >'+kk.score+':'+kk.count + '</span>';
                         }
                         s += '<td'+klass+'> &nbsp; '+ss+'</td>'
                     }
@@ -504,6 +504,18 @@ function showProgress(dotest) {
                 }
                 s += '</table>';
                 $j("#results").html(s);
+                $j("#results").undelegate(".ures","click");
+                $j("#results").delegate(".ures","click", function() {
+                      //if (results.ret[uid] != undefined) {
+                      var uk = this.id.split('_');
+                      var ui = uk[0], kid = uk[1];
+                      var rr = { ret:{} };
+                      rr.ret[ui] = 1;
+                      showUserResponse(ui,kid, rr );
+                    });
+                $j(".result").click(function() {
+                      showProgress();
+                    });
                 $j("#testornot").click(function() {
                       showProgress(1);
                     });
@@ -528,13 +540,20 @@ function startTime(d) {
   return d.getDate() + '/'+(1+d.getMonth())+ '/' + ("" +d.getFullYear()).substr(2) + ' ' + d.getHours() +':'+ d.getMinutes();
 }
 
-function showResults() {
-    var group;
-    try {
-      group = wbinfo.coursename.split('_');
-      group = group[1];
-    } catch(err) {
-      group = '';
+function showResults(group,container,contopt) {
+    if (group == undefined) {
+      try {
+        group = wbinfo.coursename.split('_');
+        group = group[1];
+      } catch(err) {
+        group = '';
+      }
+    }
+    if (container == undefined) {
+      container = wbinfo.containerid;
+    }
+    if (contopt == undefined) {
+      contopt = wbinfo.courseinfo.contopt;
     }
     var sortdir = { fn:1, ln:1, grade:1 };  // sort direction
     var reslist = {};
@@ -573,7 +592,7 @@ function showResults() {
     $j(".long").click(function() {
           longList();
         });
-    $j.post(mybase+'/getuseranswers',{ container:wbinfo.containerid, group:group, contopt:wbinfo.courseinfo.contopt}, function(results) {
+    $j.post(mybase+'/getuseranswers',{ container:container, group:group, contopt:contopt}, function(results) {
            // results = { res:{ uid ... }, ulist:{ 12:1, 13:1, 14:2, 15:2 }
            if (results) {
              for (var uid in results.ret) {
@@ -694,11 +713,14 @@ function showUserResponse(uid,cid,results) {
   var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
   if (results.ret[uid] != undefined) {
     // var contopt = wbinfo.courseinfo.contopt;
-    $j.getJSON(mybase+'/displayuserresponse',{ uid:uid, container:wbinfo.containerid }, function(results) {
+    $j.getJSON(mybase+'/displayuserresponse',{ uid:uid, container:cid }, function(results) {
       //var ss = wb.render.normal.displayQuest(rr,i,sscore,false);
       //var ss = JSON.stringify(results);
       var rr = unwindResults(results,sscore);
-      var skala = wbinfo.courseinfo.contopt.skala;
+      var skala = 'medium';
+      if (wbinfo.courseinfo && wbinfo.courseinfo.contopt ) {
+        skala = wbinfo.courseinfo.contopt.skala;
+      }
       score = Math.round(100*sscore.userscore)/100;
       tot = Math.round(100*sscore.maxscore)/100;
       var gr = Math.round(100*score/tot)/100;

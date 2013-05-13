@@ -703,53 +703,61 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   //  we do however check for sub-containers
   //  and recurse thru them gathering up total score
   var cont = quiz.question[container] || {qtext:''} ;
-  var cparam = parseJSON(cont.qtext);
+  var cparam = parseJSON(cont.qtext);   // this is the question order as seen by student
   var contopt = cparam.contopt || {};
   var qlist = cparam.qlistorder;
-  //console.log("CONTOPTS= ",contopt);
-  //console.log("FASIT:",contopt.fasit,contopt.fasit && (+contopt.fasit & 1));
-  client.query( "select id,userid,qid,param,score from quiz_useranswer where qid=$1 and userid=$2 ",[ container,uid ],
-  after(function(coont) {
-    if (coont && coont.rows) {
-      var res = coont.rows[0];
-      var coo = parseJSON(res.param);
-      // need to remember userid <--> anonym
-      var qlist = coo.qlistorder;
-      if (typeof(qlist) == "string") {
-        qlist = qlist.split(',');
-      }
-      if (qlist && user.department == 'Undervisning' || ( (user.id == uid) && contopt.fasit && (+contopt.fasit & 1)) ) {
-        client.query(  "select q.points,q.qtype,q.name,q.subject,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
-                     + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
-        after(function(results) {
+  // first get container options AS EXIST NOW - ignore those stored in useranswer
+  //   as show fasit may have changed AFTER student finished the test
+  client.query("select q.id as i,q.qtext from quiz_question q where q.id = $1 ", [container],
+  after(function(quizz) {
+      var qz = quizz.rows[0];
+      var qopts = parseJSON(qz.qtext);   // tru options for container as exists NOW
+      var qcontopt = qopts.contopt || {};
+      client.query( "select id,userid,qid,param,score from quiz_useranswer where qid=$1 and userid=$2 ",[ container,uid ],
+      after(function(coont) {
+        if (coont && coont.rows && coont.rows[0]) {
+          var res = coont.rows[0];
+          var coo = parseJSON(res.param);
+          // need to remember userid <--> anonym
+          var qlist = coo.qlistorder;
+          if (typeof(qlist) == "string") {
+            qlist = qlist.split(',');
+          }
+          if (qlist && user.department == 'Undervisning' || ( (user.id == uid) && qcontopt.fasit && (+qcontopt.fasit & 1)) ) {
+            client.query(  "select q.points,q.qtype,q.name,q.subject,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
+                         + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
+            after(function(results) {
+                  var myscore = { score:0, tot:0};
+                  var ualist = { q:{}, c:{}, sc:myscore, uid:uid };
+                  if (results && results.rows) {
+                    // clean the list - remove dups
+                    var qqlist = [];
+                    var usedlist = {};
+                    for (var i=0; i< results.rows.length; i++) {
+                      var qq = results.rows[i];
+                      if (usedlist[qq.id] && usedlist[qq.id][qq.instance]) continue;
+                      qqlist.push(qq);
+                      if (!usedlist[qq.id]) usedlist[qq.id] = {};
+                      if (!usedlist[qq.id][qq.instance]) usedlist[qq.id][qq.instance] = 1;
+                    }
+                    scoreQuestion(uid,qqlist,ualist,myscore,function () {
+                         callback(ualist);
+                         var prosent = (myscore.tot > 0) ? myscore.score/myscore.tot : 0;
+                         client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [prosent,uid,container]);
+                      });
+                  } else {
+                    callback(ualist);
+                  }
+            }));
+          } else {
               var myscore = { score:0, tot:0};
               var ualist = { q:{}, c:{}, sc:myscore, uid:uid };
-              if (results && results.rows) {
-                // clean the list - remove dups
-                var qqlist = [];
-                var usedlist = {};
-                for (var i=0; i< results.rows.length; i++) {
-                  var qq = results.rows[i];
-                  if (usedlist[qq.id] && usedlist[qq.id][qq.instance]) continue;
-                  qqlist.push(qq);
-                  if (!usedlist[qq.id]) usedlist[qq.id] = {};
-                  if (!usedlist[qq.id][qq.instance]) usedlist[qq.id][qq.instance] = 1;
-                }
-                scoreQuestion(uid,qqlist,ualist,myscore,function () {
-                     callback(ualist);
-                     var prosent = (myscore.tot > 0) ? myscore.score/myscore.tot : 0;
-                     client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [prosent,uid,container]);
-                  });
-              } else {
-                callback(ualist);
-              }
-        }));
-      } else {
+              callback(null);
+          }
+        } else {
           callback(null);
-      }
-    } else {
-      callback(null);
-    }
+        }
+      }));
   }));
 }
 
@@ -1516,6 +1524,10 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
     var shuffle = false;
     if (masterq.contopt && (masterq.contopt.randlist || masterq.contopt.shuffle)) {
           shuffle = true;
+    }
+    if (contopt == undefined && masterq.contopt ) {
+        // if no container options sent, then use as defined in CURRENT question def
+        contopt = masterq.contopt;
     }
     // we use this if quiz is NOT SHUFFLED
     var isteach = (user.department == 'Undervisning' && container.teachid == user.id );
