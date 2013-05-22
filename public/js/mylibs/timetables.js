@@ -289,6 +289,9 @@ function getAbsentBecauseTest(jd,fagliste) {
     if ($j.inArray(fag.toUpperCase(),fagliste.fag) != -1) {
       var ahd = hd[fag];
       var slots = null;
+      if (ahd.value == 'eksamen' || ahd.value == 'forb') {
+        continue;   // ignore eksams and prep days as we have no idea who will be chosen
+      }
       // some whole day tests are only half day (some slots may be unaffected)
       if (ahd.klass == 1) {
         slots = ahd.value.match(/\((.+)\)/)[1].split(/[,+]/);
