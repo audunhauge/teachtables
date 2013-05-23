@@ -1094,7 +1094,7 @@ var qz = {
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
            var gsymb = {};
            if (contopt.trinn == "1" && qobj.code && (qobj.code.indexOf('control') >= 0)) {
-               console.log("GRADING -",contopt);
+               //console.log("GRADING -",contopt);
                // control = 1  \n limit = 0.9 assumed to be in code section
                // this question can complete this set of questions if correctly answered
                // so that we can have a _complete_ question (this one)
@@ -1129,7 +1129,7 @@ var qz = {
                    }
                  }
                }
-               console.log("LOG: symb : ",symb);
+               //console.log("LOG: symb : ",symb);
            }
            qobj.origtext = '' ; // only used in editor
            var simple = true;   // use the callback at end of function

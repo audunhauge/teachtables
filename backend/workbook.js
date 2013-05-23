@@ -363,7 +363,7 @@ exports.edittags = function(user,query,callback) {
         if (qidlist) {
           client.query( 'delete from quiz_qtag qt using quiz_question q where q.id = qt.qid  and qt.qid in ('+qidlist+') and q.teachid=$1', [teachid],
             after(function(results) {
-              client.query( 'delete from quiz_tag qtt where qtt.teachid=$1 and qtt.id not in '
+              client.query( 'delete from quiz_tag qtt where qtt.id not in '
                 + ' (select t.id from quiz_tag t inner join quiz_qtag qt on (t.id = qt.tid) ) ', [teachid],
                   after(function(results) {
                     callback( {ok:true, msg:"removed"} );
@@ -378,7 +378,7 @@ exports.edittags = function(user,query,callback) {
           client.query("delete from quiz_qtag qt using quiz_tag t where t.tagname=$1 and t.id = qt.tid and qt.qid in ("+qidlist+") "
             , [tagname],
             after(function(results) {
-              client.query( 'delete from quiz_tag qtt where qtt.teachid=$1 and qtt.id not in '
+              client.query( 'delete from quiz_tag qtt where qtt.id not in '
                 + ' (select t.id from quiz_tag t inner join quiz_qtag qt on (t.id = qt.tid) ) ', [teachid],
                   after(function(results) {
                     callback( {ok:true, msg:"removed"} );
@@ -387,7 +387,7 @@ exports.edittags = function(user,query,callback) {
         } else {
           client.query('delete from quiz_qtag qt using quiz_tag t where t.tagname=$2 and t.id = qt.tid and qt.qid=$1 ', [qid,tagname],
             after(function(results) {
-              client.query( 'delete from quiz_tag qtt where qtt.teachid=$1 and qtt.id not in '
+              client.query( 'delete from quiz_tag qtt where qtt.id not in '
                 + ' (select t.id from quiz_tag t inner join quiz_qtag qt on (t.id = qt.tid) ) ', [teachid],
                   after(function(results) {
                     callback( {ok:true, msg:"removed"} );
@@ -414,10 +414,11 @@ exports.edittags = function(user,query,callback) {
                   var tagg = results.rows[0];
                   client.query( "insert into quiz_qtag (qid,tid) values ($1,$2) ",[qid,tagg.id],
                   after(function(results) {
-                    if (results && results.rows && results.rows[0] ) {
                       callback( {ok:true, msg:"tagged"} );
-                    }
                   }));
+                } else {
+                    console.log("FAILED INSERT NEW",tagname);
+                    callback( {ok:false, msg:"failed"} );
                 }
               }));
             }
@@ -485,11 +486,11 @@ exports.settag = function(user,query,callback) {
 function maketag(uid,tagstr,qidlist,callback) {
   // we now need to ensure that the tagstr exists
   // insert if missing
-  //console.log("Defined tags:",tags_defined);
+  console.log("Defined tags:",tags_defined);
   if (tags_defined[tagstr] ) {
        do_maketag(uid,tagstr,qidlist,callback);
   } else {
-    //console.log("insert into quiz_tag (tagname,teachid) values ($1,$2) returning id",[tagstr,uid]);
+    console.log("insert into quiz_tag (tagname,teachid) values ($1,$2) returning id",[tagstr,uid]);
     client.query("insert into quiz_tag (tagname,teachid) values ($1,$2) returning id",[tagstr,uid],
     after(function(results) {
       if (results && results.rows && results.rows[0]) {
@@ -505,17 +506,17 @@ function maketag(uid,tagstr,qidlist,callback) {
 
 function do_maketag(uid,tagstr,qidlist,callback) {
   // we now have a valid tag-id and list of qids
-  //console.log("SETTAG do_maketag",uid,tagstr,qidlist);
+  console.log("SETTAG do_maketag",uid,tagstr,qidlist);
   var tagid = tags_defined[tagstr];
   var insvalue = qidlist.replace(/,/g, function(c) {
         return "," + tagid +"),(" ;
       });
   insvalue += "," + tagid ;
   // first remove any pre-existing tags
-  //console.log("delete from quiz_qtag where qid in ("+qidlist+") and tid = $1", [ tagid ]);
+  console.log("delete from quiz_qtag where qid in ("+qidlist+") and tid = $1", [ tagid ]);
   client.query("delete from quiz_qtag where qid in ("+qidlist+") and tid = $1", [ tagid ],
     after(function(results) {
-      //console.log("insert into quiz_qtag (qid,tid) values ( "+insvalue + ")" );
+      console.log("insert into quiz_qtag (qid,tid) values ( "+insvalue + ")" );
       client.query("insert into quiz_qtag (qid,tid) values ( "+insvalue + ")" );
     }));
   callback({ err:0, msg:"ok" } );

@@ -35,8 +35,10 @@ function lineplot(param) {
       datapoints = param.datapoints,
       drawline = param.drawline,
       interpolate = param.interpolate,
-      yticks = param.yticks || 5,
-      xticks = param.xticks || 5,
+      xaxis = (param.xaxis != undefined) ? param.xaxis : 1,
+      yaxis = (param.yaxis != undefined) ? param.yaxis : 1,
+      yticks = (param.yticks != undefined) ? param.yticks : 5,
+      xticks = (param.xticks != undefined) ? param.xticks : 5,
       ylabels = param.ylabels || 5,
       xlabels = param.xlabels || 5,
       yscale = param.yscale || 1,
@@ -175,6 +177,31 @@ function lineplot(param) {
         .attr("r", 1)
       }
     }
+    //*
+    //
+  if (param.lines) {
+    console.log("some lines found",param.lines);
+    // assumed to be [    [a,b,c,d], ....     ]
+    for (var pp=0; pp< param.lines.length; pp++) {
+      var poi = param.lines[pp];
+      var d1 = {}, d2 = {};
+      d1.x = x(poi[0]);
+      d1.y = y(poi[1]);
+      d2.x = x(poi[2]);
+      d2.y = y(poi[3]);
+      var lc = poi[4] || 0;
+      g.append("svg:line")
+        .attr("x1",d1.x)
+        .attr("y1",-1*d1.y)
+        .attr("stroke", plotcolors(lc) )
+        .attr("x2", d2.x)
+        .attr("y2", -1*d2.y)
+        .attr("fill", "black")
+        .attr("stroke-width", 2)
+        ;
+    }
+  }
+  // */
 
     //*
   if (param.vectors) {
@@ -272,28 +299,33 @@ function lineplot(param) {
   var yp = x(0);
   yp = (yp > 0) ? yp : 5;
   yp = (yp < w) ? yp : 5;
-  g.append("svg:line")
+  if (xaxis) {
+    g.append("svg:line")
       .attr("x1", x(iix(0)))
       .attr("y1", xp)
       .attr("x2", x(iix(w)))
       .attr("y2", xp)
       .attr("stroke", "black" )
       .attr("stroke-width", 0.3)
+  }
 
     // y-axis
-  g.append("svg:line")
+  if (yaxis) {
+    g.append("svg:line")
       .attr("x1", yp)
       .attr("y1", -1 * y(yrange[0]))
       .attr("x2", yp)
       .attr("y2", -1 * y(yrange[1]))
       .attr("stroke", "black" )
       .attr("stroke-width", 0.3)
+  }
 
   if (w>100 && h>100) {
     // only draw ticks and labels if
     // plot is reasonably big
 
     // labels for x-axis
+  if (xaxis) {
     g.selectAll(".xLabel")
         .data(x.ticks(xlabels))
         .enter().append("svg:text")
@@ -304,8 +336,10 @@ function lineplot(param) {
         .attr("text-anchor", "right")
         .attr("dy", -2)
         .attr("dx", 2)
+  }
 
     // labels for y-axis
+  if (yaxis) {
     g.selectAll(".yLabel")
         .data(y.ticks(ylabels))
         .enter().append("svg:text")
@@ -316,8 +350,10 @@ function lineplot(param) {
         .attr("text-anchor", "right")
         .attr("dy", -2)
         .attr("dx", 2)
+  }
 
-    g.selectAll(".xTicks")
+    if (xticks)
+      g.selectAll(".xTicks")
         .data(x.ticks(xticks))
         .enter().append("svg:line")
         .attr("class", "xTicks")
@@ -326,7 +362,8 @@ function lineplot(param) {
         .attr("x2", function(d) { return x(d); })
         .attr("y2", xp+2)
 
-    g.selectAll(".yTicks")
+    if (xticks)
+      g.selectAll(".yTicks")
         .data(y.ticks(yticks))
         .enter().append("svg:line")
         .attr("class", "yTicks")

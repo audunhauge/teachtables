@@ -17,23 +17,24 @@ var ss  = {
     , blockform         : 'BlockForm'
     , xtrax             : 'RepeatExam'
     , excursions        : 'Excursions'
+    , singular          : 'SoloTest'
     , starbcourse       : 'StarbCourse'
     , absteach          : 'AbsentTeach'
     , manager           : 'GenralManager'
     , createplans       : 'CreatePlans'
-   } 
+   }
 ,  plans                : {
       plans             : 'Workplans'
     , headers           : '<tr><th>Subject</th><th>Theme</th><th>Asessment</th><th>Target</th><th>Tasks</th><th>Logg/Mark</th></tr>'
-   } 
+   }
 ,  timetable            : {
       timetablefor      : 'Timetable for '
     , groupplans        : 'Group-timetables'
     , choosegroup       : 'Select group'
     , note              : 'Note'
-   } 
+   }
 ,  quiz                 : {
       nomatchtype       : 'No match for this question type (given filters)'
     , nomatch           : 'No match'
-   } 
+   }
 };

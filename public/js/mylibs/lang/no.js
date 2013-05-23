@@ -17,6 +17,7 @@ override(ss, {
     , blockform         : 'Blokkskjema'
     , xtrax             : 'UtsattEksamen'
     , excursions        : 'Ekskursjoner'
+    , singular          : 'SoloTest'
     , starbcourse       : 'StarbKurs'
     , absteach          : 'LærerFravær'
     , manager           : 'GenralManager'
@@ -31,5 +32,5 @@ override(ss, {
     , groupplans        : 'Gruppe-timeplan'
     , choosegroup       : 'Velg gruppe'
     , note              : 'Merk'
-   } 
+   }
 });
