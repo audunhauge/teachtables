@@ -1204,47 +1204,56 @@ var qz = {
                           if (uatxt == undefined || uatxt == '') {
                             callback(score,'no input',completed);
                           } else {
-                               var ufu  =  sympify(tch);    // user supplied function
-                               var fafu =  sympify(uatxt);  // fasit function/expression
-                               var intro = '# coding=utf-8\n'
-                                     + 'from sympy import *\n';
-                               var text = 'x = Symbol("x")\n'
-                                     +   'a=sympify("'+ufu+'")\n'
-                                     +   'b=sympify("'+fafu+'")\n'
-                                     +   'c=a-b\n'
-                                     +   'print simplify(c)\n';
-                               var score = 0;
-                               console.log(intro+text);
-                               fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
-                                 if (err) { callback(score,'error1'); throw err; }
-                                  try {
-                                   var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
-                                     fs.unlink('/tmp/symp'+now);
-                                     console.log("err=",stderr,"out=",stdout,"SOO");
-                                     if (error) {
-                                       console.log(error,stderr);
-                                       callback(score,'error2',completed);
-                                     } else {
-                                       if (stdout && stdout != '') {
-                                         console.log(stdout);
-                                         var eta = +stdout.trim();
-                                         if (eta == 0 || Math.abs(eta) < 0.001 ) {
-                                           score = 1
+                               var elem = tch.split(',');
+                               var target = elem[0];
+                               var differ = elem[1]; // optional text that useranswer must NOT EQUAL
+                               // for symbolic equality - dont accept original equation
+                               // or new eq that is longer (not simpler)
+                               if (differ && (differ == uatxt  || target.length < uatxt.length)  ) {
+                                  callback(score,'sicut prius',completed);
+                               } else {
+                                   var ufu  =  sympify(target);    // user supplied function
+                                   var fafu =  sympify(uatxt);  // fasit function/expression
+                                   var intro = '# coding=utf-8\n'
+                                         + 'from sympy import *\n';
+                                   var text = 'x,y,z,a,b,c,d,e,f,u,v,w = symbols("x,y,z,a,b,c,d,e,f,u,v,w")\n'
+                                         +   'a1=sympify("'+ufu+'")\n'
+                                         +   'b1=sympify("'+fafu+'")\n'
+                                         +   'c1=a1-b1\n'
+                                         +   'print simplify(c1)\n';
+                                   var score = 0;
+                                   console.log(intro+text);
+                                   fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
+                                     if (err) { callback(score,'error1'); throw err; }
+                                      try {
+                                       var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
+                                         fs.unlink('/tmp/symp'+now);
+                                         console.log("err=",stderr,"out=",stdout,"SOO");
+                                         if (error) {
+                                           console.log(error,stderr);
+                                           callback(score,'error2',completed);
                                          } else {
-                                           score = 0;
+                                           if (stdout && stdout != '') {
+                                             console.log(stdout);
+                                             var eta = +stdout.trim();
+                                             if (eta == 0 || Math.abs(eta) < 0.001 ) {
+                                               score = 1
+                                             } else {
+                                               score = 0;
+                                             }
+                                             var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
+                                             var adjust = score * (1 - cutcost - hintcost*hintcount);
+                                             //console.log(qgrade,adjust,attnum,cost);
+                                             score = aquest.points * Math.max(0,adjust);
+                                           }
+                                           callback(score,stdout,completed);
                                          }
-                                         var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
-                                         var adjust = score * (1 - cutcost - hintcost*hintcount);
-                                         //console.log(qgrade,adjust,attnum,cost);
-                                         score = aquest.points * Math.max(0,adjust);
-                                       }
-                                       callback(score,stdout,completed);
+                                       });
+                                     } catch(err) {
+                                           callback(score,'error3',completed);
                                      }
                                    });
-                                 } catch(err) {
-                                       callback(score,'error3',completed);
-                                 }
-                               });
+                               }
                           }
                          break;
                        case 'eva:':
