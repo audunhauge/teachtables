@@ -401,17 +401,21 @@ exports.edittags = function(user,query,callback) {
           after(function(results) {
             // existing tag
             if (results && results.rows && results.rows[0] ) {
+              console.log("Existing tag")
               var tagg = results.rows[0];
               client.query( "insert into quiz_qtag (qid,tid) values ($1,$2) ",[qid,tagg.id],
               after(function(results) {
+                  console.log("INSERTED LINK TO Existing tag")
                   callback( {ok:true, msg:"tagged"} );
               }));
             } else {
               // create new tag
+              console.log("CREATE NEW TAG")
               client.query( "insert into quiz_tag (teachid,tagname) values ($1,$2) returning id ",[user.id, tagname ],
               after(function(results) {
                 if (results && results.rows && results.rows[0] ) {
                   var tagg = results.rows[0];
+                  console.log("CREATED NEW TAG id=",tagg)
                   client.query( "insert into quiz_qtag (qid,tid) values ($1,$2) ",[qid,tagg.id],
                   after(function(results) {
                       callback( {ok:true, msg:"tagged"} );

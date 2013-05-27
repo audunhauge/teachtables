@@ -1232,7 +1232,7 @@ var qz = {
                                          +   'c1=a1-b1\n'
                                          +   'print simplify(c1)\n';
                                    var score = 0;
-                                   //console.log(intro+text);
+                                   console.log(intro+text);
                                    fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
                                      if (err) { callback(score,'error1'); throw err; }
                                       try {
