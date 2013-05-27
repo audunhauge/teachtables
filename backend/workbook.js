@@ -418,6 +418,7 @@ exports.edittags = function(user,query,callback) {
                   console.log("CREATED NEW TAG id=",tagg)
                   client.query( "insert into quiz_qtag (qid,tid) values ($1,$2) ",[qid,tagg.id],
                   after(function(results) {
+                      console.log("INSERTED NEW TAG id=",tagg,qid)
                       callback( {ok:true, msg:"tagged"} );
                   }));
                 } else {
