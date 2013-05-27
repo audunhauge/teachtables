@@ -60,6 +60,7 @@ function prep(code) {
 
 function sympify(txt) {
   // convert 2x^2+3(x-2)(x+1) to 2*x**2+3*(x-2)*(x+1)
+  if (txt =='' || txt == undefined) return txt;
   var fu = txt.replace(/ /g,'');
       fu = fu.replace(/\^/gm,'**');
       fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });
@@ -73,6 +74,7 @@ function sympify(txt) {
       fu = fu.replace(/\-\-/gm,'+');
       fu = fu.replace(/\-\+/gm,'-');
       fu = fu.replace(/^1\*/gm,'');
+      fu = fu.replace(/^\-1\*/gm,'-');
       fu = fu.replace(/(^[0-9])1\*/gm,function(m,f) { return f; });
       fu = fu.replace(/\)\(/gm,')*(');
   return fu;
@@ -1216,11 +1218,12 @@ var qz = {
                                var differ = elem[1]; // optional text that useranswer must NOT EQUAL
                                // for symbolic equality - dont accept original equation
                                // or new eq that is longer (not simpler)
-                               if (differ && (differ == uatxt  || target.length < uatxt.length)  ) {
+                               if (differ && (differ == uatxt  || differ.length < uatxt.length)  ) {
                                   callback(score,'sicut prius',completed);
                                } else {
-                                   var ufu  =  sympify(target);    // user supplied function
-                                   var fafu =  sympify(uatxt);  // fasit function/expression
+                                   var ufu  =   sympify(target);   // fasit
+                                   var fafu =   sympify(uatxt);    // user response
+                                   var diffu =  sympify(differ);   // if testing equality - must be as short or shorter than this
                                    var intro = '# coding=utf-8\n'
                                          + 'from sympy import *\n';
                                    var text = 'x,y,z,a,b,c,d,e,f,u,v,w = symbols("x,y,z,a,b,c,d,e,f,u,v,w")\n'
@@ -1229,22 +1232,33 @@ var qz = {
                                          +   'c1=a1-b1\n'
                                          +   'print simplify(c1)\n';
                                    var score = 0;
-                                   console.log(intro+text);
+                                   //console.log(intro+text);
                                    fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
                                      if (err) { callback(score,'error1'); throw err; }
                                       try {
                                        var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
                                          fs.unlink('/tmp/symp'+now);
-                                         console.log("err=",stderr,"out=",stdout,"SOO");
+                                         //console.log("err=",stderr,"out=",stdout,"SOO");
                                          if (error) {
                                            console.log(error,stderr);
                                            callback(score,'error2',completed);
                                          } else {
                                            if (stdout && stdout != '') {
-                                             console.log(stdout);
+                                             //console.log(stdout);
                                              var eta = +stdout.trim();
                                              if (eta == 0 || Math.abs(eta) < 0.001 ) {
                                                score = 1
+                                               if (differ) {
+                                                 // we are testing for simplification
+                                                 // minimum assumed to be ufu, diffu.length is original length (unsimplified)
+                                                 var span = diffu.length - ufu.length; // max shortening possible
+                                                 var dif  = fafu.length - ufu.length;  // how much shorter
+                                                 if (span > 0) {
+                                                   score = Math.max(0,Math.min(1,1-dif/span));
+                                                   // relative score depending on how many chars
+                                                   // you have shortened the eq - span assumed to be max
+                                                 }
+                                               }
                                              } else {
                                                score = 0;
                                              }
