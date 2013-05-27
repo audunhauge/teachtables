@@ -1698,10 +1698,10 @@ function editquestion(myid, target) {
    $j('#nutag').click(function() {
        var tagname = $j("input[name=tagtxt]").val();
        $j.post(mybase+'/edittags', { action:'tag', qid:myid, tagname:tagname}, function(resp) {
-         freshenTags();
+         freshenTags(q.subject);
        });
    });
-   freshenTags();
+   freshenTags(q.subject);
    $j("#mytags").undelegate("input.tagr","change");
    $j("#mytags").delegate("input.tagr","change", function() {
         $j("#saveq").addClass('red');
@@ -1809,8 +1809,10 @@ function editquestion(myid, target) {
         }
     }
 
-    function freshenTags() {
+    function freshenTags(subj) {
+       // fetch tags for this subject (given by question) plus tags for this course
        var subject = (wbinfo.coursename) ? wbinfo.coursename.split('_')[0] :  '';
+       subject = (subject != subj) ? [subject,subj].join(',') : subject;
        $j.getJSON(mybase+'/gettags', { subject:subject }, function(tags) {
          var mytags = tags[userinfo.id] || [];
          var tlist = [];
