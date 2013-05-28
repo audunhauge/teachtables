@@ -525,7 +525,7 @@ function oldplans() {
                if (!grouping[gname]) grouping[gname] = {};
                if (!grouping[gname][trinn]) grouping[gname][trinn] = {};
                if (!grouping[gname][trinn][fname]) grouping[gname][trinn][fname] = [];
-               grouping[gname][trinn][fname].push([rname,pinf.id]);
+               grouping[gname][trinn][fname].push([rname,pinf.i]);
              }
              for (var gg in grouping) {
                s += '<li><a href="#">' + gg + '</a><ul>';

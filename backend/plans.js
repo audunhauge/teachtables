@@ -72,7 +72,7 @@ exports.getCoursePlans = function(callback) {
           //+ '   ORDER BY u.institution,u.username,c.shortname,w.sequence ' ,
       after(function(results) {
           //console.log(results);
-          var fliste = {}; 
+          var fliste = {};
           var compliance = {};  // is this a compliant teacher?
           var startdate   = 0;
           var numsections = 0;
@@ -126,7 +126,7 @@ exports.getAplan = function(planid,callback) {
       after(function(results) {
           if (results && results.rows) {
             var plan = {};
-            if (results.rows[0]) { 
+            if (results.rows[0]) {
               plan.name = results.rows[0].name;
               plan.weeks = {};
               for (var i=0;i<48;i++) plan.weeks[''+i] = '';
@@ -154,11 +154,11 @@ exports.shiftWeekPlan = function(user,query,callback) {
     if (user.department == 'Undervisning') {
       if (up == "true") {
         // move first element away so it doesnt get overwritten
-        client.query("update weekplan set sequence = 99 where planid=$2 and sequence = $1", [section,planid], 
+        client.query("update weekplan set sequence = 99 where planid=$2 and sequence = $1", [section,planid],
           after(function(results) {
            client.query("update weekplan set sequence = sequence - 1 where planid=$1 and sequence > $2",
                 [ planid,section ], after(function(res) {
-                      client.query("update weekplan set sequence = 47 where planid=$1 and sequence = 98", [planid], 
+                      client.query("update weekplan set sequence = 47 where planid=$1 and sequence = 98", [planid],
                         after(function(results) {
                             client.query("select * from weekplan where planid = $1",[planid],
                               after(function(results) {
@@ -172,7 +172,7 @@ exports.shiftWeekPlan = function(user,query,callback) {
          client.query("update weekplan set sequence = sequence + 1 where planid=$1 and sequence >= $2", [ planid,section ],
              after(function(res) {
                     console.log("update weekplan set sequence = $1 where planid=$2 and sequence = 48", [section,planid]);
-                    client.query("update weekplan set sequence = $1 where planid=$2 and sequence = 48", [section,planid], 
+                    client.query("update weekplan set sequence = $1 where planid=$2 and sequence = 48", [section,planid],
                       after(function(results) {
                           client.query("select * from weekplan where planid = $1",[planid],
                             after(function(results) {
@@ -205,12 +205,12 @@ exports.updateTotCoursePlan = function(query,callback) {
   var sql;
   if (query.planid) {
     sql = 'select w.*,p.id as pid from plan p left join weekplan w on (p.id = w.planid) '
-        + ' where p.id = $1 '; 
+        + ' where p.id = $1 ';
     param = query.planid;
   } else {
     sql = 'select w.*,p.id as pid from plan p left join weekplan w on (p.id = w.planid) '
         + ' inner join course c on (c.planid = p.id) '
-        + ' where c.id = $1 '; 
+        + ' where c.id = $1 ';
     param = query.courseid;
   }
   //console.log(sql,param);
@@ -434,12 +434,12 @@ exports.updateCoursePlan = function(query,callback) {
   var sql;
   if (query.planid) {
     sql = 'select w.*,p.id as pid from plan p left join weekplan w on (p.id = w.planid) '
-        + ' where p.id = $1 '; 
+        + ' where p.id = $1 ';
     param = query.planid;
   } else {
     sql = 'select w.*,p.id as pid from plan p left join weekplan w on (p.id = w.planid) '
         + ' inner join course c on (c.planid = p.id) '
-        + ' where c.id = $1 '; 
+        + ' where c.id = $1 ';
     param = query.courseid;
   }
   //console.log(sql,param)
