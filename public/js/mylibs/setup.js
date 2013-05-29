@@ -55,7 +55,8 @@ var timeregister = {};
 var absent = {};
 // all teachers who are absent (from current day)
 // and all students
-// {  julday:{ userid:{id,klass,name,value }, ..}, ... }
+// also solo - tests for students
+// {  julday:{ userid:{id,klass,name,value,eventtype }, ..}, ... }
 // if klass != 0 then this is id of teach who takes studs on trip
 
 var valgtPlan;          // husker på den sist viste planen
@@ -916,7 +917,7 @@ $j(document).ready(function() {
     });
     $j("#alleprover").addClass("disabled");
     // this is disabled until we have loaded all tests
-    // will only show if response from mysql is slow
+    // will only show if response from database is slow
     $j.getJSON(mybase+ "/alltests",
          function(data) {
             alleprover = data;

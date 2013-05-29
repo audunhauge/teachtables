@@ -172,16 +172,16 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
         edit_proveplan(fagnavn,plandata,uke,26);
     });
     if (isteach) {
-      var buttons = $j(".close").click(function (event) { 
+      var buttons = $j(".close").click(function (event) {
           var timer = $j.map($j("table.testtime tr.trac th"),function(e,i) {
                 return e.innerHTML.split(' ')[0];
              });
           triggers.eq(1).overlay().close();
-          if (buttons.index(this) == 0) { 
+          if (buttons.index(this) == 0) {
              $j("#editmsg").html("Oppdaterer database .... vent ...");
              $j.post(mybase+ "/save_test", { coursename:fagnavn,"timer":timer.join(','), "idd":testjd },
                 function(data) {
-                $j.getJSON(mybase+ "/alltests", 
+                $j.getJSON(mybase+ "/alltests",
                      function(data) {
                         alleprover = data;
                         $j(minVisning).click();
@@ -202,7 +202,7 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
           $j("span.velgprove").click(function(){
              $j(this).parent().parent().toggleClass("trac");
            });
-      }).overlay({ 
+      }).overlay({
           mask: {
                   color: '#ebecff',
                   loadSpeed: 200,
@@ -259,7 +259,7 @@ function visEnPlan(inifagnavn,plandata) {
       // we have all info in plandata
       fagnavn = plandata.name;
       plandata = plandata.weeks;
-      egne = (inlogged && isteach); 
+      egne = (inlogged && isteach);
     } else {
       $j.bbq.pushState("#plans/"+fagnavn);
       if (!plandata ) plandata = courseplans[fagnavn];
@@ -313,7 +313,7 @@ function visEnPlan(inifagnavn,plandata) {
         //    fagplaner.fagliste[fagnavn];
         $j(this).removeClass("button").html('<img src="img/indicator.gif">');
         var ppid,courseid;
-        if (nocourse) { 
+        if (nocourse) {
           ppid = myplanid;
         } else {
           courseid = database.courseteach[fagnavn].id;
@@ -450,7 +450,7 @@ function save_vurd(value,settings) {
     // save the changed element into compound week data a|b|c|d|e
     $j(this).removeClass( "ui-state-highlight" );
     var ppid;
-    if (nocourse) { 
+    if (nocourse) {
       ppid = myplanid;
     } else {
       ppid =  cpinfo[minfagplan];
@@ -460,7 +460,7 @@ function save_vurd(value,settings) {
         if (data.ok) {
             $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
             planinfo[cpinfo[minfagplan]] = value;
-        } else {    
+        } else {
             $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
         }
     });
@@ -469,7 +469,7 @@ function save_vurd(value,settings) {
 }
 
 function pasteIntoThisPlan(fagnavn,egne) {
-    if (nocourse) { 
+    if (nocourse) {
       var pplan = { name:fagnavn, weeks:mycopy };
       visEnPlan("showplan",pplan,true);
     } else {
@@ -488,7 +488,7 @@ function pasteIntoThisPlan(fagnavn,egne) {
 
 
 function showAweek(egne,gru,elever,info,absent,timmy,tests,plandata,uke,tjd,section) {
-        var summary = plandata[section]; 
+        var summary = plandata[section];
         var i,j,e,klass,idd;
         var s = '';
         if (+section < 10) {
@@ -512,7 +512,7 @@ function showAweek(egne,gru,elever,info,absent,timmy,tests,plandata,uke,tjd,sect
             if (absentDueTest && absentDueTest.length > 0) {
               for (var absi in absentDueTest) {
                 for (var el in absentDueTest[absi].elever) {
-                 var elev = absentDueTest[absi].elever[el]; 
+                 var elev = absentDueTest[absi].elever[el];
                  if (students[elev] && !already[elev] ) {
                     already[elev] = 1;
                     days[ dager[j] ] = 1;
@@ -665,7 +665,7 @@ function short_sweet_name(stuid) {
   // [ -] replaced by nbps. firstname chopped to 15 chars
   // lastname chopped to 15 chars
   if (!students[stuid]) return '';
-  return students[stuid].firstname.replace(" ","&nbsp;").replace("-","&nbsp;").substring(0,15) + '&nbsp;' 
+  return students[stuid].firstname.replace(" ","&nbsp;").replace("-","&nbsp;").substring(0,15) + '&nbsp;'
          + students[stuid].lastname.substring(0,15)+ '&nbsp;' + students[stuid].department;
 }
 
@@ -673,13 +673,13 @@ function edit_blokk() {
   // edit blokks for tests
   // some courses may be attached to a block
   // these will have names like 3inf5_3201
-  $j.getJSON(mybase+ "/blocks", 
+  $j.getJSON(mybase+ "/blocks",
   function(data) {
     blocks = data;
-    var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek; 
+    var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek;
     var stop =  (showyear == 0) ? database.lastweek  : database.nextyear.lastweek;
-    promises.toggle_year = function() { 
-          edit_blokk(); 
+    promises.toggle_year = function() {
+          edit_blokk();
         };
     var iddx = 0;
     var events = database.yearplan;
@@ -687,7 +687,7 @@ function edit_blokk() {
     s += '<div class="centered sized1"><div id="editmsg"> '
           + 'Klikk på grønn sirkel for å legge til ny blokk. Klikk deretter på changeme og skriv blokk-kode + tekst.'
                 + 'Klikk på eksisterende blokk for å redigere/slette.'
-                + 'Sletting:Klikk på blokk, fjern all tekst og klikk ok.' 
+                + 'Sletting:Klikk på blokk, fjern all tekst og klikk ok.'
          + '</div>';
     var theader ="<table class=\"year\" >"
      + "<tr><th>Uke</th><th>Man</th><th>Tir</th><th>Ons</th>"
@@ -768,7 +768,7 @@ function check_blokk(value,settings) {
             function(data) {
                 if (data.ok) {
                     $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-                } else {    
+                } else {
                     $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
                 }
             });
@@ -778,7 +778,7 @@ function check_blokk(value,settings) {
            function(data) {
                   if (data.ok) {
                       $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-                  } else {    
+                  } else {
                       $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
                   }
               });
@@ -799,7 +799,7 @@ function check_xtra(value,settings) {
             function(data) {
                 if (data.ok) {
                     $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-                } else {    
+                } else {
                     $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
                 }
             });
@@ -809,7 +809,7 @@ function check_xtra(value,settings) {
            function(data) {
                   if (data.ok) {
                       $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-                  } else {    
+                  } else {
                       $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
                   }
               });
@@ -819,10 +819,10 @@ function check_xtra(value,settings) {
 
 function edit_extrax() {
   // edit extra exams - repeated exams for those who failed
-  $j.getJSON(mybase+ "/extrax", 
+  $j.getJSON(mybase+ "/extrax",
   function(data) {
     var extrax = data || {};
-    var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek; 
+    var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek;
     var stop =  (showyear == 0) ? database.lastweek  : database.nextyear.lastweek;
     var iddx = 0;
     var events = database.yearplan;
@@ -830,7 +830,7 @@ function edit_extrax() {
     s += '<div class="centered sized1"><div id="editmsg"> '
           + 'Klikk på grønn sirkel for å legge til ny utsatt eksamen. Klikk deretter på Fagnavn og skriv fagnavn+tekst.'
                 + 'Klikk på eksisterende eksamen for å redigere/slette.'
-                + 'Sletting:Klikk på blokk, fjern all tekst og klikk ok.' 
+                + 'Sletting:Klikk på blokk, fjern all tekst og klikk ok.'
          + '</div>';
     var theader ="<table class=\"year\" >"
      + "<tr><th>Uke</th><th>Man</th><th>Tir</th><th>Ons</th>"
@@ -893,15 +893,15 @@ function edit_extrax() {
 
 function edit_aarsplan(edchoice) {
   // edit heldag has been melded in here
-  var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek; 
+  var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek;
   var stop =  (showyear == 0) ? database.lastweek  : database.nextyear.lastweek;
-  promises.toggle_year = function() { 
-          edit_aarsplan(edchoice); 
+  promises.toggle_year = function() {
+          edit_aarsplan(edchoice);
         };
-  $j.getJSON(mybase+ "/getexams", 
+  $j.getJSON(mybase+ "/getexams",
   function(data) {
     database.heldag = data;
-    $j.getJSON(mybase+ "/yyear", 
+    $j.getJSON(mybase+ "/yyear",
     function(data) {
       database.yearplan = data.data;
       var iddx = 0;
@@ -943,9 +943,9 @@ function edit_aarsplan(edchoice) {
           tdclass = '';
           var ttpp = '';   // fetch out mdd tests
           var hasttpp = false;
-          // these tests are like hd (whole day) tests - but are limited to 
+          // these tests are like hd (whole day) tests - but are limited to
           // given timeslots - not the whole day. Studs are freed from
-          // normal lessons and take test instead 
+          // normal lessons and take test instead
           // All studs taking SUBJECT are affected (not group) ????
           if (database.freedays[jd+j]) {
             text = database.freedays[jd+j];
@@ -1058,7 +1058,7 @@ function check_heldag(value,settings) {
             function(data) {
                 if (data.ok) {
                     $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-                } else {    
+                } else {
                     $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
                 }
             });
@@ -1077,7 +1077,7 @@ function check_heldag(value,settings) {
               function(data) {
                   if (data.ok) {
                       $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-                  } else {    
+                  } else {
                       $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
                   }
               });
@@ -1090,12 +1090,12 @@ function check_heldag(value,settings) {
 }
 
 function edit_fridager() {
-    var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek; 
+    var start = (showyear == 0) ? database.firstweek : database.nextyear.firstweek;
     var stop =  (showyear == 0) ? database.lastweek  : database.nextyear.lastweek;
-    promises.toggle_year = function() { 
-          edit_fridager(); 
+    promises.toggle_year = function() {
+          edit_fridager();
         };
-    $j.getJSON(mybase+ "/freedays", 
+    $j.getJSON(mybase+ "/freedays",
        function(data) {
             database.freedays = data;
             var s="<h1>Rediger Fridager</h1>";
@@ -1159,7 +1159,7 @@ function save_fagplan(value,settings) {
       // saved with new content)
     update_fagplaner(minfagplan,section,summary);
     var ppid,courseid;
-    if (nocourse) { 
+    if (nocourse) {
       ppid = myplanid;
     } else {
       courseid = database.courseteach[minfagplan].id;
@@ -1169,7 +1169,7 @@ function save_fagplan(value,settings) {
     function(data) {
         if (data.ok) {
             $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
-        } else {    
+        } else {
             $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
             if (data.msg == 'bad user') {
                data.msg = "Du er ikke lenger innlogget.<br>Last sida på nytt og logg inn.";
@@ -1255,11 +1255,11 @@ function save_simple(value,settings) {
             $j("#editmsg").html('Du kan redigere planen ved å klikke på en rute');
             // refetch the yearplan so that compulsive checkers
             // can see the change straight away if the navigate to ThisWeek
-            $j.getJSON(mybase+ "/yyear", 
+            $j.getJSON(mybase+ "/yyear",
             function(data) {
               database.yearplan = data.data;
               });
-        } else {    
+        } else {
             $j("#editmsg").html('<span class="error">'+data.msg+'</span>');
         }
     });
@@ -1310,5 +1310,5 @@ function enable_editing(eventtype) {
          indicator : '<img src="img/indicator.gif">',
          tooltip   : 'Click to edit...'
      });
-}     
+}
 

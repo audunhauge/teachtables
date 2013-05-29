@@ -1161,6 +1161,14 @@ div.tinyohd {
     color:green !important;
 }
 
+.whitefont {
+    color:white !important;
+}
+
+.greenback {
+    background:green !important;
+}
+
 .bluefont {
     color:blue !important;
 }

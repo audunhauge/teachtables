@@ -236,6 +236,7 @@ function edit_solo(uid) {
             for (var a in absent[tjd+w]) {
               if (students[a]) {
                 var ab = absent[tjd+w][a];
+                if (ab.et != 'solo') continue;   // ignore anything but solo-tests
                 if (!kurs[ab.name]) {
                   kurs[ab.name] = {};
                 }
@@ -304,18 +305,19 @@ function edit_solo(uid) {
         }
         if (save) {
            $j("#editmsg").html("Lagrer valgte timer ...");
-           $j.post(mybase+ "/save_excursion", { userid:uid, klass:uid, userlist:members.join(','), name:$j("#cause").val(),"value":timer.join(','), "jd":testjd },
+           $j.post(mybase+ "/save_excursion", { kind:"solo", userid:uid, klass:uid, userlist:members.join(','),
+                                                name:$j("#cause").val(),"value":timer.join(','), "jd":testjd },
               function(data) {
                 $j("#editmsg").html(data.msg);
                 if (data.ok) $j.getJSON(mybase+ "/getabsent",
                      function(data) {
                         absent = data;
-                        edit_excursion(uid);
+                        edit_solo(uid);
                      });
               });
         } else {
            triggers.eq(1).overlay().close();
-           edit_excursion(uid);
+           edit_solo(uid);
         }
     });
     var triggers = $j("a.addnew,a.absent").click(function() {
@@ -425,6 +427,7 @@ function edit_excursion(uid) {
             for (var a in absent[tjd+w]) {
               if (students[a]) {
                 var ab = absent[tjd+w][a];
+                if (ab.et != 'absent') continue;   // ignore anything but absent studs
                 if (!kurs[ab.name]) {
                   kurs[ab.name] = {};
                 }

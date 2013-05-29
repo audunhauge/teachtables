@@ -9,7 +9,7 @@ var after = require('./utils').after;
 var db = siteinf.database.db;
 
 exports.getAllTests = function(callback) {
-  // returns a hash of all tests --- same as db.prover, 
+  // returns a hash of all tests --- same as db.prover,
   // used to populate db.prover
   // assumes you give it a callback that assigns the hash
   client.query(
@@ -32,6 +32,7 @@ exports.getAllTests = function(callback) {
           callback(prover);
       }));
 }
+
 
 exports.savehd = function(user,query,callback) {
     //console.log(query,user.id);

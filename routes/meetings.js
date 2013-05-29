@@ -125,6 +125,7 @@ exports.save_absent = function(req, res) {
     }
 };
 
+
 exports.getabsent = function(req, res) {
     // get absent list
         database.getabsent(req.query, function(absent) {

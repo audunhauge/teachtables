@@ -195,17 +195,18 @@ var saveabsent = function(user,query,callback) {
   var text = query.value;
   var name = query.name;
   var userid = query.userid;
+  var kind = query.kind || 'absent';
   var klass = query.klass;   // this will be userid or 0
   //console.log("Saving:",jd,text,name,userid,klass);
   if (text == '') client.query(
           'delete from calendar'
-      + " where name = $1 and ($2 or (class=$3 or class=0 ) and userid= $4) and eventtype='absent' and julday= $5 " , [ name,user.isadmin,klass,userid, jd ],
+      + " where name = $1 and ($2 or (class=$3 or class=0 ) and userid= $4) and eventtype=$6 and julday= $5 " , [ name,user.isadmin,klass,userid, jd,kind ],
           after(function(results) {
               callback( {ok:true, msg:"deleted"} );
           }));
   else client.query(
         'select * from calendar '
-      + ' where name = $1 and (class=$2 or class=0) and eventtype=\'absent\' and userid= $3 and julday= $4 ' , [ name,klass, userid,  jd ],
+      + ' where name = $1 and (class=$2 or class=0) and eventtype=$5 and userid= $3 and julday= $4 ' , [ name,klass, userid,  jd,kind ],
       after(function(results) {
           var abs ;
           if (results) abs = results.rows[0];
@@ -221,7 +222,7 @@ var saveabsent = function(user,query,callback) {
               }
           } else {
             client.query(
-                'insert into calendar (courseid,userid,julday,eventtype,value,name,class) values (0,$1,$2,\'absent\',$3,$4,$5)',[userid,jd,text,name,klass],
+                'insert into calendar (courseid,userid,julday,eventtype,value,name,class) values (0,$1,$2,$6,$3,$4,$5)',[userid,jd,text,name,klass,kind],
                 after(function(results) {
                     callback( {ok:true, msg:"inserted"} );
                 }));
@@ -255,14 +256,15 @@ var getcalendar = function(query,callback) {
       }));
 }
 
-
 var getabsent = function(query,callback) {
   // returns a hash of all absent teach/stud
+  // also gives studs who have a singular test
+  //  (not a whole group - just a selected few)
   //  {  julday:{ uid:{value:"1,2",name:"Kurs"}, uid:"1,2,3,4,5,6,7,8,9", ... }
   var upper       = +query.upper    || db.lastweek ;
   client.query(
-      "select id,userid,julday,name,value,class as klass from calendar "
-      + " where eventtype ='absent' and julday >= $1 and julday <= $2 ",[ db.startjd, upper ],
+      "select id,userid,eventtype as et,julday,name,value,class as klass from calendar "
+      + " where eventtype in ('absent','solo') and julday >= $1 and julday <= $2 ",[ db.startjd, upper ],
       after(function(results) {
           var absent = {};
           if (results && results.rows) for (var i=0,k= results.rows.length; i < k; i++) {
@@ -308,7 +310,7 @@ exports.editgroup = function(user,query,callback) {
           after(function(results) {
                callback( {ok:true, msg:"updated" } );
            }));
-    	break;
+        break;
       default:
           client.query("select g.*,m.userid from groups g left outer join members m on (m.groupid = g.id) order by groupname",
           after(function(results) {
@@ -362,7 +364,7 @@ exports.edituser = function(user,query,callback) {
           after(function(results) {
                callback( {ok:true, msg:"updated" } );
            }));
-    	break;
+        break;
       default:
           client.query("select * from users order by username",
           after(function(results) {
@@ -399,7 +401,7 @@ exports.editcourse = function(user,query,callback) {
           after(function(results) {
                callback( {ok:true, msg:"updated" } );
            }));
-    	break;
+        break;
       default:
           client.query("select c.*,t.userid,e.groupid from course c left outer join teacher t on (t.courseid = c.id) "
               + " left outer join enrol e on (e.courseid = c.id) "

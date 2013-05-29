@@ -365,6 +365,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
           xcell = '';
           subject = '';    // no students for this lesson
           var abslist = [];  // studs who are absent for this day-slot
+          var because = 0;  // mostly absent -not singular tests
           var header = 'AndreFag';
           var already = {};  // to avoid doubles
           var room = (timeplan.cleanroom[i]) ? timeplan.cleanroom[i][j] : '';
@@ -430,6 +431,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
                if (students[elev] && !already[elev] ) {
                  already[elev] = 1;
                  abslist.push(short_sweet_name(elev));
+                 because++;   // due absence
                  //abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
                }
               }
@@ -455,7 +457,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
             }
           }
           if (!edit && absent[jd+j]) {
-            if (absent[jd+j][uid]) {
+            if (absent[jd+j][uid]) {    // the viewer is absent this day
               var ab = absent[jd+j][uid];
               var tlist = ab.value.split(',');
               if ($j.inArray(""+(i+1),tlist) >= 0) {
@@ -475,6 +477,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
                               // this stud is absent during course slot
                               //abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
                               abslist.push(short_sweet_name(elev));
+                              because += (ab[elev].et == 'solo') ? -1 : 1;  // inc for absent, dec for solo
                               already[elev] = 1;
                               break;
                           }
@@ -490,8 +493,9 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
           var abs = '';
           if (!edit && timetables.teach[uid]) {
             if (abslist.length) {
+              var cco = (because < 0) ? 'greenback whitefont' : '' ;
               abs = '<div title="<table><tr><td>'
-                      +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny totip absentia">'+abslist.length+'</div>';
+                      +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny '+cco+' totip absentia">'+abslist.length+'</div>';
             }
           }
           if (cell == '&nbsp;' && edit && isadmin && filter == 'teach')  {
