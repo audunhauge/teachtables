@@ -475,8 +475,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
                           var slo = slots[sl];
                           if (+slo-1 == i) {
                               // this stud is absent during course slot
-                              //abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
-                              abslist.push(short_sweet_name(elev));
+                              abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
                               because += (ab[elev].et == 'solo') ? -1 : 1;  // inc for absent, dec for solo
                               already[elev] = 1;
                               break;

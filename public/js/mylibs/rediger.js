@@ -106,6 +106,36 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
                 if  (timmy[w] && isteach && !weektest[w] ) {
                    weektest[w] += '<a active="" rel="#testdialog" id="jdw'+tjd+'_'+w+'" class="addnew">+</a>' ;
                 }
+                // pull in list of absent students - this just for info
+                var because = 0;  // mostly absent -not singular tests
+                var already = {};  // to avoid doubles
+                var abslist = [];  // studs who are absent for this day-slot
+                if (absent[tjd+w]) {
+                  for (var el in elever) {
+                      var ab = absent[tjd+w];
+                      var elev = elever[el];
+                      if (ab[elev] && !already[elev] ) { // one of my studs is absent
+                          var slots = ab[elev].value;
+                          for (var sl in slots) {
+                              var slo = slots[sl];
+                              if (timmy[w] && timmy[w][+slo-1]) {
+                                  // this stud is absent during course slot
+                                  //abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
+                                  abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
+                                  because += (ab[elev].et == 'solo') ? -1 : 1;  // inc for absent, dec for solo
+                                  already[elev] = 1;
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                }
+                if (abslist.length) {
+                  var cco = (because < 0) ? 'greenback whitefont' : '' ;
+                  abs = '<div title="<table><tr><td>'
+                          +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny '+cco+' totip absentia">'+abslist.length+'</div>';
+                  weektest[w] += abs;
+                }
               }
               // add in bg if this is a block (assigned slot for tests in this course)
               var blo = blocks[tjd+w];
@@ -486,6 +516,64 @@ function pasteIntoThisPlan(fagnavn,egne) {
     $j("#editmsg").html('Planen er oppdatert, men IKKE lagra.');
 }
 
+function absentees(absentDueTest,absent,timmy,elever,j,tjd) {
+  // returns a small circle with popup showing absentees
+  // absentees may be studs on excursion or studs with singular test
+  // singular tests are test for a select group of studs (1 or more)
+  var abs = '';
+  var days = {};
+  var cause = {};
+  var abslist = [];
+  var already = {};  // to avoid doubles
+  if (absentDueTest && absentDueTest.length > 0) {
+    for (var absi in absentDueTest) {
+      for (var el in absentDueTest[absi].elever) {
+        var elev = absentDueTest[absi].elever[el];
+        if (students[elev] && !already[elev] ) {
+          already[elev] = 1;
+          days[ dager[j] ] = 1;
+          cause[ absentDueTest[absi].hd ] = 1;
+          abslist.push(short_sweet_name(elev));
+        }
+      }
+    }
+  }
+  if (absent[tjd+j] && timmy[j]) {  // absent and lesson
+    for (var el in elever) {
+      var ab = absent[tjd+j];
+      var elev = elever[el];
+      if (ab[elev]) { // one of my studs is absent
+             var slots = ab[elev].value;
+             for (var sl in slots) {
+                 var slo = slots[sl];
+                 if (timmy[j][+slo-1] && students[elev]) {
+                     // this stud is absent during course slot
+                     //abslist.push( dager[j]+ 'dag&nbsp;' + students[elev].firstname + '&nbsp;' + students[elev].lastname + '&nbsp;'+ ab[elev].name);
+                     if (students[elev]) {
+                      //abslist.push(short_sweet_name(elev));
+                      abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
+                      days[ dager[j] ] = 1;
+                      cause[ ab[elev].name ] = 1;
+                      break;
+                     }
+                 }
+             }
+      }
+    }
+  }
+  if (abslist.length) {
+       var causedays = '';
+       for (var cc in cause) {
+         causedays += cc + ' ';
+       }
+       for (var dd in days) {
+         causedays += dd + ' ';
+       }
+       abs += '<div title="<h3>'+causedays+'</h3><table><tr><td>'
+               +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="float weeny totip absentia">'+abslist.length+'</div>';
+  }
+  return abs;
+}
 
 function showAweek(egne,gru,elever,info,absent,timmy,tests,plandata,uke,tjd,section) {
         var summary = plandata[section];
@@ -500,61 +588,16 @@ function showAweek(egne,gru,elever,info,absent,timmy,tests,plandata,uke,tjd,sect
         var testweek = tests[tjd];
         var test = '';
         var abs = '';
+        var elever = memberlist[gru];
+        var andre = getOtherCG(elever);
         for (var j=0;j<5;j++) {
           if (timmy[j] ) {
             var days = {};
             var cause = {};
             var abslist = [];
             var already = {};  // to avoid doubles
-            var elever = memberlist[gru];
-            var andre = getOtherCG(elever);
             var absentDueTest = getAbsentBecauseTest(tjd+j,andre);
-            if (absentDueTest && absentDueTest.length > 0) {
-              for (var absi in absentDueTest) {
-                for (var el in absentDueTest[absi].elever) {
-                 var elev = absentDueTest[absi].elever[el];
-                 if (students[elev] && !already[elev] ) {
-                    already[elev] = 1;
-                    days[ dager[j] ] = 1;
-                    cause[ absentDueTest[absi].hd ] = 1;
-                    abslist.push(short_sweet_name(elev));
-                 }
-                }
-              }
-            }
-            if (absent[tjd+j] && timmy[j]) {  // absent and lesson
-              for (var el in elever) {
-                  var ab = absent[tjd+j];
-                  var elev = elever[el];
-                  if (ab[elev]) { // one of my studs is absent
-                      var slots = ab[elev].value;
-                      for (var sl in slots) {
-                          var slo = slots[sl];
-                          if (timmy[j][+slo-1] && students[elev]) {
-                              // this stud is absent during course slot
-                              //abslist.push( dager[j]+ 'dag&nbsp;' + students[elev].firstname + '&nbsp;' + students[elev].lastname + '&nbsp;'+ ab[elev].name);
-                              if (students[elev]) {
-                                abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
-                                days[ dager[j] ] = 1;
-                                cause[ ab[elev].name ] = 1;
-                                break;
-                              }
-                          }
-                      }
-                  }
-              }
-            }
-            if (abslist.length) {
-                  var causedays = '';
-                  for (var cc in cause) {
-                    causedays += cc + ' ';
-                  }
-                  for (var dd in days) {
-                    causedays += dd + ' ';
-                  }
-                  abs += '<div title="<h3>'+causedays+'</h3><table><tr><td>'
-                          +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="float weeny totip absentia">'+abslist.length+'</div>';
-            }
+            abs += absentees(absentDueTest,absent,timmy,elever,j,tjd);
            }
         }
         summary += '|||||';
@@ -658,6 +701,20 @@ function visEnValgtPlan(plandata,egne,start,stop) {
     }
     s += "</table>";
     return s;
+}
+
+function shortteach(t) {
+  // returns username for teach
+  if (!teachers[t]) return '';
+  return teachers[t].username;
+}
+function short_teachname(t) {
+  // returns a shortened name for a teach
+  // [ -] replaced by nbps. firstname chopped to 15 chars
+  // lastname chopped to 15 chars
+  if (!teachers[t]) return '';
+  return teachers[t].firstname.replace(" ","&nbsp;").replace("-","&nbsp;").substring(0,15) + '&nbsp;'
+         + teachers[t].lastname.substring(0,15);
 }
 
 function short_sweet_name(stuid) {

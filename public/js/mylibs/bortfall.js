@@ -259,8 +259,8 @@ function edit_solo(uid) {
               if (+owner == 0) {
                 klass = "absent elev";
               }
-              weektest[w] += '<a members="'+tl.members.join(',')+'" title="'+k+'" rel="#testdialog" id="jdw'
-                   +(tjd+w)+'_'+w+'" active="'+tl.slots+'" class="'+klass+'">' + k + " " + tlist + '</a>';
+              weektest[w] += '<a members="'+tl.members.join(',')+'" title="'+ shortteach(owner)+':'+k+'" rel="#testdialog" id="jdw'
+                   +(tjd+w)+'_'+w+'" active="'+tl.slots+'" class="'+klass+'">' + k.substr(0,10) + " " + tlist + '</a>';
 
             }
           }
@@ -450,8 +450,8 @@ function edit_excursion(uid) {
               if (+owner == 0) {
                 klass = "absent elev";
               }
-              weektest[w] += '<a members="'+tl.members.join(',')+'" title="'+k+'" rel="#testdialog" id="jdw'
-                   +(tjd+w)+'_'+w+'" active="'+tl.slots+'" class="'+klass+'">' + k + " " + tlist + '</a>';
+              weektest[w] += '<a members="'+tl.members.join(',')+'" title="'+ shortteach(owner)+':'+k+'" rel="#testdialog" id="jdw'
+                   +(tjd+w)+'_'+w+'" active="'+tl.slots+'" class="'+klass+'">' + k.substr(0,10) + " " + tlist + '</a>';
 
             }
           }

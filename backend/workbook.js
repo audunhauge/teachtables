@@ -35,12 +35,14 @@ function emptyCache() {
                   cachecounter = 0;
                   console.log("DONE UPDATE CACHE")
                 }));
-              } else if (cachecounter == 0) {
+              } else if (cachecounter > 0) {
                   //if (obj.hname != hname) {
                       // this is not our own
                     var now = new Date();
+                    console.log("Doing time test",lasttime,obj.lasttime);
                     if (lasttime < obj.lasttime) {
                         lasttime = now.getTime();
+                        console.log("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid]);
                         client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid],
                         after(function(res) {
                           quiz.question[obj.qid] = res.rows[0];
