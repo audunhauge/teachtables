@@ -39,7 +39,7 @@ function emptyCache() {
                   //if (obj.hname != hname) {
                       // this is not our own
                     var now = new Date();
-                    console.log("Doing time test",lasttime,obj.lasttime);
+                    console.log("Doing time test",lasttime,obj,obj.lasttime);
                     if (lasttime < obj.lasttime) {
                         lasttime = now.getTime();
                         console.log("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid]);
@@ -110,6 +110,7 @@ exports.editquest = function(user,query,callback) {
     obj.lasttime = now.getTime();
     obj.hname = hname;
     var strobj = JSON.stringify(obj);
+    console.log("Saving cache info",obj);
     client.query( "update subject set description = $1 where subjectname ='cache'",[strobj]);
   }
   //console.log(qid,name,qtype,qtext,teachid,points);
@@ -150,7 +151,7 @@ exports.editquest = function(user,query,callback) {
         client.query( sql, params,
           after(function(results) {
             delete quiz.question[qid];  // remove it from cache
-            if (qtype == 'quiz') client.query( "update subject set description = $1 where subjectname ='cache'",[qid]);
+            //if (qtype == 'quiz') client.query( "update subject set description = $1 where subjectname ='cache'",[qid]);
             // mark this quiz as changed so other servers can reread - clear cache
             callback( {ok:true, msg:"updated"} );
             // TODO here we may need to regen useranswer for container
