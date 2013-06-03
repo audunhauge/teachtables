@@ -198,8 +198,8 @@ function gui(elements) {
         break;
       case 'checkbox':
       case 'radio':
-        s = '';
         if (elm.options) {
+          s = '<span class="floatright">';
           for (var j=0; j < elm.options.length; j++) {
             var opt = elm.options[j];
             var checked = (elm.value == opt.value) ?  ' checked="checked"' : '';
@@ -208,8 +208,12 @@ function gui(elements) {
             opt.name = elm.name;
             opt.id = elm.id;
             opt.klass = elm.klass;
-            s += '<input name="{name}" id="{id}" class="check {klass}" type="{type}" value="{value}"{checked} >'.supplant(opt);
+            s += '{label}<input name="{name}" id="{id}" class="{klass}" type="{type}" value="{value}"{checked} >'.supplant(opt);
           }
+          s += "</span>"
+        } else {
+            elm.checked = (elm.value != 0) ?  ' checked="checked"' : '';
+            s = '{label}<input name="{name}" id="{id}" class="{klass}" type="{type}" value="{value}"{checked} >'.supplant(elm);
         }
         break;
       default:

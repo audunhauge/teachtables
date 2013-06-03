@@ -995,7 +995,7 @@ var renderq = exports.renderq = function(user,query,callback) {
       //var containerq = quiz.question[container];
       contopt = moo.contopt || {};
       if (contopt.start || contopt.stop) {
-        var start,stop,elm;
+        var start,stop,elm,hstart,mstart,hstop,mstop;
         if (contopt.start) {
           elm = contopt.start.split('/');
           start = new Date(elm[2],+elm[1]-1,elm[0]);
@@ -1004,14 +1004,36 @@ var renderq = exports.renderq = function(user,query,callback) {
           elm = contopt.stop.split('/');
           stop = new Date(elm[2],+elm[1]-1,elm[0]);
         }
-        start = start || justnow - 20000;
-        stop = stop || justnow + 2000;
-        if (justnow < start || justnow > stop ) {
-          console.log("OUT OF BOUNDS:",start,justnow,stop);
+        hstart = hstop = mstart = mstop = 0;
+        if (contopt.hstart) {
+            hstart = Math.floor(+contopt.hstart);
+            hstart = Math.max(0,Math.min(23,hstart));
+        }
+        if (contopt.mstart) {
+            mstart = Math.floor(+contopt.mstart);
+            mstart = Math.max(0,Math.min(59,mstart));
+        }
+        if (contopt.hstop) {
+            hstop = Math.floor(+contopt.hstop);
+            hstop = Math.max(0,Math.min(23,hstop));
+        }
+        if (contopt.mstop) {
+            mstop = Math.floor(+contopt.mstop);
+            mstop = Math.max(0,Math.min(59,mstop));
+        }
+        start = start.getTime();
+        stop = stop.getTime();
+        console.log("START now:",start,start-now,hstart,mstart);
+        start = start + 1000*60* (hstart*60+mstart) || now - 20000;
+        console.log("START now:",start,start-now,hstart,mstart);
+        stop = stop  + 1000*60* (hstop*60+mstop)|| now + 2000;
+        if (now < start || now > stop ) {
+          console.log("OUT OF BOUNDS:",start,now,stop);
+          var d1 = new Date(start), d2 = new Date(stop);
           if (user.department == 'Undervisning' ) {
-            message = { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start:'+contopt.start+'<br>Stop:'+contopt.stop } };
+            message = { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start:'+d1+'<br>Stop:'+d2 } };
           } else {
-            callback([ { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start:'+contopt.start+'<br>Stop:'+contopt.stop } } ]);
+            callback([ { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start:'+d1+'<br>Stop:'+d2} } ]);
             return;
           }
         }

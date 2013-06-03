@@ -954,6 +954,11 @@ input.num4 {
   width:4em;
 }
 
+input.num2 {
+  text-align:right;
+  width:2em;
+}
+
 .qed input {
   width:350px;
 }
@@ -1207,12 +1212,13 @@ div.catt {
   color:green;
 }
 
+
 #inputdiv select {
   float:right;
   margin-right:12em;
 }
 
-#inputdiv input {
+.floatright, #inputdiv input.float {
   float:right;
   /* width:50%; */
   margin-right:12em;
@@ -1224,6 +1230,10 @@ div.catt {
 }
 #inputdiv div {
   clear:right;
+}
+
+#inputdiv input.inline {
+    display:inline;
 }
 
 div.container, div.quiz {

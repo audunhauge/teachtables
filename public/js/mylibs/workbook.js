@@ -1764,6 +1764,9 @@ function editquestion(myid, target) {
           for (var coi = 0; coi < containeropts.length; coi++) {
             var inp = containeropts[coi];
             contopt[inp.name] = inp.value;
+            if (inp.type == "checkbox") {
+                 contopt[inp.name] = (inp.checked == true) ? "1":"0";
+            }
           }
         }
         var daze = $j("input[name=daze]").val();
@@ -1876,6 +1879,10 @@ function editquestion(myid, target) {
            qdisplay = '';
            var start = dialog.contopt.start || '';
            var stop = dialog.contopt.stop || '';
+           var hstop = dialog.contopt.hstop || '';
+           var hstart = dialog.contopt.hstart || '';
+           var mstop = dialog.contopt.mstop || '';
+           var mstart = dialog.contopt.mstart || '';
            var locked = (dialog.contopt.locked != undefined) ? dialog.contopt.locked : 0;
            var hidden = (dialog.contopt.hidden != undefined) ? dialog.contopt.hidden : 0;
            var fasit = (dialog.contopt.fasit != undefined) ? dialog.contopt.fasit : 0;
@@ -1898,59 +1905,62 @@ function editquestion(myid, target) {
            var navi = (dialog.contopt.navi != undefined) ? dialog.contopt.navi : 1;
            var adaptiv = (dialog.contopt.adaptiv != undefined) ? dialog.contopt.adaptiv : 0;
            var elements = {
-                 defaults:{  type:"text", klass:"copts" }
+                 defaults:{  type:"text", klass:"copts float" }
                , elements:{
                    adaptiv:       {  type:"yesno", value:adaptiv }
-                 , navi:          {  type:"yesno", value:navi }
-                 , hints:         {  type:"yesno", value:hints }
-                 , trinn:         {  type:"yesno", value:trinn }
-                 , exam:          {  type:"yesno", value:exam }
-                 , locked:        {  type:"yesno", value:locked }
-                 , hidden:        {  type:"yesno", value:hidden }
-                 , omstart:       {  type:"yesno", value:omstart }
                  , randlist:      {  type:"yesno", value:randlist }
-                 , rcount:        {  klass:"copts num4",  value:rcount, depend:{ randlist:1}  }
-                 , xcount:        {  klass:"copts num4",  value:xcount, depend:{ randlist:1} }
-                 , shuffle:       {  type:"yesno", value:shuffle }
-                 , komme:         {  type:"yesno", value:komme }
+                 , hints:         {  type:"yesno", value:hints }
+                 , omstart:       {  type:"checkbox", value:omstart }
+                 , navi:          {  type:"checkbox", value:navi }
+                 , trinn:         {  type:"checkbox", value:trinn }
+                 , komme:         {  type:"checkbox", value:komme }
+                 , exam:          {  type:"checkbox", value:exam }
+                 , locked:        {  type:"checkbox", value:locked }
+                 , hidden:        {  type:"checkbox", value:hidden }
+                 , fasit:         {  type:"checkbox", value:fasit }
+                 , karak:         {  type:"checkbox",  value:karak }
+                 , rank:          {  type:"checkbox",  value:rank }
+                 , shuffle:       {  type:"checkbox", value:shuffle }
+                 , rcount:        {  klass:"float copts num4",  value:rcount, depend:{ randlist:1}  }
+                 , xcount:        {  klass:"float copts num4",  value:xcount, depend:{ randlist:1} }
                  , start:         {  klass:"copts pickdate", type:"text", value:start }
                  , stop:          {  klass:"copts pickdate", type:"text", value:stop }
-                 , fasit:         {  type:"yesno", value:fasit }
-                 , karak:         {  type:"yesno",  value:karak }
-                 , rank:          {  type:"yesno",  value:rank }
                  , fiidback:      {  type:"select", klass:"copts",  value:fiidback, options:[{ value:"none"},{ value:"some"},{ value:"lots"} ] }
                  , skala:         {  type:"select", klass:"copts",  value:skala, options:[{ value:"medium"},{ value:"easy"},{ value:"hard"} ] }
-                 , hintcost:      {  klass:"copts num4",  value:hintcost, depend:{ hints:1} }
-                 , attemptcost:   {  klass:"copts num4",  value:attemptcost, depend:{ adaptiv:1 } }
-                 , antall:        {  klass:"copts num4",  value:antall }
+                 , hintcost:      {  klass:"float copts num4",  value:hintcost, depend:{ hints:1} }
+                 , attemptcost:   {  klass:"float copts num4",  value:attemptcost, depend:{ adaptiv:1 } }
+                 , antall:        {  klass:"float copts num4",  value:antall }
+                 , hstart:        {  klass:"copts num2",  value:hstart }
+                 , hstop:         {  klass:"copts num2",  value:hstop }
+                 , mstart:        {  klass:"copts num2",  value:mstart }
+                 , mstop:         {  klass:"copts num2",  value:mstop }
                           }
                };
            var res = gui(elements);
            s += '<h4>Instillinger for prøven</h4> <div id="inputdiv">'
+             + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
+             + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
+             + '<div class="underlined" title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
+             + '<div class="underlined" title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
+             + '<div class="underlined" title="Neste spørsmål vises dersom 80% riktig eller mer enn 4 forsøk">Trinnvis {trinn}</div>'
              + '<div class="underlined" title="Prøve - test med karakter">Prøve{exam}</div>'
              + '<div class="underlined" title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
-             + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
+             + '<div class="underlined" title="Skal karakter vises">Karakter{karak} </div>'
              + '<div class="underlined" title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
-             + '<div class="underlined" title="Prøve utilgjengelig før denne datoen">Start {start}</div>'
-             + '<div class="underlined" title="Prøve utilgjengelig etter denne datoen">Stop {stop}</div>'
+             + '<div class="underlined" title="Nivå for fasit visning">Fasit {fasit}</div>'
+             + '<div class="underlined" title="Rangering i klassen">Rank{rank} </div>'
              + '<div class="underlined" title="Velger ut N fra spørsmålslista">Utvalg fra liste {randlist}</div>'
              + '<div class="underlined" title="Bruk uansett de første N spørsmålene, alle vil da få disse.">Faste spørsmål {xcount}</div>'
              + '<div class="underlined" title="Antall spørsmål som skal trekkes (i tillegg til de faste)">Antall tilfeldig valgte {rcount}</div>'
-             + '<div class="underlined" title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
-             + '<div class="underlined" title="Nivå for fasit visning">Fasit {fasit}</div>'
              + '<div class="underlined" title="Tilbakemeldinger for hvert spørsmål">Feedback{fiidback} </div>'
              + '<div class="underlined" title="Karakterskala som skal brukes, easy for en lett prøve (streng vurdering), hard gir snill vurdering">Skala {skala}</div>'
-             + '<div class="underlined" title="Skal karakter vises">Karakter{karak} </div>'
-             + '<div class="underlined" title="Rangering i klassen">Rank{rank} </div>'
              + '<div class="underlined" title="Antall spørsmål pr side">Antall pr side {antall}</div>'
-             + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
              + '<div class="underlined" title="Trinnvis visning av hjelpehint">Hjelpehint{hints}</div>'
              + '<div class="underlined" title="Pris for visning av hjelpehint">  Hintpris{hintcost}</div>'
-             + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
-             + '<div class="underlined" title="Neste spørsmål vises dersom 80% riktig eller mer enn 4 forsøk">Trinnvis {trinn}</div>'
-             + '<div class="underlined" title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
              + '<div class="underlined" title="Kan svare flere ganger mot poengtap (10%)">Adaptiv {adaptiv}</div>'
              + '<div class="underlined" title="  Pris for adaptiv">  Adaptpris{attemptcost}</div>'
+             + '<div class="underlined" title="Prøve utilgjengelig før denne datoen">Start {start} H {hstart} : M {mstart}</div>'
+             + '<div class="underlined" title="Prøve utilgjengelig etter denne datoen">Stop {stop} H {hstop} : M {mstop}</div>'
              + '</div></div>';
            s = s.supplant(res);
            break;
@@ -2344,18 +2354,31 @@ wb.render.normal  = {
                             }
                             return '<div class="cont quiz cloaked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
-                          var start,stop,elm;
-                          var justnow = new Date();
+                          var start,stop,mstart,mstop,elm;
+                          mstop = mstart = 0;
+                          var justnow = new Date().getTime();
                           if (mycopt && mycopt.start) {
-                             elm = mycopt.start.split('/');
-                             start = new Date(elm[2],+elm[1]-1,elm[0]);
+                            elm = mycopt.start.split('/');
+                            start = new Date(elm[2],+elm[1]-1,elm[0]);
+                            if (mycopt.hstart) {
+                                mstart = 1000 * 3600 * mycopt.hstart;
+                            }
+                            if (mycopt.mstart) {
+                                mstart += 1000 * 60 *mycopt.mstart;
+                            }
                           }
                           if (mycopt && mycopt.stop) {
-                             elm = mycopt.stop.split('/');
-                             stop = new Date(elm[2],+elm[1]-1,elm[0]);
+                            elm = mycopt.stop.split('/');
+                            stop = new Date(elm[2],+elm[1]-1,elm[0]);
+                            if (mycopt.hstop) {
+                                mstop = 1000 * 3600 * mycopt.hstop;
+                            }
+                            if (mycopt.mstop) {
+                                mstop += 1000 * 60 *mycopt.mstop;
+                            }
                           }
-                          start = start || justnow - 20000;
-                          stop = stop || justnow + 2000;
+                          start = start ?  start.getTime() + mstart : justnow - 20000;
+                          stop = stop ? stop.getTime()  + mstop : justnow + 2000;
                           if (justnow < start || justnow > stop ) {
                             return '<div class="cont quiz clock" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
