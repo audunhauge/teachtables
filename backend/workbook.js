@@ -26,40 +26,32 @@ function emptyCache() {
              var r = res.rows[0];
              if (r.description != '') {
               var obj = parseJSON(r.description);
-             console.log("cache",obj);
               // description = { hname:hostname, qid:id of changed question, lasttime:time of change }
               if (cachecounter > 3  || (cachecounter > 2 && obj.hname == hname) ) {
                 // owner gets first chance at removing
                 client.query( "update subject set description = '' where subjectname ='cache'",
                 after(function(res) {
                   cachecounter = 0;
-                  console.log("DONE UPDATE CACHE")
+                  //console.log("DONE UPDATE CACHE")
                 }));
-              } else if (cachecounter > 0) {
-                  //if (obj.hname != hname) {
-                      // this is not our own
-                    var now = new Date();
-                    console.log("Doing time test",lasttime,obj,obj.lasttime);
-                    if (lasttime < obj.lasttime) {
-                        lasttime = now.getTime();
-                        console.log("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid]);
+              } else  {
+                    if (lasttime[obj.qid] == undefined || lasttime[obj.qid] != obj.lasttime) {
+                        lasttime[obj.qid] = obj.lasttime;
                         client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[obj.qid],
                         after(function(res) {
                           quiz.question[obj.qid] = res.rows[0];
-                          console.log("UPDATED CACHE",res.rows[0]);
                         }));
                     }
                   cachecounter++;
-              } else {
-                  cachecounter++;
-                  console.log("COUNTING CACHE")
               }
              }
          } else {
              cachecounter = 0;
+             lasttime = {}; // forget time cache
          }
      }));
 }
+
 
 exports.gimmeahint = function(user,query,callback) {
   // gets a hint from quiz.question
@@ -110,7 +102,7 @@ exports.editquest = function(user,query,callback) {
     obj.lasttime = now.getTime();
     obj.hname = hname;
     var strobj = JSON.stringify(obj);
-    console.log("Saving cache info",obj);
+    //console.log("Saving cache info",obj);
     client.query( "update subject set description = $1 where subjectname ='cache'",[strobj]);
   }
   //console.log(qid,name,qtype,qtext,teachid,points);
@@ -151,10 +143,7 @@ exports.editquest = function(user,query,callback) {
         client.query( sql, params,
           after(function(results) {
             delete quiz.question[qid];  // remove it from cache
-            //if (qtype == 'quiz') client.query( "update subject set description = $1 where subjectname ='cache'",[qid]);
-            // mark this quiz as changed so other servers can reread - clear cache
             callback( {ok:true, msg:"updated"} );
-            // TODO here we may need to regen useranswer for container
             client.query("select q.*,0 as sync from quiz_question q where q.id =$1",[qid],
                 after(function(res) {
                     quiz.question[qid] = res.rows[0];
