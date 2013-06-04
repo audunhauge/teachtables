@@ -19,6 +19,7 @@ if (process.argv[2]) {
   console.log("   npm install ");
 }
 
+siteinf.timezone = 0;  // default timezone - overridden in sites
 var nuinf = require('./sites/'+site+'.js');
 for (var k in nuinf) {
    if (nuinf.hasOwnProperty(k)) {

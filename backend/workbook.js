@@ -875,7 +875,7 @@ var renderq = exports.renderq = function(user,query,callback) {
   var questlist = query.questlist ;
   var uid       = +user.id;
   var justnow   = new Date();
-  var now       = justnow.getTime()
+  var now       = Date.UTC() + siteinf.timezone*60*60*1000;
   var contopt   = {};
   var message   = null;
   var ualist    = {};
