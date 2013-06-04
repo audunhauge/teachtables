@@ -1028,10 +1028,11 @@ var renderq = exports.renderq = function(user,query,callback) {
         if (now < start || now > stop ) {
           console.log("OUT OF BOUNDS:",start,now,stop);
           var d1 = new Date(start), d2 = new Date(stop);
+          var dd0 = justnow.toLocaleString().substr(0,21);
           var dd1 = d1.toLocaleString().substr(0,21);
           var dd2 = d2.toLocaleString().substr(0,21);
           if (user.department == 'Undervisning' ) {
-            message = { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start: '+dd1+'<br>Stop: '+dd2 } };
+            message = { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start: '+dd1+'<br>Stop: '+dd2+'<br>Server time is '+dd0 } };
           } else {
             callback([ { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start: '+dd1+'<br>Stop: '+dd2} } ]);
             return;
