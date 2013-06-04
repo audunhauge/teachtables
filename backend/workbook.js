@@ -875,7 +875,9 @@ var renderq = exports.renderq = function(user,query,callback) {
   var questlist = query.questlist ;
   var uid       = +user.id;
   var justnow   = new Date();
-  var now       = justnow.getTime() + (siteinf.timezone*60 - justnow.getTimezoneOffset())*60*1000;
+  var diff = (+siteinf.timezone)*60 - justnow.getTimezoneOffset();
+  var now       = justnow.getTime() + diff*60*1000;
+  console.log("GETTING TIME: ",justnow.getTime(),justnow.getTimezoneOffset(),now,diff);
   var contopt   = {};
   var message   = null;
   var ualist    = {};
@@ -1021,11 +1023,11 @@ var renderq = exports.renderq = function(user,query,callback) {
             mstop = Math.floor(+contopt.mstop);
             mstop = Math.max(0,Math.min(59,mstop));
         }
-        console.log("NOW=",now,justnow.getTime(),justnow.getTimezoneOffset());
         start = (start) ? start.getTime() : now - 2000;
         stop =  (stop) ? stop.getTime() : now +3600000;
         start = start + 1000*60* (hstart*60+mstart);
         stop = stop  + 1000*60* (hstop*60+mstop);
+        console.log("NOW=",now,start,stop);
         if (now < start || now > stop ) {
           console.log("OUT OF BOUNDS:",start,now,stop);
           var d1 = new Date(start), d2 = new Date(stop);
