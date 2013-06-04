@@ -1027,7 +1027,10 @@ var renderq = exports.renderq = function(user,query,callback) {
         stop =  (stop) ? stop.getTime() : now +3600000;
         start = start + 1000*60* (hstart*60+mstart);
         stop = stop  + 1000*60* (hstop*60+mstop);
-        console.log("NOW=",now,start,stop);
+        var db1 = new Date(now);
+        var db2 = new Date(start);
+        var db3 = new Date(stop);
+        console.log("start,now,stop = ",db2.toLocaleTimeString(),' < ',db1.toLocaleTimeString( ),' < ',db3.toLocaleTimeString() ) ;
         if (now < start || now > stop ) {
           console.log("OUT OF BOUNDS:",start,now,stop);
           var d1 = new Date(start), d2 = new Date(stop);
