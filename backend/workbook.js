@@ -996,6 +996,7 @@ var renderq = exports.renderq = function(user,query,callback) {
       contopt = moo.contopt || {};
       if (contopt.start || contopt.stop) {
         var start,stop,elm,hstart,mstart,hstop,mstop;
+        hstart = hstop = mstart = mstop = 0;
         if (contopt.start) {
           elm = contopt.start.split('/');
           start = new Date(elm[2],+elm[1]-1,elm[0]);
@@ -1004,7 +1005,6 @@ var renderq = exports.renderq = function(user,query,callback) {
           elm = contopt.stop.split('/');
           stop = new Date(elm[2],+elm[1]-1,elm[0]);
         }
-        hstart = hstop = mstart = mstop = 0;
         if (contopt.hstart) {
             hstart = Math.floor(+contopt.hstart);
             hstart = Math.max(0,Math.min(23,hstart));
@@ -1021,19 +1021,19 @@ var renderq = exports.renderq = function(user,query,callback) {
             mstop = Math.floor(+contopt.mstop);
             mstop = Math.max(0,Math.min(59,mstop));
         }
-        start = start.getTime();
-        stop = stop.getTime();
-        console.log("START now:",start,start-now,hstart,mstart);
-        start = start + 1000*60* (hstart*60+mstart) || now - 20000;
-        console.log("START now:",start,start-now,hstart,mstart);
-        stop = stop  + 1000*60* (hstop*60+mstop)|| now + 2000;
+        start = (start) ? start.getTime() : now - 2000;
+        stop =  (stop) ? stop.getTime() : now +3600000;
+        start = start + 1000*60* (hstart*60+mstart);
+        stop = stop  + 1000*60* (hstop*60+mstop);
         if (now < start || now > stop ) {
           console.log("OUT OF BOUNDS:",start,now,stop);
           var d1 = new Date(start), d2 = new Date(stop);
+          var dd1 = d1.toLocaleString().substr(0,21);
+          var dd2 = d2.toLocaleString().substr(0,21);
           if (user.department == 'Undervisning' ) {
-            message = { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start:'+d1+'<br>Stop:'+d2 } };
+            message = { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start: '+dd1+'<br>Stop: '+dd2 } };
           } else {
-            callback([ { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start:'+d1+'<br>Stop:'+d2} } ]);
+            callback([ { points:0, qtype:'info', param: { display: '<h1>Test not open</h1>Start: '+dd1+'<br>Stop: '+dd2} } ]);
             return;
           }
         }
