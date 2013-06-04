@@ -876,8 +876,8 @@ var renderq = exports.renderq = function(user,query,callback) {
   var uid       = +user.id;
   var justnow   = new Date();
   var diff = (+siteinf.timezone)*60 - justnow.getTimezoneOffset();
-  var now       = justnow.getTime() + diff*60*1000;
-  console.log("GETTING TIME: ",justnow.getTime(),justnow.getTimezoneOffset(),now,diff);
+  var now       = justnow.getTime() - diff*60*1000;
+  //console.log("GETTING TIME: ",justnow.getTime(),justnow.getTimezoneOffset(),now,diff);
   var contopt   = {};
   var message   = null;
   var ualist    = {};
@@ -1027,12 +1027,11 @@ var renderq = exports.renderq = function(user,query,callback) {
         stop =  (stop) ? stop.getTime() : now +3600000;
         start = start + 1000*60* (hstart*60+mstart);
         stop = stop  + 1000*60* (hstop*60+mstop);
-        var db1 = new Date(now);
-        var db2 = new Date(start);
-        var db3 = new Date(stop);
-        console.log("start,now,stop = ",db2.toLocaleTimeString(),' < ',db1.toLocaleTimeString( ),' < ',db3.toLocaleTimeString() ) ;
         if (now < start || now > stop ) {
-          console.log("OUT OF BOUNDS:",start,now,stop);
+          var db1 = new Date(now);
+          var db2 = new Date(start);
+          var db3 = new Date(stop);
+          console.log("start,now,stop = ",db2.toLocaleTimeString(),' < ',db1.toLocaleTimeString( ),' < ',db3.toLocaleTimeString() ) ;
           var d1 = new Date(start), d2 = new Date(stop);
           var dd0 = justnow.toLocaleString().substr(0,21);
           var dd1 = d1.toLocaleString().substr(0,21);
