@@ -568,7 +568,7 @@ exports.getquesttags = function(user,query,callback) {
     var tags = " ( '" + tagstring.split(',').join("','") + "' )";
     var qtlist = {};
     client.query( "select q.id,q.qtype,q.qtext,q.name,q.status,q.teachid,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
-        + " inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and q.subject in "+sublist
+        + " inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 "  // and q.subject in "+sublist
         + " and q.status != 9 and t.tagname in  " + tags,[ uid ],
     after(function(results) {
         //console.log("GETQTAG ",results.rows);

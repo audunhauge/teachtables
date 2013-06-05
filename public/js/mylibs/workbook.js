@@ -1241,6 +1241,7 @@ function edqlist() {
     }
     $j.getJSON(mybase+'/gettags', { subject:subject }, function(tags) {
          var mytags = tags[userinfo.id] || [];
+         mytags.push(containername);  // the container name is also used as subject and tag
          var tlist = [];
          for (var i=0,l=mytags.length; i<l; i++) {
            var tag = mytags[i];
