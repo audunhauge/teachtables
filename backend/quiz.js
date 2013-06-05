@@ -1213,7 +1213,7 @@ var qz = {
                           if (uatxt == undefined || uatxt == '') {
                             callback(score,'no input',completed);
                           } else {
-                               var elem = tch.split(',');
+                               var elem = tch.split('|');
                                var target = elem[0];
                                var differ = elem[1]; // optional text that useranswer must NOT EQUAL
                                // for symbolic equality - dont accept original equation
