@@ -13,6 +13,8 @@ var after = require('./utils').after;
 var saveconf = require('./user').save_config;
 var studans = {}; // cache of stud answers
 
+Math.ln = Math.log;
+
 var parseJSON = exports.parseJSON = function (str) {
   // take just about any string - ignore errors
   if (str && str != '') {
@@ -87,6 +89,7 @@ function normalizeFunction(txt,nosubst) {
   var fu = txt.replace(/ /g,'').replace(/exp/gm,'©');
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
       fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
+      fu = fu.replace(/([xyt])\*\*([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
       fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });
       fu = fu.replace(/tt/gm,'t*t');
       fu = fu.replace(/tt/gm,'t*t');
