@@ -1165,6 +1165,7 @@ var qz = {
              ua = [];
            }
            var now = new Date().getTime();
+           console.log("CAme here Before switch");
            switch(aquest.qtype) {
              case 'numeric':
                  //var fasit = qobj.fasit;
@@ -1180,7 +1181,9 @@ var qz = {
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
                  var uerr = 0;     // user false choices
+                 console.log("CAme here Before for ");
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   console.log("CAme here After for ",ii);
                    var feedb = '-';  // mark as failed
                    tot++;
                    var ff = unescape(fasit[ii]);
@@ -1282,6 +1285,7 @@ var qz = {
                          break;
                        case 'eva:':
                          //   eva:exp,a,b       the answer x is scored as eval(x) == exp, for 20 rand in [a,b]
+                         console.log("CAme here");
                          var elm = tch.split(',');
                          var exp = elm[0];
                          var lolim = +elm[1] || -5;
@@ -1293,6 +1297,7 @@ var qz = {
                          if (exp == ufu) {
                              ucorr++;     // good match for regular expression
                              feedb = '1';  // mark as correct
+                             console.log("exact");
                          } else {
                            if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              // user supplied function numericly tested against fasit
@@ -1303,11 +1308,18 @@ var qz = {
                                //return 'with(Math) { return ' + fu + '; }';
                                var fu1 = new Function("t",' with(Math) { return ' +exp+'; }' );
                                var fu2 = new Function("t",' with(Math) { return ' +ufu+'; }' );
-                               for (var ii=0,xi = lolim; ii < 20; xi += dx, ii++) {
-                                   var f1 = fu1(xi);
-                                   var f2 = fu2(xi);
-                                   var reltol = f1 ? Math.abs(fu1(xi)-fu2(xi))/Math.abs(fu1(xi)) : Math.abs(fu1(xi)-fu2(xi));
-                                   console.log(xi,reltol);
+                               var reltol,f1,f2;
+                               for (var pi=0,xi = lolim; pi < 20; xi += dx, pi++) {
+                                   console.log("testing with ",xi);
+                                   f1 = fu1(xi);
+                                   f2 = fu2(xi);
+                                   if (!isFinite(f1) && !isFinite(f2)) {
+                                     reltol = 0;
+                                     console.log("NaN/inf",xi,reltol);
+                                   } else {
+                                     reltol = f1 ? Math.abs(f1-f2)/Math.abs(f1) : Math.abs(f1-f2);
+                                   }
+                                   console.log(xi,f1,f2,reltol);
                                    if (reltol > 0.005) {
                                        bad = true;
                                        break;
