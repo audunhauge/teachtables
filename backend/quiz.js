@@ -1165,7 +1165,6 @@ var qz = {
              ua = [];
            }
            var now = new Date().getTime();
-           console.log("CAme here Before switch");
            switch(aquest.qtype) {
              case 'numeric':
                  //var fasit = qobj.fasit;
@@ -1181,9 +1180,7 @@ var qz = {
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
                  var uerr = 0;     // user false choices
-                 console.log("CAme here Before for ");
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   console.log("CAme here After for ",ii);
                    var feedb = '-';  // mark as failed
                    tot++;
                    var ff = unescape(fasit[ii]);
@@ -1208,6 +1205,17 @@ var qz = {
                          if (sco > 0.05) {
                            ucorr += sco;
                            feedb = Math.floor((1-sco)*10);
+                         } else {
+                           uerr++;
+                         }
+                         break;
+                       case 'rng:':    // [[rng:10,20]]
+                         var lims = tch.split(',');
+                         var lo = +lims[0];
+                         var hi = +lims[1];
+                         if (uanum >= lo && uanum <= hi) {
+                           ucorr += 1;
+                           feedb = 1;
                          } else {
                            uerr++;
                          }
@@ -1285,7 +1293,6 @@ var qz = {
                          break;
                        case 'eva:':
                          //   eva:exp,a,b       the answer x is scored as eval(x) == exp, for 20 rand in [a,b]
-                         console.log("CAme here");
                          var elm = tch.split(',');
                          var exp = elm[0];
                          var lolim = +elm[1] || -5;
@@ -1293,13 +1300,13 @@ var qz = {
                          var sco = 0;
                          exp = normalizeFunction(exp);
                          var ufu = normalizeFunction(uatxt);
-                         console.log(exp,lolim,hilim,ufu);
+                         //console.log(exp,lolim,hilim,ufu);
                          if (exp == ufu) {
                              ucorr++;     // good match for regular expression
                              feedb = '1';  // mark as correct
                              console.log("exact");
                          } else {
-                           if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                           if (uatxt != undefined && uatxt != '' && uatxt != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              // user supplied function numericly tested against fasit
                              // for x values lolim .. hilim , 20 steps
                              var dx = (+hilim - +lolim) / 20;
@@ -1315,11 +1322,11 @@ var qz = {
                                    f2 = fu2(xi);
                                    if (!isFinite(f1) && !isFinite(f2)) {
                                      reltol = 0;
-                                     console.log("NaN/inf",xi,reltol);
+                                     //console.log("NaN/inf",xi,reltol);
                                    } else {
                                      reltol = f1 ? Math.abs(f1-f2)/Math.abs(f1) : Math.abs(f1-f2);
                                    }
-                                   console.log(xi,f1,f2,reltol);
+                                   //console.log(xi,f1,f2,reltol);
                                    if (reltol > 0.005) {
                                        bad = true;
                                        break;
@@ -1342,28 +1349,38 @@ var qz = {
                          break;
                        case 'reg:':
                          try {
+                           tch = tch.trim();
                            var myreg = new RegExp('('+tch+')',"gi");
                            var isgood = false;
-                           ua[ii].replace(myreg,function (m,ch) {
-                                 isgood = (m == ua[ii]);
+                           uatxt.replace(myreg,function (m,ch) {
+                                 console.log("REG:",uatxt,tch,m,ch);
+                                 isgood = (m == uatxt);
                                });
                            if ( isgood) {
                              ucorr++;     // good match for regular expression
                              feedb = '1';  // mark as correct
-                           } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                           } else if (uatxt != undefined && uatxt != '' && uatxt != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              uerr++;
                            }
                          }
                          catch (err) {
-                           if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                           console.log("BAD REG EXP",tch);
+                           if (uatxt != undefined && uatxt != '' && uatxt != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              uerr++;
                            }
                          }
                          break;
                        case 'lis:':
+                         var goodies = tch.split(',');
+                         if (goodies.indexOf(uatxt) > -1) {
+                           ucorr++;
+                           feedb = '1';  // mark as correct
+                         } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                           uerr++;
+                         }
                          break;
                        default:
-                         //console.log("trying numeric",ff,ua[ii] );
+                         //console.log("trying numeric",ff,uatxt );
                          if ( ff.indexOf(':') > 0) {
                            // we have a fasit like [[23.3:0.5]]
                            var elm = ff.split(':');
@@ -1383,7 +1400,7 @@ var qz = {
                          if ( ff == 'any' || Math.abs(num - uanum) <= tol) {
                            ucorr++;
                            feedb = '1';  // mark as correct
-                         } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                         } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                            uerr++;
                          }
                          break;
