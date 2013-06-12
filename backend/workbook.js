@@ -939,7 +939,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                 if (ua.param.hints) {
                   // there are hints to be had
                   // return those already payed for
-                  var hin = ua.param.hints.split('_&_');
+                  var hin = ua.param.hints.split(/\n|_&_/);
                   ua.param.hints = hin.slice(0,ua.hintcount);
                   ua.param.havehints = 'y';
                 }
