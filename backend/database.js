@@ -4,6 +4,7 @@ var pg = require('pg');
 var sys = require('util');
 var crypto = require('crypto');
 var async = require('async');
+var _ = require('underscore');
 var request = require('request');
 var sendemail = require('nodemailer');
 var connectionString = siteinf.connectionString;
@@ -1458,27 +1459,40 @@ var getroomids = function() {
 
 var getinvigilators = exports.getinvigilators  = function () {
     // fetch list of invigilators and other info connected to exams/termtests
-    request('https://docs.google.com/spreadsheet/pub?key=0AkY2PNer2OpXdG1LSXJndm1uRTMwZGI3MkxxMElDaEE&output=csv',
+    //request('https://docs.google.com/spreadsheet/pub?key=0AkY2PNer2OpXdG1LSXJndm1uRTMwZGI3MkxxMElDaEE&output=csv',
+    request('https://docs.google.com/spreadsheet/pub?key=0AkY2PNer2OpXdElLdzhKenFNLVdtYndVaFR0YTZmVGc&single=true&gid=0&output=csv',
         function (error, response, body) {
          if (!error && response.statusCode == 200) {
             var list = body.split('\n');
-            var vigilis = {};
+            var quizbase = {};
+            var science = '';
+            var scidata_template,scidata,namelist={};
             for (var i in list) {
                 var line = list[i];
-                console.log("Line",line);
+                //console.log("Line",line);
                 var elm = line.split(',');
-                if (elm[1] != 'Rom') {
-                    var dd = elm[0].split('-');
-                    var jjd = julian.greg2jul(+dd[1],+dd[2],+dd[0]);
-                    var room = elm[1];
-                    var groups = elm[2];
-                    var slots = elm.slice(3);
-                    if (!vigilis[jjd]) vigilis[jjd] = {};
-                    vigilis[jjd][room] = {groups:groups,slots:slots};
+                if (elm[0] != '') {
+                    // start of new dataset
+                    science = elm[0];
+                    quizbase[science] = { stuff:[], names:{}};
+                    scidata_template = {};
+                    namelist = {}
+                    for (var j=1; j < elm.length; j++) {
+                        scidata_template[elm[j]] = '';
+                    }
+                } else {
+                    var j = 1;
+                    scidata = _.clone(scidata_template);
+                    for (var nn in scidata) {
+                        scidata[nn] = elm[j];
+                        j++;
+                    }
+                    quizbase[science].stuff.push(scidata);
+                    quizbase[science].names[scidata.navn] = scidata.nummer;
                 }
             }
-            db.vigilis = vigilis;
-            console.log(vigilis);
+            db.quizbase = quizbase;
+            //console.log(quizbase.atom);
         }
     })
 }

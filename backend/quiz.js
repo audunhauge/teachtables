@@ -12,6 +12,8 @@ var client = siteinf.client;
 var after = require('./utils').after;
 var saveconf = require('./user').save_config;
 var studans = {}; // cache of stud answers
+var database = siteinf.database;
+var db = database.db;
 
 Math.ln = Math.log;
 
@@ -973,6 +975,7 @@ var qz = {
        , alist:qz.alist
        , con:{}
        , dice:{}
+       , quizbase:db.quizbase
      };  // remove symbols from prev question
      if (qz.containers[container] && qz.containers[container][userid] ) {
        // we have symbols for the container
