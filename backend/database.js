@@ -1492,7 +1492,7 @@ var getinvigilators = exports.getinvigilators  = function () {
                 }
             }
             db.quizbase = quizbase;
-            //console.log(quizbase.atom);
+            console.log(quizbase);
         }
     })
 }
