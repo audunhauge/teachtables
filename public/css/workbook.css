@@ -165,19 +165,23 @@ table.math {
     border:none;
     font-size:1.7em;
     border-collapse:collapse;
-} 
+}
 
 table.math td {
     border:none;
     text-align:right;
     width:24px;
-} 
+}
 
 table.math tr:last-child td {
     border-bottom:solid black 1px;
     border-top:solid black 1px;
     height:1.3em;
-} 
+}
+
+span.large {
+    font-size:2.2em;
+}
 
 
 
@@ -281,11 +285,14 @@ path.link.weak {
  stroke: #88d;
  stroke-dasharray: 0,2 1;
 }
+/* why do we need this - have forgotten ... */
+/*
 circle {
  fill: #cfc;
  stroke: #333;
  stroke-width: 1.5px;
 }
+*/
 text {
  font: 10px sans-serif;
  pointer-events: none;
@@ -406,6 +413,11 @@ div.textareaq textarea {
 }
 #editform table.qed td {
     width:75%;
+}
+
+sup input,sub input {
+    width:16px !important;
+    height:12px !important;
 }
 
 div.underlined {

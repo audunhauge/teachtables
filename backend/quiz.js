@@ -1187,7 +1187,7 @@ var qz = {
                    var feedb = '-';  // mark as failed
                    tot++;
                    var ff = unescape(fasit[ii]);
-                   if (ff == ua[ii]  ) {        // MARK: exact answer
+                   if (ff.toLowerCase() == ua[ii].toLowerCase()  ) {        // MARK: exact answer
                      ucorr++;
                      feedb = '1';  // mark as correct
                    } else {

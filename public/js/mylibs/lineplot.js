@@ -28,7 +28,7 @@ function lineplot(param) {
   var data = [],
       target = param.target || 'body',
       jitter = +param.jitter || 0,
-      pointsize = +param.pointsize || 1,
+      pointsize = param.pointsize || 1,
       plotcolors = d3.scale.category10(),
       w = +param.width || 200,
       h = +param.height || 200,
@@ -232,6 +232,7 @@ function lineplot(param) {
     //console.log("some points found",param.points);
     for (var pp=0; pp< param.points.length; pp++) {
       var poi = param.points[pp];
+      var psize = pointsize.length ? pointsize[pp] : pointsize;
       var ppx = poi[0];
       var ppy = poi[1];
       if (ppx.length != ppy.length) continue;
@@ -243,7 +244,7 @@ function lineplot(param) {
         .attr("cy", -1 * y(py))
         .attr("stroke", plotcolors(data.length + pp))
         .attr("fill", "none")
-        .attr("r", pointsize)
+        .attr("r", psize)
       }
     }
   }
