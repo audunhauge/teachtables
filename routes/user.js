@@ -68,6 +68,7 @@ exports.login =function(req, res) {
       } else {
             user.config = {};
       }
+      user.logintime = new Date().getTime();
       req.session.user = user;
       res.send(user);
       if (user.isadmin) {
@@ -84,10 +85,9 @@ exports.ses = function(req,res) {
     for (var ss in req.sessionStore.sessions) {
       var sess = req.sessionStore.sessions[ss];
       var data = JSON.parse(sess);
-      var time = new Date(data.lastAccess);
       if (data.user) {
-        var info = { firstname:data.user.firstname, lastname:data.user.lastname };
-        rr.push([info,data.lastAccess]);
+        var info = { firstname:data.user.firstname, lastname:data.user.lastname, time:data.user.logintime};
+        rr.push(info);
       }
     }
     res.send( rr  );

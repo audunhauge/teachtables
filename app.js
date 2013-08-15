@@ -41,6 +41,8 @@ var db = database.db;
 db.roominfo = siteinf.roominfo;
 db.days = siteinf.days;
 db.slots = siteinf.slots;
+db.lessondur = siteinf.lessondur;                // 8 slots gives 40 minutes lesson
+db.lessonstart = siteinf.lessonstart;            // just the start of lessons
 db.starttime = siteinf.slotlabels.split(',');
 
 siteinf.database = database;
@@ -81,7 +83,7 @@ var exec = require('child_process').exec;
 
 db.version = version;  // so that we can force reload of dynamic scripts
 // they are a bugger to reload - must empty cache - reload dosn't do the trick
-console.log(db.version);
+console.log("Version=",db.version,"Firstweek=",db.firstweek);
 
 
 // check that we have a symlink for javascipt libraries

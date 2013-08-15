@@ -10,6 +10,7 @@
     "request": "*",
     "jade": "*",
     "stylus": "*",
+    "underscore": "*",
     "passport": "*",
     "passport-saml": "*",
     "async": "*",

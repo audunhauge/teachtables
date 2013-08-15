@@ -4,10 +4,10 @@ html
     title Studiearbeidstid 2011/2012
     meta(charset="utf-8")
     meta(name="viewport", content="width=device-width initial-scale=1.0")
-    link(rel="stylesheet", href="#{base}stat/css/#{version}/starb.css")
-    link(rel="stylesheet", href="#{base}stat/css/redmond/jquery-ui-1.10.0.custom.min.css")
+    link(rel="stylesheet", href="#{jbase}stat/css/#{version}/starb.css")
+    link(rel="stylesheet", href="#{jbase}stat/css/redmond/jquery-ui-1.10.0.custom.min.css")
     script
-      var mybase="#{base}";
+      var mybase="#{jbase}";
       var language="#{language}";
   body
     #container
@@ -18,7 +18,7 @@ html
       span#firstname.hidden!= firstname
       span#lastname.hidden!= lastname
     block content
-    script(src="#{base}stat/js/jquery-1.9.0.min.js")
-    script(src="#{base}stat/js/jquery-ui-1.10.0.custom.min.js")
-    script(src="#{base}stat/js/#{version}/utils.js")
-    script(src="#{base}stat/js/#{version}/starbreg.js")
+    script(src="#{jbase}stat/js/jquery-1.9.0.min.js")
+    script(src="#{jbase}stat/js/jquery-ui-1.10.0.custom.min.js")
+    script(src="#{jbase}stat/js/#{version}/utils.js")
+    script(src="#{jbase}stat/js/#{version}/starbreg.js")

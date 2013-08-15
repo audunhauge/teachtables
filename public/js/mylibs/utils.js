@@ -1,5 +1,23 @@
 // some utility functions
 
+var slotmap = {};  // memoized
+function slot2lesson(t) {
+  // converts new slot number to old slot - start of lesson
+  if (slotmap[t] != undefined) return slotmap[t];
+  var idx = 0;
+  var th = t*5 + database.lessonstart[0];
+  while (th > database.lessonstart[idx] && idx < database.lessonstart.length) {
+    idx++;
+  }
+  slotmap[t] = idx;
+  return idx;
+}
+
+function lesson2slot(s) {
+  // converts lesson to new slot number
+  return  (database.lessonstart[s] - database.lessonstart[0]) / 5;
+}
+
 function clone(o) {
   // make a deep copy - assumed to be simple object
   var tmp = {},k;
@@ -393,38 +411,39 @@ function unflatten(data) {
    var studtimetable = {};
    for (var i=0,k= data.length; i < k; i++) {
               var lesson = data[i].split(',');
-              var day = +lesson[0].charAt(0);
-              var slot = +lesson[0].charAt(1);
-              var course = lesson[1];
-              var room = lesson[2];
-              var uid = lesson[3];
+              var day = +lesson[0];
+              var slot = +lesson[1];
+              var course = lesson[2];
+              var room = lesson[3];
+              var uid = lesson[4];
               var elm = course.split('_');
               var fag = elm[0];
               var group = elm[1];
+	      var dur = +lesson[5];  // duration in slots - each slot is 5 minutes
               // indexd by teach id
               if (!teachtimetable[uid]) {
                 teachtimetable[uid] = [];
               }
-              teachtimetable[uid].push([day, slot, course, room, '',uid]);
+              teachtimetable[uid].push([day, slot, course, room, '',uid,dur]);
 
               // indexed by group name
               if (!grouptimetable[group]) {
                 grouptimetable[group] = [];
               }
-              grouptimetable[group].push([day, slot, course, room,'', uid]);
+              grouptimetable[group].push([day, slot, course, room,'', uid,dur]);
 
 
               // indexed by room name
               if (!roomtimetable[room]) {
                 roomtimetable[room] = [];
               }
-              roomtimetable[room].push([day, slot, course, room,'', uid]);
+              roomtimetable[room].push([day, slot, course, room,'', uid,dur]);
 
               // indexed by coursename (course_group)
               if (!coursetimetable[course]) {
                 coursetimetable[course] = [];
               }
-              coursetimetable[course].push([day, slot, course, room,'', uid]);
+              coursetimetable[course].push([day, slot, course, room,'', uid,dur]);
           }
   return { course:coursetimetable, room:roomtimetable, group:grouptimetable, teach:teachtimetable, stud:studtimetable  };
 

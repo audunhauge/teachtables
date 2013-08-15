@@ -24,10 +24,11 @@ function synopsis(coursename,plandata,tests) {
   if (myttimer) {
     for (var i=0; i< myttimer.length;i++) {
        var pt = myttimer[i];
-       if (!mytt[pt[1]]) {    // ingen rad definert ennå
-           mytt[pt[1]] = {};  // ny rad
+       var ssl = slot2lesson(pt[1]);
+       if (!mytt[ssl]) {    // ingen rad definert ennå
+           mytt[ssl] = {};  // ny rad
        }
-       mytt[pt[1]][pt[0]] = 1;
+       mytt[ssl][pt[0]] = 1;
     }
   }
   var synop = {};

@@ -393,6 +393,7 @@ function edit_solo(uid) {
 function edit_excursion(uid) {
     // enter dates where students are absent
     var thisweek = database.startjd;
+    thisweek = database.firstweek;   // TODO DEBUG
     var s = '<div id="absent">';
     s += '<h1>Ekskursjoner</h1>';
     //s += '<p  id="editmsg"> Legg til med grønn knapper, klikk på eksisterende for å endre.</p>';

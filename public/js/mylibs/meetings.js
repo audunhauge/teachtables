@@ -98,7 +98,7 @@ function reduceSlots(userlist,roomname,jd) {
     busy[day] = {};
     whois[day] = {};
     shortmeet[day] = {};
-    for (var slot = 0; slot < 15; slot++) {
+    for (var slot = 0; slot < 95; slot++) {
        biglump[day][slot] = $j.extend({}, userlist);
        biglump[day][slot][roomname] = 1;
     }
@@ -110,19 +110,13 @@ function reduceSlots(userlist,roomname,jd) {
            for (var mmid in mee[muid]) {
             var abba = mee[muid][mmid];
             if (abba.slot) {
-              var slot = +abba.slot - 1;
-              if (slot >= 0 && slot < 15) {
-                shortmeet[day][slot] =  'KortMøte';
-                whois[day][slot] = teachers[muid].username;
-              }
-            } else {
-              var timer = abba.value.split(",");
-              for (var ti in timer) {
-                var slot = +timer[ti] - 1;
-                if (slot >= 0 && slot < 15) {
-                  delete biglump[day][slot][muid];
-                  busy[day][slot] = abba.name || 'Møte';
-                  whois[day][slot] = teachers[muid].username;
+              var slot = +abba.slot;
+              for (var di = 0; di < abba.dur; di++) {
+                  // only the start slot is stored - use dur to fill in the rest
+                if (slot+di >= 0 && slot+di < 95) {
+                  delete biglump[day][slot+di][muid];
+                  busy[day][slot+di] = abba.name || 'Møte';
+                  whois[day][slot+di] = teachers[muid].username;
                 }
               }
             }
@@ -131,6 +125,7 @@ function reduceSlots(userlist,roomname,jd) {
       }
     }
     // desimate based on absent teachers
+    // teachers are absent whole lessons (8 slots)
     if (absent[jd+day]) {
       var ab = absent[jd+day];
       for (var abt in ab) {
@@ -139,10 +134,12 @@ function reduceSlots(userlist,roomname,jd) {
             var abba = ab[abt];
             var timer = abba.value.split(",");
             for (var ti in timer) {
-              var slot = +timer[ti] - 1;
-              delete biglump[day][slot][abt];
-              busy[day][slot] = abba.name;
-              whois[day][slot] = teachers[abt].username;
+              var slot = lesson2slot(+timer[ti]-1);
+              for (var di=0; di < 8; di++) {   // a lesson is 8 slots
+                delete biglump[day][slot+di][abt];
+                busy[day][slot+di] = abba.name;
+                whois[day][slot+di] = teachers[abt].username;
+              }
             }
           }
       }
@@ -157,7 +154,9 @@ function reduceSlots(userlist,roomname,jd) {
          var slot = ts[1];
          if (ts[2] && ts[2].substr(0,4).toLowerCase() == 'møte') continue;
          if (day == undefined || slot == undefined) continue;
-         delete biglump[day][slot][roomname];
+         for (var di=0; di < 8; di++) {   // a lesson is 8 slots
+           delete biglump[day][slot+di][roomname];
+         }
        }
   }
   // now decimate based on reservations for this room

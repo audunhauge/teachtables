@@ -142,7 +142,8 @@ var saveteachabsent = function(user,query,callback) {
               }
           } else {
             client.query(
-                'insert into calendar (courseid,userid,julday,eventtype,value,name,class) values (0,$1,$2,\'absent\',$3,$4,$5)',[userid,jd,text,name,klass],
+                'insert into calendar (courseid,userid,julday,eventtype,value,name,class) values (0,$1,$2,\'absent\',$3,$4,$5)'
+                ,[userid,jd,text,name,klass],
                 after(function(results) {
                     callback( {ok:true, msg:"inserted"} );
                     var today = new Date();
@@ -1214,7 +1215,7 @@ var getTimetables = function(isad,callback) {
   // the inner array is [day,slot,room,changed-room,teachid]
   // assumes you give it a callback that assigns the hash
   client.query(
-      "select teachid,cal.day,cal.slot,r.name as room,cal.name from calendar cal inner join room r "
+      "select cal.teachid,cal.day,cal.slot,r.name as room,cal.name,cal.dur from calendar cal inner join room r "
        +     " on cal.roomid = r. id where eventtype in ( 'timetable', 'xtratime' ) and julday = $1 order by cal.name,day,slot", [ db.firstweek ],
       after(function(results) {
           //console.log("RESULTS FOR gettimetables", db.firstweek);
@@ -1234,34 +1235,8 @@ var getTimetables = function(isad,callback) {
               var fag = elm[0];
               var group = elm[1];
               var uid = lesson.teachid;
-              flatlist.push( ""+lesson.day+lesson.slot+','+course+','+room+','+uid);
-              continue;
-
-
-              // indexd by teach id
-              if (!teachtimetable[uid]) {
-                teachtimetable[uid] = [];
-              }
-              teachtimetable[uid].push([lesson.day, lesson.slot, "", room, '',uid]);
-
-              // indexed by group name
-              if (!grouptimetable[group]) {
-                grouptimetable[group] = [];
-              }
-              grouptimetable[group].push([lesson.day, lesson.slot, course, room,'', uid]);
-
-
-              // indexed by room name
-              if (!roomtimetable[room]) {
-                roomtimetable[room] = [];
-              }
-              roomtimetable[room].push([lesson.day, lesson.slot, course, room,'', uid]);
-
-              // indexed by coursename (course_group)
-              if (!coursetimetable[course]) {
-                coursetimetable[course] = [];
-              }
-              coursetimetable[course].push([lesson.day, lesson.slot, course, room,'', uid]);
+          var dur = lesson.dur;  // duration in slots - each slot is 5 minutes
+              flatlist.push( ""+lesson.day+","+lesson.slot+','+course+','+room+','+uid+','+dur);
           }
           if (isad) {
             // indexed by stud id
@@ -1492,7 +1467,6 @@ var getinvigilators = exports.getinvigilators  = function () {
                 }
             }
             db.quizbase = quizbase;
-            console.log(quizbase);
         }
     })
 }

@@ -91,7 +91,7 @@ var alleprover;         // lagrer data om alle prøver for alle elever
 var blocks;             // slots for entering tests for courses that belong to a block
 
 var fullname;           // lagrer fagnavn delen av gruppenavnet - fullname["3403"] = "3inf5"
-var category;           // 3inf5:4, 2SCD5:10  -  NONONO kat != year kategori for faget 2=vg1,3=vg2,4=vg3,10=mdd
+var category;           // 3inf5:4, 2SCD5:10  
 var fagautocomp;        // liste over alle gyldige fagnavn - brukes til autocomplete
 var linktilrom = [];    // liste over alle rom
 var mysubscript = [];   // subscription menu
@@ -488,9 +488,9 @@ function setup_teach() {
       function(data) {
         online = [];
         for (var i in data) {
-           var au = data[i][0];
+           var au = data[i];
            var jn = new Date();
-           var ti = new Date(+data[i][1]);
+           var ti = new Date(+au.time);
            online.push(au.firstname.caps() + " " + au.lastname.caps()+ " " + ti.getHours()  + ":" + ti.getMinutes() );
         }
         usersonline = online.join(', ');
@@ -853,6 +853,23 @@ $j(document).ready(function() {
     $j.getJSON(mybase+ "/basic",{ navn:user },
          function(data) {
            database = data;
+	   var slotzy = [];
+           for (var tt in data.starttime) {
+	     var sl = data.starttime[tt];
+	     var elm = sl.split('-');
+	     var t1 = elm[0];
+	     var t2 = elm[1];
+	     elm = t1.split('.');
+	     var t10 = +elm[0];
+	     var t11 = +elm[1];
+	     elm = t2.split('.');
+	     var t20 = +elm[0];
+	     var t21 = +elm[1];
+	     var dur = (60*(+t20) + (+t21) - 60*(+t10) - (+t11)) / 5;
+	     var start = (60*(+t10) + (+t11) - 8*60) / 5;
+	     slotzy.push([start,dur]);
+           }
+	   database.slotzy = slotzy;
            userinfo = data.userinfo;
            if (!page && (userinfo.uid == 0 && data.ulist)) {
                // we have multiple matches for the user
@@ -878,9 +895,6 @@ $j(document).ready(function() {
                   // add new and dainty things to the menu
                   // same as isteach
                   afterloggin(uinfo)
-                  // do a quick fake login into moodle
-                  // $j.getJSON( "http://www.skeisvang-moodle.net/moodle/course/format/skeisvang/starb/quickin.php?callback=?&navn="+userinfo.username);
-                  // this is moved to login
                } else {
                     userinfo = database.userinfo || { firstname:"", lastname:"", department:"", isadmin:false };
                     fullname = userinfo.firstname + " " + userinfo.lastname;

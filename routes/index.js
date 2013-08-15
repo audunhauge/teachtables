@@ -22,7 +22,7 @@ exports.plain = function(req, res) {
           // user is logged in
           var user = req.session.user;
           res.render('plain', { julday:thisjd, userid:user.id, loggedin:1, username:user.username, 
-              title:"index.jade", mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, 
+              title:"index.jade", mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, 
               version:version, firstname:user.firstname, lastname:user.lastname } );
     } else {
           var uuid = 0;
@@ -45,17 +45,17 @@ exports.plain = function(req, res) {
             }
           }
           res.render('plain', { julday:thisjd,  userid:uuid, loggedin:0, 
-                    title:"index.jade",  mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, 
+                    title:"index.jade",  mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, 
                     version:version, username:username, firstname:firstname, lastname:lastname } );
     }
 };
 
 exports.index = function(req, res){
-  res.render('index', { title:"index.jade",mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, version:version });
+  res.render('index', { title:"index.jade",mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, version:version });
 };
 
 exports.gateway = function(req, res) {
-  res.render('yearplain', { mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, version:version });
+  res.render('yearplain', { mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, version:version });
 }
 
 exports.getsql =  function(req, res) {

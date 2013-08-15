@@ -161,7 +161,7 @@ exports.ipad = function(req, res) {
           // user is logged in
           var user = req.session.user;
 	  res.render('ipad/index', { layout:'ipad.jade', julday:thisjd, day:thisday, userid:user.id, loggedin:1, 
-              mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, version:version, username:user.username, firstname:user.firstname, lastname:user.lastname } );
+              mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, version:version, username:user.username, firstname:user.firstname, lastname:user.lastname } );
         } else {
           var uuid = 0;
           var username = req.query.navn;
@@ -182,7 +182,7 @@ exports.ipad = function(req, res) {
               firstname = uu.firstname;
             }
           }
-          res.render('ipad/index', { layout:'ipad.jade', julday:thisjd, day:thisday, mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, version:version, userid:uuid, loggedin:0, 
+          res.render('ipad/index', { layout:'ipad.jade', julday:thisjd, day:thisday, mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, version:version, userid:uuid, loggedin:0, 
                                       username:username, firstname:firstname, lastname:lastname } );
         }
 };
@@ -198,7 +198,7 @@ exports.starb = function(req, res) {
           // user is logged in
           var user = req.session.user;
           res.render('starb', { julday:thisjd, userid:user.id, loggedin:1, username:user.username, 
-              title:"index.jade", mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, base:base, 
+              title:"index.jade", mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, 
               version:version, firstname:user.firstname, lastname:user.lastname } );
         } else {
           var uuid = 0;
@@ -221,7 +221,7 @@ exports.starb = function(req, res) {
             }
           }
           res.render('starb', { julday:thisjd, mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, 
-                     title:"index.jade",language:language, base:base, version:version, userid:uuid, loggedin:0, 
+                     title:"index.jade",language:language, jbase:base, version:version, userid:uuid, loggedin:0, 
                      username:username, firstname:firstname, lastname:lastname } );
         }
 };

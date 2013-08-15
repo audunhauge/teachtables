@@ -35,7 +35,14 @@ function show_thisweek(delta) {
     s+= "</div>";
     $j("#main").html(s);
     if (showyear == 1) {
-      $j("#timeplan").html('Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment. '+usersonline);
+      var bquote = 'Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment. ';
+      if (database.quizbase && database.quizbase.quotes) {
+          var idx = Math.floor(Math.random()*database.quizbase.quotes.stuff.length);
+          var quo = database.quizbase.quotes.stuff[idx];
+          bquote = quo.future ? quo.future : bquote;
+      }
+
+      $j("#timeplan").html(bquote+' '+usersonline);
       return;
     }
     // last inn årsplan-data for denne uka
@@ -239,7 +246,7 @@ function build_timetable(timeplan,plan,filter,planspan) {
         // don't add if we already have exact same data
         timeplan[pt[1]][pt[0]] += spa + cell + sto;
      }
-     return {timeplan:timeplan, clean:clean, cleanroom:cleanroom};
+     return {timeplan:timeplan, clean:clean, cleanroom:cleanroom, plan:plan};
 }
 
 
@@ -294,7 +301,7 @@ function getAbsentBecauseTest(jd,fagliste) {
       }
       // some whole day tests are only half day (some slots may be unaffected)
       if (ahd.klass == 1) {
-        slots = ahd.value.match(/\((.+)\)/)[1].split(/[,+]/);
+        slots = ahd.value.match(/\((.+)\)/)[1].split(/[, +]/);
       }
       heldag.push( { hd:fag+' '+ahd.value, slots:slots, elever:fagliste.fagelev[fag] } );
     }
@@ -302,8 +309,201 @@ function getAbsentBecauseTest(jd,fagliste) {
   return heldag;
 }
 
+// given a slot label like '8.05-8.45' returns [0,8]
+// each slot is 5 minutes
+// assumes GLOBAL startslot = start[0]
+var startslot=0;
+function s2sd(sl) {
+  var elm = sl.split('-');
+  var t1 = elm[0].split('.');
+  var t2 = elm[1].split('.');
+  var t10 = +t1[0];
+  var t11 = +t1[1];
+  var t20 = +t2[0];
+  var t21 = +t2[1];
+  var slot = t10*12+Math.floor(t11/5) - startslot;
+  var dur = Math.floor(((t20-t10)*60+t21-t11) / 5);
+  return [slot,dur];
+}
+
 
 function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
+  // using divs for timetable layout
+  var start = database.starttime;
+  startslot =  startslot || s2sd(start[0])[0];  // the first slot in starttime defines slot-zero
+  edit = typeof(edit) != 'undefined' ? edit : false;
+  var members = username;
+  if (isteach && inlogged && memberlist && memberlist[username]) {
+        // this is a timetable for a group/class
+        // show members as a list in caption (on hover)
+        var userlist = memberlist[username];
+        members = makepop(members,userlist,username,'','');
+        members = '<ul id="members" class="gui nav">' + members + '</ul>'
+                  + '<div id="starb" class="button gui">Starb</div>';
+  }
+  var slotlabs = [] ;
+  var numslots = database.slots;
+  var numdays = database.days;
+  if (database.roominfo[uid]) {
+      numslots = database.roominfo[uid].slots || database.slots;
+      numdays = database.roominfo[uid].days || database.days;
+      slotlabs = database.roominfo[uid].slabels || '';
+      slotlabs = slotlabs.split(',');
+  }
+  var limit = Math.max(7,slotlabs.length);  // how many lesson-slots to draw (a lesson is 8 slots = 40 min)
+  var i,j;
+  var r = '';  // absent students
+  var s = '';  // timetable
+  var t = '';  // header
+  var u = '';  // grid
+  var v = '';  // tests
+  var w = '';  // freedays
+  members = '<div class="button blue" id="prv">&lt;</div>'+members+'<div class="button blue "id="nxt">&gt;</div>';
+  t += '<div><div style="position:relative; text-align:center;">'+ss.timetable.timetablefor+members+"</div></div>";
+  var cell,xcell,bad,subject;
+  var plan = timeplan.plan;
+  var colorid = 0;
+  var usedcolor = {};
+  var mycol = 0;
+  var absentDueTest = {};
+  var absentDueOther = {};  // excursions etc
+  var already = {};  // to avoid doubles in list of absentees
+  for (i=0; i< plan.length;i++) {
+        var pt = plan[i];
+    var dday = pt[0];
+    var sslo = pt[1];
+    var subj = pt[2];
+    var room = pt[3];
+    if (usedcolor[subj] != undefined) {
+      mycol = usedcolor[subj];
+    } else {
+      mycol = colorid;
+      usedcolor[subj] = mycol;
+      colorid++;
+    }
+        cell = '<span tag="'+subj+'" day="'+dday+'" room="'+room+'" class="goto">'+subj+'&nbsp;'+room+'</span>';
+    var hhi = pt[6];
+        s += '<div class="s'+mycol+' ttab'+dday+'" style="top:'
+           + (24+sslo*3) + 'px;height:'+(hhi*3)+'px"><div class="retainer">' + cell  +'</div></div>';
+    limit = Math.max(limit,Math.floor((sslo+hhi)/8));
+    // this is prepping for next overlay
+    // build list of absent students for lessons
+    var grname = subj.split('_')[1];
+    var elever = memberlist[grname];
+    if (elever != undefined && elever.length > 0) {
+      if (!absentDueTest[dday+"_"+grname]) {
+        var andre = getOtherCG(elever);
+        var ablist = getAbsentBecauseTest(jd+dday,andre);
+        if (ablist.length) {
+           // must loop thru list - may be more than one
+           // must use already to avoid doubles
+           var testreason = [];
+           var ec = 0;
+           var stu = [];
+           for ( var ai = 0; ai < ablist.length; ai++) {
+             var abby = ablist[ai];
+            if (abby.slots != undefined) {
+                   var less = slot2lesson(sslo);
+                   if ($j.inArray(""+(+less+1),abby.slots) == -1) continue;
+                   // this is not a whole day test - skip if unaffected slot
+            }
+            testreason.push(abby.hd);
+            for (var el in abby.elever) {
+                var elev = abby.elever[el];
+                if (students[elev] && !already[elev+"_"+dday+"_"+sslo] ) {
+                     already[elev+"_"+dday+"_"+sslo] = 1;
+                     stu.push(short_sweet_name(elev));
+                    ec++;
+                    }
+                }
+            }
+            if (ec > 0) {
+                absentDueTest[dday+"_"+grname] = { studs:stu, count:ec, test:testreason.join(','), nuslot:[] };
+            }
+        }
+      }
+      // build list of studs who are absent (not due test - mostly excursions)
+      // this is based on slot/day - not group/day as for dueTest
+      if (absent[jd+dday]) {
+        var ec = 0;
+        var stu = [];
+        var ab = absent[jd+dday];
+        for (var el in elever) {
+            var elev = elever[el];
+            if (ab[elev] ) { // one of my studs is absent
+                var slots = ab[elev].value.split(',');
+                for (var sl in slots) {
+                    var slo = lesson2slot(+slots[sl]-1);
+                    if (slo == sslo) {
+                          // this stud is absent during course slot
+                        ec++;
+                        stu.push(short_sweet_name(elev)+'&nbsp;'+ab[elev].name);
+                        break;
+                    }
+                }
+            }
+        }
+        if (ec>0) {
+          // some studs on excursion this slot/day
+          absentDueOther[dday+"_"+sslo] = { count:ec, stu:stu};
+        }
+      }
+      if (absentDueTest[dday+"_"+grname]) {
+              absentDueTest[dday+"_"+grname].nuslot.push(sslo);
+      }
+    }
+  }
+  var th = (54+limit*24);
+  // overlay showing absent students due test
+  for (var jg in absentDueTest) {
+      for (var ii = 0; ii < absentDueTest[jg].nuslot.length; ii++) {
+        var abbys = absentDueTest[jg];
+        var tss   = abbys.nuslot[ii];
+        var count = abbys.count;
+        var jj = jg.split('_')[0];
+        var info = '<table><tr><th>'+abbys.test+'</th></tr><tr><td>'
+                      +abbys.studs.join('</td></tr><tr><td>')+'</tr></table>';
+        r += '<div class="ttabs totip " title="'+info+'" style="left:'+(155+130*(+jj))+'px; top:'+(25+tss*3)+'px;">'+(count)+'</div>';
+      }
+  }
+  // overlay showing absent students due excursion
+  for (var jg in absentDueOther) {
+        var abbys = absentDueOther[jg];
+        var jj = jg.split('_')[0];
+        var jjj = jg.split('_')[1];
+        var info = '<table><tr><th>Absent</th></tr><tr><td>'
+                      +abbys.stu.join('</td></tr><tr><td>')+'</tr></table>';
+        r += '<div class="ttabs totip gradbackgreen" title="'+info+'" style="left:'+(168+130*(+jj))+'px; top:'+(25+jjj*3)+'px;">'+(count)+'</div>';
+  }
+  for (i=0;i<limit;i++) {
+        var sl = slotlabs[i] || start[i];
+    var po = s2sd(sl);
+        u += '<div class="tttime'+(i%2)+'" style="top:'+(24+po[0]*3)+'px;height:'+(po[1]*3)+'px">' + sl + "</div>";
+  }
+  for (i=0;i<numdays;i++) {
+        u += '<div class="tthead" style="height:'+(th)+'px; left:'+(60+i*130)+'px">' + romdager[i] + "</div>";
+        if (database.freedays[jd+i]) {
+           w += '<div class="ttfree" style="height:'+(th-144)+'px; left:'+(60+i*130)+'px">' + database.freedays[jd+i] + "</div>";
+        }
+  }
+  // add on a layer showing tests
+  if (timeplan.plan.prover.tests) {
+    for (var jjd in timeplan.plan.prover.tests) {
+      var tpp = timeplan.plan.prover.tests[jjd];
+      var testday = jjd-jd;
+      if (testday > 6) continue;
+      var sslo = tpp.value.split(',');
+      for (var ii =0; ii < sslo.length; ii++) {
+        var ssl = sslo[ii];
+        var ttop = lesson2slot(ssl-1);
+        v += '<div class="tttest" style="left:'+(60+130*testday)+'px; top:'+(24+ttop*3)+'px;"></div>';
+      }
+    }
+  }
+  return t+'<div class="ttab" style="height:'+(th+1)+'px">'+u+s+v+r+w+'</div>';
+}
+
+function z_build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   edit = typeof(edit) != 'undefined' ? edit : false;
     // lager en html-tabell for timeplanen
     var absentDueTest = [];
@@ -339,6 +539,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
     var numslots = database.slots;
     var numdays = database.days;
     if (database.roominfo[uid]) {
+      // for rooms - they may override days/slots
       numslots = database.roominfo[uid].slots || database.slots;
       numdays = database.roominfo[uid].days || database.days;
       slotlabs = database.roominfo[uid].slabels || '';
@@ -376,6 +577,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
           if (timeplan.timeplan[i] && timeplan.timeplan[i][j]) {
             cell = (cell == '&nbsp;') ? timeplan.timeplan[i][j] : cell + timeplan.timeplan[i][j] ;
           }
+      // TODO this code is faulty - check for reservation dosnt work - names will allways eq
           if (timetable[j] && timetable[j][i] && timetable[j][i][room] && timetable[j][i][room].eventtype == 'reservation') {
             // there is a reservation for this slot
             if (timetable[j][i][room].name != room) {  // change of room
