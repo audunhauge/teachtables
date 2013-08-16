@@ -469,6 +469,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   // overlay showing absent students due excursion
   for (var jg in absentDueOther) {
         var abbys = absentDueOther[jg];
+        var count = abbys.count;
         var jj = jg.split('_')[0];
         var jjj = jg.split('_')[1];
         var info = '<table><tr><th>Absent</th></tr><tr><td>'
