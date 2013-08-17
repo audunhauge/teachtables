@@ -43,9 +43,9 @@ function resrapport(delta) {
 function rom_reservering(room,delta,makeres) {
     // vis timeplan for room med reserveringer
     // delta is offset from current day
-    var start = (showyear == 0) ? database.startjd: database.nextyear.firstweek; 
+    var start = (showyear == 0) ? database.startjd: database.nextyear.firstweek;
     var stop =  (showyear == 0) ? database.lastweek  : database.nextyear.lastweek;
-    promises.toggle_year = function() { 
+    promises.toggle_year = function() {
           rom_reservering(room,delta,makeres);
         };
     delta = typeof(delta) != 'undefined' ?  +delta : 0;
@@ -80,19 +80,20 @@ function rom_reservering(room,delta,makeres) {
                     if (res.name == room) {
                         var teach = teachers[res.userid];
                         var kkla = '';
-                        if (res.courseid == 123) {
+                        var rslot = slot2lesson(res.slot);  // TODO using old slot values
+                        if (res.courseid == 123) {  // meetings use fictitious courseid 123
                           kkla = 'meetres';
                         }
                         if (teach && teach.username == res.value) {
                             res.value = teach.firstname.substr(0,6) + teach.lastname.substr(0,6);
                         }
                         if (res.eventtype == 'hd') {
-                          timetable[res.day][res.slot] = '<div class="rcorner gradbackred textcenter">' + res.value + '</div>';
+                          timetable[res.day][rslot] = '<div class="rcorner gradbackred textcenter">' + res.value + '</div>';
                         } else if (database.userinfo.isadmin || res.userid == database.userinfo.id) {
-                          timetable[res.day][res.slot] = '<div id="'+res.id
+                          timetable[res.day][rslot] = '<div id="'+res.id
                               +'" class="resme '+kkla+' rcorner gradbackgreen textcenter"><span class="edme">' + res.value + '</span><div class="killer">x</div></div>';
                         } else {
-                          timetable[res.day][res.slot] = '<div class="rcorner gradbackgray textcenter">' + res.value + '</div>';
+                          timetable[res.day][rslot] = '<div class="rcorner gradbackgray textcenter">' + res.value + '</div>';
                         }
                     }
                 }
@@ -102,7 +103,7 @@ function rom_reservering(room,delta,makeres) {
     for (var i in plan) {
       var timeslot = plan[i];
       var day = timeslot[0];
-      var slot = timeslot[1];
+      var slot = slot2lesson(timeslot[1]);  // TODO using old slot system
       if (day == undefined) continue;
       var course = timeslot[2];
       var teach = teachers[timeslot[5]] || {username:"NN",firstname:"N",lastname:"N"};
@@ -128,7 +129,7 @@ function rom_reservering(room,delta,makeres) {
             : '<div id="makeres" class="sized25 textcenter centered" ><span id="info" class="redfont" >Begrensa tilgang</span></div>' )
             + '<table class="sized2 centered border1">'
             + '<caption class="retainer" ><div class="button blue" id="prv">&lt;</div>'
-            + room 
+            + room
             + '<div class="button blue "id="nxt">&gt;</div></caption>'
             + '<tr><th class="time">Time</th>'+dayheadings+'</tr>';
     for (i= 0; i < numslots; i++) {
@@ -136,7 +137,7 @@ function rom_reservering(room,delta,makeres) {
       var sslab = slotlabs[i] || (i+1);
       s += "<th class='slottime'>"+sslab+"</th>";
       for (j=0;j<numdays;j++) {
-        var txt = timetable[j][i] || '<label> <input id="chk'+i+'_'+j+'" type="checkbox" />free</label>';
+        var txt = timetable[j][i] || '<label> <input id="chk'+(lesson2slot(i))+'_'+j+'" type="checkbox" />free</label>';
         if (database.freedays[current+j]) {
           txt = '<div class="timeplanfree">'+database.freedays[current+j]+'</div>';
         }
@@ -160,7 +161,7 @@ function rom_reservering(room,delta,makeres) {
         var idlist = $j.map(mylist,function(e,i) { return e.id; }).join(',');
         $j("#info").html("Lagrer " + mylist.length);
         $j.post(mybase+'/makereserv',{ current:current, room:room, myid:0, idlist:idlist, message:message, action:"insert" },function(resp) {
-            $j.getJSON(mybase+ "/reserv", 
+            $j.getJSON(mybase+ "/reserv",
                  function(data) {
                     reservations =  unflatreserv(data);
                     rom_reservering(room,delta);
@@ -176,7 +177,7 @@ function rom_reservering(room,delta,makeres) {
       event.stopPropagation()
       var myid = $j(this).parent().attr('id');
         $j.post(mybase+'/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:"", action:"kill" },function(resp) {
-          $j.getJSON(mybase+ "/reserv", 
+          $j.getJSON(mybase+ "/reserv",
                function(data) {
                   reservations =  unflatreserv(data);
                   rom_reservering(room,delta);
@@ -193,7 +194,7 @@ function rom_reservering(room,delta,makeres) {
             //var myid = this.id;
             var myid = $j(this).parent().attr('id');
             $j.post(mybase+'/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:value, action:"update" },function(resp) {
-              $j.getJSON(mybase+ "/reserv", 
+              $j.getJSON(mybase+ "/reserv",
                    function(data) {
                       reservations =  unflatreserv(data);
                       rom_reservering(room,delta);
@@ -232,7 +233,7 @@ function getRoomPlan(room) {
   // assume timetables is valid
   if (timetables.room[room]) {
     return {plan:timetables.room[room]};
-  } 
+  }
   return {plan:[]};
 }
 
@@ -327,24 +328,24 @@ function crosscheck(possible,reserv,day,slot) {
     var romt = timetables.room[r] || [];
     for (var dsi in romt) {
       var elm = romt[dsi];
-      if (elm[0] == day && elm[1] == slot) 
+      if (elm[0] == day && elm[1] == slot)
          continue outerloop;
     }
     for (var rr in reserv[day]) {
       var res = reserv[rr];
       for (var rrd in res) {
         var rre = res[rrd];
-        if (rre.day == day && rre.name == r && rre.slot == slot) 
+        if (rre.day == day && rre.name == r && rre.slot == slot)
            continue outerloop;
       }
     }
     reduced.push(r);
   }
   return reduced;
-}    
+}
 
 function showposs(possible) {
-  var s = '';   
+  var s = '';
   for (var i in linktilrom) {
       var r = linktilrom[i];
       if ($j.inArray(r,possible) >= 0) {
@@ -363,4 +364,4 @@ function showposs(possible) {
           var myid = $j(this).attr("id");
           rom_reservering(myid);
       });
-}    
+}
