@@ -1152,12 +1152,12 @@ var makereserv = function(user,query,callback) {
             var elm = idlist[i].substr(3).split('_');
             var day = +elm[1];
             var slot = +elm[0];
-            values.push('(\'reservation\',3745,'+user.id+','+(current+day)+','+day+','+slot+','+itemid+',\''+room+'\',\''+message+'\')' );
+            values.push('(\'reservation\',3745,'+user.id+','+(current+day)+','+day+','+slot+','+itemid+',\''+room+'\',\''+message+'\',8)' );
         }
         var valuelist = values.join(',');
-        //console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values ' + values);
+        //console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value,dur) values ' + values);
         client.query(
-          'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values ' + values,
+          'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value,dur) values ' + values,
           after(function(results) {
               callback( {ok:true, msg:"inserted"} );
           }));
