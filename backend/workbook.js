@@ -1396,8 +1396,8 @@ var copyquest = exports.copyquest = function(user,query,callback) {
   // simply duplicate the questions with new teachid , set parent of copy to source question
   var givenqlist   = query.givenqlist ;  // we already have the question-ids as a list
   var now = new Date();
-  client.query( "insert into quiz_question (name,points,qtype,qtext,qfasit,teachid,created,modified,parent,subject) "
-                + " select  name,points,qtype,qtext,qfasit,"+user.id+",created,"+(now.getTime())+",id,subject  "
+  client.query( "insert into quiz_question (name,points,qtype,qtext,qfasit,teachid,created,modified,parent,subject,status) "
+                + " select  name,points,qtype,qtext,qfasit,"+user.id+",created,"+(now.getTime())+",id,subject,status  "
                 + " from quiz_question q where q.status != 9 and q.id in ("+givenqlist+") ",
     after(function(results) {
       client.query( " insert into quiz_qtag select qt.tid,q.id from quiz_question q "
