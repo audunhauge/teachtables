@@ -135,7 +135,9 @@ app.configure('development', function(){
 */
 
 app.get(base +'/saml', function(req, res) {
-  res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php')
+  var target = req.query.target || '';
+  res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php?target='+target);
+  //res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php')
   //res.redirect( 'http://node.teachtables.net/simplesaml/getlogin.php')
 });
 
