@@ -30,7 +30,7 @@ var badkeys = {};
 // talk to server more than once
 //    asd
 
-var antall = 10; 
+var antall = 10;
 var d = new Date();
 var starth = d.getHours();
 var startm = Math.max(0,d.getMinutes()-1);
@@ -104,7 +104,7 @@ function getPassword() {
               uname = uinfo.username;
               loggedin = '1';
               $j.get(mybase+ '/timetables', function(timetables) {
-                timetables = unflatten(timetables);
+                timetables = unflatten(timetables.flatlist);
                 var mytab = timetables.teach[uuid];
                 var day = jd % 7;
                 for (var ii in mytab) {
@@ -159,7 +159,7 @@ function getAntall() {
           }
        });
 }
-  
+
 function getRom() {
        $j("#info").html("Nøkkelen gjelder for "+antall+" elever");
        $j("#leader").html("Velg rom (autocomplete)");
@@ -249,9 +249,8 @@ function generateKey() {
                   $j("#backside").delay(100).animate( { "width": "show", "left":"-=100" },200);
                   $j("#regbox").css("left",0);
                   $j("#flipper2").show();
-                
                 }  );
-                $j.getJSON(mybase+ '/elevstarb',{ "romid":romid }, 
+                $j.getJSON(mybase+ '/elevstarb',{ "romid":romid },
                        function(data) {
                           elevliste = data.elever;
                           makeOL(0);
@@ -290,7 +289,7 @@ function makeOL(offset) {
                 th.html("<td colspan=4>...SLETTER...</td>");
                 $j.getJSON(mybase+"/fjernelev",{ romid:romid, eid:eid, alle:0 },
                 function() {
-                  $j.getJSON(mybase+ '/elevstarb',{ "romid":romid }, 
+                  $j.getJSON(mybase+ '/elevstarb',{ "romid":romid },
                        function(data) {
                           elevliste = data.elever;
                           makeOL(offset);
@@ -309,12 +308,12 @@ function makeOL(offset) {
       ant = Math.min(tot,10+offset);
       if (ant < tot) {
          $j("#nxt").show().click(function() {
-                  makeOL(ant); 
+                  makeOL(ant);
                });
       }
       if (offset > 0) {
         $j("#prv").show().click(function() {
-                  makeOL(offset-10); 
+                  makeOL(offset-10);
                });
       }
   }
@@ -329,7 +328,7 @@ function makeOL(offset) {
   var r = "<table class=\"elevliste\">"
         +"<caption id=\"alle\" >"+tot+" elever</caption>"
             +(s.join(""))+"</table>";
-      $j("#elever").html(r); 
+      $j("#elever").html(r);
       $j("#alle").click(function() {
           var pos = $j(this).position();
           var th = $j(this);
@@ -337,7 +336,7 @@ function makeOL(offset) {
                     th.html("<td colspan=4>...SLETTER...</td>");
                     $j.getJSON(mybase+"/fjernelev",{ romid:romid, eid:0, alle:1 },
                     function() {
-                      $j.getJSON(mybase+ '/elevstarb',{ "romid":romid }, 
+                      $j.getJSON(mybase+ '/elevstarb',{ "romid":romid },
                            function(data) {
                               elevliste = data.elever;
                               makeOL(offset);
@@ -345,7 +344,7 @@ function makeOL(offset) {
                     }
                     );
           });
-      });    
+      });
 }
 
 
@@ -353,7 +352,7 @@ function makeOL(offset) {
 function elevreg() {
    $j("#inp").show();
    $j("#pwd").hide();
-   $j.getJSON(mybase+ '/regstud',{ "regkey":0, "userid":uuid }, 
+   $j.getJSON(mybase+ '/regstud',{ "regkey":0, "userid":uuid },
    function(resp) {
      if (resp.fail) {
        $j("#info").html(firstname+" "+lastname);
@@ -400,7 +399,7 @@ function adjust(userid,julday) {
             }
             if (ts == parseInt(ks.substr(ks.length-1,1)) ) {
               $j("#info").html("Sjekker ... ");
-              $j.getJSON(mybase+ '/regstud',{ "regkey":regkey, "userid":userid, "utz":tz }, 
+              $j.getJSON(mybase+ '/regstud',{ "regkey":regkey, "userid":userid, "utz":tz },
                        function(resp) {
                          $j("#info").html(resp.text);
                          $j("#msg").animate({"top": "+=90px"}, 90);
