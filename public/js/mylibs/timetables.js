@@ -477,9 +477,9 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
         r += '<div class="ttabs totip gradbackgreen" title="'+info+'" style="left:'+(168+130*(+jj))+'px; top:'+(25+jjj*3)+'px;">'+(count)+'</div>';
   }
   for (i=0;i<limit;i++) {
-        var sl = slotlabs[i] || start[i];
+    var sl = slotlabs[i] || start[i];
     var po = s2sd(sl);
-        u += '<div class="tttime'+(i%2)+'" style="top:'+(24+po[0]*3)+'px;height:'+(po[1]*3)+'px">' + sl + "</div>";
+    u += '<div class="tttime'+(i%2)+'" style="top:'+(24+po[0]*3)+'px;height:'+(po[1]*3)+'px">' + sl + "</div>";
   }
   for (i=0;i<numdays;i++) {
         u += '<div class="tthead" style="height:'+(th)+'px; left:'+(60+i*130)+'px">' + romdager[i] + "</div>";

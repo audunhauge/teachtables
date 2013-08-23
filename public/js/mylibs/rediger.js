@@ -25,8 +25,18 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
         plandata[i] = '';
       }
     }
+    // minfagplan is a global memory
     start = typeof(start) != 'undefined' ?  start : database.week;
     minfagplan = fagnavn;
+    var testhints = {};
+    if (database.quizbase && database.quizbase.testhints) {
+      var thints = database.quizbase.testhints.stuff;
+      for (var ti=0; ti < thints.length; ti++) {
+        var hint = thints[ti];
+        if (!testhints[hint.week])  testhints[hint.week] = [];
+        testhints[hint.week].push(hint);
+      }
+    }
     var thisblock = fagnavn.split('_')[1].substring(0,2);
     var jd = database.firstweek;
     var tests = coursetests(minfagplan);
@@ -73,7 +83,24 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
     var txt = '&nbsp;';
     var e,klass,idd,pro;
     for (section in  plandata) {
+        var whint = {day:'',info:''};              // no hint so far for this week
         var uke = julian.week(jd);
+        // fetch any hints for this week  and subject
+        if (testhints[uke]) {
+          // there are hints for tests for this week
+          var hints = testhints[uke];
+          for (var ti=0; ti < hints.length; ti++) {
+            var hint = hints[ti];
+            var reg1 = new RegExp(hint.fag);
+            if (reg1.test(fagnavn) ) {
+              var reg2 = new RegExp(hint.klass);
+              if (reg2.test(gru) ) {
+                whint.info = hint.info;
+                whint.day  = hint.day;
+              }
+            }
+          }
+        }
         tjd = jd;
         jd += 7;
         if (!(+uke > 0)) continue;
@@ -136,6 +163,10 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
                   abs = '<div title="<table><tr><td>'
                           +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny '+cco+' totip absentia">'+abslist.length+'</div>';
                   weektest[w] += abs;
+                }
+                if (whint.info && +whint.day == +w) {
+                  // we have some test hint to show
+                  weektest[w] += whint.info;
                 }
               }
               // add in bg if this is a block (assigned slot for tests in this course)
