@@ -963,16 +963,17 @@ function vis_timeplan(s,bru,filter,isuser,edit) {
            updateMemory();
        }
     });
-    /*
-    $j('#velgbruker').bind('keyup', 'down', function(){
-       var idx = $j("#velgbruker option:selected").val();
-       vis_valgt_timeplan(bru[idx],filter,isuser,isuser,edit);
+    $j("#klasseprove").click(function() {
+       if (itemtype == 'klass') {
+        var idx = $j("#velgbruker option:selected").val();
+        var elever = memberlist[bru[idx]];
+        var andre = getOtherCG(elever);
+        var allgroups = andre.gru;
+        allgroups = allgroups.concat(andre.fag);
+        allgroups = _.object(allgroups,allgroups); // convert array to object - for quick lookup
+        show_alleprover('',allgroups);
+       }
     });
-    $j("#velgbruker").keyup(function() {
-       var idx = $j("#velgbruker option:selected").val();
-       vis_valgt_timeplan(bru[idx],filter,isuser,isuser,edit);
-    });
-    */
     $j("#velgbruker").change(function() {
        var idx = $j("#velgbruker option:selected").val();
        vis_valgt_timeplan(bru[idx],filter,isuser,isuser,edit);
@@ -1017,7 +1018,7 @@ function vis_klassetimeplan() {
        e = bru[i];
        s+= '<option value="'+i+'">' + e  +  "</option>";
     }
-    s+= "</select></div>";
+    s+= "</select> <span id=\"klasseprove\"> prover</span></div>";
     tpath = '#timeplan/klass/';
     vis_timeplan(s,bru,'kl',false );
 }
