@@ -971,7 +971,7 @@ function vis_timeplan(s,bru,filter,isuser,edit) {
         var allgroups = andre.gru;
         allgroups = allgroups.concat(andre.fag);
         allgroups = _.object(allgroups,allgroups); // convert array to object - for quick lookup
-        show_alleprover('',allgroups);
+        show_alleprover('',allgroups,bru[idx]);
        }
     });
     $j("#velgbruker").change(function() {

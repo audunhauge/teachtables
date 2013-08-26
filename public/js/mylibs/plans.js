@@ -143,10 +143,11 @@ function vis_fagplaner(uid,thisjd) {
     return s;
 }
 
-function show_alleprover(filter,faggrupper) {
+function show_alleprover(filter,faggrupper,memb) {
     // filter lar deg velge fra [heldag,prøve]
     // faggrupper  { "3inf5":1,"3304":1,"3nor6":1 }
     //   bare vis prøver/heldag for fag/grupper
+    //memb  only show studs member of this group
     promises.toggle_year = function() {
           show_alleprover(filter,faggrupper);
         };
@@ -190,8 +191,13 @@ function show_alleprover(filter,faggrupper) {
                     // show members as a list (on hover)
                     var userlist = memberlist[gruppe];
                     var antall = userlist.length;
-                    members = makepop(members,userlist,gruppe,'','','<span class="proveinfo">'+ pro.username
+                    if (memb) {
+                      members = makepop(members,userlist,memb,gruppe,'klasse','<span class="proveinfo">'+ pro.username
                                + " " +pro.value+" ("+antall+' elever)</span>');
+                    } else {
+                      members = makepop(members,userlist,gruppe,'','','<span class="proveinfo">'+ pro.username
+                               + " " +pro.value+" ("+antall+' elever)</span>');
+                    }
                     members = '<ul class="nav alleprover">' + members + '</ul>';
                 }
                 proveliste += '<span class="pro klasse'+fag[0]+' cat'+category[fag]+'">' + members + '</span>';
