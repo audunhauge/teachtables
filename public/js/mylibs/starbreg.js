@@ -73,7 +73,7 @@ function getPassword() {
         $j("#inp").show();
         $j("#pwd").hide();
         $j.get(mybase+ '/timetables', function(timetables) {
-          timetables = unflatten(timetables);
+          timetables = unflatten(timetables.flatlist);
           var mytab = timetables.teach[uuid];
           var day = jd % 7;
           for (var ii in mytab) {
