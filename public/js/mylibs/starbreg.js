@@ -9,13 +9,13 @@ var uname       = $j("#uname").html();
 var firstname   = $j("#firstname").html().caps();
 var lastname    = $j("#lastname").html().caps();
 
-var romnavn = [ "A001", "A002", "A003", "A104", "A106", "B001", "BLACKBOX", "G001", "G002", "G003", "G004", "M001", "M002",
+var romnavn = [ "A001", "A002", "A003", "A004","A104", "A106", "B001", "BLACKBOX", "G001", "G002", "G003", "G004", "M001", "M002",
                 "M003", "M004", "M005", "M006", "M100", "M101", "M102", "M103", "M104", "M105", "M106", "M107", "M108", "M109","M110",
                 "M111", "M112", "M113", "M114", "M115", "M116", "M117", "M118", "M119", "MKONSERTSALEN",
                 "R001", "R002", "R003", "R004", "R005", "R006", "R008", "R102", "R105", "R106", "R107", "R110", "R112", "R113",
                 "R117", "R201", "R202", "R203", "R204", "R205", "R206", "R207", "R208", "R209", "R210", "R211", "R212", "R213",
                 "R214", "R215", "R216", "RAULA", "SAL 1", "SAL 2", "SAL 3" ];
-var rnavn2id ={ "A001":"2", "A002":"3", "A003":"4", "A104":"5", "A106":"6", "B001":"7", "BLACKBOX":"8", "G001":"9", "G002":"10",
+var rnavn2id ={ "A001":"2", "A002":"3", "A003":"4", "A004":82,"A104":"5", "A106":"6", "B001":"7", "BLACKBOX":"8", "G001":"9", "G002":"10",
                 "G003":"11", "G004":"12", "M001":"13", "M002":"14", "M003":"15", "M004":"16", "M005":"17", "M006":"18", "M100":"19",
                 "M101":"20", "M102":"21", "M103":"22", "M104":"23", "M105":"24", "M106":"25", "M107":"26", "M108":"27", "M110":"28",
                 "M111":"29", "M112":"30", "M113":"31", "M114":"32", "M115":"33", "M116":"34", "M117":"35", "M118":"36", "M119":"37",
@@ -34,8 +34,8 @@ var antall = 10;
 var d = new Date();
 var starth = d.getHours();
 var startm = Math.max(0,d.getMinutes()-1);
-if (starth < 12) {
-    starth = 12; startm = 10;
+if (starth < 11) {
+    starth = 11; startm = 25;
 }
 
 uuid = +uuid;
@@ -199,8 +199,8 @@ function getTid() {
                  var t = start.split(":");
                  starth = t[0];
                  startm = t[1];
-                 if (starth < 12 || starth > 14 || startm < 0 || startm > 59) {
-                     badInput("Tid mellom 12:00 og 14:00");
+                 if (starth < 11 || starth > 14 || startm < 0 || startm > 59) {
+                     badInput("Tid mellom 11:00 og 14:00");
                  } else {
                      getDuration();
                  }
