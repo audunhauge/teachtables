@@ -304,8 +304,8 @@ exports.genstarb = function(user,params,callback) {
   var antall    = +params.antall    || 0;
   var romid     = +params.romid     || 0;
   var duration  = +params.duration  || 0;
-  
-  if (uid < 10000 || duration < 3 || duration > 80000 || starth < 12 || starth > 14 || startm < 0 || startm > 59 ) {
+
+  if (uid < 10000 || duration < 3 || duration > 80000 || starth < 11 || starth > 14 || startm < 0 || startm > 59 ) {
     callback( { "key":0 } );
     return;
   }
@@ -370,7 +370,7 @@ exports.getAttend = function(user,params,callback) {
             if (!daycount[att.julday]) {
               daycount[att.julday] = 0;
             }
-            daycount[att.julday]++; 
+            daycount[att.julday]++;
 
             // count pr klass
             if (stu && stu.department) {

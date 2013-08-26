@@ -3,7 +3,7 @@
  * Module dependencies.
  */
 
-var version = '1.1.2';
+var version = '1.1.3';
 
 var site = 'default';
 var crypto = require('crypto');
