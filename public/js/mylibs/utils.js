@@ -9,13 +9,24 @@ function slot2lesson(t) {
   while (th > database.lessonstart[idx] && idx < database.lessonstart.length) {
     idx++;
   }
+  if (idx >= database.lessonstart.length) {
+      // beyond lessonstart
+    min = _.last(database.lessonstart);
+    idx += Math.floor((th -min) / 30)-1;
+  }
   slotmap[t] = idx;
   return idx;
 }
 
 function lesson2slot(s) {
   // converts lesson to new slot number
-  return  (database.lessonstart[s] - database.lessonstart[0]) / 5;
+  var min;
+  if (database.lessonstart[s]) {
+    min = database.lessonstart[s];
+  } else {
+    min = _.last(database.lessonstart) + 30*(+s+1-database.lessonstart.length);
+  }
+  return  (min - database.lessonstart[0]) / 5;
 }
 
 function clone(o) {

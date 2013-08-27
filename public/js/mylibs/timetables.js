@@ -98,7 +98,10 @@ function getYearPlanThisWeek(thisweek) {
     var header = [];
     e = database.yearplan[Math.floor(thisweek/7)] || { days:[]} ;
     for (var j=0;j<6;j++) {
-        header[j] = e.days[j] || '';
+        var infotxt = e.days[j] || '';
+        var elm = infotxt.split('ADMIN');
+        var anycansee = elm[0];
+        header[j] = anycansee || '';
         var hd = database.heldag[thisweek+j];
         if (hd) {
           header[j] += '<ul class="hdliste">';
@@ -350,6 +353,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
       slotlabs = database.roominfo[uid].slabels || '';
       slotlabs = slotlabs.split(',');
   }
+  var full = {};  // block doubles as they are not easy to read
   var limit = Math.max(7,slotlabs.length);  // how many lesson-slots to draw (a lesson is 8 slots = 40 min)
   var i,j;
   var r = '';  // absent students
@@ -369,23 +373,33 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   var absentDueOther = {};  // excursions etc
   var already = {};  // to avoid doubles in list of absentees
   for (i=0; i< plan.length;i++) {
-        var pt = plan[i];
+    var pt = plan[i];
     var dday = pt[0];
     var sslo = pt[1];
     var subj = pt[2];
     var room = pt[3];
-    if (usedcolor[subj] != undefined) {
-      mycol = usedcolor[subj];
-    } else {
-      mycol = colorid;
-      usedcolor[subj] = mycol;
-      colorid++;
-    }
-        cell = '<span tag="'+subj+'" day="'+dday+'" room="'+room+'" class="goto">'+subj+'&nbsp;'+room+'</span>';
-    var hhi = pt[6];
-        s += '<div class="s'+mycol+' ttab'+dday+'" style="top:'
-           + (24+sslo*3) + 'px;height:'+(hhi*3)+'px"><div class="retainer">' + cell  +'</div></div>';
+    var teach = teachers[pt[5]];
+    var hhi = Math.min(8,pt[6]);
     limit = Math.max(limit,Math.floor((sslo+hhi)/8));
+    // block doubles
+    if (!full[dday]) full[dday] = {};
+    if (!full[dday][sslo]) {
+        full[dday][sslo] = 1;
+        if (!teachers[uid] && teach) {
+            // student,group,class,room - show name of teach instead of group
+            subj = subj.split('_')[0] + '&nbsp;'+ teach.username;
+        }
+        if (usedcolor[subj] != undefined) {
+          mycol = usedcolor[subj];
+        } else {
+          mycol = colorid;
+          usedcolor[subj] = mycol;
+          colorid++;
+        }
+        cell = '<span tag="'+subj+'" day="'+dday+'" room="'+room+'" class="goto">'+subj+'&nbsp;'+room+'</span>';
+        s += '<div class="s'+mycol+' ttab'+dday+'" style="top:'
+            + (24+sslo*3) + 'px;height:'+(hhi*3)+'px"><div class="retainer">' + cell  +'</div></div>';
+    }
     // this is prepping for next overlay
     // build list of absent students for lessons
     var grname = subj.split('_')[1];
