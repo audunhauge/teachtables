@@ -71,7 +71,7 @@ var db = {
   ,teachcourse  : {}    // array of courses the teacher teaches (inverse of courseteach)
   ,category     : { '3TY5':2,'3SP35':2,'2TY14':2 }    // hash of coursename:category { '3inf5':4 , '1nat5':2 ... }
   ,classes      : ("1STA,1STB,1STC,1STD,1STE,1STF,1MDA,1MDB,2STA,2STB,2STC,"
-                   + "2STD,2STE,2STF,2DDA,2MUA,3STA,3STB,3STC,3STD,3STE,3DDA,3MUA").split(",")
+                   + "2STD,2STE,2STF,2DDA,2MUA,3STA,3STB,3STC,3STD,3STE,3STF,3DDA,3MUA").split(",")
                       // array of class-names ( assumes all studs are member of
                       // one unique class - they are also member of diverse groups)
   ,klasskeys    : {  "1STA":"hjTr6f", "1STB":"Mns2dq", "1STC":"bcsss3", "1STD":"poi6bc", "1STE":"Z132ef","1STF":"vNN5rf"

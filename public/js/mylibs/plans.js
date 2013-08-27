@@ -306,9 +306,10 @@ function show_all(thisweek,options) {
           show_all(thisweek,options);
         };
     options   = typeof(options) != 'undefined' ? options : 0;
-    var hdchecked = (options & 1) ? 'checked="true"' : '';
-    var tpchecked = (options & 2) ? 'checked="true"' : '';
-    var xdchecked = (options & 4) ? 'checked="true"' : '';
+    var hdchecked  = (options & 1) ? 'checked="true"' : '';
+    var tpchecked  = (options & 2) ? 'checked="true"' : '';
+    var xdchecked  = (options & 4) ? 'checked="true"' : '';
+    var adminevent = (options & 8) ? 'checked="true"' : '';
     var events = database.aarsplan;
     var prover = alleprover;
     s = '<div class="centered sized1"><div id="editmsg">Kryss av for å vise hd og prøver.'
@@ -316,9 +317,11 @@ function show_all(thisweek,options) {
          + ((options & 1) ? ' heldagsprøver' : '')
          + ((options & 2) ? ' timeprøver' : '')
          + ((options & 4) ? ' utsatt eksamen' : '')
+         + ((options & 8) ? ' admin events' : '')
          + '</div>'
          + '<div id="options"><label for="usehd" class="hdliste">Heldag <input id="usehd"'+hdchecked+' type="checkbox"></label>'
          + '<label for="usexd" class="xdliste">Utsatt eksamen <input id="usexd"'+xdchecked+' type="checkbox"></label>'
+         + (isadmin ? '<label for="useadm" class="adliste">Admin notater <input id="useadm"'+adminevent+' type="checkbox"></label>' : '')
          + '<label for="usetp" class="prliste">Timeprøver <input id="usetp" '+tpchecked+' type="checkbox"></label></div></div>';
     var theader ="<table class=\"year\" >"
      + "<tr><th>Uke</th><th>Man</th><th>Tir</th><th>Ons</th>"
@@ -415,7 +418,11 @@ function show_all(thisweek,options) {
               */
           }
           //xtra = (xtra) ? '<div class="gui textcenter hinted">'+xtra+'</div>' : '';
-          txt = (e.days[j] || '') + xtra;
+          var infotxt = e.days[j] || '';
+          var elm = infotxt.split('ADMIN');
+          var anycansee = elm[0];
+          var admcansee = (elm[1] && isadmin && adminevent ) ? ('<span class="redfont">'+elm[1]+'</span>') : '';
+          txt = anycansee + admcansee + xtra;
         }
         var title = tlist.join('<br>');
         title = (title) ? 'title="'+title+'"' : '';
@@ -426,6 +433,10 @@ function show_all(thisweek,options) {
     s += "</table>";
     $j("#main").html(s);
     $j(".totip").tooltip({position:"bottom center" });
+    $j("#useadm").click(function() {
+          options ^= 8;
+          show_all(thisweek,options);
+        });
     $j("#usetp").click(function() {
           options ^= 2;
           show_all(thisweek,options);
