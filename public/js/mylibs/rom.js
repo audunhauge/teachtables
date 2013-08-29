@@ -3,9 +3,9 @@ var romdager = ss.weekdays.split(' ');
 
 function resrapport(delta) {
     var s = '<div class="sized1 centered gradback">'
-            + '<h1 class="retainer" id="oskrift"><div class="button blue" id="prv">&lt;</div>'
+            + '<h1 class="retainer" id="oskrift"><div class="button blue gui" id="prv">&lt;</div>'
             + ' Romreservering for <span id="showdate"></span>'
-            + '<div class="button blue "id="nxt">&gt;</div></h1>'
+            + '<div class="button blue gui" id="nxt">&gt;</div></h1>'
             + '<idv id="romrapp"></div>';
     $j("#main").html(s);
     delta = typeof(delta) != 'undefined' ?  +delta : 0;
@@ -128,9 +128,9 @@ function rom_reservering(room,delta,makeres) {
             + '</div><br>' )
             : '<div id="makeres" class="sized25 textcenter centered" ><span id="info" class="redfont" >Begrensa tilgang</span></div>' )
             + '<table class="sized2 centered border1">'
-            + '<caption class="retainer" ><div class="button blue" id="prv">&lt;</div>'
+            + '<caption class="retainer" ><div class="button blue gui" id="prv">&lt;</div>'
             + room
-            + '<div class="button blue "id="nxt">&gt;</div></caption>'
+            + '<div class="button blue gui" id="nxt">&gt;</div></caption>'
             + '<tr><th class="time">Time</th>'+dayheadings+'</tr>';
     for (i= 0; i < numslots; i++) {
       s += "<tr>";
@@ -269,8 +269,8 @@ function findfree(delta) {
             + '<h1 id="oskrift"></h1>'
             + '<table class="sized2 centered border1">'
             //+ '<caption>Ledig rom</caption>'
-            + '<caption class="retainer" ><div class="button blue" id="prv">&lt;</div>Ledig rom'
-            + '<div class="button blue "id="nxt">&gt;</div></caption>'
+            + '<caption class="retainer" ><div class="button blue gui" id="prv">&lt;</div>Ledig rom'
+            + '<div class="button blue gui" id="nxt">&gt;</div></caption>'
             + '<tr><th class="time">Time</th><th>Man</th><th>Tir</th><th>Ons</th>'
             + '<th>Tor</th><th>Fre</th></tr>';
     for (i= 0; i < 15; i++) {

@@ -263,7 +263,7 @@ function crossResults() {
                    var tclass = '';
                    if (cro[uu]) {
                     var ucro = cro[uu];
-                    var displayscore = ucro.score;
+                    var displayscore = +ucro.score;
                     if (ucro.usercomment && ucro.usercomment != '') tclass += ' prliste';
                     if (ucro.teachcomment && ucro.teachcomment != '') tclass += ' bluelined';
                     if (tclass) tclass = 'class="'+tclass+'"';

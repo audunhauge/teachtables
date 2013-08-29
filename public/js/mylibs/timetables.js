@@ -362,7 +362,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   var u = '';  // grid
   var v = '';  // tests
   var w = '';  // freedays
-  members = '<div class="button blue" id="prv">&lt;</div>'+members+'<div class="button blue "id="nxt">&gt;</div>';
+  members = '<div class="button blue gui" id="prv">&lt;</div>'+members+'<div class="button blue gui" id="nxt">&gt;</div>';
   t += '<div><div style="position:relative; text-align:center;">'+ss.timetable.timetablefor+members+"</div></div>";
   var cell,xcell,bad,subject;
   var plan = timeplan.plan;
@@ -562,7 +562,7 @@ function z_build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
     }
     var i,j;
     var s = '<table class="timeplan">';
-    members = '<div class="button blue" id="prv">&lt;</div>'+members+'<div class="button blue "id="nxt">&gt;</div>';
+    members = '<div class="button blue gui" id="prv">&lt;</div>'+members+'<div class="button blue gui" id="nxt">&gt;</div>';
     s += '<caption><div style="position:relative;">'+ss.timetable.timetablefor+members+"</div></caption>";
     s += "<tr><th>&nbsp;</th>";
     for (i=0;i<numdays;i++) {
