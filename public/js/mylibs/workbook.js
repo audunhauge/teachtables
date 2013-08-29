@@ -277,7 +277,7 @@ function crossResults() {
                    }
                    ss += '<td '+tclass+'>'+txt+'</td>';
                }
-               ss += '<td>'+(qord.score.toFixed(1))+'</td>';
+               ss += '<td>'+((+qord.score).toFixed(1))+'</td>';
                ss += '</tr>';
            }
            // give sum totals for each stud
@@ -285,7 +285,7 @@ function crossResults() {
            for (var uui =0; uui < userorder.length; uui++) {
                    var uu = userorder[uui].id;
                    ss += '<td>';
-                   var score = sumscore[uu].toFixed(1);
+                   var score = (+sumscore[uu]).toFixed(1);
                    ss += score;
                    ss += ' / '+ totalscore[uu] || 0;
                    ss += '</td>';
@@ -498,7 +498,7 @@ function showProgress(dotest) {
                         klass += ' class="heck'+color+'" ';
                     }
                     ucount[u].avg = ucount[u].count > 0 ? ucount[u].score / ucount[u].count : 0;
-                    s += '<td>'+ ucount[u].count + '</td><td>'+ucount[u].score.toFixed(2)+'</td><td>'+ucount[u].avg.toFixed(2)+'</td>';
+                    s += '<td>'+ ucount[u].count + '</td><td>'+(+ucount[u].score).toFixed(2)+'</td><td>'+(+ucount[u].avg).toFixed(2)+'</td>';
                     s += '<td'+klass+'>'+last+'</td>'
                     s += '</tr>';
                 }
