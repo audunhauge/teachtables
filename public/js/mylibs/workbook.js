@@ -181,10 +181,10 @@ function crossResults() {
                if (!questcount[ua.qid]) questcount[ua.qid] = { num:0, score:0 };
                if (ua.attemptnum) {
                  questcount[ua.qid].num++;
-                 questcount[ua.qid].score += ua.score;
+                 questcount[ua.qid].score += (+ua.score);
                }
                if (!userscore[ua.userid]) userscore[ua.userid] = 0;
-               userscore[ua.userid] += ua.score;
+               userscore[ua.userid] += (+ua.score);
            }
            var qorder = [];
            for (var q in questcount) {
