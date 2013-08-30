@@ -110,7 +110,8 @@ exports.editquest = function(user,query,callback) {
       case 'delete':
         if (!qidlist) qidlist = qid;
         // set status to 9 - indicates deleted
-        client.query( "update quiz_question set status=9 where id in ('+qidlist+') and qtype != 'container' and qtype != 'quiz' and teachid=$1", [teachid],
+        console.log("Deleteing these questions:",qidlist);
+        client.query( "update quiz_question set status=9 where id in ("+qidlist+") and qtype != 'container' and qtype != 'quiz' and teachid=$1", [teachid],
             after(function(results) {
                 callback( {ok:true, msg:"updated"} );
             }));
