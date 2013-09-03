@@ -35,7 +35,7 @@ function hsv2rgb(h, s, v) {
 
 var statuscolor = "111,77f,7f7,7ff,f00".split(',');
 var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png"};
-var qparam = { tag:'any', subj:'all', filter:"multiple", joy:"only", limit:"17", keyword:"all" };
+var qparam = { tag:'any', subj:'', filter:"multiple", joy:"only", limit:"17", keyword:"all", other:0 };
 var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric'.split(' ');
 var mylink;
 var orbits,
@@ -48,7 +48,7 @@ var orbits,
     taglist,           // list of tags (can select based on tag)
     quizlist,          // list of quiz-names (for select)
     quizz,             // hash of quiz containing questions
-    subjects,          // hash with count
+    subjects = {},     // hash with count
     clusterlist = [],  // array of selected questions
     subjectArray,      // dataprovider for select
     svg,
@@ -292,7 +292,7 @@ function  setupworld(data) {
              return;
           }
 
-          tlist = 0;   // only show questions that I have created myself
+          tlist = qparam.other || 0;   // only show questions that I have created myself
 
           qdata = data;
           questions = data.questions;
@@ -331,16 +331,13 @@ function  setupworld(data) {
             taglist.push(qt);
           }
           taglist.sort();
-          subjects = data.subjects;
+          //subjects = data.subjects;
           // default to showing largest subject with less than 100 questions
-          var most = 0;
-          subjectArray = [];
-          for (var s in subjects) {
-            subjectArray.push(s);
-            if (most == 0 || (subjects[s] < 100 && subjects[s] > most)) {
-              most = subjects[s];
-              qparam.subj = s;
-            }
+          subjectArray = data.subjects;
+          qparam.subj = qparam.subj || subjectArray[0];
+          for (var si=0; si < subjectArray.length; si++) {
+              var su = subjectArray[si];
+              subjects[su] = database.subscribe.teachsubj[userinfo.id+su]
           }
           //console.log(tags);
           var alfab = 'abcdefghijklmnopqrstuvwxyzA'.split('');
@@ -402,16 +399,18 @@ function makeForcePlot(filter,limit,keyword,subj) {
           $j("#teachbox").undelegate(".tti","click");
           $j("#teachbox").delegate(".tti","click", function() {
                 var mytid = this.id.substr(2);
-                tlist = mytid;
-                makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
+                qparam.other = tlist = mytid;
+                quizDemo();
+                //makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
               });
           $j("#joy").change(function() {
                 qparam.joy = $j("#joy option:selected").text();
               });
           $j("#subj").change(function() {
                 qparam.subj = $j("#subj option:selected").text();
-                makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
-                show_unsynced();   // show questions not in sync with parent
+                quizDemo();
+                //makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
+                //show_unsynced();   // show questions not in sync with parent
               });
           $j("#quizz").change(function() {
                 var quizname = $j("#quizz option:selected").val();
@@ -630,7 +629,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
               .data(force.nodes())
             .enter().append("svg:circle")
               .attr("r", 9)
-              .attr("fill-opacity", 0.15)
+              .attr("fill-opacity", 0.25)
               .style("stroke", function(d,i){ var ty = d.name; var q = questions[ty]; return statuscolor[q.status]; } )
               .style("stroke-width",function(d,i) { var ty = d.name; var q = questions[ty]; return (1+ +q.status)+"px"; } )
               .style("fill", function(d,i) { var ty = d.name; var q = questions[ty]; return teachcolors(q.origin); } )
@@ -681,7 +680,7 @@ function quizDemo() {
         $j("#rapp").html(s);
         s += (s.length % 10 == 0) ? '<br>' : '.';
      }, 200);
-    $j.get(mybase+ "/wordindex", { teacher:qparam.teacher }, setupworld );
+    $j.get(mybase+ "/wordindex", { teacher:qparam.teacher, other:qparam.other, showsubj:qparam.subj }, setupworld );
 
 
 }

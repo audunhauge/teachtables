@@ -33,4 +33,8 @@ override(ss, {
     , choosegroup       : 'Velg gruppe'
     , note              : 'Merk'
    }
+,  quiz                 : {
+      nomatchtype       : 'Ingen treff for denne spørsmålstypen (med gitte filter)'
+    , nomatch           : 'Ingen treff'
+   }
 });

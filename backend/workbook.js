@@ -1887,18 +1887,31 @@ shortlist = ' akkurat aldri alene all alle allerede alltid alt alts_a andre anne
 
 exports.makeWordIndex = function(user,query,callback) {
   var teacher = +query.teacher;
+  var other = +query.other || 0;   // other teacher - fetch subscribed questions for this teach
+  var showsubj = query.showsubj;   // select only from this subject - to avoid too big dataload
   var wordlist = {  a:{}, b:{}, c:{}, d:{}, e:{}, f:{}, g:{},h:{}, i:{}, j:{}, k:{}, l:{}, m:{}, n:{}, o:{}, p:{}, q:{}, r:{}, s:{}, t:{}, u:{}, v:{},w:{}, x:{}, y:{}, z:{}, A:{} };
   var wlist = [];      // wordlist as sorted array
   var relations = {};  // questions sharing words
   var teachlist;       // list of teachers with questions
   var close = [];      // questions sharing "many" words | many > 7
   var teachid = (teacher) ? teacher : user.id;
-  var subjects = {};   // distinct subjects with qcount
+  var subjects = [];   // distinct subjects
   var questions = {};
   var containers = {};
   // modified questions
+  //console.log("We have these subjects:",db.subscribe.teachers[teachid]);
+  if (!showsubj) {
+      if (db.subscribe && db.subscribe.teachers && db.subscribe.teachers[teachid]) {
+        showsubj = db.subscribe.teachers[teachid][0];
+      } else {
+        showsubj = '';
+      }
+  }
+  subjects = db.subscribe.teachers[teachid] || [];
+  console.log("Subject with the most:",showsubj);
   client.query("select q.id from quiz_question q  left join quiz_question qp "
-               + " on (q.parent = qp.id) where q.status != 9 and q.parent != 0 and q.modified < qp.modified and q.qtext != qp.qtext and q.teachid=$1",[teachid],
+               + " on (q.parent = qp.id) where q.status != 9 and q.parent != 0 "
+               + " and q.modified < qp.modified and q.qtext != qp.qtext and q.teachid=$1",[teachid],
     after(function(unsynced) {
     client.query("select * from question_container",
       after(function(cont) {
@@ -1920,16 +1933,21 @@ exports.makeWordIndex = function(user,query,callback) {
                  if (!qtags[tag.tagname]) qtags[tag.tagname] = {};
                  qtags[tag.tagname][tag.id] = 1;
               }
-              client.query('select q.*, qp.teachid as origin from quiz_question q left outer join quiz_question qp on (q.parent = qp.id) where q.status != 9 and q.teachid='+ teachid ,
+              console.log('select q.*, qp.teachid as origin from quiz_question q '
+                           + 'left outer join quiz_question qp on  (q.parent = qp.id)'
+                           + ' where q.status != 9 and q.teachid=$1 and q.subject=$3 and (qp.teachid=$2 or q.parent=0)', [teachid,other,showsubj] );
+              client.query('select q.*, qp.teachid as origin from quiz_question q '
+                           + 'left outer join quiz_question qp on  (q.parent = qp.id)'
+                           + ' where q.status != 9 and q.teachid=$1 and q.subject=$3 and (qp.teachid=$2 or q.parent=0)', [teachid,other,showsubj] ,
                  after(function(results) {
                     console.log("Got all questions");
                     if (results && results.rows) {
                       for (var i=0, l= results.rows.length; i<l; i++) {
                         var qu = results.rows[i];
-                        if ( qu.subject) {
-                          if (!subjects[qu.subject]) subjects[qu.subject] = 0;
-                          subjects[qu.subject] += 1;
-                        }
+                        //if ( qu.subject) {
+                        //  if (!subjects[qu.subject]) subjects[qu.subject] = 0;
+                        //  subjects[qu.subject] += 1;
+                        //}
                         var wcount = 0;  // count of words in this question
                         var qtag = (mytags[qu.id]) ? mytags[qu.id].join(' ') : '';
                         var str = qu.qtext + ' '+qtag;

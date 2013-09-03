@@ -1484,9 +1484,11 @@ var getActiveWorkbooks = exports.getActiveWorkbooks  = function () {
      db.workbook = wb;
   }));
   // get list of teacher/subject for subscription
-  client.query("select distinct teachid,subject from quiz_question where teachid > 100 and subject != '' " ,
+  // select distinct teachid,subject,count(id) as ant from quiz_question where teachid > 100 and subject != '' and parent=0 group by teachid,subject
+  client.query("select distinct teachid,subject,count(id) as ant from quiz_question "
+               + " where teachid > 100 and subject != '' and parent=0 group by teachid,subject order by ant desc" ,
    after(function(results) {
-     var subscribe = { teachers:{}, subjects:{} };
+     var subscribe = { teachers:{}, subjects:{} , teachsubj:{} };
      if (results && results.rows) {
        for (var i=0,k= results.rows.length; i < k; i++) {
          var subb = results.rows[i];
@@ -1498,6 +1500,7 @@ var getActiveWorkbooks = exports.getActiveWorkbooks  = function () {
          }
          subscribe.subjects[subb.subject].push(subb.teachid);
          subscribe.teachers[subb.teachid].push(subb.subject);
+         subscribe.teachsubj[''+ subb.teachid+subb.subject] = subb.ant;  // count of questions
        }
      }
      db.subscribe = subscribe;
