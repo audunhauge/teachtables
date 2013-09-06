@@ -1375,7 +1375,7 @@ exports.update_subscription = function(user) {
       var sub = user.config.subscription;
       for ( var tea in sub) {
           for (var su in sub[tea] ) {
-              var sql = "select id from quiz_question where status != 9 and teachid=$1 and parent = 0 and qtype != 'quiz' and subject=$2 "
+              var sql = "select id from quiz_question where status != 9 and teachid=$1 and parent = 0 and subject=$2 "
                        + " and id not in (select parent from quiz_question where status != 9 and parent != 0 and teachid=$3 and subject = $2) ";
               client.query( sql, [tea,su,user.id],
               after(function(results) {
