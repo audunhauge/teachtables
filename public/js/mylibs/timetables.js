@@ -739,6 +739,7 @@ function updateMemory() {
 
 
 function vistimeplan(data,uid,filter,isuser,delta,edit) {
+  relax(30000);   // slow down live test;
   delta = typeof(delta) != 'undefined' ?  +delta : 0;  // vis timeplan for en anne uke
   edit = typeof(edit) != 'undefined' ? edit : false;
   // viser timeplan med gitt datasett

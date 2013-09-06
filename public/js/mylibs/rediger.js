@@ -352,9 +352,10 @@ function visEnPlan(inifagnavn,plandata) {
     s += '<div class="button float gui" id="toot">Hele</div>'
       + '<div  class="button float gui" id="rest">Fra idag</div>';
     if (isteach && inlogged) {
-       s += '<div  class="button float gui" id="copy">Ta kopi</div>';
-       s += '<div  class="button float gui" id="starb">Starb</div>';
-       s += feedback;
+      relax(5000);
+      s += '<div  class="button float gui" id="copy">Ta kopi</div>';
+      s += '<div  class="button float gui" id="starb">Starb</div>';
+      s += feedback;
     }
     if (isteach && egne && myactive) {
        s += '<div  class="button float gui" title="Eksporter til itslearning - lagres som fil. Kan importeres i itslearning." id="export">Export</div>';
@@ -510,6 +511,10 @@ function visEnPlan(inifagnavn,plandata) {
 
 function save_vurd(value,settings) {
     // save the changed element into compound week data a|b|c|d|e
+    if (zombie) {
+      $j("#main").html("Du er ikke lenger logga inn");
+      return;
+    }
     $j(this).removeClass( "ui-state-highlight" );
     var ppid;
     if (nocourse) {
@@ -1225,6 +1230,10 @@ function edit_fridager() {
 
 function save_fagplan(value,settings) {
     // save the changed element into compound week data a|b|c|d|e
+    if (zombie) {
+      $j("#main").html("Du er ikke lenger logga inn");
+      return;
+    }
     var myid = this.id;
     $j(this).removeClass( "ui-state-highlight" );
     var base = myid.substr(0,5);

@@ -1167,6 +1167,7 @@ function getTimmy(coursename,timmy,tidy) {
 }
 
 function edqlist() {
+  relax(5000);  // we are showing a list for editing - so worry about connection
   var showlist = generateQlist(wbinfo.qlist);
   var showqlist = wb.render[wbinfo.layout].editql(showlist);
   var header = wb.render[wbinfo.layout].header();
@@ -1447,6 +1448,7 @@ function editbind() {
 }
 
 function workbook(coursename) {
+    relax(30000);  // we are not editing - so relax
     wbinfo = { trail:[], page:{}, missing:{} , haveadded:0, maxscore:0 };
     wbinfo.coursename = coursename;
     wbinfo.courseid = database.cname2id[coursename];
@@ -1572,6 +1574,7 @@ var dialog = { daze:'', contopt:{} };  // pesky dialog
 
 function editquestion(myid, target) {
   // given a quid - edit the question
+ relax(5000);  // trigger dead connection quicly
  target   = typeof(target) != 'undefined' ? target : '#main';
  var descript = { multiple:'Multiple choice', dragdrop:'Drag and Drop', sequence:'Place in order'
                , info:'Information'

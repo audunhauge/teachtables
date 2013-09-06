@@ -28,6 +28,15 @@ exports.saveconfig = function(req, res) {
   }
 };
 
+exports.alive =function(req, res) {
+  // returns true if user still logged in
+  if (req.session.user) {
+      res.send( { "alive":"true" });
+  } else {
+      res.send( { "alive":"false" });
+  }
+}
+
 exports.feide =function(req, res) {
   if (req.query.token) {
       var tok = req.query.token;
@@ -39,6 +48,7 @@ exports.feide =function(req, res) {
       console.log("FEIDE:",ini4,tok,target);
       usr.feide(tok, ini4, now, pid, function(user) {
         if (user) {
+          user.logintime = new Date().getTime();
           req.session.user = user;
           var uname = user.firstname+" "+user.lastname;
           uname = uname.replace(/ /g,"%20");

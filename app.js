@@ -159,7 +159,8 @@ app.post(base+'/editgroup',              routes.editgroup);
 // user - info login config
 app.get(base+'/login',                  user.login);                // logg in
 app.get(base+'/feide',                  user.feide);                // logg in with feide (simplesaml)
-app.get(base+'/ses',                    user.ses);                  // get login info (check if logged in)
+app.get(base+'/alive',                  user.alive);                // {alive:true} if logged in
+app.get(base+'/ses',                    user.ses);                  // get login info for active users
 
 app.post(base+'/saveconfig',             user.saveconfig);
 

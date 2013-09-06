@@ -91,7 +91,7 @@ var alleprover;         // lagrer data om alle prøver for alle elever
 var blocks;             // slots for entering tests for courses that belong to a block
 
 var fullname;           // lagrer fagnavn delen av gruppenavnet - fullname["3403"] = "3inf5"
-var category;           // 3inf5:4, 2SCD5:10  
+var category;           // 3inf5:4, 2SCD5:10
 var fagautocomp;        // liste over alle gyldige fagnavn - brukes til autocomplete
 var linktilrom = [];    // liste over alle rom
 var mysubscript = [];   // subscription menu
@@ -375,11 +375,39 @@ function take_action() {
 
 // fetch userlist and do some more setup
 
-var alreadyappended = false;
+var alreadyappended = false;   //menus already expanded for logged in user
+var zombie = 0;
+function aliveordead() {
+    $j("#alive").removeClass("green dead");
+    zombie++;
+    if (zombie > 1) {
+        $j("#alive").addClass("dead");
+    }
+    $j.get(mybase+"/alive", function(ali) {
+        zombie = 0;
+        if (ali.alive == "true") {
+            $j("#alive").addClass("green");
+        } else {
+            $j("#alive").removeClass("green");
+        }
+    });
+}
+var alivefun;
+
+function relax(interv) {
+    // change frequency of alive test - while editing we are always checking (5-10 s)
+    // else just relax and test twice a minute
+    clearInterval(alivefun);
+    if (isteach && inlogged) {
+      alivefun = window.setInterval(aliveordead, interv);
+    }
+}
 
 function setup_teach() {
     if (alreadyappended) return;
     alreadyappended = true;
+    $j("#htitle").append('<div id="alive" class="green"><span id="dead">Server is dead</span></div>');
+    relax(30000);
     var romvalg = '<ul>';
     romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>';
     for (var i in romliste) {
@@ -853,23 +881,23 @@ $j(document).ready(function() {
     $j.getJSON(mybase+ "/basic",{ navn:user },
          function(data) {
            database = data;
-	   var slotzy = [];
+       var slotzy = [];
            for (var tt in data.starttime) {
-	     var sl = data.starttime[tt];
-	     var elm = sl.split('-');
-	     var t1 = elm[0];
-	     var t2 = elm[1];
-	     elm = t1.split('.');
-	     var t10 = +elm[0];
-	     var t11 = +elm[1];
-	     elm = t2.split('.');
-	     var t20 = +elm[0];
-	     var t21 = +elm[1];
-	     var dur = (60*(+t20) + (+t21) - 60*(+t10) - (+t11)) / 5;
-	     var start = (60*(+t10) + (+t11) - 8*60) / 5;
-	     slotzy.push([start,dur]);
+         var sl = data.starttime[tt];
+         var elm = sl.split('-');
+         var t1 = elm[0];
+         var t2 = elm[1];
+         elm = t1.split('.');
+         var t10 = +elm[0];
+         var t11 = +elm[1];
+         elm = t2.split('.');
+         var t20 = +elm[0];
+         var t21 = +elm[1];
+         var dur = (60*(+t20) + (+t21) - 60*(+t10) - (+t11)) / 5;
+         var start = (60*(+t10) + (+t11) - 8*60) / 5;
+         slotzy.push([start,dur]);
            }
-	   database.slotzy = slotzy;
+       database.slotzy = slotzy;
            userinfo = data.userinfo;
            if (!page && (userinfo.uid == 0 && data.ulist)) {
                // we have multiple matches for the user
@@ -914,18 +942,22 @@ $j(document).ready(function() {
        meetings = data.meetings;
     });
     $j("#yearplan").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_all(database.firstweek);
     });
     $j("#resten").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_all(database.startjd);
     });
     $j("#hele").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_all(database.firstweek);
     });
     $j("#heldag").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_heldag();
     });
@@ -951,22 +983,27 @@ $j(document).ready(function() {
              }
          });
     $j("#prover").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_prover();
     });
     $j("#neste").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_next4();
     });
     $j("#starblist").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_allstarbless();
     });
     $j("#denne").click(function(event) {
+        relax(30000);
         event.preventDefault();
         show_thisweek();
     });
     $j("#timeplaner").click(function(event) {
+        relax(30000);
         event.preventDefault();
         valg = 'elev';
         vis_elevtimeplan();
@@ -983,26 +1020,31 @@ $j(document).ready(function() {
         vis_elevtimeplan();
     });
     $j("#timeplanteach").click(function(event) {
+        relax(30000);
         event.preventDefault();
         valg = 'teach';
         vis_teachtimeplan();
     });
     $j("#timeplanklasse").click(function(event) {
+        relax(30000);
         event.preventDefault();
         valg = 'klasse';
         vis_klassetimeplan();
     });
     $j("#timeplangruppe").click(function(event) {
+        relax(30000);
         event.preventDefault();
         valg = 'gruppe';
         vis_gruppetimeplan();
     });
     $j("#timeplanrom").click(function(event) {
+        relax(30000);
         event.preventDefault();
         valg = 'rom';
         vis_romtimeplan();
     });
     $j("#timeplansamling").click(function(event) {
+        relax(30000);
         event.preventDefault();
         valg = 'samling';
         vis_samlingtimeplan();
@@ -1020,6 +1062,7 @@ $j(document).ready(function() {
         subscribe();
     });
     $j("#andreplaner").click(function(event) {
+        relax(30000);
         event.preventDefault();
         vis_andreplaner();
     });

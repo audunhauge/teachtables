@@ -60,6 +60,60 @@ html {
   position:absolute;
 }
 
+
+#alive {
+  position:fixed;
+  width:10px;
+  height:10px;
+  top:30px;
+  left:30px;
+  background:#f88;
+  border-radius: 5px;
+  border:solid rgba(0,0,0,0.3) 1px;
+  overflow:hidden;
+}
+#alive.green {
+  background:#4f4;
+  -webkit-animation: pulse 5s infinite;
+}
+
+#dead {
+  color:white;
+  position:absolute;
+  left:80px;
+  top:130px;
+}
+
+@-webkit-keyframes pulse {
+  from {
+    opacity:1.0;
+  }
+  to {
+    opacity:0.1;
+  }
+}
+
+@-webkit-keyframes jiggle {
+  0%,100% {
+    left:200px;
+  }
+  50% {
+    left:300px;
+  }
+}
+
+#alive.dead {
+  top:200px;
+  left:200px;
+  width:300px;
+  height:300px;
+  border-radius: 150px;
+  background:#f00;
+  z-index:99;
+  box-shadow:3px 3px 3px rgba(50, 50, 50, 0.45);
+  -webkit-animation: jiggle 9s ease-in-out infinite;
+}
+
 span.tiny {
   font-size:0.7em;
 }
