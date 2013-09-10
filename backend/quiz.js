@@ -58,7 +58,7 @@ function prep(code) {
   catch (err) {
    console.log(err);
    console.log("THE CODE:",code);
-   return '';
+   return code;
   }
 }
 

@@ -783,6 +783,7 @@ function renderPage() {
   // if questions pr page is given
   // then render that many + button for next page
   //   also if navi is set then render back button when not on first page
+  relax(30000);  // we are not editing - so relax
   $j.getJSON(mybase+'/getqcon',{ container:wbinfo.containerid }, function(container) {
     tablets = { usedlist:{} };    // forget any stored info for dragndrop for tablets on rerender
     if (!container) {
@@ -1438,13 +1439,17 @@ function editbind() {
            }
            dropquestion(morituri);
         });
-        /*
-        $j("#sortable").undelegate(".killer","click");
-        $j("#sortable").delegate(".killer","click", function() {
-                var myid = $j(this).parent().attr("id");
-                dropquestion(myid);
-            });
-            */
+        $j("#sortable").undelegate("#dupem","click");
+        $j("#sortable").delegate("#dupem","click", function() {
+           var tagged = $j("#sortable input:checked");
+           var morituri = [];  // we who are about to die
+           for (var i=0,l=tagged.length; i<l; i++) {
+             var b = tagged[i];
+             var qid = $j(b).parent().attr("id").substr(3);
+             morituri.push(qid); // question id
+           }
+           duplicate(morituri);
+        });
 }
 
 function workbook(coursename) {
@@ -2014,6 +2019,22 @@ function editquestion(myid, target) {
  });
 }
 
+function duplicate(morituri) {
+  var dupes = {};
+  var given = [];
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    if (!dupes[qid]) {
+        given.push(qid);
+    }
+    dupes[qid] = 1;  // only duplicate unique questions - not instances
+  }
+  $j.get(mybase+'/copyquest', { dupes:1, givenqlist:given.join(',') }, function(resp) {
+  });
+}
+
 function dropquestion(morituri) {
   var dead = [];    // these we must kill
   var remove = {};  // 1 for removed
@@ -2198,7 +2219,8 @@ wb.render.normal  = {
                   qq += '<p class="bigf">Anbefalt: klikk på add.';
                 }
               } else {
-                qq += '<span id="killem">slett valgte</span>';
+                qq += ' &nbsp; <span title="Tar valgte sprsml ut av denne quizen" class="listbut" id="killem">Slett</span>';
+                qq += '<span title="Dupliserer valgte sprsml" class="listbut" id="dupem">Dupliser</span><div class="clearbox"></div>';
               }
               if (wbinfo.haveadded < 2) {
                 // first new question

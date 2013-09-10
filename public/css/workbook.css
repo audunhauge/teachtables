@@ -96,6 +96,7 @@ marker#arrowhead {
     }
 }
 
+
 #teachbox  { 
     position:relative;
 }
@@ -451,6 +452,10 @@ div.qtext .medium span.fillin input {
 div.qtext .large span.fillin input {
   width:20em;
   text-align:right;
+}
+div.qtext .formula span.fillin input {
+  width:10em;
+  text-align:left;
 }
 
 .heck0 {
@@ -838,6 +843,20 @@ div.gradebutton:active {
   -moz-box-shadow:none;
 }
 
+.listbut {
+    display:block;
+    color:white;
+    text-align:center;
+    font-size:0.9em;
+    margin:2px;
+    padding:1px;
+    float:left;
+    width:60px;
+    height:16px;
+    border-radius:4px;
+    background:#449;
+    box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
 
 #nextpage, #prevpage {
   /* is a gradebutton */
@@ -1171,7 +1190,7 @@ li.dragme {
   -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .7);
 }
 
-div.clearbox {
+.clearbox {
   clear:both;
 }
 

@@ -1396,6 +1396,7 @@ exports.update_subscription = function(user) {
 var copyquest = exports.copyquest = function(user,query,callback) {
   // simply duplicate the questions with new teachid , set parent of copy to source question
   var givenqlist   = query.givenqlist ;  // we already have the question-ids as a list
+  var dupes = query.dupes;
   var now = new Date();
   client.query( "insert into quiz_question (name,points,qtype,qtext,qfasit,teachid,created,modified,parent,subject,status) "
                 + " select  name,points,qtype,qtext,qfasit,"+user.id+",created,"+(now.getTime())+",id,subject,status  "
@@ -1406,10 +1407,15 @@ var copyquest = exports.copyquest = function(user,query,callback) {
           + " where q.parent != 0 and q.modified = $2 and q.teachid=$1" , [ user.id, now.getTime() ] ,
           after(function(results) {
              callback("ok");
-             client.query( " delete from quiz_question where id in (select q.id from quiz_question q "
-            + " inner join quiz_question qdup "
-            + " on (q.parent = qdup.parent and q.teachid = qdup.teachid and q.id > qdup.id) where q.parent != 0 and "
-            + " q.teachid = $1 and q.qtext = qdup.qtext) ",[user.id] );
+             if (dupes) {
+                client.query( " update quiz_question set parent = 0 where id in (select q.id from quiz_question q "
+                  + " where q.teachid = $1 and q.modified = $2) ",[user.id,now.getTime() ] );
+             } else {
+                client.query( " delete from quiz_question where id in (select q.id from quiz_question q "
+                  + " inner join quiz_question qdup "
+                  + " on (q.parent = qdup.parent and q.teachid = qdup.teachid and q.id > qdup.id) where q.parent != 0 and "
+                  + " q.teachid = $1 and q.qtext = qdup.qtext) ",[user.id] );
+             }
           }));
   }));
 }
