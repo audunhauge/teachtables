@@ -377,14 +377,12 @@ function longList() {
      });
 }
 
-var showtest = false;
 var colorize = 0;
-function showProgress(dotest) {
-    if (!dotest) {
-        showtest = false;
+function showProgress(ttype) {
+    if (!ttype) {
+        ttype = 0;
     }
-    showtest   = showtest ? false : true ;
-    var testtxt = showtest ? 'Prøve' : 'Quiz';
+    var testtxt   = ['quiz','homework','exam'][ttype];
     var course,group;
     var justnow = new Date();
     try {
@@ -403,7 +401,7 @@ function showProgress(dotest) {
     if (course && group) {
         var elever = memberlist[group];
         if (!elever) return;
-        if (dotest == undefined) {
+        if (ttype == 0) {
             wbinfo.trail.push({id:0,name:"progress" });
         }
         //var trail = makeTrail();
@@ -425,7 +423,7 @@ function showProgress(dotest) {
                 var korder = [];
                 for (var i=0,l=results.length; i<l; i++) {
                     var r = results[i];
-                    if (showtest == (quizzes[r.k].exam == "1")) continue;
+                    if (quizzes[r.k].exam != "0" && quizzes[r.k].exam != testtxt) continue;
                     if (!cross[r.u]) {
                         cross[r.u] = {};
                         ulist.push(r.u);
@@ -517,15 +515,15 @@ function showProgress(dotest) {
                       showProgress();
                     });
                 $j("#testornot").click(function() {
-                      showProgress(1);
+                      showProgress((ttype + 1) %3 ) ;
                     });
                 $j("#colordate").click(function() {
                       colorize = 0;
-                      showProgress();
+                      showProgress(ttype);
                     });
                 $j("#colorscore").click(function() {
                       colorize = 1;
-                      showProgress();
+                      showProgress(ttype);
                     });
                 $j("#results").undelegate(".angled","click");
                 $j("#results").delegate(".angled","click", function() {
@@ -1924,6 +1922,7 @@ function editquestion(myid, target) {
                  , trinn:         {  type:"checkbox", value:trinn }
                  , komme:         {  type:"checkbox", value:komme }
                  , exam:          {  type:"checkbox", value:exam }
+                 , exam:          {  type:"select", klass:"copts",  value:exam, options:[{ value:"quiz"},{ value:"homework"},{ value:"exam"} ] }
                  , locked:        {  type:"checkbox", value:locked }
                  , hidden:        {  type:"checkbox", value:hidden }
                  , fasit:         {  type:"checkbox", value:fasit }
@@ -1947,12 +1946,12 @@ function editquestion(myid, target) {
                };
            var res = gui(elements);
            s += '<h4>Instillinger for prøven</h4> <div id="inputdiv">'
+             + '<div class="underlined" title="quiz,lekse,prøve - styrer oppsummering">QuizType{exam}</div>'
              + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
              + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
              + '<div class="underlined" title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
              + '<div class="underlined" title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
              + '<div class="underlined" title="Neste spørsmål vises dersom 80% riktig eller mer enn 4 forsøk">Trinnvis {trinn}</div>'
-             + '<div class="underlined" title="Prøve - test med karakter">Prøve{exam}</div>'
              + '<div class="underlined" title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
              + '<div class="underlined" title="Skal karakter vises">Karakter{karak} </div>'
              + '<div class="underlined" title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'

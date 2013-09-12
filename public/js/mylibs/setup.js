@@ -377,10 +377,11 @@ function take_action() {
 
 var alreadyappended = false;   //menus already expanded for logged in user
 var zombie = 0;
+var interval = 30000;
 function aliveordead() {
     $j("#alive").removeClass("green dead");
     zombie++;
-    if (zombie > 1) {
+    if (zombie > 4) {
         $j("#alive").addClass("dead");
     }
     $j.get(mybase+"/alive", function(ali) {
@@ -406,7 +407,7 @@ function relax(interv) {
 function setup_teach() {
     if (alreadyappended) return;
     alreadyappended = true;
-    $j("#htitle").append('<div id="alive" class="green"><span id="dead">Server is dead</span></div>');
+    $j("#htitle").append('<div id="alive" class="green"><span id="dead">Server may be asleep ... </span></div>');
     relax(30000);
     var romvalg = '<ul>';
     romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>';

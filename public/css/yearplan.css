@@ -80,8 +80,8 @@ html {
 #dead {
   color:white;
   position:absolute;
-  left:80px;
-  top:130px;
+  left:20px;
+  top:90px;
 }
 
 @-webkit-keyframes pulse {
@@ -96,18 +96,23 @@ html {
 @-webkit-keyframes jiggle {
   0%,100% {
     left:200px;
+    opacity:1.0;
+  }
+  10%,90% {
+    opacity:0.2;
   }
   50% {
     left:300px;
+    opacity:0.05;
   }
 }
 
 #alive.dead {
   top:200px;
   left:200px;
-  width:300px;
-  height:300px;
-  border-radius: 150px;
+  width:200px;
+  height:200px;
+  border-radius:100%;
   background:#f00;
   z-index:99;
   box-shadow:3px 3px 3px rgba(50, 50, 50, 0.45);
