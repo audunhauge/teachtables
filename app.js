@@ -38,7 +38,8 @@ siteinf.version = version;
 
 var database = require('./backend/database');
 var db = database.db;
-db.roominfo = siteinf.roominfo;
+db.roominfo = siteinf.roominfo;  // restrictions on room reservations
+db.romliste = siteinf.romliste;  // structured room list (by floor/building etc)
 db.days = siteinf.days;
 db.slots = siteinf.slots;
 db.lessondur = siteinf.lessondur;                // 8 slots gives 40 minutes lesson

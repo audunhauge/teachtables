@@ -99,22 +99,8 @@ var subscriptlist = {}; // the chosen subscriptions
 
 var promises = {};      // hash of promises that functions may fulfill when they have recieved data
 
-var romliste = { "A":("A001,A002,A003,A004,A006,A102,A107".split(',')),
-                     "M0":("M001,M002,M003,M004,M005,M006".split(',')),
-                     "M1":("M106,M107,M108,M109,M110,M111,M112,M113,M114,M115,M116,M117,M118,M119,B001,B002".split(',')),
-                     "R0":("R001,R002,R003,R004,R005,R008".split(',')),
-                     "R1":("R105,R106,R107,R110,R111,R112,R113".split(',')),
-                     "R2":("R201,R202,R203,R204,R205,R206,R207,R208,R210,R211,R212,R213,R214,R215,R216".split(',')) };
-
-var allrooms = [];
-for (var gr in romliste) {
-  var grr = romliste[gr];
-  for (var id in grr) {
-    var navn = grr[id];
-    allrooms.push(navn);
-  }
-}
-
+var romliste = {};      // structured list of rooms - grouped by floor,building etc - defined in sites/sitename.js
+var allrooms = [];      // straight list of all room names
 
 $j(window).bind('hashchange', function(event) {
          var state = $j.bbq.getState();
@@ -880,10 +866,19 @@ function getcourseplans() {
 
 $j(document).ready(function() {
     $j.getJSON(mybase+ "/basic",{ navn:user },
-         function(data) {
-           database = data;
+    function(data) {
+        database = data;
+        romliste = database.romliste;
+        for (var gr in romliste) {
+          var grr = romliste[gr];
+          for (var id in grr) {
+            var navn = grr[id];
+            allrooms.push(navn);
+          }
+        }
+
        var slotzy = [];
-           for (var tt in data.starttime) {
+      for (var tt in data.starttime) {
          var sl = data.starttime[tt];
          var elm = sl.split('-');
          var t1 = elm[0];
@@ -897,8 +892,8 @@ $j(document).ready(function() {
          var dur = (60*(+t20) + (+t21) - 60*(+t10) - (+t11)) / 5;
          var start = (60*(+t10) + (+t11) - 8*60) / 5;
          slotzy.push([start,dur]);
-           }
-       database.slotzy = slotzy;
+      }
+      database.slotzy = slotzy;
            userinfo = data.userinfo;
            if (!page && (userinfo.uid == 0 && data.ulist)) {
                // we have multiple matches for the user
