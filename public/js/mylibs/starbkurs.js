@@ -52,7 +52,7 @@ function editstarbless(cid) {
     var dagauto = "MAN,ONS,TOR".split(',');
     var dagnavn = starbdag[starbc.day] || '';
     var starbul = drawStarbList();
-    var s = '<div class="sized1 centered gradback">'
+    var s = '<div id="starbinfo">'
             + '<h1 id="oskrift">Starb-kurs</h1>'
             + '<div id="starbliste">'+starbul+'</div>'
             + '<div id="starbcourse">'
@@ -62,8 +62,8 @@ function editstarbless(cid) {
             + '  <div> <label> Dag       </label> <input id="day" type="text"  value="'+dagnavn+'"/></div>'
             + '  <div> <label> Kursinfo  </label> <textarea id="kinfo">'+starbc.value+'</textarea></div>'
             + '  <div> <div id="savestarb" class="button float gui" >Lagre</div></div>'
-            + '</div>' 
-            + '<div id="weeks"></div><br>' 
+            + '</div>'
+            + '<div id="weeks"></div><br>'
             + '</div>';
     $j("#main").html(s);
     $j("ul.starbless li ul li").click(function () {
@@ -127,7 +127,7 @@ function editstarbless(cid) {
             }
             var jdlist = jds.join(',');
             $j("#savestarb").html("Lagrer ..");
-            $j.getJSON(mybase+'/savestarbless',{ jdays:jdlist, info:info , name:name, roomid:roomid, teachid:teachid , day:day, idd:cid }, 
+            $j.getJSON(mybase+'/savestarbless',{ jdays:jdlist, info:info , name:name, roomid:roomid, teachid:teachid , day:day, idd:cid },
             function(data) {
                 $j.getJSON(mybase+'/starblessons', function(data) {
                   for (var ii in data) {
@@ -148,7 +148,7 @@ function drawTable(day,dagnavn,ssta) {
          + "<tr><th>Uke</th><th>"+dagnavn+"</th><th>Merknad</th></tr>";
         var tfooter ="</table>";
         var wl = theader;
-        start =  database.firstweek; 
+        start =  database.firstweek;
         stop =   database.lastweek;
         var week = julian.week(start);
         var i,j;
@@ -185,7 +185,7 @@ function drawTable(day,dagnavn,ssta) {
         }
         wl += "</table>";
         return wl;
-}        
+}
 
 var teachul;
 

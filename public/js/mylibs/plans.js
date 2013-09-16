@@ -226,20 +226,29 @@ function show_prover() {
 function show_allstarbless() {
     $j.get(mybase+ "/getallstarblessdates", { },
     function(data) {
-      starbdata = {};
+      var seenteach = {}; // used to colorize teachers
+      var starbdata = {};
+      var cidx = 0;  // color index
       for (var i=0,j=data.length; i<j; i++) {
-        less = data[i];
+        var less = data[i];
         if (!starbdata[less.julday]) {
           starbdata[less.julday] = [];
         }
         var teachname = teachers[less.teachid] || {username:''};
-        var txt = teachname.username + ' ' + database.roomnames[less.roomid] + ' ' + less.name.substr(0,12);
-        starbdata[less.julday].push(txt);
+        var tu = teachname.username;
+        if (!seenteach[tu]) {
+          seenteach[tu] = cidx++;
+        }
+        var tc = seenteach[tu];  // actual color number
+        //var txt = teachname.username + ' ' + database.roomnames[less.roomid] + ' ' + less.name.substr(0,12);
+        less.color = tc; less.username = tu; less.roomname = database.roomnames[less.roomid];
+        starbdata[less.julday].push(less);
       }
       var events = database.yearplan;
       var thisweek = database.startjd;
       var s = "<table class=\"heldag\">";
-      s += '<tr>'+ ss.weekheader+'</tr>';
+      //s += '<tr>'+ ss.weekheader+'</tr>';
+      s += '<tr><td>Uke</td><td>Man</td><td>Ons</td><td>Tor</td></tr>';
       var i,j;
       var e;
       for (jd = thisweek; jd < database.lastweek; jd += 7 ) {
@@ -247,14 +256,23 @@ function show_allstarbless() {
         e = events[Math.floor(jd/7)] || { pr:[],days:[]};
         s += "<tr>";
         s += '<th><div class="weeknum">'+julian.week(jd)+'</div><br class="clear" /><div class="date">' + formatweekdate(jd) + "</div></th>";
-        for (j=0;j<5;j++) {
+        for (j=0;j<4;j++) {
+          if (j==1) continue;
           var starbliste = '';
           var tdclass = '';
           if (database.freedays[jd+j]) {
             starbliste = database.freedays[jd+j];
             tdclass = ' class="fridag"';
           } else {
-            if (starbdata[jd+j]) starbliste = '<div class="starblist rcorner">' + starbdata[jd+j].join('</div><div class="starblist rcorner">') + '</div>';
+            if (starbdata[jd+j]) {
+              //starbliste = '<div class="starblist rcorner">' + starbdata[jd+j].join('</div><div class="starblist rcorner">') + '</div>';
+              var std = starbdata[jd+j];
+              for (var ii =0; ii<std.length; ii++ ) {
+                stditem = std[ii];
+                starbliste += '<div class="starblist rcorner s'+stditem.color+'">'
+                   +stditem.username+' '+stditem.roomname+' <span class="tiny">'+stditem.name+'</span></div>';
+              }
+            }
           }
           var txt = e.days[j] || '';
           txt = (txt) ? '<div class="myown">' + txt + '</div>' : '';
