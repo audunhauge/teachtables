@@ -506,7 +506,9 @@ function setup_teach() {
            var au = data[i];
            var jn = new Date();
            var ti = new Date(+au.time);
-           online.push(au.firstname.caps() + " " + au.lastname.caps()+ " " + ti.getHours()  + ":" + ti.getMinutes() );
+           var min = ti.getMinutes();
+           min = (+min < 10) ? '0'+min : min;
+           online.push(au.firstname.caps() + " " + au.lastname.caps()+ " " + ti.getHours()  + ":" + min);
         }
         usersonline = online.join(', ');
       });

@@ -347,12 +347,15 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   var slotlabs = [] ;
   var numslots = database.slots;
   var numdays = database.days;
+  var roomdescript = '';       // extra description for some rooms - empty for other item types
   if (database.roominfo[uid]) {
       numslots = database.roominfo[uid].slots || database.slots;
       numdays = database.roominfo[uid].days || database.days;
       slotlabs = database.roominfo[uid].slabels || '';
       slotlabs = slotlabs.split(',');
+      roomdescript = database.roominfo[uid].info || '';
   }
+  members += ' ' + roomdescript;
   var full = {};  // block doubles as they are not easy to read
   var limit = Math.max(7,slotlabs.length);  // how many lesson-slots to draw (a lesson is 8 slots = 40 min)
   var i,j;

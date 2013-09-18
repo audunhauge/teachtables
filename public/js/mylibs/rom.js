@@ -27,7 +27,8 @@ function resrapport(delta) {
                     if (teach) {
                         teachname = teach.firstname.caps() + ' ' + teach.lastname.caps();
                     }
-                    showlist.push('<th>'+res.name + "</th><td>" + (1+res.slot)+".time</td><td>"+slotlabs[res.slot]+"</td><td>"+teachname+'</td>');
+                    var oslot = slot2lesson(res.slot);
+                    showlist.push('<th>'+res.name + "</th><td>" +(1+oslot)+".time</td><td>"+slotlabs[oslot]+"</td><td>"+teachname+'</td>');
                 }
             }
     }
@@ -54,12 +55,14 @@ function rom_reservering(room,delta,makeres) {
     var numslots = 10;
     var numdays = 5
     var slotlabs = [] ;
+    var roomdescript = '';       // extra description for some rooms - empty for other item types
     if (database.roominfo[room]) {
       numslots = database.roominfo[room].slots || 10;
       numdays = database.roominfo[room].days || 5;
       slotlabs = database.roominfo[room].slabels || '';
       slotlabs = slotlabs.split(',');
       restrict = database.roominfo[room].restrict || [];
+      roomdescript = database.roominfo[room].info || '';
       if (restrict.length > 0) {
         makeres = false;
         if ($j.inArray(database.userinfo.username,restrict) >= 0) {
@@ -129,7 +132,7 @@ function rom_reservering(room,delta,makeres) {
             : '<div id="makeres" class="sized25 textcenter centered" ><span id="info" class="redfont" >Begrensa tilgang</span></div>' )
             + '<table class="sized2 centered border1">'
             + '<caption class="retainer" ><div class="button blue gui" id="prv">&lt;</div>'
-            + room
+            + room + ' '+roomdescript;
             + '<div class="button blue gui" id="nxt">&gt;</div></caption>'
             + '<tr><th class="time">Time</th>'+dayheadings+'</tr>';
     for (i= 0; i < numslots; i++) {
