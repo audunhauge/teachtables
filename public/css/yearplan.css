@@ -453,11 +453,20 @@ ul.starbless {
 }
 
 #weeks {
+  clear:both;
+  margin-top:56px;
+  margin-right:auto;
+  margin-left:auto;
+  width:500px;
+}
+
+#starbweeks {
   position:absolute;
   top:40px;
   left:700px;
   width:450px;
 }
+
 #starbinfo {
   position:absolute;
   top:140px;

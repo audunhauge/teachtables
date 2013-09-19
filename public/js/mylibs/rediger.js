@@ -144,13 +144,21 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
                       var elev = elever[el];
                       if (ab[elev] && !already[elev] ) { // one of my studs is absent
                           var slots = ab[elev].value;
+                          if (ab[elev].et = 'solo') {
+                            // need not be absent from your lesson
+                            // show the solotest if same day
+                                  abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
+                                  because --;
+                                  already[elev] = 1;
+                                  continue;
+                          }
                           for (var sl in slots) {
                               var slo = slots[sl];
                               if (timmy[w] && timmy[w][+slo-1]) {
                                   // this stud is absent during course slot
                                   //abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
                                   abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
-                                  because += (ab[elev].et == 'solo') ? -1 : 1;  // inc for absent, dec for solo
+                                  because ++;
                                   already[elev] = 1;
                                   break;
                               }

@@ -63,7 +63,7 @@ function editstarbless(cid) {
             + '  <div> <label> Kursinfo  </label> <textarea id="kinfo">'+starbc.value+'</textarea></div>'
             + '  <div> <div id="savestarb" class="button float gui" >Lagre</div></div>'
             + '</div>'
-            + '<div id="weeks"></div><br>'
+            + '<div id="starbweeks"></div><br>'
             + '</div>';
     $j("#main").html(s);
     $j("ul.starbless li ul li").click(function () {
@@ -83,21 +83,21 @@ function editstarbless(cid) {
      if (teach) {
        wl = drawTable(day,dagnavn,ssta);
      }
-     $j("#weeks").html(wl);
+     $j("#starbweeks").html(wl);
      $j("#teach").autocomplete({ source:database.tnames } )
      $j("#room").autocomplete({ source:database.roomnamelist } )
      $j("#day").autocomplete({ source:dagauto } )
-     $j("#weeks").delegate("td.free","click",function() {
+     $j("#starbweeks").delegate("td.free","click",function() {
          var jd = +this.id.substr(2);
          ssta[jd] = 1;
          var wl = drawTable(day,dagnavn,ssta);
-         $j("#weeks").html(wl);
+         $j("#starbweeks").html(wl);
      });
-     $j("#weeks").delegate("td.noc","click",function() {
+     $j("#starbweeks").delegate("td.noc","click",function() {
          var jd = +this.id.substr(2);
          delete ssta[jd];
          var wl = drawTable(day,dagnavn,ssta);
-         $j("#weeks").html(wl);
+         $j("#starbweeks").html(wl);
      });
      $j("#savestarb").click(function() {
           var ok = 0;

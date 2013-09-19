@@ -53,7 +53,7 @@ function edit_bortfall(uid, target) {
             weektest[w] = database.freedays[tjd+w];
             weekclass[w] = 'class="fridag"';
           } else {
-            weektest[w] += '<a title="Kurs" active="" rel="#testdialog" id="jdw'+(tjd+w)+"_"+w+'" class="addnew">+</a>' ;
+            weektest[w] += '<a info="Kurs" active="" rel="#testdialog" id="jdw'+(tjd+w)+"_"+w+'" class="addnew">+</a>' ;
           }
           if (absent[tjd+w]) {
             for (var a in absent[tjd+w]) {
@@ -152,7 +152,7 @@ function edit_bortfall(uid, target) {
         var par = $j(this);
         testjd = par.attr("id");
         var actatr = par.attr("active");
-        var info = par.attr("title");
+        var info = par.attr("info");
         $j("#cause").val(info);
         var active = (actatr) ? actatr.split(',') : [];
         var s = bortreist(uid,id,wd,active,tidy[wd]);
@@ -229,7 +229,7 @@ function edit_solo(uid) {
             weektest[w] = database.freedays[tjd+w];
             weekclass[w] = 'class="fridag"';
           } else {
-            weektest[w] += '<a members="" title="Test" active="" rel="#testdialog" id="jdw'+(tjd+w)+"_"+w+'" class="addnew">+</a>' ;
+            weektest[w] += '<a members="" info="Høring" active="" rel="#testdialog" id="jdw'+(tjd+w)+"_"+w+'" class="addnew">+</a>' ;
           }
           kurs = {};
           if (absent[tjd+w]) {
@@ -259,7 +259,7 @@ function edit_solo(uid) {
               if (+owner == 0) {
                 klass = "absent elev";
               }
-              weektest[w] += '<a members="'+tl.members.join(',')+'" title="'+ shortteach(owner)+':'+k+'" rel="#testdialog" id="jdw'
+              weektest[w] += '<a members="'+tl.members.join(',')+'" info="'+k+'" title="'+ shortteach(owner) + ':'+ k+'" rel="#testdialog" id="jdw'
                    +(tjd+w)+'_'+w+'" active="'+tl.slots+'" class="'+klass+'">' + k.substr(0,10) + " " + tlist + '</a>';
 
             }
@@ -296,10 +296,6 @@ function edit_solo(uid) {
               return e.innerHTML.split(' ')[0];
            });
         var save = false;
-        if (buttons.index(this) == 1) {
-           timer = [1,2,3,4,5,6,7,8,9];
-           save = true;
-        }
         if (buttons.index(this) == 0) {
            save = true;
         }
@@ -326,7 +322,7 @@ function edit_solo(uid) {
         var par = $j(this);
         testjd = par.attr("id");
         var actatr = par.attr("active");
-        var info = par.attr("title");
+        var info = par.attr("info");
         var membersatr = par.attr("members"); //.split(',');
         members = (membersatr) ? membersatr.split(',') : [] ;
         $j("#cause").val(info);
@@ -451,7 +447,7 @@ function edit_excursion(uid) {
               if (+owner == 0) {
                 klass = "absent elev";
               }
-              weektest[w] += '<a members="'+tl.members.join(',')+'" title="'+ shortteach(owner)+':'+k+'" rel="#testdialog" id="jdw'
+              weektest[w] += '<a members="'+tl.members.join(',')+'" info="'+k+'" title="'+shortteach(owner)+':'+k+'" rel="#testdialog" id="jdw'
                    +(tjd+w)+'_'+w+'" active="'+tl.slots+'" class="'+klass+'">' + k.substr(0,10) + " " + tlist + '</a>';
 
             }
@@ -518,7 +514,7 @@ function edit_excursion(uid) {
         var par = $j(this);
         testjd = par.attr("id");
         var actatr = par.attr("active");
-        var info = par.attr("title");
+        var info = par.attr("info");
         var membersatr = par.attr("members"); //.split(',');
         members = (membersatr) ? membersatr.split(',') : [] ;
         $j("#cause").val(info);

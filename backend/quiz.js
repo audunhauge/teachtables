@@ -709,7 +709,7 @@ var qz = {
        });
      // if any #{ ... } left - try them as expressions
      // so #{a+2} will fetch #a and add 2
-     text = text.replace(/\#{([a-zA-Z0-9.+*/)(-]+)}/g,function(m,exp) {
+     text = text.replace(/\#{([a-zA-Z0-9.+*/^)(-]+)}/g,function(m,exp) {
        var calc = 0;
        try {
            // first replace d?nn with dice value
@@ -726,6 +726,10 @@ var qz = {
                     symb.dice[ch] = 1 + Math.floor(Math.random()*dd);
                     return symb.dice[ch];
                }
+           });
+           // see if we have a^b or a^([0-9]+)
+           exp = exp.replace(/([a-z])\^(([a-z])|([0-9]+))/g,function(m,b,p) {
+               return "Math.pow("+b+","+p+")";
            });
            with(symb){ calc = eval('('+exp+')') };
            return calc;
