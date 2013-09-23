@@ -1592,6 +1592,7 @@ function editquestion(myid, target) {
  $j.getJSON(mybase+'/getquestion',{ qid:myid }, function(q) {
    dialog.qtype = q.qtype;
    dialog.qpoints = q.points;
+   dialog.subject = q.subject;
    dialog.qcode = q.code;
    dialog.pycode = q.pycode;
    dialog.hints = q.hints || '';
@@ -1677,6 +1678,7 @@ function editquestion(myid, target) {
                //alert($j("input[name=qpoints]").val());
              $j( this ).dialog( "close" );
              dialog.qpoints = $j("input[name=qpoints]").val();
+             dialog.subject = $j("input[name=subject]").val();
              dialog.qcode = $j("#qcode").val();
              dialog.pycode = $j("#pycode").val();
              dialog.hints = $j("#hints").val();
@@ -1720,6 +1722,7 @@ function editquestion(myid, target) {
                 +   '<tr><th>Points</th><td><input name="qpoints" class="num4" type="text" value="'+q.points+'"></td></tr>'
                 +   '<tr><th>Created</th><td>'+showdate(q.created)+'</td></tr>'
                 +   '<tr><th>Modified</th><td>'+showdate(q.modified)+'</td></tr>'
+                +   '<tr><th>Subject</th><td><input name="subject" type="text" value="'+q.subject+'"></td></tr>'
                 +   '<tr><th>Parent</th><td>'+q.parent+'</td></tr>'
                 +   '<tr><th>Javascript</th><td><textarea class="txted" id="qcode">'+dialog.qcode+'</textarea></td></tr>'
                 +   '<tr><th>SymbolicPython</th><td><textarea class="txted" id="pycode">'+dialog.pycode+'</textarea></td></tr>'
@@ -1790,7 +1793,7 @@ function editquestion(myid, target) {
             // this preserves any question-list for quiz/container
         }
         $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname, status:qstatus,
-                                qtype:qtype, points:dialog.qpoints }, function(resp) {
+                                qtype:qtype, points:dialog.qpoints, subject:dialog.subject }, function(resp) {
            editquestion(myid,target);
         });
       });

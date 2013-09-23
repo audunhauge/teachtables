@@ -87,12 +87,13 @@ exports.editquest = function(user,query,callback) {
   var qid     = +query.qid ;        // single question
   var qidlist = query.qidlist;      // question list - only delete
   var name    = query.name || '';
+  var subject = query.subject || '';
   var qtype   = query.qtype || '';
   var status  = query.status;
-  var qcache   = query.cache || '';  // do we need to update cache
+  var qcache  = query.cache || '';  // do we need to update cache
   var qtext   = JSON.stringify(query.qtext) || '';
   var teachid = +user.id;
-  var points  = query.points || '';
+  var points  = +query.points || 0;
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
@@ -138,9 +139,15 @@ exports.editquest = function(user,query,callback) {
         if (query.points) {
           sql += ',points=$'+idd;
           params.push(points);
+          idd++;
+        }
+        if (query.subject) {
+          sql += ',subject=$'+idd;
+          params.push(subject);
+          idd++;
         }
         sql += ' where id=$1 and teachid=$2';
-        //console.log(sql,params);
+        console.log(sql,params);
         client.query( sql, params,
           after(function(results) {
             delete quiz.question[qid];  // remove it from cache
@@ -1762,29 +1769,39 @@ exports.editqncontainer = function(user,query,callback) {
       case 'insert':
         // we bind existing questions to the container
         if (nuqs) {
-          //console.log( "insert into question_container (qid,cid) values " + nuqids);
-          client.query( "select q.id from quiz_question q inner join question_container c on (q.id = c.qid) "
+          client.query( "select q.id,q.parent,c.qid from quiz_question q left outer join question_container c on (q.id = c.qid) "
                        + " where q.qtype='quiz' and q.id in ("+nuqs+" ) and q.teachid=$1", [teachid],
               after(function(existing) {
+                  console.log("Existing quiz",existing.rows);
                   // existing is list of quiz ids already used
                   // WE ONLY DO ONE QUIZ any others just dropped
                   // so instead of just inserting this quiz  we duplicate it and insert the dups
                   // ANY other questions are just dropped
-                  if (existing && existing.rows && existing.rows.length) {
+                  if (existing && existing.rows && existing.rows.length && (existing.rows[0].parent || existing.rows[0].qid)) {
                       console.log("Already quiz ",existing.rows);
                       var dupcon = existing.rows[0].id;
+                      var containedqs = "select c.qid from question_container c where c.cid =$1";
+                      // default sql to use if copying my own container
+                      if (existing.rows[0].parent) {
+                          dupcon = existing.rows[0].parent;
+                          console.log("Duplicating OTHER TEACHERS QUIZ:",dupcon);
+                          // we need to find the local copies of original questions contained in this quiz
+                          // this gives us a new list of qids to insert
+                          containedqs = "select id as qid from quiz_question where teachid="+teachid+" and parent in (select qid from question_container where cid=$1)";
+                      }
+                      // this quiz is a copy of other teachers quiz
                       console.log("Duplicating",dupcon);
                       client.query( "insert into quiz_question (name,points,qtype,qtext,qfasit,teachid,created,modified,parent,subject) "
                                     + " select  name,points,qtype,qtext,qfasit,"+teachid+",created,"+(now.getTime())+",id,subject  "
                                     + " from quiz_question q where q.status != 9 and q.id = "+dupcon+" returning id ",
                         after(function(results) {
                           var nucon = results.rows[0].id;
-                          console.log("came here 1");
+                          console.log("came here 1",containedqs);
                           // duplicate link to contained questions
                           //   this doesnt duplicate contained questions
                           //   but inserts record in question_container that
                           //   shows this question used in this quiz
-                          client.query( "select c.qid from question_container c where c.cid =$1", [dupcon],
+                          client.query( containedqs , [dupcon],
                             after(function(conttq) {
                                var contained = conttq.rows.map(function (e) {
                                  return e.qid;
