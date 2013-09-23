@@ -135,21 +135,19 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
                    weektest[w] += '<a active="" rel="#testdialog" id="jdw'+tjd+'_'+w+'" class="addnew">+</a>' ;
                 }
                 // pull in list of absent students - this just for info
-                var because = 0;  // mostly absent -not singular tests
                 var already = {};  // to avoid doubles
                 var abslist = [];  // studs who are absent for this day-slot
+                var solo = [];     // studs who have a singular test this day
                 if (absent[tjd+w]) {
                   for (var el in elever) {
                       var ab = absent[tjd+w];
                       var elev = elever[el];
                       if (ab[elev] && !already[elev] ) { // one of my studs is absent
                           var slots = ab[elev].value;
-                          if (ab[elev].et = 'solo') {
+                          if (ab[elev].et == 'solo') {
                             // need not be absent from your lesson
                             // show the solotest if same day
-                                  abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
-                                  because --;
-                                  already[elev] = 1;
+                                  solo.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
                                   continue;
                           }
                           for (var sl in slots) {
@@ -158,7 +156,6 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
                                   // this stud is absent during course slot
                                   //abslist.push( students[elev].firstname + '&nbsp;' + students[elev].lastname );
                                   abslist.push(shortteach(ab[elev].klass)+ ': ' +short_sweet_name(elev)  );
-                                  because ++;
                                   already[elev] = 1;
                                   break;
                               }
@@ -167,9 +164,15 @@ function edit_proveplan(fagnavn,plandata,start,stop) {
                   }
                 }
                 if (abslist.length) {
-                  var cco = (because < 0) ? 'greenback whitefont' : '' ;
-                  abs = '<div title="<table><tr><td>'
+                  var cco = 'redback whitefont';
+                  var abs = '<div title="<table><tr><td>'
                           +abslist.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny '+cco+' totip absentia">'+abslist.length+'</div>';
+                  weektest[w] += abs;
+                }
+                if (solo.length) {
+                  var cco = 'greenback whitefont';
+                  var abs = '<div title="<table><tr><td>'
+                          +solo.join('</td></tr><tr><td>')+'</tr></table>" class="tinytiny '+cco+' totip absentia">'+solo.length+'</div>';
                   weektest[w] += abs;
                 }
                 if (whint.info && +whint.day == +w) {

@@ -184,7 +184,42 @@ span.large {
     font-size:2.2em;
 }
 
+ol.math {
+  counter-reset:li;
+  margin-left:0;
+  padding-left:0;
+ }
+ol.math li {
+    position:relative;
+    margin:0 0 6px 2em;
+    padding:4px 8px;
+    list-style:none;
+ }
+ol.math li:before {
+    content:counter(li,lower-latin) ")";
+    counter-increment:li;
+    position:absolute;
+    top:-2px;
+    left:-2em;
+    width:2em;
+ }
+ol.mat dl {
+    position:relative;
+}
 
+ol.math dl dt {
+    position:absolute;
+    top:0;
+    left:0;
+    background:rgba(0,250,0,0.05);
+    width:60%;
+}
+
+ol.math dl dd {
+    position:absolute;
+    right:0;
+    top:0;
+}
 
 div.userres {
    clear:both;
@@ -451,7 +486,6 @@ div.qtext .medium span.fillin input {
 }
 div.qtext .large span.fillin input {
   width:20em;
-  text-align:right;
 }
 div.qtext .formula span.fillin input {
   width:10em;
