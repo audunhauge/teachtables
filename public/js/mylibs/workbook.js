@@ -1437,10 +1437,43 @@ function editbind() {
            }
            dropquestion(morituri);
         });
+        $j("#sortable").undelegate("#numem","click");
+        $j("#sortable").delegate("#numem","click", function() {
+           var tagged = $j("#sortable .equest input");
+           var morituri = [];  // we who are about to be renamed with number
+           for (var i=0,l=tagged.length; i<l; i++) {
+             var b = tagged[i];
+             var qid = $j(b).parent().attr("id").substr(3);
+             morituri.push(qid); // question id
+           }
+           numriate(morituri);
+        });
+        $j("#sortable").undelegate("#subem","click");
+        $j("#sortable").delegate("#subem","click", function() {
+           var tagged = $j("#sortable input:checked");
+           var morituri = [];  // we who are about to be subjugated
+           for (var i=0,l=tagged.length; i<l; i++) {
+             var b = tagged[i];
+             var qid = $j(b).parent().attr("id").substr(3);
+             morituri.push(qid); // question id
+           }
+           subjugate(morituri);
+        });
+        $j("#sortable").undelegate("#tagem","click");
+        $j("#sortable").delegate("#tagem","click", function() {
+           var tagged = $j("#sortable input:checked");
+           var morituri = [];  // we who are about to be tagged
+           for (var i=0,l=tagged.length; i<l; i++) {
+             var b = tagged[i];
+             var qid = $j(b).parent().attr("id").substr(3);
+             morituri.push(qid); // question id
+           }
+           tagliate(morituri);
+        });
         $j("#sortable").undelegate("#dupem","click");
         $j("#sortable").delegate("#dupem","click", function() {
            var tagged = $j("#sortable input:checked");
-           var morituri = [];  // we who are about to die
+           var morituri = [];  // we who are about to multiply
            for (var i=0,l=tagged.length; i<l; i++) {
              var b = tagged[i];
              var qid = $j(b).parent().attr("id").substr(3);
@@ -1448,6 +1481,47 @@ function editbind() {
            }
            duplicate(morituri);
         });
+}
+
+function subjugate(morituri) {
+  var given = [];
+  if (morituri.length == 0) return;
+  var tagname = $j("#tnavn").val() || '';
+  if (!tagname) return;
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    $j.post(mybase+'/editquest', { action:'update', qid:qid, subject:tagname });
+  }
+}
+function numriate(morituri) {
+  var given = [];
+  if (morituri.length == 0) return;
+  var tagname = $j("#tnavn").val() || '';
+  if (!tagname) return;
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    var numname = (i+1)+'-'+tagname;
+    $j.post(mybase+'/editquest', { action:'update', qid:qid, name:numname });
+  }
+}
+
+function tagliate(morituri) {
+  var given = [];
+  if (morituri.length == 0) return;
+  var tagname = $j("#tnavn").val() || '';
+  if (!tagname) return;
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    given.push(qid);
+  }
+  $j.post(mybase+'/settag', { qidlist:given.join(','), tagname:tagname }, function(resp) {
+  });
 }
 
 function workbook(coursename) {
@@ -1653,11 +1727,13 @@ function editquestion(myid, target) {
          q.count = q.count ? q.count + 1 : 1 ;
          if ( q.count % 2) {
            $j("#qdisplay").text(q.sync.origtext).css("background","#fdd");
+           $j("#daze").val(q.sync.daze).css("background","#fdd");
            dialog.qcode = q.sync.code;
            dialog.pycode = q.sync.pycode;
            dialog.hints = q.sync.hints;
          } else {
            $j("#qdisplay").text(q.display).css("background","#ffe");
+           $j("#daze").val(q.daze).css("background","#ffe");
            dialog.qcode = q.code;
            dialog.pycode = q.pycode;
            dialog.hints = q.hints || '';
@@ -2222,7 +2298,12 @@ wb.render.normal  = {
                 }
               } else {
                 qq += ' &nbsp; <span title="Tar valgte sprsml ut av denne quizen" class="listbut" id="killem">Slett</span>';
-                qq += '<span title="Dupliserer valgte sprsml" class="listbut" id="dupem">Dupliser</span><div class="clearbox"></div>';
+                qq += '<span title="Dupliserer valgte sprsml" class="listbut" id="dupem">Dupliser</span>';
+                qq += '<span title="Nummerer valgte sprsml" class="listbut" id="numem">Nummerer</span>';
+                qq += '<span title="Tag valgte sprsml" class="listbut" id="tagem">Tag</span>';
+                qq += '<span title="Subject for valgte sprsml" class="listbut" id="subem">Subject</span>';
+                qq += '<span title="Tag/Navn/Subject" ><input class="num4" id="tnavn" name="tnavn" text=""></span>';
+                qq += '<div class="clearbox"></div>';
               }
               if (wbinfo.haveadded < 2) {
                 // first new question
@@ -2230,7 +2311,7 @@ wb.render.normal  = {
                    +  '  Marker (kryss av) og klikk på <b>slett valgte</b> rett under spørsmålslista for å slette.'
                    +  '</p><p class="bigf">For å lage en quiz endrer du spørsmålstypen til quiz, '
                    +  ' dette gjør du ved å redigere spørsmålet (blyant ved mus over) og '
-                   +  ' når redigeringsvinduet kommer fram kan velge type '
+                   +  ' når redigeringsvinduet kommer fram kan du velge type '
                    +  ' fra en rullegardin. Velg quiz og klikk på den grønne Lagre knappen'
                    +  '</p><p class="bigf">'
                    +  '<ul><li>add - lag nye spørsmål</li><li>attach - koble inn eksisterende</li>'

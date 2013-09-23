@@ -118,9 +118,14 @@ exports.editquest = function(user,query,callback) {
             }));
         break;
       case 'update':
-        var sql =  'update quiz_question set modified=$3, qtext=$4 ';
-        var params = [qid,teachid,now.getTime(),qtext];
-        var idd = 5;
+        var sql =  'update quiz_question set modified=$3 ';
+        var params = [qid,teachid,now.getTime()];
+        var idd = 4;
+        if (query.qtext) {
+          sql += ',qtext=$'+idd;
+          params.push(qtext);
+          idd++;
+        }
         if (query.qtype) {
           sql += ',qtype=$'+idd;
           params.push(qtype);
@@ -612,7 +617,8 @@ exports.getquestion = function(user,query,callback) {
               // differs from parent
               qu.sync = quiz.getQobj(qu.sync,qu.qtype,qu.id);
               qu.sync.modified = qu.synctime;
-              if (qobj.display == qu.sync.display && qobj.code == qu.sync.code) {
+              if (qobj.display == qu.sync.display && qobj.code == qu.sync.code
+                        && qu.sync.options == qobj.options &&  qu.sync.hints == qobj.hints && qu.sync.daze == qobj.daze) {
                   //console.log("SYNC sees no diff ",qu);
                   qu.sync = '';
               }
