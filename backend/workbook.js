@@ -561,8 +561,24 @@ exports.getquesttags = function(user,query,callback) {
   var uid    = user.id;
   var tagstring   = query.tags;  // assumed to be 'atag,anothertag,moretags'
   // SPECIAL CASE tagstring == 'non' - find all questions with no tag
-  if (tagstring == 'non') {
-    var qtlist = { 'non':[] };
+  if (tagstring == 'quizlist') {
+    // special casing - get all quizes
+    var qtlist = { 'quizlist':{} };
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status from quiz_question q  "
+        + " where q.teachid=$1 and qtype='quiz' and q.subject in "+sublist
+        + " and q.status != 9 order by modified desc", [uid],
+    after(function(results) {
+        if (results && results.rows && results.rows[0]) {
+          for (var i=0,l=results.rows.length; i<l; i++) {
+            var qta = results.rows[i];
+            if (!qtlist.quizlist[qta.teachid]) qtlist.quizlist[qta.teachid] = [];
+            qtlist.quizlist[qta.teachid].push(qta);
+          }
+        }
+        callback(qtlist);
+    }));
+  } else if (tagstring == 'non') {
+    var qtlist = { 'non':{} };
     client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
         + " where qt.qid is null and q.teachid=$1 and q.subject in "+sublist
         + " and q.status != 9 order by modified desc", [uid],

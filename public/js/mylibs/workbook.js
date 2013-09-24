@@ -1248,6 +1248,7 @@ function edqlist() {
            tlist.push('<div id="tt'+tag+'" class="tagdiv"><div class="tagg">'+tag+'</div></div>');
          }
          tlist.push('<div id="ttnon" class="tagdiv"><div class="tagg">uten tag</div></div>');
+         tlist.push('<div id="ttquizlist" class="tagdiv"><div class="tagg">alle quiz</div></div>');
          $j("#chtag").html(tlist.join(''));
          $j("#qlist").dialog('open');
          $j("#qqlist").undelegate(".equest","click");
@@ -1267,7 +1268,8 @@ function edqlist() {
              taggis[tagname] = 1;
              $j("#"+mytag).addClass("tagon");
            }
-           var taglist = Object.keys(taggis).join(',');
+           var taglist = Object.keys(taggis).filter(function(e) { return e.length > 0;}).join(',');
+           console.log("TAGLIST=",taglist);
            $j.getJSON(mybase+'/getquesttags',{ tags:taglist, subject:subject }, function(qtlist) {
                 // qtlist = { tagname:{ teachid:[qid,..], ... }
                 var mmu = $j("#mult").is(":checked");
