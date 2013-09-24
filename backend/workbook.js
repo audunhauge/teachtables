@@ -564,7 +564,7 @@ exports.getquesttags = function(user,query,callback) {
   if (tagstring == 'quizlist') {
     // special casing - get all quizes
     var qtlist = { 'quizlist':{} };
-    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status from quiz_question q  "
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status,q.parent from quiz_question q  "
         + " where q.teachid=$1 and qtype='quiz' and q.subject in "+sublist
         + " and q.status != 9 order by modified desc", [uid],
     after(function(results) {
@@ -579,7 +579,7 @@ exports.getquesttags = function(user,query,callback) {
     }));
   } else if (tagstring == 'non') {
     var qtlist = { 'non':{} };
-    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status,q.parent from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
         + " where qt.qid is null and q.teachid=$1 and q.subject in "+sublist
         + " and q.status != 9 order by modified desc", [uid],
     after(function(results) {
@@ -596,7 +596,7 @@ exports.getquesttags = function(user,query,callback) {
     // no quotes - just plain words - comma separated
     var tags = " ( '" + tagstring.split(',').join("','") + "' )";
     var qtlist = {};
-    client.query( "select q.id,q.qtype,q.qtext,q.name,q.status,q.teachid,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.status,q.teachid,t.tagname,q.parent from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
         + " inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 "  // and q.subject in "+sublist
         + " and q.status != 9 and t.tagname in  " + tags,[ uid ],
     after(function(results) {

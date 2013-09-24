@@ -1315,7 +1315,12 @@ function edqlist() {
                       if (mmu || !already) {
                         if (!qids[qqa.id]) {
                           qids[qqa.id] = 0;
-                          var shorttext = param.display || '( no text )';
+                          var containedqs = '';
+                          if (param.qlistorder) {
+                              var colr = qqa.parent ? 'redfont' : 'bluefont';
+                              containedqs = ' <span class="'+colr+'">'+param.qlistorder.length+'</span>';
+                          }
+                          var shorttext = param.display || '';
                           var duup = already ? 'duup' : '';
                           shorttext = shorttext.replace(/</g,'&lt;');
                           shorttext = shorttext.replace(/>/g,'&gt;');
@@ -1325,7 +1330,7 @@ function edqlist() {
                           var qdiv = '<div title="'+tit+'" class="equest listqq '+statusclass+duup+'" id="zqq_'+qqa.id+'"><span class="qid">'
                                      + qqa.id+ '</span><span class="img img'+qqa.qtype+'"></span>'
                                      + '<span >' + qqa.qtype + '</span><span > '
-                                     + qqa.name + '</span><span title="'+shorttext+'">' + shorttext.substr(0,20)
+                                     + qqa.name + '</span><span title="'+shorttext+'">' + shorttext.substr(0,15) + containedqs
                                      + '</span></div>';
                           qqlist.push([qqa.id,qdiv]);
                         }
