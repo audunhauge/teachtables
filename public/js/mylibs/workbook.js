@@ -1327,10 +1327,11 @@ function edqlist() {
                           shorttext = shorttext.toLowerCase();
                           shorttext = shorttext.replace(/['"]/g,'«');
                           var tit = tagsforq[qqa.id].join(',');
+                          var shortname = qqa.name.substr(0,12);
                           var qdiv = '<div title="'+tit+'" class="equest listqq '+statusclass+duup+'" id="zqq_'+qqa.id+'"><span class="qid">'
                                      + qqa.id+ '</span><span class="img img'+qqa.qtype+'"></span>'
-                                     + '<span >' + qqa.qtype + '</span><span > '
-                                     + qqa.name + '</span><span title="'+shorttext+'">' + shorttext.substr(0,15) + containedqs
+                                     + '<span >' + qqa.qtype + '</span><span title="'+qqa.name+'" > '
+                                     + shortname + '</span><span title="'+shorttext+'">' + shorttext.substr(0,15) + containedqs
                                      + '</span></div>';
                           qqlist.push([qqa.id,qdiv]);
                         }
