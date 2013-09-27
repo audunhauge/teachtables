@@ -1299,20 +1299,35 @@ var qz = {
                           }
                          break;
                        case 'eva:':
-                         //   eva:exp,a,b       the answer x is scored as eval(x) == exp, for 20 rand in [a,b]
-                         var elm = tch.split(',');
-                         var exp = elm[0];
-                         var lolim = +elm[1] || -5;
-                         var hilim = +elm[2] || 5;
+                         //   eva:exp|a|b      the answer x is scored as eval(x) == exp
+                         //   the user answer must NOT EQUAL a,
+                         //       Quiz: multiply (x+6) by 2, do not accept 2*(x+2)
+                         //       eva:2x+12|2(x+6)
+                         //   the answer should be as short as b (punished for extra chars - up to a.length)
+                         //   simplify (2+4)*(7-5)
+                         //     eva:12|(2+4)*(7-5)|12
+                         //     so the constraints are : evaluate as 12, not eq "(2+4)*(7-5)" , as short as 12
+                         //          partial score if between "12" and "(2+4)*(7-5)" in length
+                         var elem = tch.split('|');
+                         var exp = elem[0];
+                         var differ = elem[1]; // optional text that useranswer must NOT EQUAL
+                         var simply = elem[2]; // optional text that useranswer should match in length
+                         var lolim =  -5;
+                         var hilim =   5;
                          var sco = 0;
                          exp = normalizeFunction(exp);
                          var ufu = normalizeFunction(uatxt);
+                         var udiff =normalizeFunction(differ);
                          //console.log(exp,lolim,hilim,ufu);
-                         if (exp == ufu) {
-                             ucorr++;     // good match for regular expression
-                             feedb = '1';  // mark as correct
-                             console.log("exact");
+                         if (differ && (differ == uatxt || udiff == ufu) ) {
+                            uerr++;
+                            console.log("sicut prius");
+                         } else if (exp == ufu) {
+                            ucorr++;     // good match for regular expression
+                            feedb = '1';  // mark as correct
+                            console.log("exact");
                          } else {
+                           console.log("EVA:",exp,ufu);
                            if (uatxt != undefined && uatxt != '' && uatxt != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              // user supplied function numericly tested against fasit
                              // for x values lolim .. hilim , 20 steps
@@ -1348,6 +1363,18 @@ var qz = {
                              if (bad) {
                                uerr++;
                              } else {
+                               if (simply) {
+                                 // we are testing for simplification
+                                 // minimum assumed to be simply.length, differ.length is original length (unsimplified)
+                                 var span = differ.length - simply.length; // max shortening possible
+                                 var dif  = Math.min(span,Math.max(0,differ.length - ufu.length));  // how much shorter
+                                 console.log("Simplified?",span,dif,differ,simply,ufu);
+                                 if (span > 0) {
+                                   sco = 1 - Math.max(0,Math.min(1,dif/span));
+                                   // relative score depending on how many chars
+                                   // you have shortened the eq - span assumed to be max
+                                 }
+                               }
                                ucorr += 1 - sco;
                                feedb = '1';  // mark as correct
                              }
