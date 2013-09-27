@@ -199,7 +199,7 @@ ol.math li:before {
     content:counter(li,lower-latin) ")";
     counter-increment:li;
     position:absolute;
-    top:-2px;
+    top:16px;
     left:-2em;
     width:2em;
 }
@@ -208,7 +208,7 @@ ol.math.number li:before {
     content:counter(li,decimal) ;
     counter-increment:li;
     position:absolute;
-    top:-2px;
+    top:16px;
     left:-2em;
     width:2em;
 }

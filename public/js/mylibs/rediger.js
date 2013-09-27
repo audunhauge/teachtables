@@ -522,9 +522,8 @@ function visEnPlan(inifagnavn,plandata) {
 
 function save_vurd(value,settings) {
     // save the changed element into compound week data a|b|c|d|e
-    if (zombie) {
-      $j("#main").html("Du er ikke lenger logga inn");
-      return;
+    if (zombie>4) {
+      $j("#editmsg").html('<i class="catt0">Serveren er sein med å svare - kanskje du ikke lenger er logga inn</i>');
     }
     $j(this).removeClass( "ui-state-highlight" );
     var ppid;
@@ -1241,10 +1240,6 @@ function edit_fridager() {
 
 function save_fagplan(value,settings) {
     // save the changed element into compound week data a|b|c|d|e
-    if (zombie) {
-      $j("#main").html("Du er ikke lenger logga inn");
-      return;
-    }
     var myid = this.id;
     $j(this).removeClass( "ui-state-highlight" );
     var base = myid.substr(0,5);
@@ -1252,6 +1247,9 @@ function save_fagplan(value,settings) {
     var idx  = myid.substr(5,1);
     var summary = '';
     $j("#editmsg").html('Lagrer data ...');
+    if (zombie>4) {
+      $j("#editmsg").html('<i class="catt0">Serveren er sein med å svare - kanskje du ikke lenger er logga inn</i>');
+    }
     var section = this.id.substr(2,2);
     for (var i=0; i<5; i++) {
         if (myid == base + i) {
