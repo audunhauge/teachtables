@@ -2190,15 +2190,9 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
         break;
       case 'diff':
       case 'textarea':
-        var ch = $j("#qq"+quii+" textarea");
-        for (var i=0, l=ch.length; i<l; i++) {
-          var opti = $j(ch[i]).val();
-          ua[i] = opti
-        }
-        break;
       case 'numeric':
       case 'fillin':
-        var ch = $j("#qq"+quii+" input");
+        var ch = $j("#qq"+quii+" .fillin :input");
         for (var i=0, l=ch.length; i<l; i++) {
           var opti = $j(ch[i]).val();
           ua[i] = opti
@@ -2549,16 +2543,33 @@ wb.render.normal  = {
                             }
                           }
                           var iid = 0;
-                          adjusted = adjusted.replace(/(&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
+                          // special case for numeric match anytext [[anytext]] - use textarea instead of <input text>
+                          adjusted = adjusted.replace(/(_&nbsp;&nbsp;_)/g,function(m,ch) {
                                 var vv = ''
                                 if (chosen[iid]) {
                                   vv = chosen[iid];
                                 }
                                 var ff = fasit[iid] || '';
-                                var chk = (checkmarks[iid] != undefined && checkmarks[iid]!='-') ? 'class="heck' + checkmarks[iid]+ '"' : '';
-                                var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
-                                //ff=ff.replace(/%3A/g,':');
-                                var ret = '<input '+chk+' type="text" value="'+vv+'" />'+ffy;
+                                var ret = '<textarea>'+vv+'</textarea>';
+                                ret += '<div class="fasit gui">'+unescape(ff)+'</div>';
+                                iid++;
+                                return ret;
+                              });
+                          adjusted = adjusted.replace(/(_?&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
+                                var vv = '', ret;
+                                if (chosen[iid]) {
+                                  vv = chosen[iid];
+                                }
+                                var ff = fasit[iid] || '';
+                                if (ch.substr(0,1) == '_') {  // [[anytext]] will be repaced by textarea - not input text
+                                  ret = '<textarea>'+vv+'</textarea>';
+                                  ret += '<div class="fasit gui">'+unescape(ff)+'</div>';
+                                } else {
+                                  var chk = (checkmarks[iid] != undefined && checkmarks[iid]!='-') ? 'class="heck' + checkmarks[iid]+ '"' : '';
+                                  var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
+                                  //ff=ff.replace(/%3A/g,':');
+                                  ret = '<input '+chk+' type="text" value="'+vv+'" />'+ffy;
+                                }
                                 iid++;
                                 return ret;
                               });

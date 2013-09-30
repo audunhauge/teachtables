@@ -183,7 +183,15 @@ var qz = {
          did = 0;
          qobj.display = qobj.display.replace(/\[\[([^ª]+?)\]\]/mg,function(m,ch) {
              draggers[did] = ch;
-             var sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="fillin">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+             var sp;
+             if (ch == 'anytext') {
+                 // special case: numeric match anytext  [[anytext]] behaves as a textarea
+                 // workbook.js knows this and does special test for this case
+                 // when substituting back in <input, will change to <textarea>
+               sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="fillin">_&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+             } else {
+               sp = '<span id="dd'+qid+'_'+instance+'_'+did+'" class="fillin">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+             }
              did++;
              return sp;
          });
@@ -1368,7 +1376,6 @@ var qz = {
                                  // minimum assumed to be simply.length, differ.length is original length (unsimplified)
                                  var span = differ.length - simply.length; // max shortening possible
                                  var dif  = Math.min(span,Math.max(0,differ.length - ufu.length));  // how much shorter
-                                 console.log("Simplified?",span,dif,differ,simply,ufu);
                                  if (span > 0) {
                                    sco = 1 - Math.max(0,Math.min(1,dif/span));
                                    // relative score depending on how many chars
@@ -1431,7 +1438,7 @@ var qz = {
                            //console.log("LO..HI",ff,lo,hi,num,tol,uanum);
                          }
                          //console.log(num,tol,uanum);
-                         if ( ff == 'any' || Math.abs(num - uanum) <= tol) {
+                         if ( ff == 'any' || ff == 'anytext' || Math.abs(num - uanum) <= tol) {
                            ucorr++;
                            feedb = '1';  // mark as correct
                          } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
