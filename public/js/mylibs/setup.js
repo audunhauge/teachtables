@@ -397,13 +397,16 @@ function setup_teach() {
     relax(30000);
     var romvalg = '<ul>';
     romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>';
+    var ii=0; // so we can have link for rooms under several different headings
     for (var i in romliste) {
         var etasje = romliste[i];
-        romvalg += '<li><a href="#">' + i + 'xx</a><ul>';
+        var head = (i.length < 3) ? i + 'xx' : i;
+        romvalg += '<li><a href="#">' + head + '</a><ul>';
         for (var j =0; j< etasje.length; j++) {
             var rom = etasje[j];
-            romvalg += '<li><a id="rom'+rom+'" href="#">'+rom+'</a></li>';
-            linktilrom.push(rom);
+            romvalg += '<li><a id="rom'+rom+'_'+ ii +'" href="#">'+rom+'</a></li>';
+            linktilrom.push(rom+'_'+ii);
+            ii++;
         }
         romvalg += '</ul></li>';
     }
@@ -524,7 +527,8 @@ function setup_teach() {
                 var rom = linktilrom[k];
                 $j("#rom"+rom).click(function() {
                     var idd = $j(this).attr("id");
-                    rom_reservering(idd.substr(3));
+                    idd = idd.substr(3).split('_')[0];
+                    rom_reservering(idd);
                 } );
             }
             for (var k=0; k < mysubscript.length; k++) {
