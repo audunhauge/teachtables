@@ -87,6 +87,7 @@ function sympify(txt) {
 function normalizeFunction(txt,nosubst) {
   // convert 2x^2+3(x-2)(x+1) to 2*pow(t,2)+3*(t-2)*(t+1)
   // x,y => t
+  if (txt =='' || txt == undefined) return txt;
   nosubst = (typeof nosubst != "undefined") ? 1 : 0;
   var fu = txt.replace(/ /g,'').replace(/exp/gm,'©');
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
