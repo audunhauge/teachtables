@@ -81,10 +81,12 @@ exports.login =function(req, res) {
   usr.authenticate(req.query.username, req.query.password, req.query.its, function(user) {
     if (user) {
       if (user.config) {
+          // some browsers seem to do addslashes ...
+          var conf = user.config.replace(/\\'/g,"'").replace(/\\"/g,'"');
           try {
-             user.config = JSON.parse(user.config);
+             user.config = JSON.parse(conf);
           } catch(err) {
-            console.log("getOBJ EVAL-ERROR",err,user.config);
+            console.log("Config error for ",user.id,err,user.config);
             user.config = {};
           }
       } else {
