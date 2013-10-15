@@ -1177,6 +1177,7 @@ function edqlist() {
          + '<div title="Nullstill svarlista" id="reset" class="gradebutton">reset</div>'
          + '<div title="Exporter spørsmål" id="export" class="gradebutton">export</div>'
          + '<div title="Importer spørsmål" id="import" class="gradebutton">import</div>'
+         + '<div title="Oppdater - hent/send nyeste versjon" id="update" class="gradebutton">sync</div>'
          + '<div tag="'+wbinfo.containerid+'" title="Rediger QUIZ" id="edquiz" class="gradebutton">REDIGER</div>'
          + '<div id="qlist" class="qlist"></div>'
          + '<div id="importdia" ></div>'
@@ -1394,6 +1395,10 @@ function edqlist() {
      });
   });
   //*/
+  $j("#update").click(function() {
+    $j.get(mybase+"/updatequiz",{ container:wbinfo.containerid});
+    renderPage();
+  });
   $j("#edquiz").click(function() {
      var myid = $j("#"+this.id).attr('tag');
      editquestion(+myid);

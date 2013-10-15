@@ -1055,12 +1055,17 @@ input.num2 {
 }
 #export {
   position:absolute;
-  top:100px;
+  top:170px;
   right:15px;
 }
 #import {
   position:absolute;
   top:135px;
+  right:15px;
+}
+#update {
+  position:absolute;
+  top:205px;
   right:15px;
 }
 #edquiz {

@@ -9,6 +9,7 @@ var quiz = require('./quiz').qz;
 var parseJSON = require('./quiz').parseJSON;
 var julian = require('./julian');
 var async = require('async');
+var _ = require('underscore');
 var after = require('./utils').after;
 var db = siteinf.database.db;
 var os = require('os');
@@ -1420,6 +1421,83 @@ exports.update_subscription = function(user) {
           }
       }
   }
+}
+
+var updatequiz = exports.updatequiz = function(user,query,callback) {
+  // for each question/quiz in container - sync with parent  or children
+  var container = +query.container ;
+  var teachid   = +user.id;
+  var now = new Date();
+  client.query( "select * from quiz_question where id = $1",[container],
+  after(function(remyc) {
+      // we now have the container where we do the sync
+      // NO ERROR TEST - this container does surely exist
+      var myc = remyc.rows[0];
+      client.query( "select q.id,q.parent,q.qtype from quiz_question q "
+                   + " inner join question_container c on (q.id=c.qid) where c.cid=$1 and q.status != 9 and q.qtype != 'quiz' and q.qtype != 'container' ",[container],
+      after(function(results) {
+          var masters = [];       // parent == 0
+          var slaves = [];        // has a parent
+          if (results.rows && results.rows.length) {
+               for ( var ii in results.rows) {
+                  var re = results.rows[ii];
+                  if (re.parent) {
+                        slaves.push(re.id);
+                  } else {
+                        masters.push(re.id);
+                  }
+               }
+          }
+          if (myc.parent) {
+            //console.log("UPDATEQUIZ:has parent");
+            client.query( "select * from quiz_question where id = $1",[myc.parent],
+            after(function(pamyc) {
+                var pyc = pamyc.rows[0];
+                var containedqs = "select c.qid from question_container c where c.cid =$1";
+                if (pyc.teachid != teachid) {
+                  containedqs = "select id as qid from quiz_question where teachid="+teachid+" and parent in (select qid from question_container where cid=$1)";
+                }
+                //console.log("UPDATEQUIZ:diff parent",pyc,containedqs);
+                client.query( containedqs , [pyc.id],
+                    after(function(conttq) {
+                       var contained = conttq.rows.map(function (e) {
+                         return e.qid;
+                       });
+                       contained = _.difference(contained,slaves);
+                       //console.log("Missing questions:",contained);
+                       if (contained.length > 0 ) {
+                           // only copy questions if there are some
+                           var nuqids = '(' + contained.join(','+container+'),(') + ',' + container+')';
+                           //console.log( "insert into question_container (qid,cid) values " + nuqids);
+                           client.query( "insert into question_container (qid,cid) values " + nuqids);
+                       }
+                }));
+            }));
+          }
+          var sql;
+          if (masters.length) {
+                // update all copies of this master question
+                sql = ' update quiz_question set qtext = p.qtext,qtype=p.qtype,name=p.name,points=p.points,qfasit=p.qfasit,status=p.status '
+                +  ' from quiz_question p where quiz_question.parent = p.id and p.id in ('+masters.join(",")+')';
+
+          }
+          if (slaves.length) {
+                // copy from master
+                sql = ' update quiz_question set qtext = p.qtext,qtype=p.qtype,name=p.name,points=p.points,qfasit=p.qfasit,status=p.status '
+                +  ' from quiz_question p where quiz_question.parent = p.id and quiz_question.id in ('+slaves.join(",")+')';
+                // copy over any tags
+                client.query( " insert into quiz_qtag select qt.tid,q.id from quiz_question q "
+                              + " inner join quiz_qtag qt on (q.parent = qt.qid) "
+                              + " where q.id in ("+slaves.join(",")+") "
+                              + " and not exists (select * from quiz_qtag where tid=qt.tid and qid=q.id )");
+            }
+          //console.log("MASTERS",masters," Slaves:",slaves,sql);
+          client.query( sql);
+          // update tags
+          callback("ok");
+      }));
+  }));
+
 }
 
 var copyquest = exports.copyquest = function(user,query,callback) {

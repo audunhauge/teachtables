@@ -30,6 +30,17 @@ exports.editqncontainer = function(req, res) {
     }
 };
 
+exports.updatequiz = function(req, res) {
+    //  sync with parent/children - all qs in quiz are synced
+    if (req.session.user && req.session.user.department == 'Undervisning') {
+      wb.updatequiz(req.session.user,req.query,function(msg) {
+         res.send(msg);
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+};
+
 exports.crosstable = function(req,res) {
     if (req.session.user && req.session.user.department == 'Undervisning') {
       wb.crosstable(req.session.user,req.body,function(msg) {

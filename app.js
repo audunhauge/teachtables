@@ -181,6 +181,7 @@ app.get(base+'/update_subscription',    workbook.update_subscription);
 app.get(base+'/gimmeahint',             workbook.gimmeahint);
 app.get(base+'/exportcontainer',        workbook.exportcontainer );
 app.get(base+'/copyquest',              workbook.copyquest );
+app.get(base+'/updatequiz',             workbook.updatequiz );          // sync with parent/child
 app.get(base+'/progressview',           workbook.progressview );
 
 app.post(base+'/generateforall',        workbook.generateforall );
