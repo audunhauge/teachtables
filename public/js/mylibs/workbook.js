@@ -1396,8 +1396,12 @@ function edqlist() {
   });
   //*/
   $j("#update").click(function() {
-    $j.get(mybase+"/updatequiz",{ container:wbinfo.containerid});
-    renderPage();
+    $j.get(mybase+"/updatequiz",{ container:wbinfo.containerid}, function(msg) {
+      $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
+        wbinfo.qlist = qlist.qlist;
+        edqlist();
+      });
+    });
   });
   $j("#edquiz").click(function() {
      var myid = $j("#"+this.id).attr('tag');
@@ -1483,6 +1487,17 @@ function editbind() {
            }
            tagliate(morituri);
         });
+        $j("#sortable").undelegate("#ownem","click");
+        $j("#sortable").delegate("#ownem","click", function() {
+           var tagged = $j("#sortable input:checked");
+           var morituri = [];  // we who are about to be owned
+           for (var i=0,l=tagged.length; i<l; i++) {
+             var b = tagged[i];
+             var qid = $j(b).parent().attr("id").substr(3);
+             morituri.push(qid); // question id
+           }
+           posess(morituri);
+        });
         $j("#sortable").undelegate("#dupem","click");
         $j("#sortable").delegate("#dupem","click", function() {
            var tagged = $j("#sortable input:checked");
@@ -1496,6 +1511,19 @@ function editbind() {
         });
 }
 
+function posess(morituri) {
+  // sets parent to 0 - we own these questions and they are liberated from parent
+  var given = [];
+  if (morituri.length == 0) return;
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    $j.post(mybase+'/editquest', { action:'update', qid:qid, parent:0 }, function(msg){
+        edqlist();
+    });
+  }
+}
 function subjugate(morituri) {
   var given = [];
   if (morituri.length == 0) return;
@@ -1505,7 +1533,9 @@ function subjugate(morituri) {
     var myid = morituri[i];
     var elm = myid.split('_');
     var qid = elm[0], instance = elm[1];
-    $j.post(mybase+'/editquest', { action:'update', qid:qid, subject:tagname });
+    $j.post(mybase+'/editquest', { action:'update', qid:qid, subject:tagname }, function(msg) {
+        edqlist();
+    });
   }
 }
 function numriate(morituri) {
@@ -1518,8 +1548,28 @@ function numriate(morituri) {
     var elm = myid.split('_');
     var qid = elm[0], instance = elm[1];
     var numname = (i+1)+'-'+tagname;
-    $j.post(mybase+'/editquest', { action:'update', qid:qid, name:numname });
+    $j.post(mybase+'/editquest', { action:'update', qid:qid, name:numname }, function(msg) {
+        edqlist();
+    });
   }
+}
+
+function duplicate(morituri) {
+  var dupes = {};
+  var given = [];
+  if (morituri.length == 0) return;
+  for (var i=0,l=morituri.length; i<l; i++) {
+    var myid = morituri[i];
+    var elm = myid.split('_');
+    var qid = elm[0], instance = elm[1];
+    if (!dupes[qid]) {
+        given.push(qid);
+    }
+    dupes[qid] = 1;  // only duplicate unique questions - not instances
+  }
+  $j.get(mybase+'/copyquest', { dupes:1, givenqlist:given.join(',') }, function(resp) {
+        edqlist();
+  });
 }
 
 function tagliate(morituri) {
@@ -1534,6 +1584,7 @@ function tagliate(morituri) {
     given.push(qid);
   }
   $j.post(mybase+'/settag', { qidlist:given.join(','), tagname:tagname }, function(resp) {
+        edqlist();
   });
 }
 
@@ -2110,27 +2161,13 @@ function editquestion(myid, target) {
  });
 }
 
-function duplicate(morituri) {
-  var dupes = {};
-  var given = [];
-  for (var i=0,l=morituri.length; i<l; i++) {
-    var myid = morituri[i];
-    var elm = myid.split('_');
-    var qid = elm[0], instance = elm[1];
-    if (!dupes[qid]) {
-        given.push(qid);
-    }
-    dupes[qid] = 1;  // only duplicate unique questions - not instances
-  }
-  $j.get(mybase+'/copyquest', { dupes:1, givenqlist:given.join(',') }, function(resp) {
-  });
-}
 
 function dropquestion(morituri) {
   var dead = [];    // these we must kill
   var remove = {};  // 1 for removed
   var qcount = {};  // count duplicates
   var nuorder = []; // new qlistorder after removing
+  if (morituri.length == 0) return;
   for (var id in wbinfo.qlistorder) {
     var qii = wbinfo.qlistorder[id];
     if (!qcount[qii]) qcount[qii] = 0;
@@ -2306,6 +2343,7 @@ wb.render.normal  = {
               } else {
                 qq += ' &nbsp; <span title="Tar valgte sprsml ut av denne quizen" class="listbut" id="killem">Slett</span>';
                 qq += '<span title="Dupliserer valgte sprsml" class="listbut" id="dupem">Dupliser</span>';
+                qq += '<span title="Frigjør fra original" class="listbut" id="ownem">Eierskap</span>';
                 qq += '<span title="Nummerer valgte sprsml" class="listbut" id="numem">Nummerer</span>';
                 qq += '<span title="Tag valgte sprsml" class="listbut" id="tagem">Tag</span>';
                 qq += '<span title="Subject for valgte sprsml" class="listbut" id="subem">Subject</span>';

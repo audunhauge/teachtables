@@ -901,6 +901,9 @@ div.gradebutton:active {
     background:#449;
     box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
 }
+.listbut:active {
+  box-shadow:none;
+}
 
 #nextpage, #prevpage {
   /* is a gradebutton */

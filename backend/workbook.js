@@ -95,6 +95,7 @@ exports.editquest = function(user,query,callback) {
   var qtext   = JSON.stringify(query.qtext) || '';
   var teachid = +user.id;
   var points  = +query.points || 0;
+  var parent  = +query.parent;
   var now = new Date();
   quiz.containers = {};
   quiz.contq = {};
@@ -150,6 +151,11 @@ exports.editquest = function(user,query,callback) {
         if (query.subject) {
           sql += ',subject=$'+idd;
           params.push(subject);
+          idd++;
+        }
+        if (query.parent == 0) {
+          sql += ',parent=$'+idd;
+          params.push(0);
           idd++;
         }
         sql += ' where id=$1 and teachid=$2';
@@ -561,12 +567,11 @@ exports.getquesttags = function(user,query,callback) {
   }
   var uid    = user.id;
   var tagstring   = query.tags;  // assumed to be 'atag,anothertag,moretags'
-  // SPECIAL CASE tagstring == 'non' - find all questions with no tag
   if (tagstring == 'quizlist') {
     // special casing - get all quizes
     var qtlist = { 'quizlist':{} };
     client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status,q.parent from quiz_question q  "
-        + " where q.teachid=$1 and qtype='quiz' and q.subject in "+sublist
+        + " where q.teachid=$1 and (qtype='quiz' or qtype='container') and q.subject in "+sublist
         + " and q.status != 9 order by modified desc", [uid],
     after(function(results) {
         if (results && results.rows && results.rows[0]) {
@@ -579,6 +584,7 @@ exports.getquesttags = function(user,query,callback) {
         callback(qtlist);
     }));
   } else if (tagstring == 'non') {
+    // SPECIAL CASE tagstring == 'non' - find all questions with no tag
     var qtlist = { 'non':{} };
     client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status,q.parent from quiz_question q left outer join quiz_qtag qt on (q.id = qt.qid) "
         + " where qt.qid is null and q.teachid=$1 and q.subject in "+sublist
@@ -1434,7 +1440,7 @@ var updatequiz = exports.updatequiz = function(user,query,callback) {
       // NO ERROR TEST - this container does surely exist
       var myc = remyc.rows[0];
       client.query( "select q.id,q.parent,q.qtype from quiz_question q "
-                   + " inner join question_container c on (q.id=c.qid) where c.cid=$1 and q.status != 9 and q.qtype != 'quiz' and q.qtype != 'container' ",[container],
+                   + " inner join question_container c on (q.id=c.qid) where c.cid=$1 and q.status != 9 ",[container],
       after(function(results) {
           var masters = [];       // parent == 0
           var slaves = [];        // has a parent
@@ -1449,7 +1455,7 @@ var updatequiz = exports.updatequiz = function(user,query,callback) {
                }
           }
           if (myc.parent) {
-            //console.log("UPDATEQUIZ:has parent");
+            console.log("UPDATEQUIZ:has parent");
             client.query( "select * from quiz_question where id = $1",[myc.parent],
             after(function(pamyc) {
                 var pyc = pamyc.rows[0];
@@ -1457,18 +1463,18 @@ var updatequiz = exports.updatequiz = function(user,query,callback) {
                 if (pyc.teachid != teachid) {
                   containedqs = "select id as qid from quiz_question where teachid="+teachid+" and parent in (select qid from question_container where cid=$1)";
                 }
-                //console.log("UPDATEQUIZ:diff parent",pyc,containedqs);
+                console.log("UPDATEQUIZ:diff parent",pyc,containedqs);
                 client.query( containedqs , [pyc.id],
                     after(function(conttq) {
                        var contained = conttq.rows.map(function (e) {
                          return e.qid;
                        });
                        contained = _.difference(contained,slaves);
-                       //console.log("Missing questions:",contained);
+                       console.log("Missing questions:",contained);
                        if (contained.length > 0 ) {
                            // only copy questions if there are some
                            var nuqids = '(' + contained.join(','+container+'),(') + ',' + container+')';
-                           //console.log( "insert into question_container (qid,cid) values " + nuqids);
+                           console.log( "insert into question_container (qid,cid) values " + nuqids);
                            client.query( "insert into question_container (qid,cid) values " + nuqids);
                        }
                 }));
@@ -1491,8 +1497,8 @@ var updatequiz = exports.updatequiz = function(user,query,callback) {
                               + " where q.id in ("+slaves.join(",")+") "
                               + " and not exists (select * from quiz_qtag where tid=qt.tid and qid=q.id )");
             }
-          //console.log("MASTERS",masters," Slaves:",slaves,sql);
-          client.query( sql);
+          console.log("MASTERS",masters," Slaves:",slaves,sql);
+          if (sql) client.query( sql);
           // update tags
           callback("ok");
       }));
