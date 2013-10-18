@@ -18,9 +18,10 @@ function edit_bortfall(uid, target) {
         timmy[tty[0]] = {};
         tidy [tty[0]] = [];
       }
-      if (timmy[ tty[0] ][ tty[1] ]) continue;
-      timmy[ tty[0] ][ tty[1] ] = 1;
-      tidy[ tty[0] ].push(""+(1+tty[1]));
+      var ssl = slot2lesson(tty[1]);
+      if (timmy[ tty[0] ][ ssl ]) continue;
+      timmy[ tty[0] ][ ssl ] = 1;
+      tidy[ tty[0] ].push(""+(1+ssl));
     }
     var s = '<div id="absent">';
     s += '<h1>Fraværsplan</h1>';
@@ -65,7 +66,7 @@ function edit_bortfall(uid, target) {
                 } else {
                   tlist += ' time';
                 }
-                weektest[w] = '<a title="'+ab.name+'" rel="#testdialog" id="jdw'+(tjd+w)+'_'+w+'" active="'+ab.value+'" class="absent">' + ab.name + " " + tlist + '</a>';
+                weektest[w] = '<a info="'+ab.name+'" title="'+ab.name+'" rel="#testdialog" id="jdw'+(tjd+w)+'_'+w+'" active="'+ab.value+'" class="absent">' + ab.name + " " + tlist + '</a>';
               }
             }
           }
@@ -180,7 +181,8 @@ function bortreist(uid,id,wd,active,tty) {
   var slots = ['--','--','--','--','--','--','--','--','--','--'];
   for (var i = 0; i<timetab.length; i++) {
       var elm = timetab[i];
-      if (+elm[0] == +wd) slots[+elm[1]+1] = elm[2];
+      var ssl = slot2lesson(elm[1]);
+      if (+elm[0] == +wd) slots[+ssl+1] = elm[2];
   }
   var unplanned = { 1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1}
   for (var ac in active) {
