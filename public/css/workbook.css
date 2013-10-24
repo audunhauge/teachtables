@@ -1366,6 +1366,12 @@ div.clock:before {
 div.trinn:before {
   background:transparent url(img/trinn.png) no-repeat;
 }
+div.homework:before {
+  background:transparent url(img/homework.png) no-repeat;
+}
+div.lab:before {
+  background:transparent url(img/lab.png) no-repeat;
+}
 div.exam:before {
   background:transparent url(img/exam.png) no-repeat;
 }

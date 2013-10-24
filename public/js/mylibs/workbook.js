@@ -77,7 +77,7 @@ function score2grade(score,grad) {
       0.80: '5-',
       0.84: '5',
       0.91: '5+',
-      0.94: '6-',
+      0.95: '6-',
       0.97: '6'
              },
     medium: { // normal TEST, standard limits
@@ -95,7 +95,7 @@ function score2grade(score,grad) {
       0.75: '5-',
       0.80: '5',
       0.87: '5+',
-      0.91: '6-',
+      0.93: '6-',
       0.96: '6'
              },
     hard: { // the TEST was hard, go easy on the grade limits
@@ -382,7 +382,7 @@ function showProgress(ttype) {
     if (!ttype) {
         ttype = 0;
     }
-    var testtxt   = ['quiz','homework','exam'][ttype];
+    var testtxt   = ['quiz','homework','lab','exam'][ttype];
     var course,group;
     var justnow = new Date();
     try {
@@ -1713,20 +1713,16 @@ function setupWB(heading) {
 
 var dialog = { daze:'', contopt:{} };  // pesky dialog
 
+var qdefault = {  "quiz"     : {navi:1,fasit:0,hints:1,omstart:1,adaptiv:1,antall:5 ,fiidback:"some",rank:1,karak:1,hintcost:0.10,attemptcost:0.1}
+                , "lab"      : {navi:1,fasit:1,hints:1,omstart:1,adaptiv:1,antall:50,fiidback:"lots",rank:1,karak:0,hintcost:0.0,attemptcost:0.0}
+                , "homework" : {navi:1,fasit:1,hints:1,omstart:0,adaptiv:1,antall:20,fiidback:"lots",rank:0,karak:0,hintcost:0.05,attemptcost:0.05}
+                , "exam"     : {navi:0,fasit:0,hints:0,omstart:0,adaptiv:0,antall:2 ,fiidback:"none",rank:0,karak:0}
+               };
+
 function editquestion(myid, target) {
   // given a quid - edit the question
  relax(5000);  // trigger dead connection quicly
  target   = typeof(target) != 'undefined' ? target : '#main';
- var descript = { multiple:'Multiple choice', dragdrop:'Drag and Drop', sequence:'Place in order'
-               , info:'Information'
-               , textarea:'Free text'
-               , numeric:'Numeric answers'
-               , fillin:'Textbox'
-               , random:'Random pick based on tag'
-               , diff:'Difference'
-               , container:'SubChapter'
-               , quiz:'A quiz'
- };
  $j.getJSON(mybase+'/getquestion',{ qid:myid }, function(q) {
    dialog.qtype = q.qtype;
    dialog.qpoints = q.points;
@@ -1737,6 +1733,20 @@ function editquestion(myid, target) {
    dialog.daze = q.daze || '';
    dialog.contopt = q.contopt || {};
    dialog.qlistorder = q.qlistorder;
+   eedit(myid,q,target);
+ });
+}
+function eedit(myid,q,target) {
+ var descript = { multiple:'Multiple choice', dragdrop:'Drag and Drop', sequence:'Place in order'
+               , info:'Information'
+               , textarea:'Free text'
+               , numeric:'Numeric answers'
+               , fillin:'Textbox'
+               , random:'Random pick based on tag'
+               , diff:'Difference'
+               , container:'SubChapter'
+               , quiz:'A quiz'
+ };
    var statlist = "Normal,Partial,Testing,Fixme,Error".split(',');
    var stat = statlist[q.status];
    var status = makeSelect('status',stat,statlist);
@@ -1884,6 +1894,19 @@ function editquestion(myid, target) {
    $j(target).undelegate(".txted","change");
    $j(target).delegate(".txted","change", function() {
         $j("#saveq").addClass('red');
+      });
+   $j(target).undelegate("#exam","change");
+   $j(target).delegate("#exam","change", function() {
+        console.log(dialog.contopt);
+        var nuval = $j("select[name=exam]").val();
+        var nuinf = qdefault[nuval]
+        for (var k in nuinf) {
+          if (nuinf.hasOwnProperty(k)) {
+            dialog.contopt[k] = nuinf[k];
+          }
+        }
+        dialog.contopt.exam = nuval;
+        eedit(myid,q,target);
       });
    $j("#heading").click(function() {
        if (target == '#main') {
@@ -2040,10 +2063,10 @@ function editquestion(myid, target) {
            var rcount = dialog.contopt.rcount || '15';
            var xcount = dialog.contopt.xcount || '0';
            var antall = dialog.contopt.antall || '10';
-           var hintcost = dialog.contopt.hintcost || '0.05';
-           var attemptcost = dialog.contopt.attemptcost || '0.1';
+           var hintcost = dialog.contopt.hintcost || '0';
+           var attemptcost = dialog.contopt.attemptcost || '0';
            var trinn = (dialog.contopt.trinn != undefined) ? dialog.contopt.trinn : 0;
-           var exam = (dialog.contopt.exam != undefined) ? dialog.contopt.exam : 0;
+           var exam = (dialog.contopt.exam != undefined) ? dialog.contopt.exam : 'quiz';
            var karak = (dialog.contopt.karak != undefined) ? dialog.contopt.karak : 0;
            var rank = (dialog.contopt.rank != undefined) ? dialog.contopt.rank : 0;
            var fiidback = (dialog.contopt.fiidback != undefined) ? dialog.contopt.fiidback : 'none';
@@ -2064,8 +2087,7 @@ function editquestion(myid, target) {
                  , navi:          {  type:"checkbox", value:navi }
                  , trinn:         {  type:"checkbox", value:trinn }
                  , komme:         {  type:"checkbox", value:komme }
-                 , exam:          {  type:"checkbox", value:exam }
-                 , exam:          {  type:"select", klass:"copts",  value:exam, options:[{ value:"quiz"},{ value:"homework"},{ value:"exam"} ] }
+                 , exam:          {  type:"select", klass:"copts",  value:exam, options:[{ value:"quiz"},{ value:"homework"},{ value:"lab"},{ value:"exam"} ] }
                  , locked:        {  type:"checkbox", value:locked }
                  , hidden:        {  type:"checkbox", value:hidden }
                  , fasit:         {  type:"checkbox", value:fasit }
@@ -2089,7 +2111,7 @@ function editquestion(myid, target) {
                };
            var res = gui(elements);
            s += '<h4>Instillinger for prøven</h4> <div id="inputdiv">'
-             + '<div class="underlined" title="quiz,lekse,prøve - styrer oppsummering">QuizType{exam}</div>'
+             + '<div class="underlined" title="quiz,lekse,lab,prøve - styrer oppsummering">QuizType{exam}</div>'
              + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
              + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
              + '<div class="underlined" title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
@@ -2158,7 +2180,6 @@ function editquestion(myid, target) {
         $j("#saveq").addClass('red');
       }
    }
- });
 }
 
 
@@ -2539,8 +2560,8 @@ wb.render.normal  = {
                           if (mycopt && mycopt.locked == "1") {
                             return '<div class="cont quiz locked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
-                          if (mycopt && mycopt.exam == "1") {
-                            return '<div class="cont exam quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          if (mycopt && mycopt.exam.length) {
+                            return '<div class="cont '+mycopt.exam+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
                           if (mycopt && mycopt.trinn == "1") {
                             return '<div class="cont trinn quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
