@@ -515,7 +515,7 @@ function showProgress(ttype) {
                       showProgress();
                     });
                 $j("#testornot").click(function() {
-                      showProgress((ttype + 1) %3 ) ;
+                      showProgress((ttype + 1) % 4 ) ;
                     });
                 $j("#colordate").click(function() {
                       colorize = 0;
@@ -2560,7 +2560,7 @@ wb.render.normal  = {
                           if (mycopt && mycopt.locked == "1") {
                             return '<div class="cont quiz locked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
-                          if (mycopt && mycopt.exam.length) {
+                          if (mycopt && mycopt.exam && mycopt.exam.length) {
                             return '<div class="cont '+mycopt.exam+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           }
                           if (mycopt && mycopt.trinn == "1") {
