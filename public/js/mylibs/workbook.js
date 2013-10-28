@@ -2294,11 +2294,12 @@ wb.render.normal  = {
          // renderer for header
          header:function() {
             var head = '<h1 class="wbhead">' + wbinfo.title + '<span id="editwb" class="wbteachedit">&nbsp;</span></h1>' ;
+            var quizstats = '<div id="quizstats" >Stats</div>';
             var summary = '<div class="wbsummary"><table>'
                   + '<tr><th>Uke</th><th></th><th>Absent</th><th>Tema</th><th>Vurdering</th><th>Mål</th><th>Oppgaver</th><th>Logg</th></tr>'
                   + wbinfo.weeksummary + '</table></div><hr>';
             var bod = '<div class="wbingress">'+wbinfo.ingress+'</div><div class="wbbodytxt">'+wbinfo.bodytext+'</div>';
-            return(head+summary+bod);
+            return(head+quizstats+summary+bod);
            }
          // renderer for body
        , body:function() {

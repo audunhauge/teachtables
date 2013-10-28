@@ -183,6 +183,7 @@ app.get(base+'/exportcontainer',        workbook.exportcontainer );
 app.get(base+'/copyquest',              workbook.copyquest );
 app.get(base+'/updatequiz',             workbook.updatequiz );          // sync with parent/child
 app.get(base+'/progressview',           workbook.progressview );
+app.get(base+'/quizstats',              workbook.quizstats );           // average score pr tag
 
 app.post(base+'/generateforall',        workbook.generateforall );
 app.post(base+'/renderq',               workbook.renderq);

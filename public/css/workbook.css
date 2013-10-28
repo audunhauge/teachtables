@@ -249,6 +249,14 @@ div.userres {
 }
 
 
+#quizstats {
+    position:absolute;
+    top:20px;
+    right:50px;
+    width:60px;
+    height:20px;
+    border:solid green 1px;
+}
 div.wbingress, div.wbbodytxt, div.wbsummary {
     margin-left:auto;
     margin-right:auto;

@@ -52,6 +52,17 @@ exports.crosstable = function(req,res) {
 
 }
 
+exports.quizstats = function(req, res) {
+    // get progress rapport for this workbook
+    if (req.session.user ) {
+      wb.quizstats(req.session.user,req.query,function(progress) {
+         res.send(progress);
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+};
+
 exports.progressview = function(req, res) {
     // get progress rapport for this workbook
     if (req.session.user ) {
