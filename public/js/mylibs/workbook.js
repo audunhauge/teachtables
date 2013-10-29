@@ -413,7 +413,7 @@ function quizstats(ttype) {
             var tgar = [];
             for (var i=0,l=res.rows.length; i<l; i++) {
                 var line = res.rows[i];
-                if (_.isNaN(line.avg)) continue;
+                if (_.isNaN(+line.avg)) continue;
                 if (!sometags[line.tagname]) sometags[line.tagname] = 0;
                 if (!studstats[line.userid]) studstats[line.userid] = {};
                 sometags[line.tagname] += 1;
