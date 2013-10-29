@@ -799,12 +799,25 @@ exports.displayuserresponse = function(user,uid,container,callback) {
 var quizstats = exports.quizstats = function(user,query,callback) {
   var isteach = (user.department == 'Undervisning');
   var studid  = query.studid;
+  var studlist = query.studlist || "" ;  // list of student ids
+  var goodlist = _.every(studlist.split(","),function(e) { return (e == Math.floor(+e))});
+  // test that studlist is list of numbers
   var subject  = query.subject || "";
-  if (stuid == user.id || isteach) {
-      client.query("select t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
+  if (isteach && goodlist ) {
+      client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
             +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
-            +      " inner join quiz_question q on (q.id = u.qid) where u.userid=$1 and u.attemptnum >0 and q.subject=$2 "
-            +      " group by t.tagname having count(u.id) > 3 order by ant desc", [stuid,subject],
+            +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
+            +      "  ) and u.attemptnum >0 and q.subject=$1 "
+            +      " group by u.userid,t.tagname having count(u.id) > 3 order by ant desc", [subject],
+       after(function(stats) {
+           callback(stats)
+       }));
+  } else if (studid == user.id) {
+      client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
+            +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
+            +      " inner join quiz_question q on (q.id = u.qid) where u.userid = $1 "
+            +      " and u.attemptnum >0 and q.subject=$2 "
+            +      " group by u.userid,t.tagname having count(u.id) > 3 order by ant desc", [studid,subject],
        after(function(stats) {
            callback(stats)
        }));

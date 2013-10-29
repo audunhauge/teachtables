@@ -377,6 +377,79 @@ function longList() {
      });
 }
 
+function quizstats(ttype) {
+    if (!ttype) {
+        ttype = 0;
+    }
+    var testtxt   = ['quiz','homework','lab','exam'][ttype];
+    var course,group;
+    var justnow = new Date();
+    try {
+      course = wbinfo.coursename.split('_');
+      group = course[1];
+      course = course[0];
+    } catch(err) {
+      course = '';
+      group = '';
+    }
+    var teachid = 0;
+    if (database.courseteach && database.courseteach[wbinfo.coursename]) {
+        teachid = database.courseteach[wbinfo.coursename].teach[0];
+    }
+    if (teachid == 0) return;
+    if (course && group) {
+        var elever = memberlist[group];
+        if (!elever) return;
+        if (ttype == 0) {
+            wbinfo.trail.push({id:0,name:"progress" });
+        }
+        var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">QuizStats</h1>'
+                 + '<div id="elist"></div>'
+                 + '<div id="results"></div></div>';
+        $j("#main").html(s);
+        $j.get(mybase+'/quizstats',{ studid:userinfo.id, subject:course, studlist:elever.join(',')}, function(res) {
+            var studstats = {}
+            var sometags = {};
+            var tgar = [];
+            for (var i=0,l=res.rows.length; i<l; i++) {
+                var line = res.rows[i];
+                if (!sometags[line.tagname]) sometags[line.tagname] = 0;
+                if (!studstats[line.userid]) studstats[line.userid] = {};
+                sometags[line.tagname] += 1;
+                studstats[line.userid][line.tagname] = { ant:line.ant, avg:(+line.avg).toFixed(2)};
+            }
+            for (var tg in sometags) {
+                tgar.push([tg,sometags[tg]]);
+            }
+            tgar.sort(function(a,b) { return a[1] - b[1]});
+            var s = '<p><p><p><p><table>';
+            s += '<tr><th></th>' + tgar.map(function(e) {
+                   return '<td><div class="rel"><div class="angled" stud>'+e[0]+'</div></div></td>'
+                }).join('') + '</tr>';
+            for (var enr in studstats) {
+                var e = enr;
+                if (students[enr]) {
+                  var usr = students[enr];
+                  fn = usr.firstname.caps();
+                  ln = usr.lastname.caps();
+                  e = fn + ' ' + ln;
+                }
+                s += '<tr><th>'+e+'</th>';
+                for (var i= 0; i < tgar.length; i++) {
+                    var tg = tgar[i][0];
+                    var inf = studstats[enr][tg];
+                    s += "<td>"
+                    s += inf ? inf.avg : '';
+                    s += "</td>"
+                }
+                s += '</tr>';
+            }
+            s += '</table>';
+            $j("#results").html(s);
+         });
+     }
+}
+
 var colorize = 0;
 function showProgress(ttype) {
     if (!ttype) {
@@ -866,6 +939,9 @@ function renderPage() {
     });
     $j(".wbhead").click(function() {
         showProgress();
+    });
+    $j("#quizstats").click(function() {
+        quizstats();
     });
     $j("#main").undelegate("div.gethint","click");
     $j("#main").delegate("div.gethint","click", function() {
