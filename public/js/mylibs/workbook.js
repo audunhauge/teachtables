@@ -450,11 +450,13 @@ function quizstats(ttype) {
                 for (var i= 0; i < tgar.length; i++) {
                     var tg = tgar[i][0];
                     var inf = studstats[enr][tg];
-                    var klas = 'gg';
-                    if (inf.avg < tagavg[tg]) {
-                       klas += Math.floor(9-5*inf.avg/tagavg[tg]);
-                    } else {
-                       klas += Math.floor(5*(1-(inf.avg-tagavg[tg])/(1-tagavg[tg])));
+                    var klas = '';
+                    if (inf) {
+                        if (inf.avg < tagavg[tg]) {
+                           klas = 'gg' + Math.floor(9-5*inf.avg/tagavg[tg]);
+                        } else {
+                           klas = 'gg' + Math.floor(5*(1-(inf.avg-tagavg[tg])/(1-tagavg[tg])));
+                        }
                     }
                     s += '<td class="'+klas+'">'
                     s += inf ? inf.avg : '';
