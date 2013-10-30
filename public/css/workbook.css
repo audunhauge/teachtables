@@ -510,16 +510,16 @@ div.qtext .formula span.fillin input {
   text-align:left;
 }
 
-.gg0 { color:#50e022; }
-.gg1 { color:#60d022; }
-.gg2 { color:#70c022; }
-.gg3 { color:#80b022; }
-.gg4 { color:#90a022; }
-.gg5 { color:#a09022; }
-.gg6 { color:#b08022; }
-.gg7 { color:#c07022; }
-.gg8 { color:#d06022; }
-.gg9 { color:#e05022; }
+.gg0 { color:#00f000; }
+.gg1 { color:#20d000; }
+.gg2 { color:#40c000; }
+.gg3 { color:#60b000; }
+.gg4 { color:#709000; }
+.gg5 { color:#907000; }
+.gg6 { color:#b06000; }
+.gg7 { color:#c04000; }
+.gg8 { color:#d02000; }
+.gg9 { color:#f00000; }
 
 .heck0 {
   background:#50f052 !important;
