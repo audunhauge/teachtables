@@ -453,9 +453,9 @@ function quizstats(ttype) {
                     var klas = '';
                     if (inf) {
                         if (inf.avg < tagavg[tg]) {
-                           klas = 'gg' + Math.floor(9-5*inf.avg/tagavg[tg]);
+                           klas = 'gg' + Math.floor(9-3*inf.avg/tagavg[tg]);
                         } else {
-                           klas = 'gg' + Math.floor(5*(1-(inf.avg-tagavg[tg])/(1-tagavg[tg])));
+                           klas = 'gg' + Math.floor(3*(1-(inf.avg-tagavg[tg])/(1-tagavg[tg])));
                         }
                     }
                     s += '<td class="'+klas+'">'
