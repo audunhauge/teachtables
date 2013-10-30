@@ -1299,7 +1299,9 @@ exports.studresetcontainer = function(user,query,callback) {
       uid = userid;
   }
   var params = [ container,uid ];
-  var sql = "delete from quiz_useranswer where (cid =$1) and userid=$2 ";
+  var sql1 = "update quiz_useranswer set cid=null,param='',response='' where (cid =$1) and userid=$2 and response != '' and response !~ '\\[(\\\"\\\",?)+\\]'";
+  // preserve score for useranswers that have been attempted (for calculating avgs)
+  var sql2 = "delete from quiz_useranswer where (cid =$1) and userid=$2";
   //console.log("studresetcontainer::");
   // before we delete we save score as history for this container.
   // thus we must calculate the score ..
@@ -1341,13 +1343,16 @@ exports.studresetcontainer = function(user,query,callback) {
               delete quiz.contq[container];
               // delete any symbols generated for this container
               //console.log(sql,params);
-              client.query( sql,params,
-              after(function(results) {
-                   genNewQlistOrder([],questlist,moo.contopt,coo,uid,container);
-                   // executed for sideeffect of storing new qlist order in useranswer
-                   // for this container
-                   callback(null);
-              }));
+              client.query( sql1,params,
+                  after(function(results) {
+                  client.query( sql2,params,
+                      after(function(results) {
+                           genNewQlistOrder([],questlist,moo.contopt,coo,uid,container);
+                           // executed for sideeffect of storing new qlist order in useranswer
+                           // for this container
+                           callback(null);
+                      }));
+                  }));
          }));
         }
       }));
@@ -1365,25 +1370,31 @@ exports.resetcontainer = function(user,query,callback) {
   var uid          = +query.uid || 0;
   var instance     = +query.instance || 0;
   var params = [ container ];
-  var sql = "delete from quiz_useranswer where (cid =$1 or qid=$1) ";
+  var sql1 = "update quiz_useranswer set cid=null,param='',response='' where (cid =$1 or qid=$1) and response != '' and response !~ '\\[(\\\"\\\",?)+\\]'";
+  var sql2 = "delete from quiz_useranswer where (cid =$1 or qid=$1) ";
   //var sql = "delete from quiz_useranswer where cid =$1 ";
   var ii = 2;
   if (uid) {
-    sql += " and userid=$"+ii;
+    sql2 += " and userid=$"+ii;
+    sql1 += " and userid=$"+ii;
     params.push(uid);
     ii++;
   }
   if (instance) {
-    sql += " and instance=$"+ii;
+    sql1 += " and instance=$"+ii;
+    sql2 += " and instance=$"+ii;
     params.push(instance);
     ii++;
   }
   delete quiz.containers[container];
   delete quiz.contq[container];
   // delete any symbols generated for this container
-  client.query( sql,params,
+  client.query( sql1,params,
   after(function(results) {
+    client.query( sql2,params,
+      after(function(results) {
       callback(null);
+    }));
   }));
 }
 
