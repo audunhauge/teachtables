@@ -440,6 +440,7 @@ function quizstats(ttype) {
                 }).join('') + '<td>Avg</td></tr>';
             for (var enr in studstats) {
                 var e = enr;
+                if (userinfo.department != 'Undervisning' && userinfo.id != enr) continue;
                 if (students[enr]) {
                   var usr = students[enr];
                   fn = usr.firstname.caps();
