@@ -803,27 +803,31 @@ var quizstats = exports.quizstats = function(user,query,callback) {
   var goodlist = _.every(studlist.split(","),function(e) { return (e == Math.floor(+e))});
   // test that studlist is list of numbers
   var subject  = query.subject || "";
-  if (isteach && goodlist ) {
-      client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
+  if (goodlist ) {
+    // here we have everything in one query
+    client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
             +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
             +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
-            +      "  ) and u.attemptnum >0 and q.subject=$1 "
+            +      "  ) and u.attemptnum >0 and q.subject=$1 and q.points > 0 "
             +      " group by u.userid,t.tagname having count(u.id) > 3 order by ant desc", [subject],
-       after(function(stats) {
-           callback(stats)
-       }));
-  } else if (studid == user.id) {
-      client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
-            +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
-            +      " inner join quiz_question q on (q.id = u.qid) where u.userid = $1 "
-            +      " and u.attemptnum >0 and q.subject=$2 "
-            +      " group by u.userid,t.tagname having count(u.id) > 3 order by ant desc", [studid,subject],
-       after(function(stats) {
-           callback(stats)
-       }));
-
+    after(function(stats) {
+      if (!isteach) {
+        var ii=0;
+        var remap = {};
+        for (var i =0; i < stats.rows.length; i++) {
+          var elm = stats.rows[i];
+          if (elm.userid != user.id) {
+            if (!remap[elm.userid]) {
+              remap[elm.userid] = 'anonym' + ii++;
+            }
+            elm.userid = remap[elm.userid];
+          }
+        }
+      }
+      callback(stats)
+    }));
   } else {
-      callback({});
+    callback({});
   }
 
 }
