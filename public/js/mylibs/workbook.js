@@ -382,15 +382,19 @@ function quizstats(ttype) {
         ttype = 0;
     }
     var testtxt   = ['quiz','homework','lab','exam'][ttype];
-    var course,group;
+    var course,group,config,temalist;
     var justnow = new Date();
     try {
       course = wbinfo.coursename.split('_');
       group = course[1];
       course = course[0];
+      config = database.courseteach[wbinfo.coursename].config || { tema:"" };
+      temalist = config.tema.split(',');
     } catch(err) {
       course = '';
       group = '';
+      config =  { tema:"" };
+      temalist = [];
     }
     var teachid = 0;
     if (database.courseteach && database.courseteach[wbinfo.coursename]) {
@@ -418,6 +422,7 @@ function quizstats(ttype) {
             for (var i=0,l=res.rows.length; i<l; i++) {
                 var line = res.rows[i];
                 if (_.isNaN(+line.avg)) continue;
+                if (temalist && temalist.length && temalist.indexOf(line.tagname) < 0) continue;
                 if (!sometags[line.tagname]) sometags[line.tagname] = 0;
                 if (!studstats[line.userid]) studstats[line.userid] = {};
                 if (!tagscore[line.tagname]) tagscore[line.tagname] = 0;
@@ -433,7 +438,7 @@ function quizstats(ttype) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
-            tgar.sort(function(a,b) { return a[1] - b[1]});
+            tgar.sort(function(a,b) { return b[1] - a[1]});
             var s = '<p><p><p><p><table>';
             s += '<tr><th></th>' + tgar.map(function(e) {
                    return '<td><div class="rel"><div class="angled" stud>'+e[0]+'</div></div></td>'

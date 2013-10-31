@@ -1357,7 +1357,7 @@ var getcourses = function() {
                       }
                   }
                   client.query(
-                      'select c.id,c.shortname,t.userid from teacher t inner join course c on (c.id = t.courseid)',
+                      'select c.id,c.shortname,c.config,t.userid from teacher t inner join course c on (c.id = t.courseid)',
                       after( function (results) {
                           // build courseteach
                           // and teachcourse
@@ -1367,7 +1367,7 @@ var getcourses = function() {
                                 var cname = elm[0];
                                 var group = elm[1];
                                 if (!db.courseteach[amem.shortname]) {
-                                  db.courseteach[amem.shortname] = {teach:[],id:amem.id};
+                                  db.courseteach[amem.shortname] = {teach:[],id:amem.id,config:amem.config};
                                 }
                                 if (!db.teachcourse[amem.userid]) {
                                   db.teachcourse[amem.userid] = [];
