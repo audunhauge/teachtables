@@ -482,7 +482,9 @@ function quizstats(ttype) {
                 }).join('') + '<td></td></tr>';
             s += '</table>';
             $j("#results").html(s);
-            $j("#elist").html(_.keys(notused).join(" "));
+            var tagcontrol = "<h3>Canonical tags for this course:</h3>" + temalist.join(" ")
+             + "<h3>These tags not shown</h3>" + _.reduce(notused,function(m,e,i) { return m+" "+i},"");
+            $j("#elist").html(tagcontrol);
          });
      }
 }
