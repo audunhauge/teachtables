@@ -389,7 +389,8 @@ function quizstats(ttype) {
       group = course[1];
       course = course[0];
       config = database.courseteach[wbinfo.coursename].config || { tema:"" };
-      temalist = config.tema.split(',');
+      var param = JSON.parse(config);
+      temalist = param.tema ? param.tema.split(',') : [];
     } catch(err) {
       course = '';
       group = '';
