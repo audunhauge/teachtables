@@ -417,13 +417,17 @@ function quizstats(ttype) {
             var sometags = {};
             var tagscore = {};
             var tagavg = {};
+            var notused = {};
             var userscore = {};
             var usercount = {};
             var tgar = [];
             for (var i=0,l=res.rows.length; i<l; i++) {
                 var line = res.rows[i];
                 if (_.isNaN(+line.avg)) continue;
-                if (temalist && temalist.length && temalist.indexOf(line.tagname) < 0) continue;
+                if (temalist && temalist.length && temalist.indexOf(line.tagname) < 0) {
+                    notused[line.tagname] = notused[line.tagname] ? notused[line.tagname]+1 : 1;
+                    continue;
+                }
                 if (!sometags[line.tagname]) sometags[line.tagname] = 0;
                 if (!studstats[line.userid]) studstats[line.userid] = {};
                 if (!tagscore[line.tagname]) tagscore[line.tagname] = 0;
@@ -478,6 +482,7 @@ function quizstats(ttype) {
                 }).join('') + '<td></td></tr>';
             s += '</table>';
             $j("#results").html(s);
+            $j("#elist").html(_.keys(notused).join(" "));
          });
      }
 }
