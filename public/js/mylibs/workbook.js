@@ -463,10 +463,10 @@ function quizstats(ttype) {
                     var inf = studstats[enr][tg];
                     var klas = '';
                     if (inf) {
-                        if (inf.avg < tagavg[tg]) {
+                        if (inf.avg < tagavg[tg] && inf.avg < 0.7) {
                            klas = 'gg' + Math.floor(9-3*inf.avg/tagavg[tg]);
                         } else {
-                           klas = 'gg' + Math.floor(3*(1-(inf.avg-tagavg[tg])/(1-tagavg[tg])));
+                           klas = 'gg' + Math.floor(3*(1-(Math.max(0,inf.avg-tagavg[tg]))/(1-tagavg[tg])));
                         }
                     }
                     s += '<td class="'+klas+'">'
