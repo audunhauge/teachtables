@@ -2645,11 +2645,12 @@ wb.render.normal  = {
                   switch(qu.qtype) {
                       case 'quiz':
                           var mycopt = qu.param.contopt;
+                          var embellish = '';
                           if (mycopt && mycopt.hidden == "1") {
                             if (!teaches(userinfo.id,wbinfo.coursename)) {
                                return '';
                             }
-                            return '<div class="cont quiz cloaked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                            embellish += " cloaked";
                           }
                           var start,stop,mstart,mstop,elm;
                           mstop = mstart = 0;
@@ -2676,9 +2677,8 @@ wb.render.normal  = {
                           }
                           start = start ?  start.getTime() + mstart : justnow - 20000;
                           stop = stop ? stop.getTime()  + mstop : justnow + 2000;
-                          var embellish = '';
                           if (justnow < start || justnow > stop ) {
-                            embellish = " clock";
+                            embellish += " clock";
                           }
                           if (mycopt && mycopt.locked == "1") {
                             embellish += " locked";
