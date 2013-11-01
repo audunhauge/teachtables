@@ -441,7 +441,7 @@ function quizstats(ttype) {
                 tagscore[line.tagname] += +line.avg;
                 usercount[line.userid] += 1;
                 userscore[line.userid] += +line.avg;
-                studstats[line.userid][line.tagname] = { ant:line.ant, avg:(+line.avg).toFixed(2)};
+                studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
             for (var tg in sometags) {
                 tgar.push([tg,sometags[tg]]);
