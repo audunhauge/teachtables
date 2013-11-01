@@ -438,9 +438,9 @@ function quizstats(ttype) {
                 if (!userscore[line.userid]) userscore[line.userid] = 0;
                 if (!usercount[line.userid]) usercount[line.userid] = 0;
                 sometags[line.tagname] += 1;
-                tagscore[line.tagname] += +line.avg;
+                tagscore[line.tagname] += Math.min(1,+line.avg);
                 usercount[line.userid] += 1;
-                userscore[line.userid] += +line.avg;
+                userscore[line.userid] += Math.min(1,+line.avg);
                 studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
             for (var tg in sometags) {
