@@ -1369,6 +1369,12 @@ div.container:before, div.quiz:before {
   width:32px;
   height:32px;
 }
+div.container:after, div.quiz:after {
+  content:"";
+  float:right;
+  width:32px;
+  height:32px;
+}
 
 div.container:before {
   background:transparent url(img/book.gif) no-repeat;
@@ -1376,14 +1382,14 @@ div.container:before {
 div.quiz:before {
   background:transparent url(img/quiz.gif) no-repeat;
 }
-div.locked:before {
-  background:transparent url(img/paddy.png) no-repeat;
-}
-div.clock:before {
-  background:transparent url(img/clock-icon.png) no-repeat;
-}
-div.trinn:before {
+div.trinn:after {
   background:transparent url(img/trinn.png) no-repeat;
+}
+div.clock:after {
+  background:transparent url(img/clock-icon.png) no-repeat ;
+}
+div.locked:after {
+  background:transparent url(img/paddy.png) no-repeat;
 }
 div.homework:before {
   background:transparent url(img/homework.png) no-repeat;

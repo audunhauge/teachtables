@@ -623,7 +623,7 @@ exports.getquesttags = function(user,query,callback) {
 
 exports.getquestion = function(user,query,callback) {
   // returns a question
-  // returns null if user is not owner
+  // returns {msg:"not owner"} if user is not owner
   var qid    = +query.qid ;
   var uid    = user.id;
   var sql = "select q.*,case when q.parent != 0 and q.qtext != qp.qtext then qp.qtext else '' end as sync, "
@@ -668,7 +668,7 @@ exports.getquestion = function(user,query,callback) {
             qu.contopt = qobj.contopt || {};
             callback(qu);
           } else {
-            callback(null);
+            callback({msg:"not owner"});
           }
   }));
 }

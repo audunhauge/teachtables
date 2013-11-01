@@ -1449,6 +1449,7 @@ function edqlist() {
                                      + '<span >' + qqa.qtype + '</span><span title="'+qqa.name+'" > '
                                      + shortname + '</span><span title="'+shorttext+'">' + shorttext.substr(0,15) + containedqs
                                      + '</span></div>';
+                                     // just to help colorize '
                           qqlist.push([qqa.id,qdiv]);
                         }
                         qids[qqa.id] += 1;
@@ -1821,7 +1822,7 @@ function setupWB(heading) {
 
 /*
  * This code really belongs in quiz/editquestion.js
- * but during debug we need it here
+ * but during debug we need it here "
  *
 */
 
@@ -1839,18 +1840,23 @@ function editquestion(myid, target) {
  relax(5000);  // trigger dead connection quicly
  target   = typeof(target) != 'undefined' ? target : '#main';
  $j.getJSON(mybase+'/getquestion',{ qid:myid }, function(q) {
-   dialog.qtype = q.qtype;
-   dialog.qpoints = q.points;
-   dialog.subject = q.subject;
-   dialog.qcode = q.code;
-   dialog.pycode = q.pycode;
-   dialog.hints = q.hints || '';
-   dialog.daze = q.daze || '';
-   dialog.contopt = q.contopt || {};
-   dialog.qlistorder = q.qlistorder;
-   eedit(myid,q,target);
+   if (!q.qtype) {
+       alert("You dont own this question");
+   } else {
+       dialog.qtype = q.qtype;
+       dialog.qpoints = q.points;
+       dialog.subject = q.subject;
+       dialog.qcode = q.code;
+       dialog.pycode = q.pycode;
+       dialog.hints = q.hints || '';
+       dialog.daze = q.daze || '';
+       dialog.contopt = q.contopt || {};
+       dialog.qlistorder = q.qlistorder;
+       eedit(myid,q,target);
+   }
  });
 }
+
 function eedit(myid,q,target) {
  var descript = { multiple:'Multiple choice', dragdrop:'Drag and Drop', sequence:'Place in order'
                , info:'Information'
@@ -2498,7 +2504,7 @@ wb.render.normal  = {
                    +  '</p><p class="bigf">'
                    +  '<ul><li>add - lag nye spørsmål</li><li>attach - koble inn eksisterende</li>'
                    +  '<li>reset - slett besvarelser og generer nye spørsmål</li><li>regen - gjenskap elevbesvarelser med endringer</li>'
-                   +  '</ul></p>';
+                   +  '</ul></p>';  // '
 
               }
               return qq;
@@ -2670,19 +2676,20 @@ wb.render.normal  = {
                           }
                           start = start ?  start.getTime() + mstart : justnow - 20000;
                           stop = stop ? stop.getTime()  + mstop : justnow + 2000;
+                          var embellish = '';
                           if (justnow < start || justnow > stop ) {
-                            return '<div class="cont quiz clock" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                            embellish = " clock";
                           }
                           if (mycopt && mycopt.locked == "1") {
-                            return '<div class="cont quiz locked" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
-                          }
-                          if (mycopt && mycopt.exam && mycopt.exam.length) {
-                            return '<div class="cont '+mycopt.exam+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                            embellish += " locked";
                           }
                           if (mycopt && mycopt.trinn == "1") {
-                            return '<div class="cont trinn quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                            embellish += " trinn";
                           }
-                          return '<div class="cont quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          if (mycopt && mycopt.exam && mycopt.exam.length) {
+                            return '<div class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          }
+                          return '<div class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
                           break;
                       case 'container':
                           return '<div class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';

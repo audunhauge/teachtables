@@ -114,7 +114,7 @@ function rom_reservering(room,delta,makeres) {
       if (!timetable[day][slot]) {
         // reservations have precedence over timetable data
         // because a reservation may be set by a full day test/exam
-        timetable[day][slot] = '<span class="lesson" id="kk'+slot+'_'+day+'">'+course + '</span> <span title="'+teachname+'">' + teach.firstname.substr(0,4) + teach.lastname.substr(0,4) + '</span>';
+        timetable[day][slot] = '<span class="lesson" id="kk'+(lesson2slot(slot))+'_'+day+'">'+course + '</span> <span title="'+teachname+'">' + teach.firstname.substr(0,4) + teach.lastname.substr(0,4) + '</span>';
       }
     }
     var dayheadings = '';

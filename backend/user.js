@@ -106,8 +106,8 @@ exports.authenticate = function(login, password, its, callback) {
             }
             if (md5pwd == user.password) {
                 user.isadmin = siteinf.admin[login] || false;
-                //console.log("USER login");
-                //console.log(user);
+                console.log("USER login");
+                console.log(user);
                 callback(user);
                 return;
             }
