@@ -377,7 +377,7 @@ function longList() {
      });
 }
 
-function quizstats(ttype) {
+function quizstats(ttype,using,ignoring) {
     if (!ttype) {
         ttype = 0;
     }
@@ -401,6 +401,8 @@ function quizstats(ttype) {
       config =  { tema:"" };
       temalist = [];
     }
+    temalist  = typeof(using) != 'undefined' ? using : temalist ;
+    ignoring  = typeof(ignoring) != 'undefined' ? ignoring : [] ;
     var teachid = 0;
     if (database.courseteach && database.courseteach[wbinfo.coursename]) {
         teachid = database.courseteach[wbinfo.coursename].teach[0];
@@ -447,6 +449,7 @@ function quizstats(ttype) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
+            ignoring = _.union(ignoring,_.keys(notused));
             tgar.sort(function(a,b) { return b[1] - a[1]});
             var s = '<p><p><p><p><table>';
             s += '<tr><th></th>' + tgar.map(function(e) {
@@ -486,9 +489,20 @@ function quizstats(ttype) {
                 }).join('') + '<td></td></tr>';
             s += '</table>';
             $j("#results").html(s);
-            var tagcontrol = "<h3>Canonical tags for this course:</h3>" + temalist.join(" ")
-             + "<h3>These tags not shown</h3>" + _.reduce(notused,function(m,e,i) { return m+" "+i},"");
+            var tagcontrol = '<div class="gui"><h3>Canonical tags for this course:</h3>'
+                + _.reduce(temalist,function(m,e,i) { return m+' <span class="catt1">'+e+'</span>'},"")
+                + "<h3>These tags not shown</h3>" + _.reduce(ignoring,function(m,e) { return m+' <span class="catt0">'+e+'</span>'},"") + '</div>';
             $j("#elist").html(tagcontrol);
+            $j("#elist").undelegate(".catt0","click");
+            $j("#elist").delegate(".catt0","click", function() {
+                        var txt = this.innerText;
+                        quizstats(ttype, _.union([txt],temalist), _.difference(ignoring,[txt])  );
+                    });
+            $j("#elist").undelegate(".catt1","click");
+            $j("#elist").delegate(".catt1","click", function() {
+                        var txt = this.innerText;
+                        quizstats(ttype, _.difference(temalist,[txt]), _.union([txt],ignoring));
+                    });
          });
      }
 }
@@ -625,7 +639,7 @@ function showProgress(ttype) {
                       var ui = uk[0], kid = uk[1];
                       var rr = { ret:{} };
                       rr.ret[ui] = 1;
-                      showUserResponse(ui,kid, rr );
+                      showuserresponse(ui,kid, rr );
                     });
                 $j(".result").click(function() {
                       showProgress();
