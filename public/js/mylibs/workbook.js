@@ -2615,7 +2615,7 @@ wb.render.normal  = {
                 param.display = parts[0];
                 if ( fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) ) {
                     param.display = parts[0];
-                } else if (contopt && contopt.fiidback && contopt.fiidback != 'none') {
+                } else if (fasit.length  || (contopt && contopt.fiidback && contopt.fiidback != 'none')) {
                     param.display = parts.join('<h4>FASIT</h4>');
                 }
                 score = Math.round(score*100)/100;
