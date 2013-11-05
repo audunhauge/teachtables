@@ -177,9 +177,10 @@ exports.editquest = function(user,query,callback) {
 }
 
 exports.updatecontainerscore = function(user,query,callback) {
-  var cid    = +query.cid ;   // the question (container) containing the questions
+  var cid    = +query.cid ;   // the queuestion (container) containing the questions
   var sum    = +query.sum ;   // total score for this container
   var uid    = +user.id;
+  if (! _.isFinite(sum)) return;  // ignore if NaN or other bad stuff
   client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [sum,uid,cid]);
 }
 
@@ -199,7 +200,9 @@ exports.addcomment = function(user,query,callback) {
 exports.editscore = function(user,query,callback) {
   var uaid   = +query.uaid,
       nuval  = +query.nuval;  // the new score
-  client.query( "update quiz_useranswer set score = "+nuval+" where id="+uaid);
+  if (_.isFinite(nuval)) {
+    client.query( "update quiz_useranswer set score = "+nuval+" where id="+uaid);
+  }
   callback(123);
 }
 
@@ -778,7 +781,8 @@ exports.displayuserresponse = function(user,uid,container,callback) {
                     scoreQuestion(uid,qqlist,ualist,myscore,function () {
                          callback(ualist);
                          var prosent = (myscore.tot > 0) ? myscore.score/myscore.tot : 0;
-                         client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [prosent,uid,container]);
+                         if (_.isFinite(prosent))
+                           client.query( "update quiz_useranswer set score = $1 where userid=$2 and qid=$3", [prosent,uid,container]);
                       });
                   } else {
                     callback(ualist);
@@ -805,10 +809,11 @@ var quizstats = exports.quizstats = function(user,query,callback) {
   var subject  = query.subject || "";
   if (goodlist ) {
     // here we have everything in one query
+    //   we only take scores [0,1] to avoid edge cases
     client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
             +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
             +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
-            +      "  ) and u.attemptnum >0 and q.subject=$1 and q.points > 0 "
+            +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and u.score <= 1 and q.points > 0 "
             +      " group by u.userid,t.tagname having count(u.id) > 3 order by ant desc", [subject],
     after(function(stats) {
       if (!isteach) {
