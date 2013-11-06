@@ -382,8 +382,9 @@ function quizstats(ttype,using,ignoring) {
         ttype = 0;
     }
     var testtxt   = ['quiz','homework','lab','exam'][ttype];
-    var course,group,config,temalist;
+    var course,group,config,basetemalist;
     var justnow = new Date();
+    var canonical = false;
     try {
       course = wbinfo.coursename.split('_');
       group = course[1];
@@ -391,18 +392,17 @@ function quizstats(ttype,using,ignoring) {
       config = database.courseteach[wbinfo.coursename].config || { tema:"" };
       try {
         var param = JSON.parse(config);
-        temalist = param.tema ? param.tema.split(',') : [];
+        basetemalist = param.tema ? param.tema.split(',') : [];
+        canonical = true;
       } catch(err) {
-        temalist = [];
+        basetemalist = [];
       }
     } catch(err) {
       course = '';
       group = '';
       config =  { tema:"" };
-      temalist = [];
+      basetemalist = [];
     }
-    temalist  = typeof(using) != 'undefined' ? using : temalist ;
-    ignoring  = typeof(ignoring) != 'undefined' ? ignoring : [] ;
     var teachid = 0;
     if (database.courseteach && database.courseteach[wbinfo.coursename]) {
         teachid = database.courseteach[wbinfo.coursename].teach[0];
@@ -414,11 +414,20 @@ function quizstats(ttype,using,ignoring) {
         if (ttype == 0) {
             wbinfo.trail.push({id:0,name:"progress" });
         }
-        var s = '<div><h1 class="result" id="tt'+wbinfo.containerid+'">QuizStats</h1>'
-                 + '<div id="elist"></div>'
+        var s = '<div><h1><span class="workbook" id="'+wbinfo.coursename+'">QuizStats</span></h1>'
+                 + '<div id="elist"></div><p><p>'
                  + '<div id="results"></div></div>';
         $j("#main").html(s);
-        $j.get(mybase+'/quizstats',{ studid:userinfo.id, subject:course, studlist:elever.join(',')}, function(res) {
+        $j("#main").delegate("span.workbook","click",function() {
+          var myid = this.id;
+          workbook(myid);
+        });
+        $j.get(mybase+'/quizstats',{ studid:userinfo.id, subject:course, studlist:elever.join(',')},function(res){
+            showstats(res,basetemalist);
+        });
+        function showstats(res,using,ignoring) {
+            var temalist  = typeof(using) != 'undefined' ? using : basetemalist ;
+            ignoring  = typeof(ignoring) != 'undefined' ? ignoring : [] ;
             var studstats = {}
             var sometags = {};
             var tagscore = {};
@@ -450,6 +459,9 @@ function quizstats(ttype,using,ignoring) {
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
             ignoring = _.union(ignoring,_.keys(notused));
+            if (ignoring.length == 0 && temalist.length == 0) {
+                temalist = _.keys(sometags);
+            }
             tgar.sort(function(a,b) { return b[1] - a[1]});
             var s = '<p><p><p><p><table>';
             s += '<tr><th></th>' + tgar.map(function(e) {
@@ -489,21 +501,22 @@ function quizstats(ttype,using,ignoring) {
                 }).join('') + '<td></td></tr>';
             s += '</table>';
             $j("#results").html(s);
-            var tagcontrol = '<div class="gui"><h3>Canonical tags for this course:</h3>'
+            var ingress = canonical ? 'Canonical tags for this course' : 'These tags used' ;
+            var tagcontrol = '<div class="gui"><h3>'+ingress+'</h3>'
                 + _.reduce(temalist,function(m,e,i) { return m+' <span class="catt1">'+e+'</span>'},"")
                 + "<h3>These tags not shown</h3>" + _.reduce(ignoring,function(m,e) { return m+' <span class="catt0">'+e+'</span>'},"") + '</div>';
             $j("#elist").html(tagcontrol);
             $j("#elist").undelegate(".catt0","click");
             $j("#elist").delegate(".catt0","click", function() {
                         var txt = this.innerText;
-                        quizstats(ttype, _.union([txt],temalist), _.difference(ignoring,[txt])  );
+                        showstats(res, _.union([txt],temalist), _.difference(ignoring,[txt])  );
                     });
             $j("#elist").undelegate(".catt1","click");
             $j("#elist").delegate(".catt1","click", function() {
                         var txt = this.innerText;
-                        quizstats(ttype, _.difference(temalist,[txt]), _.union([txt],ignoring));
+                        showstats(res, _.difference(temalist,[txt]), _.union([txt],ignoring));
                     });
-         });
+         }
      }
 }
 
@@ -639,7 +652,7 @@ function showProgress(ttype) {
                       var ui = uk[0], kid = uk[1];
                       var rr = { ret:{} };
                       rr.ret[ui] = 1;
-                      showuserresponse(ui,kid, rr );
+                      showUserResponse(ui,kid, rr );
                     });
                 $j(".result").click(function() {
                       showProgress();
@@ -2433,7 +2446,7 @@ wb.render.normal  = {
          // renderer for header
          header:function() {
             var head = '<h1 class="wbhead">' + wbinfo.title + '<span id="editwb" class="wbteachedit">&nbsp;</span></h1>' ;
-            var quizstats = '<div id="quizstats" >Stats</div>';
+            var quizstats = '<div id="quizstats" class="gradebutton">Stats</div>';
             var summary = '<div class="wbsummary"><table>'
                   + '<tr><th>Uke</th><th></th><th>Absent</th><th>Tema</th><th>Vurdering</th><th>Mål</th><th>Oppgaver</th><th>Logg</th></tr>'
                   + wbinfo.weeksummary + '</table></div><hr>';
