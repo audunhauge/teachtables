@@ -918,6 +918,15 @@ var qz = {
    }
    return list;
  }
+ , roll:function(lo,hi) {
+     if (lo == undefined) {
+         return Math.random();
+     }
+     if (hi == undefined) {
+         hi = lo; lo = 1;
+     }
+     return Math.floor(Math.random() * (1+hi-lo))+lo;
+ }
  , fix:function(arr,p) {
    // maps all numbers to fixed
    return arr.map(function(n) { var nn = new Number(n); return nn.toFixed(p); });

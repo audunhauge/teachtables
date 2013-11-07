@@ -458,17 +458,19 @@ function quizstats(ttype,using,ignoring) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
+            var sortedstuds = _.keys(studstats);
+            sortedstuds.sort(function(a,b) { return userscore[b]/usercount[b] - userscore[a]/usercount[a]})
             ignoring = _.union(ignoring,_.keys(notused));
             if (ignoring.length == 0 && temalist.length == 0) {
                 temalist = _.keys(sometags);
             }
-            tgar.sort(function(a,b) { return b[1] - a[1]});
+            tgar.sort(function(a,b) { return tagavg[b[0]] - tagavg[a[0]]});
             var s = '<p><p><p><p><table>';
             s += '<tr><th></th>' + tgar.map(function(e) {
                    return '<td><div class="rel"><div class="angled" stud>'+e[0]+'</div></div></td>'
                 }).join('') + '<td>Avg</td></tr>';
-            for (var enr in studstats) {
-                var e = enr;
+            for (var ii=0,l=sortedstuds.length; ii<l; ii++) {
+                var e = enr = sortedstuds[ii];
                 if (userinfo.department != 'Undervisning' && userinfo.id != enr) continue;
                 if (students[enr]) {
                   var usr = students[enr];

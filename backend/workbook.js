@@ -810,11 +810,11 @@ var quizstats = exports.quizstats = function(user,query,callback) {
   if (goodlist ) {
     // here we have everything in one query
     //   we only take scores [0,1] to avoid edge cases
-    client.query("select u.userid,t.tagname,sum(u.score/q.points) as su,count(u.id) as ant, sum(u.score/q.points)/count(u.id) as avg "
+    client.query("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as avg "
             +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
             +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
-            +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and u.score <= 1 and q.points > 0 "
-            +      " group by u.userid,t.tagname having count(u.id) > 3 order by ant desc", [subject],
+            +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and q.points = 1 "
+            +      " group by u.userid,t.tagname having count(u.id) > 2 order by ant desc", [subject],
     after(function(stats) {
       if (!isteach) {
         var ii=0;
