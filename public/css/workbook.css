@@ -865,6 +865,11 @@ div.question:hover  div.grademe {
   opacity:1;
 }
 
+.whiteout {
+    background:white;
+    color:#fffffa;
+}
+
 div.gethint {
   margin-left:30px;
   color:blue;

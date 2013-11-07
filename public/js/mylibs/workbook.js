@@ -478,7 +478,7 @@ function quizstats(ttype,using,ignoring) {
                   ln = usr.lastname.caps();
                   e = fn + ' ' + ln;
                 }
-                s += '<tr><th>'+e+'</th>';
+                s += '<tr><th class="enavn" id="ee'+enr+'">'+e+'</th>';
                 for (var i= 0; i < tgar.length; i++) {
                     var tg = tgar[i][0];
                     var inf = studstats[enr][tg];
@@ -507,6 +507,11 @@ function quizstats(ttype,using,ignoring) {
             var tagcontrol = '<div class="gui"><h3>'+ingress+'</h3>'
                 + _.reduce(temalist,function(m,e,i) { return m+' <span class="catt1">'+e+'</span>'},"")
                 + "<h3>These tags not shown</h3>" + _.reduce(ignoring,function(m,e) { return m+' <span class="catt0">'+e+'</span>'},"") + '</div>';
+            $j("#results").undelegate(".enavn","click");
+            $j("#results").delegate(".enavn","click", function() {
+                         $j(".enavn").toggleClass("whiteout");
+                         $j(this).removeClass("whiteout");
+                    });
             $j("#elist").html(tagcontrol);
             $j("#elist").undelegate(".catt0","click");
             $j("#elist").delegate(".catt0","click", function() {
