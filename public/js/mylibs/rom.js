@@ -256,6 +256,7 @@ function findfree(delta) {
       var r = linktilrom[i].split('_')[0];
       possible.push(r);
     }
+    possible = _.unique(possible);
     // compare these to timetables for all rooms to find free rooms
 
     var timetable = [ [],[],[],[],[],[],[] ];
@@ -313,6 +314,7 @@ function findfree(delta) {
               var r = linktilrom[i].split('_')[0];
               possible.push(r);
             }
+            possible = _.unique(possible);
             for (var iid in checkdlist) {
               var day = checkdlist[iid][0]; var slot = checkdlist[iid][1];
               possible = crosscheck(possible,reservtable, day,slot);

@@ -124,6 +124,29 @@ ins {
   color:blue;
 }
 
+#meetbox {
+    position:relative;
+    width:475px;
+    height:410px;
+}
+
+.mslot {
+    position:absolute;
+    width:75px;
+    height:3px;
+    background:gray;
+}
+.mslot.green {
+    background:green;
+}
+.mslot.red {
+    background:red;
+}
+.mslot.pale {
+    background:#ffc;
+}
+
+
 ul.teach {
     display:none;
 }

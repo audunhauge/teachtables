@@ -158,8 +158,8 @@ var saveteachabsent = function(user,query,callback) {
                          var server  = sendemail.createTransport("SMTP",{
                               service:"Gmail",
                               auth: {
-                                user:   "skeisvang.skole",
-                                pass:   "123naturfag",
+                                user:  siteinf.mailusr,
+                                pass:  siteinf.mailpwd,
                               }
                          });
                          var mailOptions = {

@@ -1,5 +1,4 @@
 // show/edit meetings
-// also find suitable invigilators for exams/ term tests
 
 // global hash to ease change of state and reload of closures
 minfo = {
@@ -37,7 +36,7 @@ function invigilator() {
       if (!tt) continue;
       for (var t=0,tl=tt.length; t < tl; t++) {
         var ts = tt[t];
-        busyteachdayslot[ts[0]][ts[1]].push(rid);
+        busyteachdayslot[ts[0]][slot2lesson(ts[1])].push(rid);
       }
     }
   }
@@ -67,7 +66,7 @@ function invigilator() {
               var ts = tt[t];
               if (ts[0] != d) continue;
               var tea = teachers[ts[5]];
-              grptable[ts[1]] = ts[1] +' time '+tea.firstname+' på '+ts[3];
+              grptable[ts[1]] = slot2lesson(ts[1]) +' time '+tea.firstname+' på '+ts[3];
             }
             vigis.push(g+':'+grptable.join(',') );
             //var canuse = _.difference(allteachers.slice(),)
@@ -154,6 +153,7 @@ function reduceSlots(userlist,roomname,jd) {
          var slot = ts[1];
          if (ts[2] && ts[2].substr(0,4).toLowerCase() == 'møte') continue;
          if (day == undefined || slot == undefined) continue;
+         if (!biglump[day][slot]) { console.log("reduceSlots: bad slot=",slot); continue;}
          for (var di=0; di < 8; di++) {   // a lesson is 8 slots
            delete biglump[day][slot+di][roomname];
          }
@@ -185,7 +185,10 @@ function reduceSlots(userlist,roomname,jd) {
          var slot = ts[1];
          if (ts[2] && ts[2].substr(0,4).toLowerCase() == 'møte') continue;
          if (day == undefined || slot == undefined) continue;
-         delete biglump[day][slot][+tuid];
+         if (!biglump[day][slot]) { console.log("reduceSlots: bad slot=",slot); continue;}
+         for (var di=0; di < 8; di++) {   // a lesson is 8 slots
+           delete biglump[day][slot+di][+tuid];
+         }
        }
     }
   }
@@ -279,6 +282,7 @@ function meetTimeStart(timeslots,idlist,shortslots) {
 
 function findFreeTime() {
   // show list of teachers - allow user to select and find free time
+  var siz = 8;
   $j.getJSON(mybase+ "/getmeet", function(data) {
 
     meetings = data.meetings;
@@ -378,7 +382,8 @@ function findFreeTime() {
       var rreserv = re.rreserv;   // reserved rooms
 
       var s = '<div id="showplan" class="tabbers">Timeplan</div>'
-            + '<div id="showdetails" class="tabbers" style="left:90px;" >Møte info</div>';
+            + '<div id="showdetails" class="tabbers" style="left:90px;" >Møte info</div><div id="meetbox"></div>';
+       /*
        s += '<table id="meetplan">'
         +    '<caption>'
         +       '<div class="button blue" id="prv">&lt;</div><span id="capmeetplan">Uke '
@@ -389,25 +394,34 @@ function findFreeTime() {
       for (var day = 0; day < 5; day++) {
         s+= '<th>'+dager[day]+'dag</th>';
       }
-      s += '<tr>';
-      for (var slot = 0; slot < 9; slot++) {
-        s += '<tr><th>'+(slot+1)+'</th>';
+        */
+      var t = '';
+      var start = database.starttime;
+      var ofs = 65;
+      for (i=0;i<12;i++) {
+        var sl = start[i];
+        var po = s2sd(sl);
+        t += '<div class="tttime'+(i%2)+'" style="width:470px;top:'+(+po[0]*4)+'px;height:'+(po[1]*4)+'px">' + sl + "</div>";
+      }
+      for (var slot = 0; slot < 95; slot++) {
+        //s += '<tr><th>'+(slot+1)+'</th>';
         for (var day = 0; day < 5; day++) {
           if (rreserv[day] && rreserv[day][slot]) {
             var r = rreserv[day][slot];
-            s += '<td title="'+r.value+'">'+teachers[r.userid].username+'</td>';
+            //s += '<td title="'+r.value+'">'+teachers[r.userid].username+'</td>';
             continue;
           }
           if (database.freedays[jd+day]) {
-            s += '<td><div class="timeplanfree">'+database.freedays[jd+day]+'</div></td>';
+            //s += '<td><div class="timeplanfree">'+database.freedays[jd+day]+'</div></td>';
             continue;
           }
           if (minfo.ignore != '') {
-            s += '<td class="greenfont"><input class="slotter" id="tt'+day+"_"+slot+'" type="checkbox"> '+minfo.ignore+'</td>';
+            //s += '<td class="greenfont"><input class="slotter" id="tt'+day+"_"+slot+'" type="checkbox"> '+minfo.ignore+'</td>';
             continue;
           }
           if (!biglump[day] || !biglump[day][slot]) {
-            s += '<td>&nbsp;</td>';
+            //s += '<td>&nbsp;</td>';
+            t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
             continue;
           }
           var freetime = biglump[day][slot];
@@ -426,35 +440,42 @@ function findFreeTime() {
                     }
                     if (tdcount == count) {
                       if (shortmeet[day][slot] != undefined) {
-                       s += '<td title="'+tt+'" class="orangefont">'
-                         + '<input rel="'+day+'" class="slotter shortslott" id="tt'+day+"_"+slot+'" type="checkbox"> LittLedig</td>';
+                       //s += '<td title="'+tt+'" class="orangefont">'
+                       //  + '<input rel="'+day+'" class="slotter shortslott" id="tt'+day+"_"+slot+'" type="checkbox"> LittLedig</td>';
+                            t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                       } else {
-                       s += '<td title="'+tt+'" class="greenfont">'
-                         + '<input rel="'+day+'" class="slotter" id="tt'+day+"_"+slot+'" type="checkbox"> AlleLedig</td>';
+                       //s += '<td title="'+tt+'" class="greenfont">'
+                       //  + '<input rel="'+day+'" class="slotter" id="tt'+day+"_"+slot+'" type="checkbox"> AlleLedig</td>';
+                         t += '<div id="mm'+day+'_'+slot+'" class="mslot pale" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                       }
                     } else {
                        if (tdcount) {
-                          s += '<td><span title="Kan ikke:'+zz+'" class="redfont">'+(count-tdcount)+'</span>'
-                          s += ' &nbsp; <span class="greenfont" title="Kan møte:'+tt+'">'+(tdcount)+'</span>';
+                          //s += '<td><span title="Kan ikke:'+zz+'" class="redfont">'+(count-tdcount)+'</span>'
+                          //s += ' &nbsp; <span class="greenfont" title="Kan møte:'+tt+'">'+(tdcount)+'</span>';
+                         t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                        } else {
                           if (busy[day][slot] != undefined) {
-                            s += '<td class="meeting"><span title="'+whois[day][slot]+'">'+busy[day][slot]+'</span>'
+                            //s += '<td class="meeting"><span title="'+whois[day][slot]+'">'+busy[day][slot]+'</span>'
+                            t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                           } else {
-                            s += '<td><span class="redfont">IngenLedig</span>'
+                            //s += '<td><span class="redfont">IngenLedig</span>'
+                            t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                           }
                        }
-                       s+= '</td>';
+                       //s+= '</td>';
                     }
             } else {
-               s += '<td><span class="redfont">Time</span>'
+               //s += '<td><span class="redfont">Time</span>'
+              t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
             }
           } else {
-            s += '<td>&nbsp;</td>';
+            //s += '<td>&nbsp;</td>';
+            t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
           }
         }
-        s += '</tr>';
+        //s += '</tr>';
       }
-      s += '</body></table>';
+      //s += '</body></table>';
       var igncheck = (minfo.ignore != '') ? 'checked="checked"' : '';
       var mailcheck = (minfo.sendmail != '') ? 'checked="checked"' : '';
       var kortcheck = (minfo.kort != '') ? 'checked="checked"' : '';
@@ -504,10 +525,36 @@ function findFreeTime() {
 
       s += '</div>';
       $j("#freeplan").html(s);
+      $j("#meetbox").html(t);
       minfo.ignore = $j('input[name=ignore]:checked').val() || '';
       minfo.sendmail = $j('input[name=sendmail]:checked').val() || '';
       minfo.kort = $j('input[name=kort]:checked').val() || '';
 
+      $j("#meetbox").undelegate(".green","click");
+      $j("#meetbox").delegate(".green","click", function() {
+          var myid = this.id.substr(2).split('_');
+          var dd = myid[0];
+          var ss0 = +myid[1];
+          var ss = lesson2slot(slot2lesson(ss0)-1);
+          ss = ss + siz*Math.floor((ss0-ss)/siz);
+          for (var ti=0; ti< siz;ti++) {
+            $j("#mm"+dd+"_"+(+ss+ti)+".green").addClass("pale");
+            $j("#mm"+dd+"_"+(+ss+ti)+".green").removeClass("green");
+          }
+      });
+
+      $j("#meetbox").undelegate(".pale","click");
+      $j("#meetbox").delegate(".pale","click", function() {
+          var myid = this.id.substr(2).split('_');
+          var dd = myid[0];
+          var ss0 = +myid[1];
+          var ss = lesson2slot(slot2lesson(ss0)-1);
+          ss = ss + siz*Math.floor((ss0-ss)/siz);
+          for (var ti=0; ti< siz;ti++) {
+            $j("#mm"+dd+"_"+(+ss+ti)+".pale").addClass("green");
+            $j("#mm"+dd+"_"+(+ss+ti)+".pale").removeClass("pale");
+          }
+      });
 
       function takenSubSlots(dayslot) {
         // finds subslots that are already in use
