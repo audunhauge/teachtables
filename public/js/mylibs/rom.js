@@ -253,7 +253,7 @@ function findfree(delta) {
     checkdlist = {};  // these are slots that are checked
     possible = [];
     for (var i in linktilrom) {
-      var r = linktilrom[i];
+      var r = linktilrom[i].split('_')[0];
       possible.push(r);
     }
     // compare these to timetables for all rooms to find free rooms
@@ -310,7 +310,7 @@ function findfree(delta) {
             delete checkdlist[myid];
             possible = [];
             for (var i in linktilrom) {
-              var r = linktilrom[i];
+              var r = linktilrom[i].split('_')[0];
               possible.push(r);
             }
             for (var iid in checkdlist) {
@@ -331,14 +331,14 @@ function crosscheck(possible,reserv,day,slot) {
     var romt = timetables.room[r] || [];
     for (var dsi in romt) {
       var elm = romt[dsi];
-      if (elm[0] == day && elm[1] == slot)
+      if (elm[0] == day && slot2lesson( elm[1] ) == slot)
          continue outerloop;
     }
     for (var rr in reserv[day]) {
       var res = reserv[rr];
       for (var rrd in res) {
         var rre = res[rrd];
-        if (rre.day == day && rre.name == r && rre.slot == slot)
+        if (rre.day == day && rre.name == r && slot2lesson(rre.slot) == slot)
            continue outerloop;
       }
     }
@@ -350,7 +350,7 @@ function crosscheck(possible,reserv,day,slot) {
 function showposs(possible) {
   var s = '';
   for (var i in linktilrom) {
-      var r = linktilrom[i];
+      var r = linktilrom[i].split('_')[0];
       if ($j.inArray(r,possible) >= 0) {
            s += '<span class="rlinks" id="' + r + '">' + r + '</span> ';
       } else {
