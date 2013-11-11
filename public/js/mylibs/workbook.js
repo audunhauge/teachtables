@@ -415,7 +415,7 @@ function quizstats(ttype,using,ignoring) {
             wbinfo.trail.push({id:0,name:"progress" });
         }
         var s = '<div><h1 class="gui"><span class="workbook" id="'+wbinfo.coursename+'">QuizStats</span></h1>'
-                 + '<div id="elist" class="gui"></div><p><p>'
+                 + '<div id="elist" class="gui"></div><p class="gui"></p><p class="gui"></p>'
                  + '<div id="results"></div></div>';
         $j("#main").html(s);
         $j("#main").delegate("span.workbook","click",function() {
