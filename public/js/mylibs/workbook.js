@@ -414,8 +414,8 @@ function quizstats(ttype,using,ignoring) {
         if (ttype == 0) {
             wbinfo.trail.push({id:0,name:"progress" });
         }
-        var s = '<div><h1><span class="workbook" id="'+wbinfo.coursename+'">QuizStats</span></h1>'
-                 + '<div id="elist"></div><p><p>'
+        var s = '<div><h1 class="gui"><span class="workbook" id="'+wbinfo.coursename+'">QuizStats</span></h1>'
+                 + '<div id="elist" class="gui"></div><p><p>'
                  + '<div id="results"></div></div>';
         $j("#main").html(s);
         $j("#main").delegate("span.workbook","click",function() {
