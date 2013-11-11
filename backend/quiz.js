@@ -988,6 +988,7 @@ var qz = {
        , normal:qz.normal
        , ranlist:qz.ranlist
        , range:qz.range
+       , roll:qz.roll
        , shuffle:qz.shuffle
        , round:qz.round
        , poly:qz.poly
