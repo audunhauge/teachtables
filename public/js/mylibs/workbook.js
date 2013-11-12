@@ -414,8 +414,8 @@ function quizstats(ttype,using,ignoring) {
         if (ttype == 0) {
             wbinfo.trail.push({id:0,name:"progress" });
         }
-        var s = '<div><h1 class="gui"><span class="workbook" id="'+wbinfo.coursename+'">QuizStats</span></h1>'
-                 + '<div id="elist" class="gui"></div><p class="gui"></p><p class="gui"></p>'
+        var s = '<div><div class="gui"><h1><span class="workbook" id="'+wbinfo.coursename+'">QuizStats</span></h1>'
+                 + '<div id="elist" class="gui"></div><p></p><p></p></div>'
                  + '<div id="results"></div></div>';
         $j("#main").html(s);
         $j("#main").delegate("span.workbook","click",function() {
@@ -466,7 +466,7 @@ function quizstats(ttype,using,ignoring) {
             }
             tgar.sort(function(a,b) { return tagavg[b[0]] - tagavg[a[0]]});
             var s = '<p><p><p><p><table>';
-            s += '<tr><th></th>' + tgar.map(function(e) {
+            s += '<tr><th class="enavn">Navn</th>' + tgar.map(function(e) {
                    return '<td><div class="rel"><div class="angled" stud>'+e[0]+'</div></div></td>'
                 }).join('') + '<td>Avg</td></tr>';
             for (var ii=0,l=sortedstuds.length; ii<l; ii++) {
