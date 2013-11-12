@@ -454,7 +454,7 @@ function quizstats(ttype,using,ignoring) {
                 userscore[line.userid] += Math.min(1,+line.avg);
                 studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
-            var avg = _.reduce(usercount,function(m,n) { return m+n;   },0) / _.keys(usercount);
+            var avg = _.reduce(usercount,function(m,n) { return m+n;   },0) / _.keys(usercount).length;
             for (var tg in sometags) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
