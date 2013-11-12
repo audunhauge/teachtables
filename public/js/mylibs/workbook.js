@@ -454,12 +454,18 @@ function quizstats(ttype,using,ignoring) {
                 userscore[line.userid] += Math.min(1,+line.avg);
                 studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
+            var avg = _.reduce(usercount,function(m,n) { return m+n;   },0) / _.keys(usercount);
             for (var tg in sometags) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
             var sortedstuds = _.keys(studstats);
-            sortedstuds.sort(function(a,b) { return userscore[b]/usercount[b] - userscore[a]/usercount[a]})
+            sortedstuds.sort(function(a,b) {
+                if (usercount[a] < avg || usercount[b] < avg) {
+                   return usercount[b] - usercount[a];
+                }
+                return userscore[b]/usercount[b] - userscore[a]/usercount[a]
+            });
             ignoring = _.union(ignoring,_.keys(notused));
             if (ignoring.length == 0 && temalist.length == 0) {
                 temalist = _.keys(sometags);
