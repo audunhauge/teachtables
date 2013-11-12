@@ -93,7 +93,10 @@ function normalizeFunction(txt,nosubst) {
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
       fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
       fu = fu.replace(/([xyt])\*\*([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
-      fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });
+      fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });    // regexp confuses editor
+      fu = fu.replace(/pow\(([^,]+),([^)]+)\)/gm,function(m,f,e) { return "pow("+f+";"+e+")"; })
+      fu = fu.replace(/([0-9])\,([0-9])/gm,function(m,f,e) { return f+"."+e; });      // desimal 3,141 => 3.141
+      fu = fu.replace(/;/gm,",");
       fu = fu.replace(/tt/gm,'t*t');
       fu = fu.replace(/tt/gm,'t*t');
       fu = fu.replace(/xx/gm,'x*x');
