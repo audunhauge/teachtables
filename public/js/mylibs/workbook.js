@@ -461,7 +461,7 @@ function quizstats(ttype,using,ignoring) {
             }
             var sortedstuds = _.keys(studstats);
             sortedstuds.sort(function(a,b) {
-                if (usercount[a] < avg || usercount[b] < avg) {
+                if (usercount[a] < avg*0.65 || usercount[b] < avg*0.65) {
                    return usercount[b] - usercount[a];
                 }
                 return userscore[b]/usercount[b] - userscore[a]/usercount[a]
