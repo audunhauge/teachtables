@@ -23,6 +23,7 @@ override(ss, {
     , quizedit          : 'QEditor'
     , subscribe         : 'Aboner'
     , xsubscribe        : 'XAboner'
+    , remarked          : 'QMerknad'
     , samling           : 'Samlingsplan'
     , manager           : 'GenralManager'
     , createplans       : 'CreatePlans'

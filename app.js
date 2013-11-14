@@ -184,6 +184,7 @@ app.get(base+'/copyquest',              workbook.copyquest );
 app.get(base+'/updatequiz',             workbook.updatequiz );          // sync with parent/child
 app.get(base+'/progressview',           workbook.progressview );
 app.get(base+'/quizstats',              workbook.quizstats );           // average score pr tag
+app.get(base+'/remarked',               workbook.remarked );            // list of remarked questions (by other teach)
 
 app.post(base+'/generateforall',        workbook.generateforall );
 app.post(base+'/renderq',               workbook.renderq);

@@ -702,8 +702,8 @@ function afterloggin(uinfo) {
         if (userinfo.config.subscription) {
             subscriptlist = userinfo.config.subscription;
         }
-        if (userinfo.config.super) {
-            superbus = userinfo.config.super;
+        if (userinfo.config["super"]) {
+            superbus = userinfo.config["super"];
         }
       }
       fullname = userinfo.firstname + ' ' + userinfo.lastname;
@@ -714,7 +714,8 @@ function afterloggin(uinfo) {
       if (superbus) {
         s = '<li><a id="quizedit" title="Fjern dubletter -slett spørsmål" href="#">'+ss.setup.quizedit+'</a></li>'
            + '<li><a id="subscribe" title="Aboner teach quiz" href="#">'+ss.setup.subscribe+'</a></li>'
-           + '<li><a id="csubscribe" title="Aboner any quiz" href="#">'+ss.setup.xsubscribe+'</a></li>';
+           + '<li><a id="csubscribe" title="Aboner any quiz" href="#">'+ss.setup.xsubscribe+'</a></li>'
+           + '<li><a id="remarked" title="Spørsmål med merknad" href="#">'+ss.setup.remarked+'</a></li>';
         $j("#fagplaner + ul").append(s);
         $j("#quizedit").click(function(event) {
             event.preventDefault();
@@ -728,6 +729,11 @@ function afterloggin(uinfo) {
             relax(30000);
             event.preventDefault();
             vis_andreplaner();
+        });
+        $j("#remarked").click(function(event) {
+            relax(30000);
+            event.preventDefault();
+            remarked();
         });
       }
       $j.get(mybase+ '/attendance', { all:1 },function(att) {

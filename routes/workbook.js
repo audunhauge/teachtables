@@ -41,6 +41,16 @@ exports.updatequiz = function(req, res) {
     }
 };
 
+exports.remarked = function(req,res) {
+    if (req.session.user && req.session.user.department == 'Undervisning') {
+      wb.remarked(req.session.user,req.body,function(msg) {
+         res.send(msg);
+      });
+    } else {
+      res.send({ok:false, msg:"bad user", restart:db.restart});
+    }
+}
+
 exports.crosstable = function(req,res) {
     if (req.session.user && req.session.user.department == 'Undervisning') {
       wb.crosstable(req.session.user,req.body,function(msg) {

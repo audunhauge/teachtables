@@ -800,6 +800,20 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   }));
 }
 
+var remarked = exports.remarked = function(user,query,callback) {
+  var isteach = (user.department == 'Undervisning');
+    console.log("select qp.id,u.userid,u.teachcomment from quiz_useranswer u inner join quiz_question q on (u.qid=q.id) "
+                 + "inner join quiz_question qp on (q.parent = qp.id and qp.teachid=$1) where u.userid=q.teachid "
+                 + "and u.teachcomment != '' and u.userid != $1;",[user.id]);
+    client.query("select qp.id,u.userid,u.teachcomment from quiz_useranswer u inner join quiz_question q on (u.qid=q.id) "
+                 + "inner join quiz_question qp on (q.parent = qp.id and qp.teachid=$1) where u.userid=q.teachid "
+                 + "and u.teachcomment != '' and u.userid != $1;",[user.id],
+    after(function(stats) {
+      console.log("Getting remarked questions",stats);
+      callback(stats.rows)
+    }));
+}
+
 var quizstats = exports.quizstats = function(user,query,callback) {
   var isteach = (user.department == 'Undervisning');
   var studid  = query.studid;
@@ -1611,7 +1625,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
       sql = "select q.*,0 as pid, 0 as sync from quiz_question q where q.id in ("+givenqlist+") ";
     }
     param = [];
-    //console.log("HERE 1");
+    console.log("HERE 1",sql);
   } else {
     // pick questions from container
     sql = (isteach) ? ( " select q.*,qp.teachid as pid, case when q.parent != 0 and q.qtext != qp.qtext then "

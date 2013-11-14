@@ -1134,7 +1134,7 @@ var qz = {
            var feedback = '';  // default feedback
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
            var gsymb = {};
-           if (contopt.trinn == "1" && qobj.code && (qobj.code.indexOf('control') >= 0)) {
+           if (contopt && contopt.trinn == "1" && qobj.code && (qobj.code.indexOf('control') >= 0)) {
                //console.log("GRADING -",contopt);
                // control = 1  \n limit = 0.9 assumed to be in code section
                // this question can complete this set of questions if correctly answered

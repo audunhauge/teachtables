@@ -336,6 +336,16 @@ function crossResults() {
      });
 }
 
+function remarked() {
+    // fetch questions that have notes added by other teach
+    $j.get(mybase+'/remarked',function(res){
+        if (res.length) {
+            var clusterlist = res.map(function(e) { return e.id; } );
+            questEditor(clusterlist);
+        }
+    });
+}
+
 function longList() {
     var group;
     try {
