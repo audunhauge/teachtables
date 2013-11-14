@@ -275,6 +275,7 @@ exports.getuseranswers = function(req,res) {
 
 exports.getcontainer = function(req,res) {
     if (req.session.user ) {
+        console.log(req.query);
       wb.getcontainer(req.session.user, req.query, function(data) {
         res.send(data);
       });

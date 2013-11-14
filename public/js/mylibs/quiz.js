@@ -166,8 +166,9 @@ function makeMarks(qmatched) {
 
 function questEditor(clusterlist) {
   // filter clusterlist against questions - any missing assumed deleted
-  clusterlist = clusterlist.filter(function (e) { return questions[e]; } );
-  $j.getJSON(mybase+'/getcontainer',{ givenqlist:clusterlist.join(',') }, function(wqqlist) {
+  clusterlist = (clusterlist.filter(function (e) { return ""+questions[e]; } ));
+  cclusterlist = ""+clusterlist.join(",");
+  $j.getJSON(mybase+'/getcontainer',{ "givenqlist":cclusterlist }, function(wqqlist) {
     var qlist = wqqlist.qlist;
     wbinfo.taglist = wqqlist.taglist;
     var showqlist = wb.render.normal.editql(qlist,true);

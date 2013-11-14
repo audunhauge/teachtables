@@ -1611,6 +1611,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
   }
   var isteach = (user.department == 'Undervisning');
   var sql,param;
+  console.log("WORKBOOK:getcontainer:",query);
   if (givenqlist && givenqlist != '') {
     // process the specified questions
     if (isteach) {
@@ -1639,7 +1640,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
     param = [ container ];
     //console.log("HERE 2");
   }
-  //console.log("WORKBOOK:getcontainer:",sql,param);
+  console.log("WORKBOOK:getcontainer:",sql,param);
   client.query( sql, param,
     after(function(results) {
       console.log("GETCONTAINER came here ");
