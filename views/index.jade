@@ -1,52 +1,46 @@
 extends layout
 block content
-    ul#nav 
-      li.current 
+    ul#nav
+      li.current
         a.llogin(href="#") #{menu.login}
-        ul 
-          li 
+        ul
+          li
             a.llogin#login(href="#") #{menu.login}
-          li 
+          li
             a#logout(href="#") #{menu.logout}
-          li 
+          li
             a#seek(href="#") #{menu.seek}
-      li 
+      li
         a#yearplan(href="#") #{menu.yearplan}
-        ul 
-          li 
+        ul
+          li
             a#denne(href="#") #{menu.thisweek}
-          li 
+          li
             a#neste(href="#") #{menu.next4}
-          li 
+          li
             a#resten(href="#") #{menu.restofyear}
-          li 
+          li
             a#hele(href="#") #{menu.wholeyear}
-          li 
+          li
             a#starblist(href="#") #{menu.sss}
-          li 
+          li
             a#prover(href="#") #{menu.mytests}
-          li 
+          li
             a#heldag(href="#") #{menu.bigtest}
-          li 
+          li
             a#alleprover(href="#") #{menu.alltests}
       li
         a#fagplaner(href="#") #{menu.plans}
-        ul 
+        ul
           li#teachmenu
             a#mineplaner(href="#") #{menu.mycourses}</a>    </li>
           li#andref
             a#andreplaner(href="#") #{menu.othercourses}</a>   </li>
           li
             a#edbortfall(href="#") #{menu.away}</a>   </li>
-          li
-            a#quizedit(href="#") #{menu.quiz}</a>   </li>
-          li
-            a#subscribe(href="#") #{menu.subscribe}</a>   </li>
-          li
-            a#csubscribe(href="#") #{menu.csubscribe}</a>   </li>
       li
-        a#timeplaner(href="#") #{menu.timeplans} 
-        ul 
+        a#timeplaner(href="#") #{menu.timeplans}
+        ul
           li
             a#timeplanteach(href="#") #{menu.teachers}
           li
@@ -62,10 +56,8 @@ block content
                 a#timeplanfag(href="#") #{menu.courses}
             li
               a#timeplanrom(href="#") #{menu.rooms}
-            li
-              a#timeplansamling(href="#") #{menu.multiview}
-    p 
+    p
       #main
-        h1#oskrift 
+        h1#oskrift
         #timeviser
           #timeplan #{menu.loading}

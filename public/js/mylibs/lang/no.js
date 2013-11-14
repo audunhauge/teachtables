@@ -20,6 +20,10 @@ override(ss, {
     , singular          : 'SoloTest'
     , starbcourse       : 'StarbKurs'
     , absteach          : 'LærerFravær'
+    , quizedit          : 'QEditor'
+    , subscribe         : 'Aboner'
+    , xsubscribe        : 'XAboner'
+    , samling           : 'Samlingsplan'
     , manager           : 'GenralManager'
     , createplans       : 'CreatePlans'
    }

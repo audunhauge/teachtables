@@ -9,6 +9,7 @@ var brukerliste = {};   // brukerliste[elev,teach,klasse]
 var valg;               // siste valg (teach,elev,klasse,sammensatt)
 var fagenemine = [];    // for teach this is a list of courses owned
 var inlogged = false;   // easy test for logged in (not related to security - just to menues shown)
+var superbus = false;   // are we superbus
 var plannames;          // list of logged in users plans (assumed to be teach - only used if so)
                         // { 'name':pid, ... }
 
@@ -697,24 +698,54 @@ function afterloggin(uinfo) {
          });
     }
     if (userinfo.department == ss.teachdep) {
-      if (userinfo.config && userinfo.config.subscription) {
-          subscriptlist = userinfo.config.subscription;
+      if (userinfo.config) {
+        if (userinfo.config.subscription) {
+            subscriptlist = userinfo.config.subscription;
+        }
+        if (userinfo.config.super) {
+            superbus = userinfo.config.super;
+        }
       }
       fullname = userinfo.firstname + ' ' + userinfo.lastname;
       user = fullname;
       userinfo.fullname = fullname;
       isteach = true;
       isadmin = (database.userinfo.isadmin);
+      if (superbus) {
+        s = '<li><a id="quizedit" title="Fjern dubletter -slett spørsmål" href="#">'+ss.setup.quizedit+'</a></li>'
+           + '<li><a id="subscribe" title="Aboner teach quiz" href="#">'+ss.setup.subscribe+'</a></li>'
+           + '<li><a id="csubscribe" title="Aboner any quiz" href="#">'+ss.setup.xsubscribe+'</a></li>';
+        $j("#fagplaner + ul").append(s);
+        $j("#quizedit").click(function(event) {
+            event.preventDefault();
+            quizDemo();
+        });
+        $j("#subscribe").click(function(event) {
+            event.preventDefault();
+            subscribe();
+        });
+        $j("#andreplaner").click(function(event) {
+            relax(30000);
+            event.preventDefault();
+            vis_andreplaner();
+        });
+      }
       $j.get(mybase+ '/attendance', { all:1 },function(att) {
             allattend = expandatt(att);
             $j("#timeplaner").html("Timeplan/Starb");
-            s =  '<li><a id="show" href="#">Starb</a><ul>'
+            var s = '';
+            if (superbus) {
+              s += '<li><a id="timeplansamling" title="Sett sammen flere timeplaner" href="#">'+ss.setup.samling+'</a></li>'
+            }
+            s +=  '<li><a id="show" href="#">Starb</a><ul>'
               +    '<li><a id="regstarb"    href="#">RegistrerStarb</a></li>'
               +    '<li><a id="myattend"    href="#">MineRegistreringer</a></li>'
               +    '<li><a id="weekattend"  href="#">MineKontaktelever</a></li>'
-              + '</ul></li>'
-              + '<li><a id="freetime" title="Finn felles tid og ledig rom" href="#">Lag møte</a></li>'
-              + '<li><a id="mymeets" title="Rediger møter" href="#">Mine møter</a></li>'
+              + '</ul></li>';
+            if (superbus) {
+              s += '<li><a id="freetime" title="Finn felles tid og ledig rom" href="#">Lag møte</a></li>'
+                 + '<li><a id="mymeets" title="Rediger møter" href="#">Mine møter</a></li>';
+            }
             $j("#timeplaner + ul").append(s);
             $j("#myattend").click(function(event) {
                 event.preventDefault();
@@ -736,6 +767,12 @@ function afterloggin(uinfo) {
             $j("#mymeets").click(function(event) {
                 event.preventDefault();
                 myMeetings();
+            });
+            $j("#timeplansamling").click(function(event) {
+                relax(30000);
+                event.preventDefault();
+                valg = 'samling';
+                vis_samlingtimeplan();
             });
           });
     } else {
@@ -1045,28 +1082,9 @@ $j(document).ready(function() {
         valg = 'rom';
         vis_romtimeplan();
     });
-    $j("#timeplansamling").click(function(event) {
-        relax(30000);
-        event.preventDefault();
-        valg = 'samling';
-        vis_samlingtimeplan();
-    });
     $j("#edbortfall").click(function(event) {
         event.preventDefault();
         edit_bortfall(userinfo.id);
-    });
-    $j("#quizedit").click(function(event) {
-        event.preventDefault();
-        quizDemo();
-    });
-    $j("#subscribe").click(function(event) {
-        event.preventDefault();
-        subscribe();
-    });
-    $j("#andreplaner").click(function(event) {
-        relax(30000);
-        event.preventDefault();
-        vis_andreplaner();
     });
     //$j("#yyear").html("heisan");
     $j("#htitle").click(function(event) {
