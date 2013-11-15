@@ -535,12 +535,12 @@ function quizstats(ttype,using,ignoring) {
             $j("#elist").html(tagcontrol);
             $j("#elist").undelegate(".catt0","click");
             $j("#elist").delegate(".catt0","click", function() {
-                        var txt = this.innerText;
+                        var txt = this.innerHTML;
                         showstats(res, _.union([txt],temalist), _.difference(ignoring,[txt])  );
                     });
             $j("#elist").undelegate(".catt1","click");
             $j("#elist").delegate(".catt1","click", function() {
-                        var txt = this.innerText;
+                        var txt = this.innerHTML;
                         showstats(res, _.difference(temalist,[txt]), _.union([txt],ignoring));
                     });
          }
