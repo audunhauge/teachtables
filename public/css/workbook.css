@@ -515,6 +515,18 @@ div.status3 { /* fixme */
 div.status4 { /* error */
     background:#f33 !important;
 }
+div.status5 { /* teacher made remark */
+    background:#3ff !important;
+}
+
+.remark {
+    color:blue;
+    font-size:0.8em;
+}
+.author {
+    color:white;
+    font-size:0.8em;
+}
 
 div.qtext span.fillin input {
   width:4em;

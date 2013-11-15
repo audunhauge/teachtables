@@ -113,7 +113,9 @@ function showinfo(ty,lim,fil) {
   qparam.filter = fil;
   mylink = ty;
   var cluster = orbits[ty];
-  makeJoin([ty]);
+  if (ty) {
+      makeJoin([ty]);
+  }
   var qmatched = {};
   for (var star in cluster) {
     if (cluster[star] < +qparam.limit) continue;
@@ -168,6 +170,11 @@ function questEditor(clusterlist) {
   // filter clusterlist against questions - any missing assumed deleted
   clusterlist = (clusterlist.filter(function (e) { return ""+questions[e]; } ));
   cclusterlist = ""+clusterlist.join(",");
+  questEdit(cclusterlist);
+}
+
+function  questEdit(cclusterlist) {
+  // any checks of clusterlist done before calling
   $j.getJSON(mybase+'/getcontainer',{ "givenqlist":cclusterlist }, function(wqqlist) {
     var qlist = wqqlist.qlist;
     wbinfo.taglist = wqqlist.taglist;

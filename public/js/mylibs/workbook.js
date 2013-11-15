@@ -14,6 +14,7 @@ var wbinfo = { trail:[], page:{}, missing:{} , haveadded:0, maxscore:0 };
 //    used to show/hide extra help text
 
 var tablets = {};   // workaround for lack of drag and drop on tablets
+var remarks = {};   // questions with remarks from other teachers
 
 function getUser(uid,pref) {
   // will always get a user
@@ -338,10 +339,13 @@ function crossResults() {
 
 function remarked() {
     // fetch questions that have notes added by other teach
+    mylink = undefined;   // forget other orbits in quizeditor
     $j.get(mybase+'/remarked',function(res){
         if (res.length) {
-            var clusterlist = res.map(function(e) { return +e.id; } );
-            questEditor(clusterlist);
+            _.each(res,function(e) { remarks[e.id] = { text:e.teachcomment, uid:e.userid}; } );
+            clusterlist = res.map(function(e) { return e.id; } );
+            console.log("REMARKED:",clusterlist);
+            questEdit(clusterlist.join(","));
         }
     });
 }
@@ -1931,6 +1935,7 @@ function eedit(myid,q,target) {
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
    var sync = '';
+   var remark = '';
    if (q.sync && q.sync.origtext) {
       var syncdiff = ' (sjekk detaljer - forskjell i kode ..)';
       if (q.sync.origtext != q.display) {
@@ -1952,13 +1957,20 @@ function eedit(myid,q,target) {
       }
       sync = '<span title="Synkroniser mot original" id="sync">Sync</span><div class="diff">'+syncdiff+'</div>';
    }
+   if (remarks[q.id]) {
+       var usr = getUser(remarks[q.id].uid);
+       fn = usr.firstname.caps();
+       ln = usr.lastname.caps();
+       var remarkteach = fn + ' '+ln;
+       remark = '<div class="remark">'+remarks[q.id].text+'</div><div class="author">'+remarkteach+'</div>';
+   }
    var s = '<div id="wbmain">' + head + '<div id="qlistbox"><div id="editform">'
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
         + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Normal,Partial spørsmål vises i en prøve. Partial betyr del av serie"> Status '
         + status + '</span></td></tr>'
         + variants.qdisplay
-        + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr>'
+        + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr><th></th><td>'+remark+'</td><td></td></tr>'
         + '</table>'
         + '<div id="taggs"><span class="tagtitle">Tags</span>'
         + '  <div id="taglist"><div id="mytags"></div>'
@@ -2492,6 +2504,7 @@ wb.render.normal  = {
               qu = questlist[qidx];
               var status = qu.status;
               var statusclass = '';
+              var remark = '';
               if (status != undefined && status != 0) {
                 statusclass = ' status'+status;
               }
@@ -2507,13 +2520,17 @@ wb.render.normal  = {
               if (taggers && taggers[qu.id]) {
                   taggy = taggers[qu.id].join(' ');
               }
-              var tit = shorttext.replace(/['"]/g,'«');
+              if (remarks[qu.id]) {
+                remark = ' '+remarks[qu.id].text;
+                statusclass = ' status5';
+              }
+              var tit = shorttext.replace(/['"]/g,'«');    //' just to help the editor
               var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
               //if (wantlist) qdiv += '<input type="checkbox">';
               qdiv += '<input type="checkbox">';
               qdiv +=      '<span '+owner+' class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
-                         + '<span title="'+qu.name+'" class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
+                         + '<span title="'+qu.name+remark+'" class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
                          + '</span><span class="qpoints">'+ qu.points +'</span><div class="edme"></div>';
               //if (!wantlist) qdiv += '<div class="killer"></div>';
