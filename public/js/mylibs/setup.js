@@ -642,6 +642,18 @@ function get_login() {
 }
 
 function belongsToCategory(uid,cat) {
+  if (timetables) {
+     _belongsToCategory(uid,cat);
+  } else {
+    $j.getJSON(mybase+ "/timetables",
+          function(data) {
+              timetables = unflatten(data.flatlist);
+              _belongsToCategory(uid,cat);
+       });
+  }
+}
+
+function _belongsToCategory(uid,cat) {
   // return true if user has a course in this list of categories - cat = { cat1:1, cat2:1  ... }
   if (timetables && timetables.teach && timetables.teach[uid]) {
     // we have a teach

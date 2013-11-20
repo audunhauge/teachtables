@@ -1599,6 +1599,15 @@ var copyquest = exports.copyquest = function(user,query,callback) {
   }));
 }
 
+var scoresummary = exports.scoresummary = function(user,query,callback) {
+  client.query( "select qu.cid,sum(qu.score) as suu, sum(q.points) as poo, sum(case attemptnum when 0 then 0 else 1 end) as att, count(qu.id) as ant  "
+               + "from quiz_useranswer qu inner join quiz_question q on (q.id=qu.qid) "
+               + "where userid=$1 and cid>0 group by qu.cid",[user.id],
+          after(function(results) {
+             callback(results.rows);
+          }));
+}
+
 var getcontainer = exports.getcontainer = function(user,query,callback) {
   // returns list of questions for a container or set of question-ids
   var container    = +query.container ;   // used if we pick questions from a container
@@ -1611,7 +1620,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
   }
   var isteach = (user.department == 'Undervisning');
   var sql,param;
-  console.log("WORKBOOK:getcontainer:",query);
+  //console.log("WORKBOOK:getcontainer:",query);
   if (givenqlist && givenqlist != '') {
     // process the specified questions
     if (isteach) {
@@ -1626,7 +1635,7 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
       sql = "select q.*,0 as pid, 0 as sync from quiz_question q where q.id in ("+givenqlist+") ";
     }
     param = [];
-    console.log("HERE 1",sql);
+    //console.log("HERE 1",sql);
   } else {
     // pick questions from container
     sql = (isteach) ? ( " select q.*,qp.teachid as pid, case when q.parent != 0 and q.qtext != qp.qtext then "
@@ -1640,10 +1649,10 @@ var getcontainer = exports.getcontainer = function(user,query,callback) {
     param = [ container ];
     //console.log("HERE 2");
   }
-  console.log("WORKBOOK:getcontainer:",sql,param);
+  //console.log("WORKBOOK:getcontainer:",sql,param);
   client.query( sql, param,
     after(function(results) {
-      console.log("GETCONTAINER came here ");
+      //console.log("GETCONTAINER came here ");
           if (results && results.rows) {
             var qlist = [];
             var qidlist = [];

@@ -15,6 +15,7 @@ var wbinfo = { trail:[], page:{}, missing:{} , haveadded:0, maxscore:0 };
 
 var tablets = {};   // workaround for lack of drag and drop on tablets
 var remarks = {};   // questions with remarks from other teachers
+var scoresum = {};  // score summary for each quiz/container - only used for quiz
 
 function getUser(uid,pref) {
   // will always get a user
@@ -1810,6 +1811,16 @@ function workbook(coursename) {
           }
         }
     });
+    $j.get(mybase+'/scoresummary', function(resp) {
+        if (resp) {
+            for (var i=0; i< resp.length; i++) {
+                var ss = resp[i];
+                scoresum[ss.cid] = ss;
+            }
+
+        }
+    });
+
 }
 
 function makeSelect(name,selected,arr) {
@@ -2723,8 +2734,20 @@ wb.render.normal  = {
                             }
                             embellish += " cloaked";
                           }
-                          var start,stop,mstart,mstop,elm;
+                          var start,stop,mstart,mstop,elm,account='';
                           mstop = mstart = 0;
+                          if (scoresum[qu.qid]) {
+                              var ss = scoresum[qu.qid];
+                              if (+ss.att >0) {
+                                var width = Math.max(2,Math.min(16,16*(+ss.att/+ss.ant)));
+                                account +='<span style="width:'+(width)+'px;" class="dot">'+ss.att+'</span>';
+                              }
+                              if (+ss.suu >0) {
+                                var width = Math.max(2,Math.min(16,16*(+ss.suu/+ss.poo)));
+                                var score = (+ss.suu/+ss.poo).toFixed(1);
+                                account +='<span style="left:30px; width:'+(width)+'px;" class="dot">'+(score)+'</span>';
+                              }
+                          }
                           var justnow = new Date().getTime();
                           if (mycopt && mycopt.start) {
                             elm = mycopt.start.split('/');
@@ -2758,9 +2781,9 @@ wb.render.normal  = {
                             embellish += " trinn";
                           }
                           if (mycopt && mycopt.exam && mycopt.exam.length) {
-                            return '<div class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                            return '<div class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
                           }
-                          return '<div class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '</div>';
+                          return '<div class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
                           break;
                       case 'container':
                           return '<div class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';
@@ -2958,11 +2981,11 @@ wb.render.normal  = {
                   if (scored || (attempt != '' && attempt > 0))  {
                     if (userinfo.id == qu.userid || (qu.usercomment && qu.usercomment != '')) {
                       var stutxt = qu.usercomment.replace(/['"]/g,'«');
-                      studnote = '<div  id="com'+qu.id+'" title="'+stutxt+'" class="studnote addcomment">'+stutxt+'</div>';
+                      studnote = '<div  id="com'+qu.id+'" title="'+stutxt+'" class="studnote addcomment">'+stutxt+'</div>';  // ' just to help editor
                     }
                     if (teaches(userinfo.id,wbinfo.coursename) || (qu.teachcomment && qu.teachcomment != '')) {
                       var teachtxt = qu.teachcomment.replace(/['"]/g,'«');
-                      studnote += '<div  id="com'+qu.id+'" title="'+teachtxt+'" class="teachnote addcomment">'+teachtxt+'</div>';
+                      studnote += '<div  id="com'+qu.id+'" title="'+teachtxt+'" class="teachnote addcomment">'+teachtxt+'</div>'; // ' editor help
                     }
                   }
                   var statusclass = '';
