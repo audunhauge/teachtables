@@ -27,6 +27,9 @@ function managecourse() {
   + '     <li><a id="altercourse" class="action" href="#">Edit subject</a></li>'
   + '   </ul>'
   + '   <li><a id="newroom" class="action" href="#">Add new room</a></li>'
+  + '   <ul>'
+  + '     <li><a id="editroom" class="action" href="#">Edit room</a></li>'
+  + '   </ul>'
   + '   <li><a id="newuser" class="action" href="#">Add new user</a></li>'
   + '   <ul>'
   + '     <li><a id="edituser" class="action" href="#">Edit student</a></li>'
@@ -41,6 +44,10 @@ function managecourse() {
   + '</div>';
   $j("#main").html(s);
   $j("#newroom").click(function(event) {
+      event.preventDefault();
+      add_room(database.roomnames);
+  }); 
+  $j("#editroom").click(function(event) {
       event.preventDefault();
       selectroom(database.roomnames);
   }); 
@@ -88,6 +95,21 @@ function managecourse() {
 
 }
 
+function add_room() {
+  var save = '<div id="savenew" class="float button">Save</div>';
+  var s = '<form><table id="form"><tr><td><label>Roomname</label></td><td> <input id="roomname" type="text" value="" size="20"></td></tr>'
+  + '  <tr><td>'+save+'</td><td></td></tr>'
+  + '</table></form>';
+  $j("#cmstage").html(s);
+  $j("#savenew").click(function(event) {
+      var roomname = $j("#roomname").val();
+      // shortname MUST BE upper case
+      var sql = "insert into room (name) values ($1)"
+          $j.get(mybase+ "/getsql", { sql:sql, param:[ roomname] }, function(res) {
+          });
+  });
+}
+
 function editgroup() {
   $j("#cmstage").html("JALALAL");
 }
@@ -97,10 +119,12 @@ function selectroom(roomlist) {
   var save = '<div id="edit" class="float button">Edit</div><p>';
   var mylist = {};
   $j("#cmstage").html(save+s);
-  studChooser("#chooseme",roomlist,{});
+  var elements = _.map(roomlist,function(e) { return { id:e, Name:e, lastname:e, firstname:'room' } });
+  studChooser("#chooseme",elements,{},'Name',{ Name:1});
+  // targetdiv,memberlist,info,tabfield,fieldlist,mapping
   $j("#chooseme").undelegate(".tnames","click");
   $j("#chooseme").delegate(".tnames","click",function() {
-     var tid = +this.id.substr(2);
+     var tid = this.id.substr(2);
      $j(this).toggleClass("someabs");
      if (mylist[tid] != undefined) {
        delete mylist[tid];
@@ -109,9 +133,31 @@ function selectroom(roomlist) {
      }
   });
   $j("#edit").click(function(event) {
-     alert("edit room");
-     //edituser(userlist,mylist);
+     editroom(roomlist,mylist);
   });
+}
+
+function editroom(roomlist,mylist) {
+  if (countme(mylist) == 1 ) {
+    // single room selected - show all fields
+    var myroom = _.keys(mylist).pop();
+    var save = '<div id="savenew" class="float button">Save</div>';
+    var s = '<form><table id="form"><tr><td><label>Roomname</label></td><td> <input id="roomname" type="text" value="{name}" size="20"></td></tr>'
+    + '  <tr><td>'+save+'</td><td></td></tr>'
+    + '</table></form>';
+    $j("#cmstage").html(s.supplant({name:myroom}));
+    $j("#savenew").click(function(event) {
+        var roomname = $j("#roomname").val();
+        var fields = [];
+        if (roomname != myroom) fields.push(" name='"+roomname+"'");
+        if (fields.length > 0) {
+          var sql = "update room set " + fields.join(',') + " where name =$1" ;
+          alert(sql);
+          $j.get(mybase+ "/getsql", { sql:sql, param:[myroom] }, function(res) {
+          });
+        }
+    });
+  } 
 }
 
 function selectuser(userlist) {
