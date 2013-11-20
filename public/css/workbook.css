@@ -498,6 +498,36 @@ sup input,sub input {
     height:12px !important;
 }
 
+div.account {
+    position:absolute;
+    left:580px;
+    top:0;
+    width:80px;
+}
+
+.dot {
+    position:absolute;
+    left:0px;
+    width:16px;
+    height:12px;
+    top:0;
+    background:teal;
+    font-size:0.4em;
+    line-height:8px;
+    vertical-align:top;
+    color:white;
+}
+.dot:after {
+    position:absolute;
+    content:"";
+    left:0px;
+    width:16px;
+    height:12px;
+    top:0;
+    background:green;
+    opacity:0.4;
+}
+
 div.underlined {
     padding-bottom:5px;
     border-bottom:solid 1px rgba(90,0,0,0.1);
@@ -1379,7 +1409,11 @@ div.catt {
     display:inline;
 }
 
+span.chapter {
+  position:relative;
+}
 div.container, div.quiz {
+  position:relative;
   color:blue;
   margin:10px;
   margin-left:15px;

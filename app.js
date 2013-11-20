@@ -185,6 +185,7 @@ app.get(base+'/updatequiz',             workbook.updatequiz );          // sync 
 app.get(base+'/progressview',           workbook.progressview );
 app.get(base+'/quizstats',              workbook.quizstats );           // average score pr tag
 app.get(base+'/remarked',               workbook.remarked );            // list of remarked questions (by other teach)
+app.get(base+'/scoresummary',           workbook.scoresummary );        // scores for each container for this user
 
 app.post(base+'/generateforall',        workbook.generateforall );
 app.post(base+'/renderq',               workbook.renderq);

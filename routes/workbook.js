@@ -273,9 +273,19 @@ exports.getuseranswers = function(req,res) {
     }
 };
 
+exports.scoresummary = function(req,res) {
+    if (req.session.user ) {
+      wb.scoresummary(req.session.user, req.query, function(data) {
+        res.send(data);
+      });
+    } else {
+      res.send(null);
+    }
+};
+
 exports.getcontainer = function(req,res) {
     if (req.session.user ) {
-        console.log(req.query);
+      //  console.log(req.query);
       wb.getcontainer(req.session.user, req.query, function(data) {
         res.send(data);
       });
