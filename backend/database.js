@@ -434,7 +434,7 @@ exports.modifyPlan = function(user,query,callback) {
   }
   var operation = query.operation;
   var pname     = query.pname    || 'newplan';
-  var periodeid = 8;
+  var periodeid = 9;
   var subject   = query.subject  || pname;
   var category  = query.category || 0;
   var state     = query.state    || 0;
