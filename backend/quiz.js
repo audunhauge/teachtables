@@ -5,6 +5,7 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var crypto = require('crypto');
+var _ = require('underscore');
 var jsp = require('uglify-js');
 var jstat = require('./jstat').jstat;
 var jdiff = require('./jdiff');
@@ -931,23 +932,35 @@ var qz = {
        return n*n+n+41;
    }
   , isprime:function(n) {
-	 if (isNaN(n) || !isFinite(n) || n%1 || n<2) return false; 
+     if (isNaN(n) || !isFinite(n) || n%1 || n<2) return false;
          if (primes1000.indexOf(n) >= 0) return true;
-	 if (n==leastFactor(n)) return true;
-	 return false;
-	}
+     if (n==qz.leastfactor(n)) return true;
+     return false;
+    }
   , getnthprime:function(n) {
         n = Math.min(1000,n);
         return primes1000[n];
     }
 
+  , factor:function(n) {
+      var doLoop = 1 < n && isFinite(n);
+      var facts = [];
+      while (doLoop) {
+          var f = qz.leastfactor(n);
+          facts.push(f);
+          n /= f;
+          doLoop = (f !== n);
+      }
+      return facts;
+    }
+
   , leastfactor:function(n) {
-      if (isNaN(n) || !isFinite(n)) return NaN;  
-      if (n==0) return 0;  
+      if (isNaN(n) || !isFinite(n)) return NaN;
+      if (n==0) return 0;
       if (n%1 || n*n<2) return 1;
-      if (n%2==0) return 2;  
-      if (n%3==0) return 3;  
-      if (n%5==0) return 5;  
+      if (n%2==0) return 2;
+      if (n%3==0) return 3;
+      if (n%5==0) return 5;
       var m = Math.sqrt(n);
       for (var i=7;i<=m;i+=30) {
        if (n%i==0)      return i;
@@ -961,10 +974,61 @@ var qz = {
       }
       return n;
      }
- 
+
+ , powmod:function(a,b,m) {
+    if (b < -1) return Math.pow(a, b) % m;
+    if (b === 0) return 1 % m;
+    if (b >= 1) {
+      var result = 1;
+      while (b > 0) {
+          if ((b % 2) === 1) {
+            result = (result * a) % m;
+          }
+          a = (a * a) % m;
+          b = b >> 1;
+      }
+      return result;
+    }
+   }
+ , modinv:function(a,m) {
+     var r = qz.egcd(m,a);
+     return (r[2]+m) % m;
+   }
+
+ , phi:function(n) {   // eulers phi function (totient)
+    var f = qz.factor(n);
+    f.pop();  // drop 1
+    var u = _.uniq(f);
+    var r = _.reduce(u,function(res,num) { return res*(1-1/num);},n);
+    return r-r%1;
+   }
+
+ , egcd:function(a,b) {
+    var x = (+b && +a) ? 1 : 0,
+        y = b ? 0 : 1,
+        u = (+b && +a) ? 0 : 1,
+        v = b ? 1 : 0;
+    b = (+b && +a) ? +b : 0;
+    a = b ? a : 1;
+    while (b) {
+        var q = Math.floor(a/b);
+            r = a % b;
+        var m = x - u * q,
+            n = y - v * q;
+        a = b;
+        b = r;
+        x = u;
+        y = v;
+        u = m;
+        v = n;
+    }
+    return [a, x, y];
+   }
 
  , gcd:function(x, y) {
-     while (y != 0) {
+     y = (+x && +y) ? +y : 0;
+     x = y ? x : 1;
+     while (y) {
           var z = x % y;
           x = y;
           y = z;
@@ -1124,9 +1188,14 @@ var qz = {
        , fix:qz.fix
        , getprime:qz.getprime
        , isprime:qz.isprime
+       , factor:qz.factor
        , leastfactor:qz.leastfactor
        , getnthprime:qz.getnthprime
        , random:Math.random, floor:Math.floor
+       , modinv:qz.modinv
+       , powmod:qz.powmod
+       , egcd:qz.egcd
+       , phi:qz.phi
        , gcd:qz.gcd
        , quantile:qz.quantile
        , freqvalues:qz.freqvalues
