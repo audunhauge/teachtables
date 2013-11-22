@@ -505,6 +505,13 @@ div.account {
     width:80px;
 }
 
+.theorem {
+  padding:3em;
+  font-size:1.1em;
+  color:teal;
+
+}
+
 .dot {
     position:absolute;
     left:0px;
