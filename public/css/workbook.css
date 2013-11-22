@@ -506,10 +506,17 @@ div.account {
 }
 
 .theorem {
-  padding:3em;
+  margin-right:auto;
+  margin-left:auto;
+  padding:2em;
   font-size:1.1em;
   color:teal;
 
+}
+
+.proof {
+  padding:1em;
+  font-style:oblique;
 }
 
 .dot {
