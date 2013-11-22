@@ -515,8 +515,15 @@ div.account {
 }
 
 .proof {
+  position:relative;
   padding:1em;
   font-style:oblique;
+}
+.proof:before {
+  content:"Proof";
+  position:absolute;
+  top:-6px;
+  left:-3px;
 }
 
 .dot {
