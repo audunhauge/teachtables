@@ -643,12 +643,12 @@ function get_login() {
 
 function belongsToCategory(uid,cat) {
   if (timetables) {
-     _belongsToCategory(uid,cat);
+     return _belongsToCategory(uid,cat);
   } else {
     $j.getJSON(mybase+ "/timetables",
           function(data) {
               timetables = unflatten(data.flatlist);
-              _belongsToCategory(uid,cat);
+              return _belongsToCategory(uid,cat);
        });
   }
 }
