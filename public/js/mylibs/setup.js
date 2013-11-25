@@ -641,14 +641,14 @@ function get_login() {
     });
 }
 
-function belongsToCategory(uid,cat) {
+function belongsToCategory(obj,field,uid,cat) {
   if (timetables) {
-     return _belongsToCategory(uid,cat);
+     obj[field] = _belongsToCategory(uid,cat);
   } else {
     $j.getJSON(mybase+ "/timetables",
           function(data) {
               timetables = unflatten(data.flatlist);
-              return _belongsToCategory(uid,cat);
+              obj[field] = _belongsToCategory(uid,cat);
        });
   }
 }
@@ -686,7 +686,8 @@ function _belongsToCategory(uid,cat) {
 
 function afterloggin(uinfo) {
     inlogged = true;
-    uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
+    //uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
+    belongsToCategory(uinfo,"mdd",uinfo.id,{10:1,11:1,12:1});
     database.userinfo = userinfo = uinfo;
     // if user.id > 0 then we are logged in
     // add new and dainty things to the menu
