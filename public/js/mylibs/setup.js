@@ -641,19 +641,7 @@ function get_login() {
     });
 }
 
-function belongsToCategory(obj,field,uid,cat) {
-  if (timetables) {
-     obj[field] = _belongsToCategory(uid,cat);
-  } else {
-    $j.getJSON(mybase+ "/timetables",
-          function(data) {
-              timetables = unflatten(data.flatlist);
-              obj[field] = _belongsToCategory(uid,cat);
-       });
-  }
-}
-
-function _belongsToCategory(uid,cat) {
+function belongsToCategory(uid,cat) {
   // return true if user has a course in this list of categories - cat = { cat1:1, cat2:1  ... }
   if (timetables && timetables.teach && timetables.teach[uid]) {
     // we have a teach
@@ -686,30 +674,34 @@ function _belongsToCategory(uid,cat) {
 
 function afterloggin(uinfo) {
     inlogged = true;
-    //uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
-    belongsToCategory(uinfo,"mdd",uinfo.id,{10:1,11:1,12:1});
-    database.userinfo = userinfo = uinfo;
-    // if user.id > 0 then we are logged in
-    // add new and dainty things to the menu
-    // same as isteach
-    if (userinfo.mdd) {
-       $j.get(mybase+ '/show', function(showlist) {
-          show = showlist;
-          s =  '<li><a id="show" href="#">Show</a><ul>'
-              +    '<li><a id="editshow"       href="#">Rediger show</a></li>'
-              +    '<li><a id="tickets"       href="#">Billettsalg</a></li>'
-              + '</ul></li>';
-          $j("#nav").append(s);
-          $j("#editshow").click(function(event) {
-              event.preventDefault();
-              editshow(userinfo.id);
-          });
-          $j("#tickets").click(function(event) {
-              event.preventDefault();
-              tickets(userinfo.id);
-          });
-         });
-    }
+    $j.getJSON(mybase+ "/timetables",
+    function(data) {
+      timetables = unflatten(data.flatlist);
+      //uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
+      uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
+      database.userinfo = userinfo = uinfo;
+      // if user.id > 0 then we are logged in
+      // add new and dainty things to the menu
+      // same as isteach
+      if (userinfo.mdd) {
+         $j.get(mybase+ '/show', function(showlist) {
+            show = showlist;
+            s =  '<li><a id="show" href="#">Show</a><ul>'
+                +    '<li><a id="editshow"       href="#">Rediger show</a></li>'
+                +    '<li><a id="tickets"       href="#">Billettsalg</a></li>'
+                + '</ul></li>';
+            $j("#nav").append(s);
+            $j("#editshow").click(function(event) {
+                event.preventDefault();
+                editshow(userinfo.id);
+            });
+            $j("#tickets").click(function(event) {
+                event.preventDefault();
+                tickets(userinfo.id);
+            });
+           });
+      }
+    });
     if (userinfo.department == ss.teachdep) {
       if (userinfo.config) {
         if (userinfo.config.subscription) {
