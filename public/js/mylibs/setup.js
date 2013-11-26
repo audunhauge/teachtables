@@ -674,12 +674,12 @@ function belongsToCategory(uid,cat) {
 
 function afterloggin(uinfo) {
     inlogged = true;
+    database.userinfo = userinfo = uinfo;
     $j.getJSON(mybase+ "/timetables",
     function(data) {
       timetables = unflatten(data.flatlist);
       //uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
       uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
-      database.userinfo = userinfo = uinfo;
       // if user.id > 0 then we are logged in
       // add new and dainty things to the menu
       // same as isteach
