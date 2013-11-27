@@ -820,15 +820,22 @@ var quizstats = exports.quizstats = function(user,query,callback) {
   var studlist = query.studlist || "" ;  // list of student ids
   var goodlist = _.every(studlist.split(","),function(e) { return (e == Math.floor(+e))});
   // test that studlist is list of numbers
+  var now = new Date();
+  var justnow = now.getTime();
+  var lim1 = justnow-8*24*60*60*1000;
+  var lim2 = justnow-18*24*60*60*1000;
+  var lim3 = justnow-38*24*60*60*1000;
   var subject  = query.subject || "";
   if (goodlist ) {
     // here we have everything in one query
     //   we only take scores [0,1] to avoid edge cases
-    client.query("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as avg "
+    client.query("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as oavg "
+            +      " , sum(case when u.time > $2 then u.score when u.time > $3 then u.score*0.7 when u.time > $4 then u.score*0.4 else u.score*0.2 end)  "
+            +      " / sum(case when u.time > $2 then 1 when u.time > $3 then 0.7 when u.time > $4 then 0.4 else 0.2 end) as avg  "
             +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
             +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
             +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and q.points = 1 "
-            +      " group by u.userid,t.tagname having count(u.id) > 2 order by ant desc", [subject],
+            +      " group by u.userid,t.tagname having count(u.id) > 2 order by ant desc", [subject,lim1,lim2,lim3],
     after(function(stats) {
       if (!isteach) {
         var ii=0;
