@@ -802,12 +802,12 @@ exports.displayuserresponse = function(user,uid,container,callback) {
 
 var remarked = exports.remarked = function(user,query,callback) {
   var isteach = (user.department == 'Undervisning');
-    console.log("select qp.id,u.userid,u.teachcomment from quiz_useranswer u inner join quiz_question q on (u.qid=q.id) "
-                 + "inner join quiz_question qp on (q.parent = qp.id and qp.teachid=$1) where u.userid=q.teachid "
-                 + "and u.teachcomment != '' and u.userid != $1;",[user.id]);
+    //console.log("select qp.id,u.userid,u.teachcomment from quiz_useranswer u inner join quiz_question q on (u.qid=q.id) "
+    //             + "inner join quiz_question qp on (q.parent = qp.id and qp.teachid=$1) where u.userid=q.teachid "
+    //             + "and u.teachcomment != '' and u.userid != $1;",[user.id]);
     client.query("select qp.id,u.userid,u.teachcomment from quiz_useranswer u inner join quiz_question q on (u.qid=q.id) "
                  + "inner join quiz_question qp on (q.parent = qp.id and qp.teachid=$1) where u.userid=q.teachid "
-                 + "and u.teachcomment != '' and u.userid != $1;",[user.id],
+                 + "and qp.modified < u.time and u.teachcomment != '' and u.userid != $1;",[user.id],
     after(function(stats) {
       console.log("Getting remarked questions",stats);
       callback(stats.rows)

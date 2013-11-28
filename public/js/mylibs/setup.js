@@ -115,14 +115,14 @@ $j(window).bind('hashchange', function(event) {
     });
 
 function unflatreserv(data) {
-  var id,userid,day,slot,courseid,roomid,name,value,eventtype,res,jd,i,k,elm;
+  var id,userid,day,slot,courseid,roomid,name,value,eventtype,dur,res,jd,i,k,elm;
   var ret = {};
   for (jd in data) {
     res = data[jd];
     var lis = [];
     for (i=0,k= res.length; i < k; i++) {
        elm = res[i].split(',');
-       lis.push( { id:elm[0],userid:elm[1],day:elm[2],slot:elm[3],courseid:elm[4],roomid:elm[5],name:elm[6],value:elm[7],eventtype:elm[8] } );
+       lis.push( { id:elm[0],userid:elm[1],day:elm[2],slot:elm[3],courseid:elm[4],roomid:elm[5],name:elm[6],value:elm[7],eventtype:elm[8],dur:elm[9] } );
     }
     ret[jd] = lis;
   }

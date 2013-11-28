@@ -168,7 +168,11 @@ function reduceSlots(userlist,roomname,jd) {
           var res = reslist[r];
           if (res.name == roomname) {
             if (!rreserv[res.day]) rreserv[res.day] = {};
-            rreserv[res.day][res.slot] = res;
+            var slotz = res.slot;
+            var cc = res.dur;
+            while(cc--) {
+              rreserv[res.day][slotz++] = res;
+            }
           }
         }
       }
@@ -383,25 +387,13 @@ function findFreeTime() {
 
       var s = '<div id="showplan" class="tabbers">Timeplan</div>'
             + '<div id="showdetails" class="tabbers" style="left:90px;" >Møte info</div><div id="meetbox"></div>';
-       /*
-       s += '<table id="meetplan">'
-        +    '<caption>'
-        +       '<div class="button blue" id="prv">&lt;</div><span id="capmeetplan">Uke '
-        +        +julian.week(jd)+' '+show_date(jd)
-        +       '</span><div class="button blue "id="nxt">&gt;</div>';
-        +    '</caption>'
-      s += '<tbody id="meetplanbody"><tr><th></th>';
-      for (var day = 0; day < 5; day++) {
-        s+= '<th>'+dager[day]+'dag</th>';
-      }
-        */
       var t = '';
       var start = database.starttime;
       var ofs = 65;
       for (i=0;i<12;i++) {
         var sl = start[i];
         var po = s2sd(sl);
-        t += '<div class="tttime'+(i%2)+'" style="width:470px;top:'+(+po[0]*4)+'px;height:'+(po[1]*4)+'px">' + sl + "</div>";
+        t += '<div class="tttime'+(i%2)+'" style="width:468px;top:'+(+po[0]*4)+'px;height:'+(po[1]*4)+'px">' + sl + "</div>";
       }
       for (var slot = 0; slot < 95; slot++) {
         //s += '<tr><th>'+(slot+1)+'</th>';
@@ -409,6 +401,7 @@ function findFreeTime() {
           if (rreserv[day] && rreserv[day][slot]) {
             var r = rreserv[day][slot];
             //s += '<td title="'+r.value+'">'+teachers[r.userid].username+'</td>';
+            t += '<div title ="'+r.value+'" id="mm'+day+'_'+slot+'" class="mslot red" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
             continue;
           }
           if (database.freedays[jd+day]) {
@@ -452,11 +445,11 @@ function findFreeTime() {
                        if (tdcount) {
                           //s += '<td><span title="Kan ikke:'+zz+'" class="redfont">'+(count-tdcount)+'</span>'
                           //s += ' &nbsp; <span class="greenfont" title="Kan møte:'+tt+'">'+(tdcount)+'</span>';
-                         t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
+                         t += '<div title="Kan ikke:'+zz+'" id="mm'+day+'_'+slot+'" class="mslot partly'+(count-tdcount)+'" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                        } else {
                           if (busy[day][slot] != undefined) {
                             //s += '<td class="meeting"><span title="'+whois[day][slot]+'">'+busy[day][slot]+'</span>'
-                            t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
+                            t += '<div id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                           } else {
                             //s += '<td><span class="redfont">IngenLedig</span>'
                             t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
@@ -466,7 +459,7 @@ function findFreeTime() {
                     }
             } else {
                //s += '<td><span class="redfont">Time</span>'
-              t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
+              t += '<div id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
             }
           } else {
             //s += '<td>&nbsp;</td>';
@@ -627,14 +620,14 @@ function findFreeTime() {
       $j("#showplan").addClass('active');
       $j("#showplan").click(function() {
             $j(".tabbers").removeClass("active");
-            $j("#meetplan").show();
+            $j("#meetbox").show();
             $j("#details").hide();
             $j("#showplan").addClass('active');
           });
       $j("#showdetails").click(function() {
             $j(".tabbers").removeClass("active");
             $j("#details").show();
-            $j("#meetplan").hide();
+            $j("#meetbox").hide();
             $j("#showdetails").addClass('active');
             if (mlist.length > 10) {
               $j("#attend").addClass('tiny');

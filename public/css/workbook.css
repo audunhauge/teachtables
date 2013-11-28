@@ -142,8 +142,26 @@ ins {
 .mslot.red {
     background:red;
 }
+.mslot.blue {
+    background:blue;
+}
 .mslot.pale {
-    background:#ffc;
+    background:rgba(240,240,200,0.8);
+}
+.mslot.partly1:after ,.mslot.partly2:after ,.mslot.partly3:after {
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:5px;
+  height:3px;
+  background:teal;
+}
+.mslot.partly2:after {
+  background:brown;
+}
+.mslot.partly3:after {
+  background:orange;
 }
 
 

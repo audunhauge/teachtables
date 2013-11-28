@@ -1169,7 +1169,7 @@ var makereserv = function(user,query,callback) {
 var getReservations = function(callback) {
   // returns a hash of all reservations
   client.query(
-      'select id,userid,day,slot,courseid,roomid,name,value,julday,eventtype from calendar cal '
+      'select id,userid,day,slot,courseid,roomid,name,value,julday,eventtype,dur from calendar cal '
        + "      WHERE roomid > 0 and eventtype in ('heldag', 'reservation') and julday >= $1 order by julday,day,slot" , [ db.startjd - 34 ] ,
       after(function(results) {
           var reservations = {};
@@ -1196,7 +1196,7 @@ var getReservations = function(callback) {
               } else {
                 //reservations[julday].push(res);
                 reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ res.slot + ','
-                                           + res.courseid + ','+res.roomid+','+ res.name + ','+ res.value + ','+ res.eventtype );
+                                           + res.courseid + ','+res.roomid+','+ res.name + ','+ res.value + ','+ res.eventtype+','+res.dur );
               }
           }
           callback(reservations);
