@@ -23,6 +23,10 @@ var ss  = {
     , manager           : 'GenralManager'
     , createplans       : 'CreatePlans'
    }
+,  meet                 : {
+      duration          : 'Duration'
+    , timetable         : 'Timetable'
+   }
 ,  plans                : {
       plans             : 'Workplans'
     , headers           : '<tr><th>Subject</th><th>Theme</th><th>Asessment</th><th>Target</th><th>Tasks</th><th>Logg/Mark</th></tr>'

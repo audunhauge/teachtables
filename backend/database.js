@@ -989,9 +989,7 @@ var changeStateMeet  = function(query,state,callback) {
 
 var makemeet = function(user,query,host,callback) {
     var current        = +query.current;
-    var idlist         = query.idlist;
-    var shortslots     = query.shortslots; // for short meetings (5,10,15 .. min)
-    var kort           = query.kort;       // true if a short meeting
+    var idlist         = query.idlist;     // list of slots to reserv
     var myid           = +query.myid;      // used to delete a meeting
     var myday          = +query.day;       // the weekday - current is monday
     var roomid         = query.roomid;
@@ -1007,10 +1005,6 @@ var makemeet = function(user,query,host,callback) {
     var values         = [];               // entered as events into calendar for each partisipant
     // idlist will be slots in the same day (script ensures this)
     console.log("DATABASE:makemeet host=",host);
-    if (kort && !(typeOf(shortslots) === 'object')) {
-         callback( {ok:false, msg:"no slots"} );
-         return;
-    }
     switch(action) {
       case 'kill':
         console.log("delete where id="+myid+" and uid="+user.id);
@@ -1031,8 +1025,7 @@ var makemeet = function(user,query,host,callback) {
         var participants = [];
         var klass = (konf == 'ob') ? 1 : 0 ;
         var meetinfo = JSON.stringify({message:message, idlist:idlist, owner:user.id,
-                                       sendmail:sendmail, title:title, message:message,
-                                       chosen:chosen, kort:kort, shortslots:shortslots });
+                                       sendmail:sendmail, title:title, message:message, chosen:chosen });
         client.query(
           'insert into calendar (eventtype,julday,userid,roomid,name,value,class) values (\'meeting\',$1,$2,$3,$4,$5,$6)  returning id',
              [current+myday,user.id,roomid,title.substr(0,30),meetinfo,klass], after(function(results) {
@@ -1040,10 +1033,6 @@ var makemeet = function(user,query,host,callback) {
               var pid = results.rows[0].id;
               var allusers = [];
               var slot = 0;                   // slot only used if short meeting
-              if (kort) {
-                slot = idlist;
-                idlist = Object.keys(shortslots);
-              }
               for (var uii in chosen) {
                 var uid = +chosen[uii];
                 var teach = db.teachers[uid];
@@ -1057,24 +1046,20 @@ var makemeet = function(user,query,host,callback) {
               client.query( 'insert into calendar (eventtype,courseid,userid,teachid,julday,roomid,name,value,class,slot) values ' + values,
                after(function(results) {
               }));
-              if (resroom && !kort) {
+              if (resroom ) {
                 // make a reservation if option is checked - but not for short meetings
                 var myslots = idlist.split(',');
                 values = [];
-                for (var i in myslots) {
-                    var slot = myslots[i]-1;
-                    values.push('(\'reservation\',123,'+user.id+','+current+','+myday+','+slot+','+roomid+',\''+roomname+'\',\''+title+'\')' );
-                }
-                //console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values '+ values.join(','));
-                client.query( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value) values '+ values.join(','),
+                var slot = myslots[0]-1;  // remove 1 that was added so we have slot != 0
+                var dur = idlist.length;
+                values.push('(\'reservation\',123,'+user.id+','+current+','+myday+','+slot+','+roomid+',\''+roomname+'\',\''+title+'\','+dur+')' );
+                console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value,dur) values '+ values.join(','));
+                client.query( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value,dur) values '+ values.join(','),
                   after(function(results) {
                    }));
               }
               console.log("SENDMAIL=",sendmail);
-              if (sendmail == 'yes') {
-                if (kort) {
-                  idlist = slot;  // swap the time-slot back in
-                }
+              if (0 && sendmail == 'yes') {
                 var greg = julian.jdtogregorian(current + myday);
                 var d1 = new Date(greg.year, greg.month-1, greg.day);
                 var meetdate = greg.day + '.' + greg.month + '.' + greg.year;

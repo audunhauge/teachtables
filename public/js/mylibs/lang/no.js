@@ -28,6 +28,10 @@ override(ss, {
     , manager           : 'GenralManager'
     , createplans       : 'CreatePlans'
    }
+,  meet                 : {
+      duration          : 'Varighet'
+    , timetable         : 'Timeplan'
+   }
 ,  plans                : {
       plans             : 'Arbeidsplaner'
     , headers           : '<tr><th>Fag</th><th>Tema</th><th>Vurdering</th><th>Mål</th><th>Oppgaver</th><th>Log/Merk</th></tr>'

@@ -129,6 +129,38 @@ ins {
     width:475px;
     height:410px;
 }
+#dato {
+  position:absolute;
+  bottom:-40px;
+  margin-left:40px;
+}
+#duration {
+  position:absolute;
+  bottom:-20px;
+  margin-left:140px;
+}
+#nxt {
+  position:absolute;
+  right:-40px;
+}
+#prv {
+  position:absolute;
+  left:-40px;
+}
+#duration span {
+  width:2em;
+  margin:2px;
+  padding:2px;
+  background:blue;
+  color:white;
+  border-radius:5px;
+}
+#timeliste {
+  font-size:0.9em;
+}
+#timeviser {
+  min-height:150px;
+}
 
 .mslot {
     position:absolute;
@@ -138,6 +170,9 @@ ins {
 }
 .mslot.green {
     background:green;
+}
+.mslot.freeday {
+    background:OliveDrab;
 }
 .mslot.red {
     background:red;

@@ -5,9 +5,8 @@ minfo = {
    title      : ''
  , message    : ''
  , ignore     : ''
- , kort       : ''      // true if shortmeeting (shortslots)
- , shortslots : {}      // for meetings lasting less than full slot
- , chosen     : {}
+ , chosen     : {}    // the chosen participants
+ , slotz      : []    // the chosen slots
  , delta      : 0
  , roomid     : 0
  , sendmail   : true
@@ -201,15 +200,13 @@ function reduceSlots(userlist,roomname,jd) {
 
 function doStatusCheck() {
   // returns enabled/disabled for save button
-  var mylist = $j(".slotter:checked");
-  var idlist = $j.map(mylist,function(e,i) { return (+e.id.substr(2).split('_')[1] + 1); }).join(',');
   if ($j("#msgtitle").val() == '' ) return 'Mangler emne for møtet';
   if ($j("#msgtext").val() == '' ) return 'Mangler beskrivelse for møtet';
   if ($j.isEmptyObject(minfo.chosen)) return 'ingen deltagere';
   if (minfo.roomid == 0) return 'mangler rom';
   var roomname = database.roomnames[minfo.roomid] || '';
   if (roomname == '' || roomname == 'nn') return 'mangler rom';
-  if (idlist == '') return 'ingen timer valgt';
+  if (!minfo.slotz.length) return 'ingen timer valgt';
   return '';
 }
 
@@ -219,24 +216,20 @@ function showWizInfo() {
   // We give hint depending on what is missing to make a meet
   // We have a function that does the same in doStatusCheck
   var wz = [];
-  var mylist = $j(".slotter:checked");
-  var idlist = $j.map(mylist,function(e,i) { return (+e.id.substr(2).split('_')[1] + 1); }).join(',');
   var roomname = database.roomnames[minfo.roomid] || '';
+  if (minfo.roomid == 0 || roomname == '' || roomname == 'nn') {
+    wz.push('Velg rom for møtet');
+    $j("#stage").hide();
+    $j("#freeplan").hide();
+  } else {
+    $j("#stage").show();
+    $j("#freeplan").show();
+  }
   if ($j.isEmptyObject(minfo.chosen)) {
     wz.push('Velg deltagere');
   }
-  if (minfo.roomid == 0 || roomname == '' || roomname == 'nn') {
-    wz.push('Velg rom for møtet');
-  }
-  if (idlist == '') {
+  if (!minfo.slotz.length) {
     wz.push('Velg timer fra planen');
-    if (wz.length < 2) {
-      // particpants and room selected
-      // ensure we can select a slot
-      if($j(".slotter:checked").length == 0) {
-         $j(".slotter").removeAttr('disabled');
-      }
-    }
   }
   if (wz.length > 2) {
     wz.push('<span title="Velg en elev i vis-timeplan, klikk på Husk,kom tilbake hit.">TIPS:møte om elev</span>');
@@ -252,36 +245,22 @@ function showWizInfo() {
   }
 }
 
-function meetTimeStart(timeslots,idlist,shortslots) {
-      shortslots = typeof(shortslots) != 'undefined' ?  shortslots : {} ;
-      var shotime = '';
-      if (timeslots.length > 1) {
-        var first = database.starttime[timeslots.shift()-1].split('-')[0];
-        var last =  database.starttime[timeslots.pop()-1].split('-')[1];
-        shotime = first + '-' + last +' ('+ idlist +' time)' ;
-      } else if (idlist != '') {
-        // this is a short meeting
-        // shortslots is set of 5 min intervalls
-        var min = -1, dur = 0;
-        for (var ii=0; ii < 8; ii++) {
-            if (shortslots[ii]) {
-              if (min < 0) {
-                min = 5*ii;
-              }
-              dur += 5;
-            }
-        }
-        min = Math.max(min,0);
-        dur = (dur == 0) ? 40 : dur;
-        if (database.starttime[idlist]) {
-           var first = database.starttime[idlist-1].split('-')[0];
-           first = addTime(first,'0.'+min);
-           last = addTime(first,'0.'+dur);
-           shotime = first + '-' + last +'&nbsp; '+dur+'min. ('+ idlist +' time)' ;
-           //shotime = first + ' ' + dur +'min ' +' ('+ idlist +' time)' ;
-        }
-      }
-      return shotime;
+function meetTimeStart(jd,slotz,early) {
+      // we know the slots are consecutive - we just need the first one and a count
+      // early true if just want hh mm
+      var dur = 5 * slotz.length;
+      var base = database.starttime[0].split('-')[0].split('.');   // hh mm
+      var first = _.min(slotz,function(e) { return e.split('_')[1];});
+      var day = +first.split('_')[0];
+      var slot = first.split('_')[1];
+      var hh = +base[0] + Math.floor((+base[1] +slot*5)/60);
+      var mm = (+base[1] +slot*5) % 60;
+      mm = mm < 10 ? '0'+mm : mm;
+      if (early) return [hh,mm];
+      var shotime = ss.weekdays.split(' ')[day] + ' '+ hh + ':' + mm +'&nbsp; '+dur+'min' ;
+      var juli = julian.jdtogregorian(jd+day);
+      var meetdate =  ss.week.caps() + ' '+ julian.week(jd) + ' ' + juli.day + '.'+juli.month+'.'+juli.year;
+      return meetdate + '<br>'+shotime;
 }
 
 function findFreeTime() {
@@ -343,6 +322,7 @@ function findFreeTime() {
     s+= '<div id="stage"></div>';
     s+= "</div>";
     $j("#main").html(s);
+    $j("#stage").hide();
     $j("#oskrift").click(function() {
              invigilator();
           });
@@ -406,6 +386,7 @@ function findFreeTime() {
           }
           if (database.freedays[jd+day]) {
             //s += '<td><div class="timeplanfree">'+database.freedays[jd+day]+'</div></td>';
+            t += '<div title="'+database.freedays[jd+day]+'" id="mm'+day+'_'+slot+'" class="mslot freeday" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
             continue;
           }
           if (minfo.ignore != '') {
@@ -448,27 +429,28 @@ function findFreeTime() {
                          t += '<div title="Kan ikke:'+zz+'" id="mm'+day+'_'+slot+'" class="mslot partly'+(count-tdcount)+'" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                        } else {
                           if (busy[day][slot] != undefined) {
+                            var info = (whois[day] && whois[day][slot]) ? whois[day][slot]+' '+busy[day][slot] : '';
                             //s += '<td class="meeting"><span title="'+whois[day][slot]+'">'+busy[day][slot]+'</span>'
-                            t += '<div id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
+                            t += '<div title="'+info+'" id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                           } else {
                             //s += '<td><span class="redfont">IngenLedig</span>'
                             t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                           }
                        }
-                       //s+= '</td>';
                     }
             } else {
-               //s += '<td><span class="redfont">Time</span>'
-              t += '<div id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
+              var info = (whois[day] && whois[day][slot]) ? whois[day][slot] : '';
+              t += '<div title="'+info+'" id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
             }
           } else {
-            //s += '<td>&nbsp;</td>';
             t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
           }
         }
-        //s += '</tr>';
       }
-      //s += '</body></table>';
+      var meetdate =  ss.week.caps() + ' '+ julian.week(jd) + ' ' + formatweekdate(jd);
+      t += '<div id="duration">'+ss.meet.duration+' : <span class="dur">5</span> <span class="dur">10</span> <span class="dur">15</span> <span class="dur">20</span>'
+         + ' <span class="dur">30</span> <span class="dur heck2">40</span><div id="dato">'+meetdate+'</div>'
+         + '<div id="nxt" class="button blue gui">&gt;</div><div class="button blue gui" id="prv">&lt;</div></div>';
       var igncheck = (minfo.ignore != '') ? 'checked="checked"' : '';
       var mailcheck = (minfo.sendmail != '') ? 'checked="checked"' : '';
       var kortcheck = (minfo.kort != '') ? 'checked="checked"' : '';
@@ -477,16 +459,9 @@ function findFreeTime() {
         mlist.push(teachers[uu].username);
       }
       var meetlist = mlist.join(', ');
-      var mylist = $j(".slotter:checked");
-      var idlist = $j.map(mylist,function(e,i) { return (+e.id.substr(2).split('_')[1] + 1); }).join(',');
+      var idlist = '';  // TODO idlist must pick up slots
       var save_status = doStatusCheck();
       var disabled = (save_status != '') ? 'disabled="disabled"' : '';
-      var intervall = '';
-      var slo = "00 05 10 15 20 25 30 35".split(' ');
-      for (var ii = 0; ii < 8; ii++) {
-        var taken = minfo.shortslots[ii] ? ' taken' : '';
-        intervall += '<span class="inter'+taken+'" id="inter'+ii+'" >'+slo[ii]+'</span> ';
-      }
 
       s += '<div id="reservopts">';
       s += '<table id="details" class="dialog gui">'
@@ -496,10 +471,7 @@ function findFreeTime() {
         +        '<tr><th>Møte-tittel</th><td><input id="msgtitle" type="text" value="'+minfo.title+'"></td></tr>'
         +        '<tr><th>Beskrivelse</th><td><textarea id="msgtext">'+message+'</textarea></td></tr>'
         +        '<tr><th>Påmeldt</th><td><span id="attend">'+meetlist+'</span></td></tr>'
-        +        '<tr><th>Møtetid (timer):</th><td><span id="timeliste">'+idlist+'</span></td></tr>'
-        +        '<tr id="shortmeet"><th title="Angi intervall(5min) for møtet.">Kortmøte</th>'
-        +        '<td><input id="kort" name="kort" '+kortcheck+' value="kort" type="checkbox"> '
-        +        '<span id="shortslots">'+intervall+'</span></td></tr>'
+        +        '<tr><th>Møtetid :</th><td><span id="timeliste">'+idlist+'</span></td></tr>'
         +        '<tr><th colspan="2"><hr /></th></tr>'
         +        '<tr><th title="Deltager kan ikke avvise møtet.">Obligatorisk</th>  <td><input name="konf" value="ob" type="radio"></td></tr>'
         +        '<tr><th title="Deltakere må avvise dersom de ikke kommer.">Kan avvise</th>    <td><input name="konf" value="deny" type="radio"></td></tr>'
@@ -521,7 +493,25 @@ function findFreeTime() {
       $j("#meetbox").html(t);
       minfo.ignore = $j('input[name=ignore]:checked').val() || '';
       minfo.sendmail = $j('input[name=sendmail]:checked').val() || '';
-      minfo.kort = $j('input[name=kort]:checked').val() || '';
+      $j("#duration").undelegate(".dur","click");
+      $j("#duration").delegate(".dur","click", function() {
+          $j(".dur").removeClass("heck2");
+          $j(this).addClass("heck2");
+          var mydur = this.innerHTML;
+          if (+mydur > 4 && +mydur < 50) {
+            siz = Math.floor(+mydur/5);
+          }
+      });
+      function record() {   // save chosen slots
+         var choz = $j(".mslot.green");
+         var slotz = [];
+         for (var i=0; i< choz.length;i++) {
+           var elm = choz[i];
+           slotz.push(elm.id.substr(2));
+         }
+         minfo.slotz = slotz;
+         showWizInfo();
+        };
 
       $j("#meetbox").undelegate(".green","click");
       $j("#meetbox").delegate(".green","click", function() {
@@ -530,10 +520,9 @@ function findFreeTime() {
           var ss0 = +myid[1];
           var ss = lesson2slot(slot2lesson(ss0)-1);
           ss = ss + siz*Math.floor((ss0-ss)/siz);
-          for (var ti=0; ti< siz;ti++) {
-            $j("#mm"+dd+"_"+(+ss+ti)+".green").addClass("pale");
-            $j("#mm"+dd+"_"+(+ss+ti)+".green").removeClass("green");
-          }
+          $j(".green").addClass("pale");
+          $j(".mslot").removeClass("green");
+          record();
       });
 
       $j("#meetbox").undelegate(".pale","click");
@@ -541,36 +530,20 @@ function findFreeTime() {
           var myid = this.id.substr(2).split('_');
           var dd = myid[0];
           var ss0 = +myid[1];
-          var ss = lesson2slot(slot2lesson(ss0)-1);
-          ss = ss + siz*Math.floor((ss0-ss)/siz);
+          var ss = ss0;
+          if (siz==8) {
+            ss = lesson2slot(slot2lesson(ss0)-1);
+            ss = ss + siz*Math.floor((ss0-ss)/siz);
+          }
+          $j(".green").addClass("pale");
+          $j(".mslot").removeClass("green");
           for (var ti=0; ti< siz;ti++) {
             $j("#mm"+dd+"_"+(+ss+ti)+".pale").addClass("green");
             $j("#mm"+dd+"_"+(+ss+ti)+".pale").removeClass("pale");
           }
+          record();
       });
 
-      function takenSubSlots(dayslot) {
-        // finds subslots that are already in use
-        var day = +dayslot[0], slot = +dayslot[1];
-        var mee = meetings[jd+day];
-        for (var muid in mee) {
-          if (userlist[muid] != undefined) {
-             // this user is signed up for this meeting
-             for (var mmid in mee[muid]) {
-              var abba = mee[muid][mmid];
-              if (abba.slot) {
-                // now value will be the subslots already taken
-                var taken = abba.value.split(',');
-                for (var ii in taken) {
-                  var tid = +taken[ii];
-                  //freeslots[tid] = 0;
-                  $j("#inter"+tid).addClass("already");
-                }
-              }
-             }
-          }
-        }
-      }
       function checkToggleSave() {
             disabled = doStatusCheck();
             $j("#savestatus").html(disabled);
@@ -581,34 +554,20 @@ function findFreeTime() {
             }
       }
 
-      $j("#msgtext").change(checkToggleSave);
-      $j("#msgtitle").change(checkToggleSave);
-      $j("span.inter").click(function() {
-         if ($j(this).hasClass('already')) return;
-         if ($j('input[name=kort]:checked').val()) {
-            $j(this).toggleClass('taken');
-            var myid = this.id.substr(5);
-            if (minfo.shortslots[myid]) {
-              delete minfo.shortslots[myid];
-            } else {
-              minfo.shortslots[myid] = 1;
-            }
-          }
-          var mylist = $j(".slotter:checked");
-          var idlist = $j.map(mylist,function(e,i) { return (+e.id.substr(2).split('_')[1] + 1); }).join(',');
-          var timeslots = idlist.split(',');
-          $j("#timeliste").html( meetTimeStart(timeslots,idlist,minfo.shortslots) );
-        });
+      $j("#msgtitle").keyup(checkToggleSave);
+      $j("#msgtext").keyup(checkToggleSave);
 
       $j("#nxt").click(function() {
          if (database.startjd+7*minfo.delta < database.lastweek+7)
-           minfo.delta++;
-           $j("#freeplan").html(freeTimeTable(userlist,minfo.roomid,minfo.delta));
+          minfo.delta++;
+          minfo.slotz = {};
+          $j("#freeplan").html(freeTimeTable(userlist,minfo.roomid,minfo.delta));
          });
       $j("#prv").click(function() {
          if (database.startjd+7*minfo.delta > database.firstweek-7)
-           minfo.delta--;
-           $j("#freeplan").html(freeTimeTable(userlist,minfo.roomid,minfo.delta));
+          minfo.delta--;
+          minfo.slotz = {};
+          $j("#freeplan").html(freeTimeTable(userlist,minfo.roomid,minfo.delta));
          });
       $j(".tabbers").removeClass("active");
       if (mlist.length > 10) $j("#attend").addClass('tiny');
@@ -635,100 +594,13 @@ function findFreeTime() {
               $j("#attend").removeClass('tiny');
             }
             checkToggleSave();
-            var mylist = $j(".slotter:checked");
-            var idlist = $j.map(mylist,function(e,i) { return (+e.id.substr(2).split('_')[1] + 1); }).join(',');
-            var timeslots = idlist.split(',');
-            //$j('input[name=kort]').attr('checked',false);
-            $j('input[name=kort]').attr('disabled',true);
-            $j("#shortmeet").addClass('dimmed');
-            if (timeslots.length < 2 && idlist != '') {
-              $j("#shortmeet").removeClass('dimmed');
-              $j('input[name=kort]').removeAttr('disabled');
-            }
-            $j("#timeliste").html( meetTimeStart(timeslots,idlist,minfo.shortslots));
+            $j("#timeliste").html( meetTimeStart(jd,minfo.slotz));
           });
-      $j(".slotter").attr('disabled',true).click(function(event) {
-          // the code below is just to ensure that all chosen slots are selected from the same
-          // day. You can not place a meeting over more than one day. You can not have a meeting
-          // where the slots are not adjacent
-          // Also if a slot is marked as a shortslott (some teach has a short meeting in
-          // this slot) then you can not mark other slots in addition
-          var sluts = $j('.slotter');
-          var slotid = this.id.substr(2);
-          var elm = slotid.split('_');
-          if ($j(this).hasClass('shortslott')) {
-            // some teach has a short meeting in this slot
-            // we cannot choose another slot in addition - so disable checkboxes
-            if ($j(this).attr('checked')) {
-              sluts.attr('checked',false);
-              sluts.attr('disabled',true);
-              $j(this).removeAttr('disabled');
-              $j(this).attr('checked',true);
-              minfo.kort = true;
-              $j('input[name=kort]').attr('checked',true);
-              takenSubSlots(elm);
-            } else {
-              sluts.removeAttr('disabled');
-              minfo.kort = '';
-              $j('input[name=kort]').attr('checked',false);
-            }
-          } else {
-            // just a normal slot - disable slots for other days
-            // and slots that are not adjacent to a checked slot
-            //  -- this so that meetings are contiguous
-            if ($j(this).attr('checked')) {
-              sluts.attr('disabled',true);
-              //$j('.slotter[rel="'+elm[0]+'"]').removeAttr('disabled');
-            } else if($j('.slotter:checked').length < 1) {
-              // if we uncheck the last checked slot - enable all slots
-              sluts.removeAttr('disabled');
-            }
-            // only the edges of the meeting can be extended/removed
-            // so that holes cannot be made inside a meeting
-            var adjacent = $j('.slotter[rel="'+elm[0]+'"]:checked');
-            if (adjacent.length) {
-              var dd = adjacent[0];
-              // Illustration:
-              //      u U C c c C U u
-              //  (caps == enabled, u==unchecked, c == checked)
-              // enable the edge and next unchecked slot
-              $j("#"+dd.id).removeAttr('disabled');
-              var elm = dd.id.substr(2).split('_');
-              var day = +elm[0], slot = +elm[1];
-              $j("#tt"+day+'_'+ (slot-1)).removeAttr('disabled');
-              dd = adjacent[adjacent.length-1];
-              // the other edge
-              $j("#"+dd.id).removeAttr('disabled');
-              elm = dd.id.substr(2).split('_');
-              day = +elm[0], slot = +elm[1];
-              $j("#tt"+day+'_'+ (slot+1)).removeAttr('disabled');
-            }
 
-          }
-
-
-          var slotid = this.id.substr(2);
-          var elm = slotid.split('_');
-          if (activeday[elm[0]][elm[1]]) {
-            delete activeday[elm[0]][elm[1]];
-            if ($j.isEmptyObject(activeday[elm[0]]) ) {
-              aday = '';
-            }
-          } else {
-            //if (aday == '' || aday == elm[0]) {
-              activeday[elm[0]][elm[1]] = 1;
-              aday = elm[0];
-            //} else {
-              //event.preventDefault();
-            //}
-          }
-          showWizInfo();
-      });
       $j("#makemeet").click(function() {
-         var mylist = $j(".slotter:checked");
-         var idarr = $j.map(mylist,function(e,i) { return (+e.id.substr(2).split('_')[1] + 1); });
+         var idarr = $j.map(minfo.slotz,function(e,i) { return (+e.split('_')[1] + 1); });  // add in 1 so we can test != 0
          var idlist = idarr.join(',');
-         var first = database.starttime[idarr[0]-1].split('-')[0];
+         first = meetTimeStart(jd,minfo.slotz,1).join(':');
          minfo.title = $j("#msgtitle").val() || minfo.title;
          minfo.sendmail = $j('input[name=sendmail]:checked').val();
          var sendmail =  minfo.sendmail ? 'yes' : 'no';
@@ -736,11 +608,8 @@ function findFreeTime() {
          var roomname = database.roomnames[minfo.roomid] || '';
          var konf = $j('input[name=konf]:checked').val();
          var resroom = $j("#resroom").val();
-         var kort = $j('input[name=kort]:checked').val() || '';
-         var shortslots = minfo.shortslots;
          $j.post(mybase+'/makemeet',{ chosen:getkeys(userlist), current:jd, meetstart:first,
-                       kort:kort, shortslots:shortslots, roomname:roomname,
-                       message:message, title:minfo.title, resroom:resroom, sendmail:sendmail,
+                       roomname:roomname, message:message, title:minfo.title, resroom:resroom, sendmail:sendmail,
                        konf:konf, roomid:minfo.roomid, day:aday, idlist:idlist, action:"insert" },function(resp) {
              $j.getJSON(mybase+ "/getmeet",
                   function(data) {
@@ -753,6 +622,7 @@ function findFreeTime() {
        showWizInfo();
     }
     var refindFree = function (event) {
+       minfo.slotz = {};
        minfo.roomid = +$j("#chroom").val() || minfo.roomid;
        if (event.type == 'click') {
          var teachid = +this.id.substr(2);
