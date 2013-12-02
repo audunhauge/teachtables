@@ -177,6 +177,9 @@ ins {
 .mslot.red {
     background:red;
 }
+.mslot.busy {
+    background:RosyBrown;
+}
 .mslot.blue {
     background:blue;
 }

@@ -930,7 +930,7 @@ var getmeeting = function(callback) {
   // meeting and meet IS WORTHLESS as the EMAILS CANT BE CHANGED
   // SOLUTION: delete and recreate - causing new emails to be sent
   client.query(
-      'select id,userid,courseid,day,slot,roomid,name,value,julday,class as klass from calendar  '
+      'select id,userid,courseid,day,slot,roomid,dur,name,value,julday,class as klass from calendar  '
        + "      WHERE eventtype = 'meeting' and julday >= " + db.startjd ,
       after(function(results) {
           var meets = {};
@@ -951,7 +951,7 @@ var getmeet = function(callback) {
   // a meet is a calendar entry for one specific person assigned to a meeting
   // each meet is connected to a meeting thru courseid
   client.query(
-      'select id,userid,teachid,courseid,day,slot,roomid,name,value,julday,class as klass from calendar  '
+      'select id,userid,teachid,courseid,day,slot,dur,roomid,name,value,julday,class as klass from calendar  '
        + "      WHERE eventtype = 'meet' and class in (0,1,2) and julday >= " + db.startjd ,
       after(function(results) {
           var meets = {};
@@ -989,7 +989,8 @@ var changeStateMeet  = function(query,state,callback) {
 
 var makemeet = function(user,query,host,callback) {
     var current        = +query.current;
-    var idlist         = query.idlist;     // list of slots to reserv
+    var dur            = query.dur;        // duration in slots
+    var slot0          = query.slot;       // first slot
     var myid           = +query.myid;      // used to delete a meeting
     var myday          = +query.day;       // the weekday - current is monday
     var roomid         = query.roomid;
@@ -1024,35 +1025,33 @@ var makemeet = function(user,query,host,callback) {
         var calledback = false;
         var participants = [];
         var klass = (konf == 'ob') ? 1 : 0 ;
-        var meetinfo = JSON.stringify({message:message, idlist:idlist, owner:user.id,
+        var meetinfo = JSON.stringify({message:message, slot:slot0, dur:dur, owner:user.id,
                                        sendmail:sendmail, title:title, message:message, chosen:chosen });
+        console.log('insert into calendar (eventtype,julday,userid,roomid,name,value,class,day,slot,dur) values (\'meeting\',$1,$2,$3,$4,$5,$6,$7,$8,$9)  returning id',
+             [current+myday,user.id,roomid,title.substr(0,30),meetinfo,klass,day,slot0,dur]);
         client.query(
-          'insert into calendar (eventtype,julday,userid,roomid,name,value,class) values (\'meeting\',$1,$2,$3,$4,$5,$6)  returning id',
-             [current+myday,user.id,roomid,title.substr(0,30),meetinfo,klass], after(function(results) {
+          'insert into calendar (eventtype,julday,userid,roomid,name,value,class,day,slot,dur) values (\'meeting\',$1,$2,$3,$4,$5,$6,$7,$8,$9)  returning id',
+             [current+myday,user.id,roomid,title.substr(0,30),meetinfo,klass,myday,slot0,dur], after(function(results) {
             if (results && results.rows && results.rows[0] ) {
               var pid = results.rows[0].id;
               var allusers = [];
-              var slot = 0;                   // slot only used if short meeting
               for (var uii in chosen) {
                 var uid = +chosen[uii];
                 var teach = db.teachers[uid];
-                var thisklass = (user.id == uid) ? 1 : klass;  // creater can not choose to not show up for meeting
+                var thisklass = (user.id == uid) ? 1 : klass;  // creator can not choose to not show up for meeting
                 participants.push(teach.firstname.caps() + " " + teach.lastname.caps());
                 allusers.push(teach.email);
-                values.push('(\'meet\','+pid+','+uid+','+user.id+','+(current+myday)+','+roomid+",'"+title+"','"+idlist+"',"+thisklass+","+slot+")" );
+                values.push('(\'meet\','+pid+','+uid+','+user.id+','+(current+myday)+','+roomid+",'"+title+"','"+meetstart+"',"+thisklass+","+myday+","+slot0+","+dur+")" );
               }
               var valuelist = values.join(',');
-              //console.log( 'insert into calendar (eventtype,courseid,userid,julday,roomid,name,value,class,slot) values ' + values);
-              client.query( 'insert into calendar (eventtype,courseid,userid,teachid,julday,roomid,name,value,class,slot) values ' + values,
+              console.log( 'insert into calendar (eventtype,courseid,userid,julday,roomid,name,value,class,day,slot,dur) values ' + values);
+              client.query( 'insert into calendar (eventtype,courseid,userid,teachid,julday,roomid,name,value,class,day,slot,dur) values ' + values,
                after(function(results) {
               }));
               if (resroom ) {
-                // make a reservation if option is checked - but not for short meetings
-                var myslots = idlist.split(',');
+                // this strange structure results from having been multiple inserts in earlier life
                 values = [];
-                var slot = myslots[0]-1;  // remove 1 that was added so we have slot != 0
-                var dur = idlist.length;
-                values.push('(\'reservation\',123,'+user.id+','+current+','+myday+','+slot+','+roomid+',\''+roomname+'\',\''+title+'\','+dur+')' );
+                values.push('(\'reservation\',123,'+user.id+','+(current+myday)+','+myday+','+slot0+','+roomid+',\''+roomname+'\',\''+title+'\','+dur+')' );
                 console.log( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value,dur) values '+ values.join(','));
                 client.query( 'insert into calendar (eventtype,courseid,userid,julday,day,slot,roomid,name,value,dur) values '+ values.join(','),
                   after(function(results) {

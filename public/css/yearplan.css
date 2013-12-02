@@ -1139,7 +1139,23 @@ div.whitehand {
   background:transparent url(img/whitehand.png) no-repeat;
 }
 
-div.meet, div.absent, a.absentee, a.absent, div.absentia {
+div.meet {
+  position:absolute;
+  width:130px;
+  height:22px;
+  white-space:nowrap;
+  border:solid blue 1px;
+  color:#225;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  font-size:0.9em;
+  background:rgba(200,250,200,0.55);
+  text-align:center;
+  border-radius: 3px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, .4);
+}
+
+div.absent, a.absentee, a.absent, div.absentia {
   display:block;
   white-space:nowrap;
   width:10em;
@@ -1195,7 +1211,7 @@ div.timeplanfree {
   background:#567;
 }
 
-div.overabs, div.meet {
+div.overabs {
   position:absolute;
   background:blue;
   width:8em;
@@ -1207,12 +1223,6 @@ div.overabs, div.meet {
   height:12px;
 }
 
-div.meet {
-  background:#4a5;
-  opacity:0.9;
-  border:solid blue 1px;
-  height:10px;
-}
 
 div.shortmeet {
   background:#5b2;
@@ -2042,15 +2052,14 @@ div.meetres {
 
 div.meetlist {
   position:relative;
+  color:white;
   background:#dd9;
   margin:5px;
   padding:3px;
   padding-left:20px;
   border-radius: 2em;
-  -webkit-border-radius: 2em;
-  -moz-border-radius: 2em;
-  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
-  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  border-radius: 2em;
+  box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
 }
 
 div.meetlist.active {
@@ -2058,8 +2067,7 @@ div.meetlist.active {
   color:white;
 }
 div.meetlist.myown {
-  -webkit-box-shadow: 3px 3px 2px #090;      
-  -moz-box-shadow: 3px 3px 2px #090;      
+  box-shadow: 3px 3px 2px #494;
 }
 
 div.meetlist.acc0 {
@@ -2084,9 +2092,10 @@ span.meetdato {
 span.ulist {
   position:absolute;
   display:block;
-  left:400px;
+  left:290px;
   top:3px;
-  font-size:0.8em;
+  width:160px;
+  font-size:0.7em;
   overflow:hidden;
   text-overflow:ellipsis;
 }
@@ -2096,7 +2105,7 @@ input.meetchk {
 span.meetroom {
   position:absolute;
   display:block;
-  left:320px;
+  left:220px;
   width:60px;
   overflow:hidden;
   text-overflow:ellipsis;

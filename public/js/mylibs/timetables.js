@@ -518,6 +518,18 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
       }
     }
   }
+  if (meetings) {
+    for (i=0;i<numdays;i++) {
+      if (meetings[jd+i] && meetings[jd+i][uid]) {
+        var mlist = meetings[jd+i][uid];
+        for (var ii=0; ii < mlist.length; ii++) {
+            var mee = mlist[ii];
+            v += '<div title="'+mee.name+' '+mee.value+ '" class="meet" style="height:'+(mee.dur*3)+'px; left:'+(60+130*mee.day)
+               +'px; top:'+(24+mee.slot*3)+'px;">'+mee.name+'</div>';
+        }
+      }
+    }
+  }
   return t+'<div class="ttab" style="height:'+(th+1)+'px">'+u+s+v+r+w+'</div>';
 }
 

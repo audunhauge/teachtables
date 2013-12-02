@@ -245,10 +245,10 @@ function showWizInfo() {
   }
 }
 
-function meetTimeStart(jd,slotz,early) {
+function meetTimeStart(jd,slotz,early,dur) {
       // we know the slots are consecutive - we just need the first one and a count
       // early true if just want hh mm
-      var dur = 5 * slotz.length;
+      dur = dur ? dur : 5 * slotz.length;
       var base = database.starttime[0].split('-')[0].split('.');   // hh mm
       var first = _.min(slotz,function(e) { return e.split('_')[1];});
       var day = +first.split('_')[0];
@@ -431,7 +431,7 @@ function findFreeTime() {
                           if (busy[day][slot] != undefined) {
                             var info = (whois[day] && whois[day][slot]) ? whois[day][slot]+' '+busy[day][slot] : '';
                             //s += '<td class="meeting"><span title="'+whois[day][slot]+'">'+busy[day][slot]+'</span>'
-                            t += '<div title="'+info+'" id="mm'+day+'_'+slot+'" class="mslot blue" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
+                            t += '<div title="'+info+'" id="mm'+day+'_'+slot+'" class="mslot busy" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
                           } else {
                             //s += '<td><span class="redfont">IngenLedig</span>'
                             t += '<div id="mm'+day+'_'+slot+'" class="mslot" style="left:'+(ofs+day*82)+'px; top:'+(slot*4)+'px;"></div>';
@@ -598,8 +598,9 @@ function findFreeTime() {
           });
 
       $j("#makemeet").click(function() {
-         var idarr = $j.map(minfo.slotz,function(e,i) { return (+e.split('_')[1] + 1); });  // add in 1 so we can test != 0
-         var idlist = idarr.join(',');
+         var slot = minfo.slotz[0].split('_')[1];   // the first slot
+         var day = minfo.slotz[0].split('_')[0];   // the first slot
+         var dur = minfo.slotz.length;  // each slot is 5 minutes
          first = meetTimeStart(jd,minfo.slotz,1).join(':');
          minfo.title = $j("#msgtitle").val() || minfo.title;
          minfo.sendmail = $j('input[name=sendmail]:checked').val();
@@ -608,9 +609,9 @@ function findFreeTime() {
          var roomname = database.roomnames[minfo.roomid] || '';
          var konf = $j('input[name=konf]:checked').val();
          var resroom = $j("#resroom").val();
-         $j.post(mybase+'/makemeet',{ chosen:getkeys(userlist), current:jd, meetstart:first,
+         $j.post(mybase+'/makemeet',{ chosen:getkeys(userlist), current:jd, meetstart:first,dur:dur, slot:slot,
                        roomname:roomname, message:message, title:minfo.title, resroom:resroom, sendmail:sendmail,
-                       konf:konf, roomid:minfo.roomid, day:aday, idlist:idlist, action:"insert" },function(resp) {
+                       konf:konf, roomid:minfo.roomid, day:day, action:"insert" },function(resp) {
              $j.getJSON(mybase+ "/getmeet",
                   function(data) {
                      meetings = data;
@@ -677,18 +678,9 @@ function myMeetings(meetid,delta) {
           for (var mmid in mee[userinfo.id]) {
             var abba = mee[userinfo.id][mmid];
             var active = '';
-            var shortslots;
-            var avalue = abba.value;
-            var idlist = abba.value.split(',');
-            if (abba.slot >= 0) {
-              // a short meeting
-              shortslots = abba.value.split(',');
-              idlist = abba.slot;
-              avalue = abba.slot;
-            }
+            var meetime = abba.value;
             if (abba.id == meetid) active = ' active';
             var meetdate = julian.jdtogregorian(jd+day);
-            var meetime =  meetTimeStart(idlist,avalue,shortslots);
             var myown = (abba.teachid == userinfo.id) ? ' myown' : '';
             var meetdiv = '<div  class="meetlist'+active+' acc'+abba.klass+myown+'"><span class="meetinfo">'
                           + '<input  class="meetchk" type="checkbox" >' + abba.name
@@ -751,19 +743,14 @@ function editMeeting(meetingid,meetid,delta) {
       $j("#main").html(s);
       s = '';
       var metinfo = JSON.parse(meet.value);
-      var tslots = {};
-      if (metinfo.kort) {
-        // a short meeting - set timeslots (5min each)
-        tslots = metinfo.shortslots;
-      }
-      var meetime =  meetTimeStart(metinfo.idlist.split(','),metinfo.idlist,tslots);
+      var meetime =  meetTimeStart(meet.julday+meet.day,['0_'+meet.slot],0,5*meet.dur);
       s += '<h1>' + metinfo.title + '</h1>';
       s += (meet.klass == 1) ? '<h4>Obligatorisk</h4>' : '';
       s +=  metinfo.message + '<hr>';
       if (metinfo.sendmail == 'yes') {
         s+= '<br>Mail er sendt til deltakerne';
       }
-      s += '<br>Time:' + meetime;
+      s += '<br>Tid: ' + meetime.replace('<br>','&nbsp; ');
       s += '<br>Rom : ' + database.roomnames[meet.roomid];
       var teachlist = [];
       var daymeet = meetings[meet.julday];   // all meetings this day
