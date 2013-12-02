@@ -1058,10 +1058,17 @@ var makemeet = function(user,query,host,callback) {
                    }));
               }
               console.log("SENDMAIL=",sendmail);
-              if (0 && sendmail == 'yes') {
+              if (sendmail == 'yes') {
                 var greg = julian.jdtogregorian(current + myday);
                 var d1 = new Date(greg.year, greg.month-1, greg.day);
                 var meetdate = greg.day + '.' + greg.month + '.' + greg.year;
+                var server  = sendemail.createTransport("SMTP",{
+                      service:"Gmail",
+                      auth: {
+                        user:  siteinf.mailusr,
+                        pass:  siteinf.mailpwd,
+                      }
+                });
                 var server  = sendemail.createTransport("SMTP",{
                       service:"Gmail",
                       auth: {
@@ -1071,7 +1078,7 @@ var makemeet = function(user,query,host,callback) {
                  });
 
                 var basemsg = '\n\nMøte på Skeisvang\n=====================\n\n'+title+'\n=====================\n\n'
-                         + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Time: ' + idlist
+                         + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Tid : ' + meetstart+ ' '+(dur*5)+'min'
                          + '\n  Tid: ' + meetstart + '\n  Sted: rom '+roomname;
                 basemsg  += "\n\n" + "  Deltagere:\n   * " + participants.join('\n   * ');
                 basemsg  += "\n\n" + "  Ansvarlig: " + owner;
@@ -1086,7 +1093,7 @@ var makemeet = function(user,query,host,callback) {
                           + "http://"+host+siteinf.base +"/acceptmeet?userid="+uid+"&meetid="+pid;
                       var mailOptions = {
                                 text:   persmsg
-                              , from:   "AvtalePlanlegger <skeisvang.skole@gmail.com>"
+                              , from:   "AvtalePlanlegger <"+siteinf.mailusr+"@gmail.com>"
                               , to:     teach.email
                               , subject:  title
                        }
