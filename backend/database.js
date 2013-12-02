@@ -1066,17 +1066,9 @@ var makemeet = function(user,query,host,callback) {
                       service:"Gmail",
                       auth: {
                         user:  siteinf.mailusr,
-                        pass:  siteinf.mailpwd,
+                        pass:  siteinf.mailpwd
                       }
                 });
-                var server  = sendemail.createTransport("SMTP",{
-                      service:"Gmail",
-                      auth: {
-                        user:   "skeisvang.skole",
-                        pass:   "123naturfag",
-                      }
-                 });
-
                 var basemsg = '\n\nMøte på Skeisvang\n=====================\n\n'+title+'\n=====================\n\n'
                          + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Tid : ' + meetstart+ ' '+(dur*5)+'min'
                          + '\n  Tid: ' + meetstart + '\n  Sted: rom '+roomname;
