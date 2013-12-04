@@ -1002,7 +1002,7 @@ var makemeet = function(user,query,host,callback) {
     var action         = query.action;
     var konf           = query.konf;       // oblig, accept, reject
     var resroom        = query.resroom;    // make a room reservation for meeting
-    var sendmail       = query.sendmail;   // send mail to participants
+    var mailit         = query.sendmail;   // send mail to participants
     var values         = [];               // entered as events into calendar for each partisipant
     // idlist will be slots in the same day (script ensures this)
     console.log("DATABASE:makemeet host=",host);
@@ -1026,7 +1026,7 @@ var makemeet = function(user,query,host,callback) {
         var participants = [];
         var klass = (konf == 'ob') ? 1 : 0 ;
         var meetinfo = JSON.stringify({message:message, slot:slot0, dur:dur, owner:user.id,
-                                       sendmail:sendmail, title:title, message:message, chosen:chosen });
+                                       sendmail:mailit, title:title, message:message, chosen:chosen });
         console.log('insert into calendar (eventtype,julday,userid,roomid,name,value,class,day,slot,dur) values (\'meeting\',$1,$2,$3,$4,$5,$6,$7,$8,$9)  returning id',
              [current+myday,user.id,roomid,title.substr(0,30),meetinfo,klass,day,slot0,dur]);
         client.query(
@@ -1057,8 +1057,8 @@ var makemeet = function(user,query,host,callback) {
                   after(function(results) {
                    }));
               }
-              console.log("SENDMAIL=",sendmail);
-              if (sendmail == 'yes') {
+              console.log("SENDMAIL=",mailit);
+              if (mailit == 'yes') {
                 var greg = julian.jdtogregorian(current + myday);
                 var d1 = new Date(greg.year, greg.month-1, greg.day);
                 var meetdate = greg.day + '.' + greg.month + '.' + greg.year;
@@ -1069,6 +1069,7 @@ var makemeet = function(user,query,host,callback) {
                         pass:  siteinf.mailpwd
                       }
                 });
+
                 var basemsg = '\n\nMøte på Skeisvang\n=====================\n\n'+title+'\n=====================\n\n'
                          + message + "\n\n\n" + "  Dato: " + meetdate + '\n  Tid : ' + meetstart+ ' '+(dur*5)+'min'
                          + '\n  Tid: ' + meetstart + '\n  Sted: rom '+roomname;
@@ -1096,9 +1097,9 @@ var makemeet = function(user,query,host,callback) {
                             }else{
                                 console.log("Message sent: " + response.message);
                             }
-                            server.close();
                       });
                 }
+                server.close();
               }
            }
            callback( {ok:true, msg:"inserted"} );
