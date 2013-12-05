@@ -380,6 +380,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
     var dday = pt[0];
     var sslo = pt[1];
     var subj = pt[2];
+    var info = subj;  // info to show in plan - default is subject
     var room = pt[3];
     var teach = teachers[pt[5]];
     var hhi = Math.min(8,pt[6]);
@@ -390,16 +391,16 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
         full[dday][sslo] = 1;
         if (!teachers[uid] && teach) {
             // student,group,class,room - show name of teach instead of group
-            subj = subj.split('_')[0] + '&nbsp;'+ teach.username;
+            info = subj.split('_')[0] + '&nbsp;'+ teach.username;
         }
         if (usedcolor[subj] != undefined) {
           mycol = usedcolor[subj];
         } else {
           mycol = colorid;
-          usedcolor[subj] = mycol;
+          usedcolor[info] = mycol;
           colorid++;
         }
-        cell = '<span tag="'+subj+'" day="'+dday+'" room="'+room+'" class="goto">'+subj+'&nbsp;'+room+'</span>';
+        cell = '<span tag="'+subj+'" day="'+dday+'" room="'+room+'" class="goto">'+info+'&nbsp;'+room+'</span>';
         s += '<div class="s'+mycol+' ttab'+dday+'" style="top:'
             + (24+sslo*3) + 'px;height:'+(hhi*3)+'px"><div class="retainer">' + cell  +'</div></div>';
     }
