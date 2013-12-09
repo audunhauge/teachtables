@@ -29,6 +29,17 @@ exports.save_config = function(user,query,callback) {
   client.query( "update users set config=$1 where id=$2", [jsconfig,user.id]);
 }
 
+exports.userconfig =function(user,query,callback) {
+  var username = query.username;
+  console.log("USERCONFIG:",username);
+  client.query(
+      "select config from users where username = $1 " , [ username ] ,
+      after(function(results) {
+        console.log(results);
+        callback( results.rows );
+      }));
+};
+
 exports.getsql = function(user,sql,param,reload,callback) {
   // runs a query and returns the recordset
   // only allows admin to run this query

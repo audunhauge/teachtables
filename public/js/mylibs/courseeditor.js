@@ -9,8 +9,8 @@ function managecourse() {
   // create a course manager page
   var s = '<h1 title="Create/edit manage courses,students,teachers">General Manager</h1>';
   s += ''
-  + '<div id="cmanager" class="border1 sized1 gradback centered">'  
-  + ' <div id="leftmenu">'  
+  + '<div id="cmanager" class="border1 sized1 gradback centered">'
+  + ' <div id="leftmenu">'
   + '  <ul>'
   + '   <li><a id="newgroup" class="action" href="#">Add new group</a></li>'
   + '   <ul>'
@@ -46,15 +46,15 @@ function managecourse() {
   $j("#newroom").click(function(event) {
       event.preventDefault();
       add_room(database.roomnames);
-  }); 
+  });
   $j("#editroom").click(function(event) {
       event.preventDefault();
       selectroom(database.roomnames);
-  }); 
+  });
   $j("#newcourse").click(function(event) {
       event.preventDefault();
       add_course();
-  }); 
+  });
   $j("#assignteach").click(function(event) {
       event.preventDefault();
       change_course();
@@ -66,16 +66,16 @@ function managecourse() {
   $j("#newgroup").click(function(event) {
       event.preventDefault();
       add_group();
-  }); 
+  });
   $j("#edittimeplan").click(function(event) {
       event.preventDefault();
       valg = 'teach';
       edit_teachtimeplan();
-  }); 
+  });
   $j("#newuser").click(function(event) {
       event.preventDefault();
       add_user();
-  }); 
+  });
   $j("#asstudent").click(function(event) {
       event.preventDefault();
       assignstud();
@@ -157,7 +157,7 @@ function editroom(roomlist,mylist) {
           });
         }
     });
-  } 
+  }
 }
 
 function selectuser(userlist) {
@@ -184,40 +184,78 @@ function selectuser(userlist) {
 function edituser(userlist,mylist) {
   if (countme(mylist) == 1 ) {
     // single user selected - show all fields
-    var myuser = userlist[getkeys(mylist).pop()];
-    var save = '<div id="savenew" class="float button">Save</div>';
-    var s = '<form><table id="form"><tr><td><label>Username</label></td><td> <input id="username" type="text" value="{username}" size="20"></td></tr>'
-    + '  <tr><td><label>Firstname</label></td><td> <input id="firstname" type="text" value="{firstname}" size="20"></td></tr>'
-    + '  <tr><td><label>Lastname</label> </td><td> <input id="lastname"  type="text" value="{lastname}" size="20"></td></tr>'
-    + '  <tr><td><label>Email</label> </td><td> <input id="email"  type="text" value="{email}" size="20"></td></tr>'
-    + '  <tr><td><label>Department</label> </td><td> <input id="department"  type="text" value="{department}" size="20"></td></tr>'
-    + '  <tr><td><label>Institution</label> </td><td> <input id="institution"  type="text" value="{institution}" size="20"></td></tr>'
-    + '  <tr title="leave empty for no change"><td><label>Password</label> </td><td> <input id="password"  type="text" value="" size="20">Reset password</td></tr>'
-    + '  <tr><td>'+save+'</td><td></td></tr>'
-    + '</table></form>';
-    $j("#cmstage").html(s.supplant(myuser));
-    $j("#savenew").click(function(event) {
-        var username = $j("#username").val();
-        var firstname = $j("#firstname").val();
-        var lastname = $j("#lastname").val();
-        var department = $j("#department").val();
-        var email = $j("#email").val();
-        var institution = $j("#institution").val();
-        var password = $j("#password").val();
-        var fields = [];
-        if (username != myuser.username) fields.push(" username='"+username+"'");
-        if (firstname != myuser.firstname) fields.push(" firstname='"+firstname+"'");
-        if (lastname != myuser.lastname) fields.push(" lastname='"+lastname+"'");
-        if (email != myuser.email) fields.push(" email='"+email+"'");
-        if (department != myuser.department) fields.push(" department='"+department+"'");
-        if (institution != myuser.institution) fields.push(" institution='"+institution+"'");
-        if (password != "") fields.push(" password=md5('"+password+"')");
-        if (fields.length > 0) {
-          var sql = "update users set " + fields.join(',') + " where id =" + myuser.id ;
-          alert(sql);
-          $j.get(mybase+ "/getsql", { sql:sql, param:[] }, function(res) {
-          });
-        }
+    var myuser = userlist[getkeys(mylist)[0]];
+    $j.getJSON(mybase+ "/userconfig", { username:myuser.username }, function(res) {
+        var cconf = res.pop();
+        myuser.config = JSON.parse(cconf.config);
+        var save   = '<div id="savenew" class="float button">Save</div>';
+        var config = '<div id="econfig" class="float button" title="Edit teach config">Config</div>';
+        var s = '<form><table id="form"><tr><td><label>Username</label></td><td> <input id="username" type="text" value="{username}" size="20"></td></tr>'
+        + '  <tr><td><label>Firstname</label></td><td> <input id="firstname" type="text" value="{firstname}" size="20"></td></tr>'
+        + '  <tr><td><label>Lastname</label> </td><td> <input id="lastname"  type="text" value="{lastname}" size="20"></td></tr>'
+        + '  <tr><td><label>Email</label> </td><td> <input id="email"  type="text" value="{email}" size="20"></td></tr>'
+        + '  <tr><td><label>Department</label> </td><td> <input id="department"  type="text" value="{department}" size="20"></td></tr>'
+        + '  <tr><td><label>Institution</label> </td><td> <input id="institution"  type="text" value="{institution}" size="20"></td></tr>'
+        + '  <tr title="leave empty for no change"><td><label>Password</label> </td><td> <input id="password"  type="text" value="" size="20">Reset password</td></tr>'
+        + '  <tr><td colspan="2"><div id="confed"></div></td></tr>'
+        + '  <tr><td>'+save+'</td><td>'+config+'</td></tr>'
+        + '</table></form>';
+        $j("#cmstage").html(s.supplant(myuser));
+        $j("#econfig").click(function(event) {
+            var s = '<table>';
+            var uconf = myuser.config;
+            for (var prop in uconf) {
+                s += "<tr><td>"+prop+'</td><td><input class="props" id="pro_'+prop+'" type="text" value="'+escape(JSON.stringify(uconf[prop]))+'" size="30"></td></tr>' ;
+            }
+            s += '<tr><td>New prop</td><td><input class="props" id="pro_newprop" type="text" value="" size="9"></td></tr>' ;
+            s += '</table>';
+            $j("#confed").html(s);
+        });
+        $j("#savenew").click(function(event) {
+            var username = $j("#username").val();
+            var firstname = $j("#firstname").val();
+            var lastname = $j("#lastname").val();
+            var department = $j("#department").val();
+            var email = $j("#email").val();
+            var institution = $j("#institution").val();
+            var password = $j("#password").val();
+            var fields = [];
+            var uconf = $j(".props");
+            var nuconfig = {};
+            if (uconf.length) {
+                for (var i=0; i< uconf.length; i++) {
+                    var pro = uconf[i];
+                    var prokey = pro.id.substr(4);
+                    var val = pro.value;
+                    if (prokey == 'newprop') {
+                        if ( pro.value != '') {
+                          prokey = pro.value;
+                          val = '0';
+                        } else {
+                            continue;
+                        }
+                    }
+                    nuconfig[prokey] = JSON.parse(val);
+                }
+                if (! _.isEqual(myuser.config,nuconfig)) {
+                    var conff = JSON.stringify(nuconfig);
+                    fields.push(" config='"+conff+"'");
+                }
+            }
+            if (username != myuser.username) fields.push(" username='"+username+"'");
+            if (firstname != myuser.firstname) fields.push(" firstname='"+firstname+"'");
+            if (lastname != myuser.lastname) fields.push(" lastname='"+lastname+"'");
+            if (email != myuser.email) fields.push(" email='"+email+"'");
+            if (department != myuser.department) fields.push(" department='"+department+"'");
+            if (institution != myuser.institution) fields.push(" institution='"+institution+"'");
+            if (password != "") fields.push(" password=md5('"+password+"')");
+            if (fields.length > 0) {
+              var sql = "update users set " + fields.join(',') + " where id =" + myuser.id ;
+              $j.get(mybase+ "/getsql", { sql:sql, param:[] }, function(res) {
+                edituser(userlist,mylist);
+              });
+            }
+        });
     });
   } else {
     // update fields for group of users - can set dep,inst,pwd for multiple
@@ -228,7 +266,7 @@ function edituser(userlist,mylist) {
       var usr = userlist[uid];
       if (!usr) continue;
       idlist.push(uid);
-      ulist.push('<span class="myusers">'+usr.username + ' '+ usr.firstname.substr(0,4) + ' ' 
+      ulist.push('<span class="myusers">'+usr.username + ' '+ usr.firstname.substr(0,4) + ' '
           + usr.lastname.substr(0,4) + ' ' + usr.department + ' ' + usr.institution+ '</span>');
     }
     var save = '<div id="savenew" class="float button">Save</div>';
@@ -288,7 +326,7 @@ function add_user() {
               } else {
                 students[data.nu] = info;
               }
-          } else {    
+          } else {
               $j("#cmstage").html('<span class="error">'+data.msg+'</span>');
           }
       });
@@ -308,7 +346,7 @@ function add_group() {
       function(data) {
           if (data.ok) {
               $j("#cmstage").html(data.msg);
-          } else {    
+          } else {
               $j("#cmstage").html('<span class="error">'+data.msg+'</span>');
           }
       });
@@ -321,7 +359,7 @@ function assignstud() {
    var sstud = {};
    var changed = false;
    var gg;   // selected group
-   $j.post(mybase+ "/editgroup", { action:"" }, 
+   $j.post(mybase+ "/editgroup", { action:"" },
       function(data) {
           if (data.ok) {
               var save = '<div id="update" class="float button">Save</div>';
@@ -386,7 +424,7 @@ function assignstud() {
                    }
                    $j("#studlist").html(s);
                });
-          } else {    
+          } else {
               $j("#cmstage").html('<span class="error">'+data.msg+'</span>');
           }
       });
@@ -414,7 +452,7 @@ function add_course() {
       function(data) {
           if (data.ok) {
               $j("#cmstage").html(data.msg);
-          } else {    
+          } else {
               $j("#cmstage").html('<span class="error">'+data.msg+'</span>');
           }
       });
@@ -433,7 +471,7 @@ function enrol() {
    }
    var changed = false;
    var cc;   // selected course
-   $j.post(mybase+ "/editcourse", { action:"" }, 
+   $j.post(mybase+ "/editcourse", { action:"" },
       function(data) {
           if (data.ok) {
               var save = '<div id="update" class="float button">Save</div>';
@@ -498,7 +536,7 @@ function enrol() {
                    }
                    $j("#grouplist").html(s);
                });
-          } else {    
+          } else {
               $j("#cmstage").html('<span class="error">'+data.msg+'</span>');
           }
       });
@@ -509,7 +547,7 @@ function change_course() {
    var tteach = {};
    var changed = false;
    var cc;   // selected course
-   $j.post(mybase+ "/editcourse", { action:"" }, 
+   $j.post(mybase+ "/editcourse", { action:"" },
       function(data) {
           if (data.ok) {
               var save = '<div id="update" class="float button">Save</div>';
@@ -574,7 +612,7 @@ function change_course() {
                    }
                    $j("#teachlist").html(s);
                });
-          } else {    
+          } else {
               $j("#cmstage").html('<span class="error">'+data.msg+'</span>');
           }
       });

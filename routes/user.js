@@ -71,6 +71,11 @@ exports.feide =function(req, res) {
   res.redirect(base);
 };
 
+exports.userconfig = function(req, res) {
+  usr.userconfig(req.session.user,req.query,function(r) {
+    res.send(r);
+  });
+};
 
 
 exports.login =function(req, res) {

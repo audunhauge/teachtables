@@ -1994,30 +1994,30 @@ exports.editqncontainer = function(user,query,callback) {
                             after(function(conttq) {
                                var contained = conttq.rows.map(function (e) {
                                  return e.qid;
-                               });
-                               console.log("came here 2",contained);
-                               if (contained.length > 0 ) {
+                              });
+                              console.log("came here 2",contained);
+                              if (contained.length > 0 ) {
                                    // only copy questions if there are some
                                    var nuqids = '(' + contained.join(','+nucon+'),(') + ',' + nucon+')';
                                    console.log("came here 3",nuqids);
                                    console.log( "insert into question_container (qid,cid) values " + nuqids);
                                    client.query( "insert into question_container (qid,cid) values " + nuqids);
-                               }
-                            }));
-                          // duplicate the tags
-                          client.query( " insert into quiz_qtag select qt.tid,q.id from quiz_question q "
-                              + " inner join quiz_qtag qt on (q.parent = qt.qid) "
-                              + " where q.parent != 0 and q.modified = $2 and q.teachid=$1" , [ teachid, now.getTime() ] );
-                           console.log("came here 4");
-                           var thedupes = results.rows.map(function (e) {
-                             return e.id;
-                           });
-                           var nuqids = '(' + thedupes.join(','+container+'),(') + ',' + container+')';
-                           client.query( "insert into question_container (qid,cid) values " + nuqids,
-                               after(function(results) {
-                                 console.log("came here 5");
-                                 callback( {ok:true, msg:"updated" } );
-                               }));
+                              }
+                              // duplicate the tags
+                              client.query( " insert into quiz_qtag select qt.tid,q.id from quiz_question q "
+                                  + " inner join quiz_qtag qt on (q.parent = qt.qid) "
+                                  + " where q.parent != 0 and q.modified = $2 and q.teachid=$1" , [ teachid, now.getTime() ] );
+                               console.log("came here 4");
+                               var thedupes = results.rows.map(function (e) {
+                                 return e.id;
+                               });
+                               var nuqids = '(' + thedupes.join(','+container+'),(') + ',' + container+')';
+                               client.query( "insert into question_container (qid,cid) values " + nuqids,
+                                   after(function(results) {
+                                     console.log("came here 5");
+                                     callback( {ok:true, msg:"updated" } );
+                                   }));
+                                }));
                     }));
                   } else {
                    var nuqids = '(' + nuqs.split(',').join(','+container+'),(') + ',' + container+')';
