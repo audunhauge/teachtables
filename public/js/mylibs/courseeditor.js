@@ -197,7 +197,11 @@ function edituser(userlist,mylist,openedconf) {
     var myuser = userlist[getkeys(mylist)[0]];
     $j.getJSON(mybase+ "/userconfig", { username:myuser.username }, function(res) {
         var cconf = res.pop();
-        myuser.config = JSON.parse(cconf.config);
+        try {
+            myuser.config = JSON.parse(cconf.config);
+        } catch (err) {
+            myuser.config = {};
+        }
         var save   = '<div id="savenew" class="float button">Save</div>';
         var config = '<div id="econfig" class="float button" title="Edit teach config">Config</div>';
         var s = '<form><table id="form"><tr><td><label>Username</label></td><td> <input id="username" type="text" value="{username}" size="20"></td></tr>'

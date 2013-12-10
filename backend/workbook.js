@@ -1976,7 +1976,8 @@ exports.editqncontainer = function(user,query,callback) {
                           console.log("Duplicating OTHER TEACHERS QUIZ:",dupcon);
                           // we need to find the local copies of original questions contained in this quiz
                           // this gives us a new list of qids to insert
-                          containedqs = "select id as qid from quiz_question where teachid="+teachid+" and parent in (select qid from question_container where cid=$1)";
+                          var source  = "select case when parent = 0 then id else parent end as iid from quiz_question where id in (select qid from question_container where cid=$1 )";
+                          containedqs = "select id as qid from quiz_question where teachid="+teachid+" and parent in ( "+source+")";
                       }
                       // this quiz is a copy of other teachers quiz
                       console.log("Duplicating",dupcon);
