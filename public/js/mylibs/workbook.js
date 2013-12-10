@@ -2127,12 +2127,10 @@ function eedit(myid,q,target) {
         var fo = $j("#editform");
         fo.addClass("wait");
         fo.animate({
-                      height: "toggle",
                       opacity: "toggle"
                 }, {
                       duration: "slow"
                 }).animate({
-                      height: "toggle",
                       opacity: "toggle"
                 }, {
                       duration: "slow",
