@@ -181,7 +181,17 @@ function selectuser(userlist) {
   });
 }
 
-function edituser(userlist,mylist) {
+function edituser(userlist,mylist,openedconf) {
+  function edconfig(){
+    var s = '<table>';
+    var uconf = myuser.config;
+    for (var prop in uconf) {
+        s += "<tr><td>"+prop+'</td><td><input class="props" id="pro_'+prop+'" type="text" value="'+escape(JSON.stringify(uconf[prop]))+'" size="30"></td></tr>' ;
+    }
+    s += '<tr><td>New prop</td><td><input class="props" id="pro_newprop" type="text" value="" size="9"></td></tr>' ;
+    s += '</table>';
+    $j("#confed").html(s);
+  }
   if (countme(mylist) == 1 ) {
     // single user selected - show all fields
     var myuser = userlist[getkeys(mylist)[0]];
@@ -201,17 +211,25 @@ function edituser(userlist,mylist) {
         + '  <tr><td>'+save+'</td><td>'+config+'</td></tr>'
         + '</table></form>';
         $j("#cmstage").html(s.supplant(myuser));
-        $j("#econfig").click(function(event) {
-            var s = '<table>';
-            var uconf = myuser.config;
-            for (var prop in uconf) {
-                s += "<tr><td>"+prop+'</td><td><input class="props" id="pro_'+prop+'" type="text" value="'+escape(JSON.stringify(uconf[prop]))+'" size="30"></td></tr>' ;
-            }
-            s += '<tr><td>New prop</td><td><input class="props" id="pro_newprop" type="text" value="" size="9"></td></tr>' ;
-            s += '</table>';
-            $j("#confed").html(s);
-        });
+        if (openedconf) {
+            edconfig();
+        }
+        $j("#econfig").click(edconfig);
         $j("#savenew").click(function(event) {
+            var fo = $j("#form");
+            fo.addClass("wait");
+            fo.animate({
+                      height: "toggle",
+                      opacity: "toggle"
+                }, {
+                      duration: "slow"
+                }).animate({
+                      height: "toggle",
+                      opacity: "toggle"
+                }, {
+                      duration: "slow",
+                      complete: function() { fo.removeClass("wait")}
+                });
             var username = $j("#username").val();
             var firstname = $j("#firstname").val();
             var lastname = $j("#lastname").val();
@@ -252,7 +270,7 @@ function edituser(userlist,mylist) {
             if (fields.length > 0) {
               var sql = "update users set " + fields.join(',') + " where id =" + myuser.id ;
               $j.get(mybase+ "/getsql", { sql:sql, param:[] }, function(res) {
-                edituser(userlist,mylist);
+                edituser(userlist,mylist,true);
               });
             }
         });

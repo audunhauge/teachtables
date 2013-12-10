@@ -2124,6 +2124,20 @@ function eedit(myid,q,target) {
         $j("#opts").html(optlist);
       });
    $j("#saveq").click(function() {
+        var fo = $j("#editform");
+        fo.addClass("wait");
+        fo.animate({
+                      height: "toggle",
+                      opacity: "toggle"
+                }, {
+                      duration: "slow"
+                }).animate({
+                      height: "toggle",
+                      opacity: "toggle"
+                }, {
+                      duration: "slow",
+                      complete: function() { fo.removeClass("wait")}
+                });
         var qoptlist = [];
         preserve();  // q.options and q.fasit are now up-to-date
         retag();

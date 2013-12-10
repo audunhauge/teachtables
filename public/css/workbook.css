@@ -124,6 +124,7 @@ ins {
   color:blue;
 }
 
+
 #meetbox {
     position:relative;
     width:475px;
@@ -497,6 +498,15 @@ span.wbedit {
   position:absolute;
   right:30px;
   top:10px;
+}
+
+#editform.wait:before {
+  content:" ";
+  width:30px;
+  height:30px;
+  position:absolute;
+  left:130px;
+  background: url(img/clock-icon.png) no-repeat center;
 }
 
 #editform {
