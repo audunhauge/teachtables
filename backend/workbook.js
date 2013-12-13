@@ -743,7 +743,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   var cont = quiz.question[container] || {qtext:''} ;
   var cparam = parseJSON(cont.qtext);   // this is the question order as seen by student
   var contopt = cparam.contopt || {};
-  var qlist = cparam.qlistorder;
+  var olist = cparam.qlistorder;    // question list as shown to user
   // first get container options AS EXIST NOW - ignore those stored in useranswer
   //   as show fasit may have changed AFTER student finished the test
   client.query("select q.id as i,q.qtext from quiz_question q where q.id = $1 ", [container],
@@ -761,6 +761,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
           if (typeof(qlist) == "string") {
             qlist = qlist.split(',');
           }
+          console.log("DIffer ? ",olist,qlist);
           if (qlist && user.department == 'Undervisning' || ( (user.id == uid) && qcontopt.fasit && (+qcontopt.fasit & 1)) ) {
             client.query(  "select q.points,q.qtype,q.name,q.subject,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
                          + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
@@ -769,6 +770,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
                   var ualist = { q:{}, c:{}, sc:myscore, uid:uid };
                   if (results && results.rows) {
                     // clean the list - remove dups
+                    console.log("Found these answers",results.rows,"qlist =",qlist);
                     var qqlist = [];
                     var usedlist = {};
                     for (var i=0; i< results.rows.length; i++) {
@@ -963,6 +965,8 @@ var generateforall = exports.generateforall = function(user,query,callback) {
   callback(null);
 }
 
+var ccc = 0;
+
 var renderq = exports.renderq = function(user,query,callback) {
   // renders a list of questions
   // each question may be repeated and displayed
@@ -970,6 +974,7 @@ var renderq = exports.renderq = function(user,query,callback) {
   // any questions/instances missing a useranswer
   // will have one inserted and parameters generated for it
   // all questions are assumed to be in quiz.question cache
+  var randlist = [];  // list of used random question ids - we only pick them once;
   var container = +query.container;
   var questlist = query.questlist ;
   var uid       = +user.id;
@@ -979,8 +984,9 @@ var renderq = exports.renderq = function(user,query,callback) {
   //console.log("GETTING TIME: ",justnow.getTime(),justnow.getTimezoneOffset(),now,diff);
   var contopt   = {};
   var message   = null;
-  var ualist    = {};
-  var already   = {};  // list of questions with existing answers
+  var baselist  = [];  // useranswers ordered by instance - need if random question type
+  var ualist    = {};  // list of generated user answers (questions as shown to stud - not actual answers)
+  var already   = {};  // list of questions with existing answers (actual answers).
   var retlist   = [];  // list to return
   // check that we have complete cache
   /*
@@ -1023,6 +1029,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                 ua.name = q.name;
                 ua.status = q.status;
                 ua.subject = q.subject;
+                baselist[i] = ua;         // easy lookup if we have random question type
                 if (!ualist[ua.qid]) {
                   ualist[ua.qid] = {};
                 }
@@ -1196,7 +1203,12 @@ var renderq = exports.renderq = function(user,query,callback) {
                         cb();
                         return;
                     }
-                    if (ualist[qu.id] && ualist[qu.id][i]) {
+                    if (qu.qtype == 'random' && baselist[i] && baselist[i].qtype != 'random') {
+                      // question type is random and we have a question for this slot
+                      // and its not random itself - implies we have picked a random question
+                      retlist[i] = baselist[i];
+                      loopWait(i+1,cb);
+                    } else if (ualist[qu.id] && ualist[qu.id][i]) {
                       retlist[i] = ualist[qu.id][i];
                       loopWait(i+1,cb);
                     } else if (ualist[qu.id]) {
@@ -1213,10 +1225,30 @@ var renderq = exports.renderq = function(user,query,callback) {
                     } else {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
-                      quiz.generateParams(qu,user.id,i,container,function(params) {
-                        missing.push( " ( "+qu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
-                        loopWait(i+1,cb);
-                      });
+                      if (qu.qtype == 'random') {
+                        var thesetags = "'"+qu.contopt.tags.replace(/,/g,"','")+"'";
+                        client.query('select q.*,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) '
+                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and t.tagname in ('+thesetags+')', [masterq.teachid],
+                        after(function(random) {
+                            if (random.rows.length) {
+                               var nu = _.shuffle(random.rows)[0];
+                               questlist[i] = nu;
+                               quiz.question[nu.id] = nu;
+                               query.questlist[i] = nu;   // replace the RANDOM-TYPE question with randomly chosen question
+                               // grading this question doesnt work - checks remove answers to questions that are no longer part of
+                               // a quiz - a random question (randomly chosen based on tags) is never part of a quiz
+                            }
+                            quiz.generateParams(nu,user.id,i,container,function(params) {
+                              missing.push( " ( "+nu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
+                              loopWait(i+1,cb);
+                            });
+                        }));
+                      } else {
+                        quiz.generateParams(qu,user.id,i,container,function(params) {
+                          missing.push( " ( "+qu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
+                          loopWait(i+1,cb);
+                        });
+                      }
                     }
                   } else {
                     cb();
@@ -1973,11 +2005,14 @@ exports.editqncontainer = function(user,query,callback) {
                       // default sql to use if copying my own container
                       if (existing.rows[0].parent) {
                           dupcon = existing.rows[0].parent;
-                          console.log("Duplicating OTHER TEACHERS QUIZ:",dupcon);
+                          console.log("Duplicating a copy of a quiz - might be OTHER TEACHERS QUIZ:",dupcon);
                           // we need to find the local copies of original questions contained in this quiz
                           // this gives us a new list of qids to insert
-                          var source  = "select case when parent = 0 then id else parent end as iid from quiz_question where id in (select qid from question_container where cid=$1 )";
-                          containedqs = "select id as qid from quiz_question where teachid="+teachid+" and parent in ( "+source+")";
+                          var source  = "select case when parent = 0 then id else parent end as iid from quiz_question "
+                              + "where id in (select qid from question_container where cid="+dupcon+" )";
+                          containedqs = "select id as qid from quiz_question where teachid="+teachid+" and (parent in ( "+source+") or id in ("+source+") ) ";
+                          // if we are missing questions (might not subscribe to source teacher) then we get a reduced copy
+                          // only questions that are already existing will be used
                       }
                       // this quiz is a copy of other teachers quiz
                       console.log("Duplicating",dupcon);
@@ -1991,7 +2026,7 @@ exports.editqncontainer = function(user,query,callback) {
                           //   this doesnt duplicate contained questions
                           //   but inserts record in question_container that
                           //   shows this question used in this quiz
-                          client.query( containedqs , [dupcon],
+                          client.query( containedqs ,
                             after(function(conttq) {
                                var contained = conttq.rows.map(function (e) {
                                  return e.qid;
