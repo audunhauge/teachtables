@@ -1244,7 +1244,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                     } else {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
-                      if (qu.qtype == 'random') {
+                      if (qu.qtype == 'random' && qu.contopt && qu.contopt.tags) {
                         var thesetags = "'"+qu.contopt.tags.replace(/,/g,"','")+"'";
                         var seltype = (qu.contopt.seltype == 'all') ? " and qtype not in ('quiz','container','random')"
                                         : " and qtype = '"+qu.contopt.seltype +"'";
