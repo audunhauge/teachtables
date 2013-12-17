@@ -763,18 +763,30 @@ exports.displayuserresponse = function(user,uid,container,callback) {
           }
           console.log("DIffer ? ",olist,qlist);
           if (qlist && user.department == 'Undervisning' || ( (user.id == uid) && qcontopt.fasit && (+qcontopt.fasit & 1)) ) {
+            // client.query(  "select q.points,q.qtype,q.name,q.subject,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
+            //             + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
             client.query(  "select q.points,q.qtype,q.name,q.subject,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
-                         + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
+                         + " where qua.userid = $1 and qua.cid = $2 order by instance,qua.time",[ uid, container ],
             after(function(results) {
                   var myscore = { score:0, tot:0};
                   var ualist = { q:{}, c:{}, sc:myscore, uid:uid };
                   if (results && results.rows) {
                     // clean the list - remove dups
-                    console.log("Found these answers",results.rows,"qlist =",qlist);
+                    // if source question is random - accept any qid for this slot
+                    //console.log("Found these answers",results.rows,"qlist =",qlist);
                     var qqlist = [];
                     var usedlist = {};
                     for (var i=0; i< results.rows.length; i++) {
                       var qq = results.rows[i];
+                      //if (qq.qid != qlist[i] ) {
+                      if (qlist.indexOf(""+qq.qid) <0) {
+                          // this question id is not in list
+                          var ra = +qlist[i];
+                          var ran = quiz.question[ra];
+                          if (ran && ran.qtype != 'random') {
+                              continue;  // question doesnt match source and source is not random - ignore
+                          }
+                      }
                       if (usedlist[qq.id] && usedlist[qq.id][qq.instance]) continue;
                       qqlist.push(qq);
                       if (!usedlist[qq.id]) usedlist[qq.id] = {};
@@ -1006,15 +1018,21 @@ var renderq = exports.renderq = function(user,query,callback) {
       callback(retlist);
       return;
   }
-  // console.log( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ]);
-  client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
-  after(function(results) {
-   client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
-   after(function(master) {
-      // we now have the container as it exists now
-      // must get useranswer for container.
-    client.query( "select * from quiz_useranswer where cid = $1 and userid = $2 order by instance",[ container,uid ],
-    after(function(answers) {
+  // first fetch all questions used by this user in this quiz (independent of actual contents of quiz container - accounts for RANDOM question type)
+  client.query( "select q.* from quiz_question q inner join quiz_useranswer qu on (q.id = qu.qid) where cid = $1 and userid = $2 ",[ container,uid ],
+  after(function(prefetch) {
+    for (var i=0,l=prefetch.rows.length; i<l; i++) {
+      var qu = prefetch.rows[i];
+      quiz.question[qu.id] = qu;           // Cache
+    }
+    client.query( "select * from quiz_useranswer where qid = $1 and userid = $2 ",[ container,uid ],
+    after(function(results) {
+     client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
+     after(function(master) {
+        // we now have the container as it exists now
+        // must get useranswer for container.
+      client.query( "select * from quiz_useranswer where cid = $1 and userid = $2 order by instance",[ container,uid ],
+      after(function(answers) {
             if (answers && answers.rows) {
               for (var i=0,l=answers.rows.length; i<l; i++) {
                 var ua = answers.rows[i];
@@ -1022,6 +1040,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                 if (q == undefined) {
                   continue;  // this response is to a question no longer part of container
                   // just ignore it
+                  // TODO here we skip existing answers to random questions before quiz.question is filled
                 }
                 var qopts =parseJSON(q.qtext);
                 ua.points = q.points;
@@ -1227,11 +1246,18 @@ var renderq = exports.renderq = function(user,query,callback) {
                       // run any filters and macros found in qtext
                       if (qu.qtype == 'random') {
                         var thesetags = "'"+qu.contopt.tags.replace(/,/g,"','")+"'";
+                        var seltype = (qu.contopt.seltype == 'all') ? " and qtype not in ('quiz','container','random')"
+                                        : " and qtype = '"+qu.contopt.seltype +"'";
                         client.query('select q.*,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) '
-                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and t.tagname in ('+thesetags+')', [masterq.teachid],
+                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and t.tagname in ('+thesetags+')' + seltype
+                                     + ' and points ='+qu.points
+                                     + " and subject = '"+qu.subject+"'"
+                                     + ' and status = 0'
+                                     , [masterq.teachid],
                         after(function(random) {
+                            var nu = qu;
                             if (random.rows.length) {
-                               var nu = _.shuffle(random.rows)[0];
+                               nu = _.shuffle(random.rows)[0];
                                questlist[i] = nu;
                                quiz.question[nu.id] = nu;
                                query.questlist[i] = nu;   // replace the RANDOM-TYPE question with randomly chosen question
@@ -1256,6 +1282,7 @@ var renderq = exports.renderq = function(user,query,callback) {
               }
      }));
     }));
+   }));
   }));
 }
 
@@ -1814,13 +1841,16 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
               var ret = {};
               var usas = {};
               var qusas = {};
+              var userinstance = {};   // lookup by instance
               for (i=0, l = uas.rows.length; i<l; i++) {
                 var u = uas.rows[i];
                 if (!usas[u.userid]) usas[u.userid] = {};
+                if (!userinstance[u.userid]) userinstance[u.userid] = {};
                 if (!qusas[u.userid]) qusas[u.userid] = {};
                 if (!usas[u.userid][u.qid]) usas[u.userid][u.qid] = [];
                 usas[u.userid][u.qid][u.instance] = u;
                 qusas[u.userid][u.qid] = u;
+                userinstance[u.userid][u.instance] = u;  // needed for RANDOM question type
               }
               for (i=0, l = results.rows.length; i<l; i++) {
                 var res = results.rows[i];
@@ -1833,7 +1863,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
                 if (typeof(qlist) == "string") {
                   qlist = qlist.split(',');
                 }
-                var sscore = getscore(res,qlist,usas,qusas);
+                var sscore = getscore(res,qlist,usas,qusas,userinstance);
                 if (!isteach && res.userid != user.id) {
                   res.userid = alias[res.userid];
                 }
@@ -1855,7 +1885,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
    }));
   }));
 
-  function getscore(res,qlist,usas,qusas) {
+  function getscore(res,qlist,usas,qusas,userinstance) {
     // qlist is the set of questions given to this user
     // usas contains useranswers index by userid,qid,instance
     var tot = 0;
@@ -1874,16 +1904,16 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
         score += +uu.score;
         if (quiz.question[qid]) tot += quiz.question[qid].points;
         if (uu.time > fresh) fresh = uu.time;
-      }
-       /*
-        else {
-          try {
-            console.log("No useranswer ",qid,res.userid,qid,i);
-          } catch(err) {
-            console.log("REALLY not there ",qid,i);
+      } else {
+          if (quiz.question[qid]) {
+              if (quiz.question[qid].qtype=='random' && userinstance[res.userid][i]) {
+                 uu = userinstance[res.userid][i];
+                score += +uu.score;
+                if (quiz.question[qid]) tot += quiz.question[qid].points;
+                if (uu.time > fresh) fresh = uu.time;
+              }
           }
-       }
-       */
+      }
     }
     return { score:score, tot:tot, fresh:fresh} ;
 

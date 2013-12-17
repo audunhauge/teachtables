@@ -2234,10 +2234,10 @@ function eedit(myid,q,target) {
              + '</div>';
            break;
         case 'random':
-           qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted" id="qdisplay" >No match</textarea></td></tr>';
            var seltype = dialog.contopt.seltype || 'all';
            var usetags = dialog.contopt.tags || 'Test';
            var count = dialog.contopt.count || '3';
+           qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted hidden" id="qdisplay" >Random Question '+usetags+','+seltype+ '</textarea></td></tr>';
            var elements = {
                  defaults:{  type:"text", klass:"copts" }
                , elements:{
@@ -2250,7 +2250,6 @@ function eedit(myid,q,target) {
            var res = gui(elements);
            s += 'Instillinger for random: <div id="inputdiv">'
              + '<div title="Velg spørsmål med disse tags">Tags {tags}</div>'
-             + '<div title="Velg ut så mange spørsmål dersom mulig">Antall utvalgte {count}</div>'
              + '<div title="Bruk _all_ for alle typer (bare multiple,numeric,dragdrop,fillin)">Begrens til denne typen {seltype}</div>'
              + '</div></div>';
            s = s.supplant(res);
