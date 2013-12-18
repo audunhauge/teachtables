@@ -1906,7 +1906,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
         if (uu.time > fresh) fresh = uu.time;
       } else {
           if (quiz.question[qid]) {
-              if (quiz.question[qid].qtype=='random' && userinstance[res.userid][i]) {
+              if (quiz.question[qid].qtype=='random' && userinstance[res.userid] && userinstance[res.userid][i]) {
                  uu = userinstance[res.userid][i];
                 score += +uu.score;
                 if (quiz.question[qid]) tot += quiz.question[qid].points;

@@ -2507,6 +2507,7 @@ function warn_duplicates(qlist) {
     for (var i=0;i<qlist.length;i++) {
         var qu = qlist[i];
         var txt = qu.display;
+        if (!txt) continue;
         if (!lenhash[txt.length]) {
           // no question of this length seen before
           lenhash[txt.length] = [];
@@ -2516,6 +2517,7 @@ function warn_duplicates(qlist) {
                 var qo = qlist[qoi];
                 if (qo.display == qu.display) {
                     dupes[qu.id] = qo.id;  // only show first dupe
+                    dupes[qo.id] = qu.id;
                     break;
                 }
             }
