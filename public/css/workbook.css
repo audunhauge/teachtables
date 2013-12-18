@@ -636,6 +636,9 @@ div.status4 { /* error */
 div.status5 { /* teacher made remark */
     background:#3ff !important;
 }
+div.status6 { /* this is a duplicate question */
+    background:#ff3 !important;
+}
 
 .remark {
     color:blue;

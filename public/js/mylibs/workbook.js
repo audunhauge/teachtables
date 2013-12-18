@@ -1148,7 +1148,7 @@ function renderPage() {
                 cinf = wbinfo.trail.pop();
               } while (wbinfo.trail.length > 0 && cinf.id != containerid );
             } else {
-              wbinfo.trail.push({id:wbinfo.containerid,name:$j("#"+this.id).html() });
+              wbinfo.trail.push({id:wbinfo.containerid,name:$j("#"+this.id).attr("tag") });
             }
             wbinfo.page[containerid] = wbinfo.page[containerid] || 0;
             wbinfo.parentid = wbinfo.containerid;   // remember parent
@@ -2500,6 +2500,32 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
   return ua;
 }
 
+// check question list for similar questions and warn if seeming duplicates
+function warn_duplicates(qlist) {
+    var lenhash = {};  // stored by length
+    var dupes = {};    // these may be dupes
+    for (var i=0;i<qlist.length;i++) {
+        var qu = qlist[i];
+        var txt = qu.display;
+        if (!lenhash[txt.length]) {
+          // no question of this length seen before
+          lenhash[txt.length] = [];
+        } else {
+            for (var j=0; j <lenhash[txt.length].length; j++) {
+                var qoi = lenhash[txt.length][j];
+                var qo = qlist[qoi];
+                if (qo.display == qu.display) {
+                    dupes[qu.id] = qo.id;  // only show first dupe
+                    break;
+                }
+            }
+        }
+        lenhash[txt.length].push(i);
+    }
+    return dupes;
+}
+
+
 wb.render.normal  = {
          // renderer for header
          header:function() {
@@ -2523,6 +2549,7 @@ wb.render.normal  = {
             var qq = '';
             var qql = [];
             var taggers = wbinfo.taglist;
+            var dupes =  warn_duplicates(questlist);   // same question text
             for (var qidx in questlist) {
               qu = questlist[qidx];
               var status = qu.status;
@@ -2546,6 +2573,10 @@ wb.render.normal  = {
               if (remarks[qu.id]) {
                 remark = ' '+remarks[qu.id].text;
                 statusclass = ' status5';
+              }
+              if (dupes[qu.id]) {
+                remark = ' duplicate of '+dupes[qu.id];
+                statusclass = ' status6';
               }
               var tit = shorttext.replace(/['"]/g,'«');    //' just to help the editor
               var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
@@ -2793,12 +2824,12 @@ wb.render.normal  = {
                             embellish += " trinn";
                           }
                           if (mycopt && mycopt.exam && mycopt.exam.length) {
-                            return '<div class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
+                            return '<div tag="'+qu.name+'" class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
                           }
-                          return '<div class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
+                          return '<div tag="'+qu.name+'" class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
                           break;
                       case 'container':
-                          return '<div class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';
+                          return '<div tag="'+qu.name+'" class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';
                           break;
                       case 'diff':
                       case 'textarea':
