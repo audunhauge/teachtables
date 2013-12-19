@@ -1517,7 +1517,44 @@ exports.questionstats = function(user,query,callback) {
   client.query( " update quiz_question set avg = ii.avg,count=ii.count from (select q.id as qid,count(qu.id) as count"
                + " ,sum(qu.score)/sum(q.points) as avg from quiz_question q inner join quiz_useranswer qu on (q.id = qu.qid) "
                + " where qu.score >= 0 and qu.attemptnum > 0 and q.points > 0 and q.qtype not in ('quiz','container','textarea') "
-               + " group by q.id having count(qu.id) > 10 ) ii where id =ii.qid ");
+               + " group by q.id having count(qu.id) > 10 ) ii where id =ii.qid ",
+  after(function(r) {
+        client.query( "select id,avg,count,parent from quiz_question where qtype not in ('quiz','container') and count > 5 and avg > 0",
+        after(function(results) {
+          if (results && results.rows) {
+              // pool stats for clones .. we have a parent and possibly several clones/children
+              var pool = {};   // parents and their clones
+              var ql = {};     // list of all questions indexed by id
+              for (var i=0; i< results.rows.length; i++) {
+                  var rr = results.rows[i];
+                  ql[rr.id] = rr;
+                  if (rr.parent) {
+                      if (!pool[rr.parent]) {
+                          pool[rr.parent] = { avg:0, count:0, poo:[ rr.parent ] };  // the pool contains parent + children
+                      }
+                      pool[rr.parent].poo.push(rr.id);
+                  }
+              }
+              // now we have a pool of relatives that need to be combined
+              for (var pid in pool) {
+                  var pp = pool[pid];  // pid is parent id
+                  var tot = 0, count = 0;
+                  for (var i=0; i < pp.poo.length; i++) {
+                      var pi = pp.poo[i];
+                      var qq = ql[pi] ? ql[pi] : { avg:0, count:0};
+                      tot += qq.avg * qq.count;
+                      count += qq.count;
+                  }
+                  var avg = tot/count;
+                  for (var i=0; i < pp.poo.length; i++) {
+                      var pi = pp.poo[i];
+                      console.log("update quiz_question set avg=$1,count=$2 where id=$3",[avg,count,pi]);
+                      client.query("update quiz_question set avg=$1,count=$2 where id=$3",[avg,count,pi]);
+                  }
+              }
+          }
+        }));
+  }));
   console.log("QUIZ STATS UPDATED");
   callback(null);
 }
