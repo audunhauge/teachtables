@@ -273,6 +273,16 @@ exports.getuseranswers = function(req,res) {
     }
 };
 
+exports.questionstats = function(req,res) {
+    if (req.session.user  && req.session.user.department == 'Undervisning') {
+      wb.questionstats(req.session.user, req.query, function(data) {
+        res.send(data);
+      });
+    } else {
+      res.send(null);
+    }
+};
+
 exports.scoresummary = function(req,res) {
     if (req.session.user ) {
       wb.scoresummary(req.session.user, req.query, function(data) {

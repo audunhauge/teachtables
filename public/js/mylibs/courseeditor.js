@@ -36,6 +36,7 @@ function managecourse() {
   + '     <li><a id="editteach" class="action" href="#">Edit teacher</a></li>'
   + '   </ul>'
   + '   <li><a id="edittimeplan" class="action" href="#">Edit timetables</a></li>'
+  + '   <li><a id="genquizstats" class="action" href="#">Update quiz-stats</a></li>'
   + '  </ul>'
   + ' </div>'
   + ' <div id="cmstage">'
@@ -43,6 +44,10 @@ function managecourse() {
   + ' </div>'
   + '</div>';
   $j("#main").html(s);
+  $j("#genquizstats").click(function(event) {
+      event.preventDefault();
+      $j.get(mybase+ "/questionstats");
+  });
   $j("#newroom").click(function(event) {
       event.preventDefault();
       add_room(database.roomnames);

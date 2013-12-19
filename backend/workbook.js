@@ -1511,6 +1511,16 @@ var getqcon = exports.getqcon = function(user,query,callback) {
   }));
 }
 
+exports.questionstats = function(user,query,callback) {
+  // updates avg and count for questions with useranswers
+  //   can be used to pick questions based on difficulty (avg < 0.3 e.g.)
+  client.query( " update quiz_question set avg = ii.avg,count=ii.count from (select q.id as qid,count(qu.id) as count"
+               + " ,sum(qu.score)/sum(q.points) as avg from quiz_question q inner join quiz_useranswer qu on (q.id = qu.qid) "
+               + " where qu.score >= 0 and qu.attemptnum > 0 and q.points > 0 and q.qtype not in ('quiz','container','textarea') "
+               + " group by q.id having count(qu.id) > 10 ) ii where id =ii.qid ");
+  console.log("QUIZ STATS UPDATED");
+  callback(null);
+}
 
 exports.exportcontainer = function(user,query,callback) {
   // returns list of questions for a container suitable for export
@@ -1906,11 +1916,13 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
         if (uu.time > fresh) fresh = uu.time;
       } else {
           if (quiz.question[qid]) {
-              if (quiz.question[qid].qtype=='random' && userinstance[res.userid] && userinstance[res.userid][i]) {
-                 uu = userinstance[res.userid][i];
-                score += +uu.score;
-                if (quiz.question[qid]) tot += quiz.question[qid].points;
-                if (uu.time > fresh) fresh = uu.time;
+              if (quiz.question[qid].qtype=='random' ) {
+                if (userinstance[res.userid] && userinstance[res.userid][i]) {
+                  uu = userinstance[res.userid][i];
+                  score += +uu.score;
+                  if (uu.time > fresh) fresh = uu.time;
+                }
+                tot += quiz.question[qid].points;
               }
           }
       }
