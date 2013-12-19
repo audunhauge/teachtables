@@ -841,11 +841,51 @@ span.num {
   padding-right:6px;
   color:steelblue;
 }
+.n13 {
+  color:#a50026 !important;
+  background:white;
+}
+.n12 {
+  color:#d73027 !important;
+  background:white;
+}
+.n11 {
+  color:#f46d43 !important;
+  background:white;
+}
+.n10 {
+  color:#fdae61 !important;
+  background:black;
+}
+.n9 {
+  color:#fee08b !important;
+  background:black;
+}
+.n8 {
+  color:#d9ef8b !important;
+  background:black;
+}
+.n7 {
+  color:#a6d96a !important;
+  background:white;
+}
+.n6 {
+  color:#66bd63 !important;
+  background:white;
+}
+.n5 {
+  color:#1a9850 !important;
+  background:white;
+}
+.n4 {
+  color:#006837 !important;
+  background:white;
+}
 
 .n3 {
   color:#b22 !important;
 }
-     
+
 .n2 {
   color:#2b2 !important;
 }

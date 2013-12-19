@@ -2583,7 +2583,7 @@ wb.render.normal  = {
               var tit = shorttext.replace(/['"]/g,'«');    //' just to help the editor
               var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
               //if (wantlist) qdiv += '<input type="checkbox">';
-              var avg = [0,3,3,3,2,2,2,1,1,1,1][Math.floor(10* +qu.avg)];
+              var avg = 4+Math.floor(10* +qu.avg);
               qdiv += '<input type="checkbox">';
               qdiv +=      '<span '+owner+' class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
