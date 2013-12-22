@@ -1979,7 +1979,7 @@ function eedit(myid,q,target) {
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
         + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Normal,Partial spørsmål vises i en prøve. Partial betyr del av serie"> Status '
-        + status + '</span></td></tr>'
+        + status + '</span><span class="count">'+q.count+'</span><span class="avg">'+(q.avg).toFixed(2)+'</span></td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr><th></th><td>'+remark+'</td><td></td></tr>'
         + '</table>'
@@ -2068,9 +2068,9 @@ function eedit(myid,q,target) {
                 var dia = ''
                 +   '<form><fieldset><table class="standard_info">'
                 +   '<tr><th>Points</th><td><input name="qpoints" class="num4" type="text" value="'+q.points+'"></td></tr>'
-                +   '<tr><th>Created</th><td>'+showdate(q.created)+' &nbsp; <b>Count</b> '+q.count+'</td></tr>'
-                +   '<tr><th>Modified</th><td>'+showdate(q.modified)+' &nbsp; <b>Avg</b> '+q.avg+'</td></tr>'
                 +   '<tr><th>Subject</th><td><input name="subject" type="text" value="'+q.subject+'"></td></tr>'
+		+   '<tr><th>Created</th><td>'+showdate(q.created)+'</td></tr>'
+		+   '<tr><th>Modified</th><td>'+showdate(q.modified)+'</td></tr>'
                 +   '<tr><th>Parent</th><td>'+q.parent+'</td></tr>'
                 +   '<tr><th>Javascript</th><td><textarea class="txted" id="qcode">'+dialog.qcode+'</textarea></td></tr>'
                 +   '<tr><th>SymbolicPython</th><td><textarea class="txted" id="pycode">'+dialog.pycode+'</textarea></td></tr>'
@@ -2236,14 +2236,15 @@ function eedit(myid,q,target) {
         case 'random':
            var seltype = dialog.contopt.seltype || 'all';
            var usetags = dialog.contopt.tags || 'Test';
-           var count = dialog.contopt.count || '3';
+           var level = dialog.contopt.level || 'any';
            qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted hidden" id="qdisplay" >Random Question '+usetags+','+seltype+ '</textarea></td></tr>';
            var elements = {
                  defaults:{  type:"text", klass:"copts" }
                , elements:{
                      seltype:       {  type:"select", klass:"copts",  value:seltype,
                                       options:[{ value:"all"},{ value:"multiple"},{ value:"numeric"},{ value:"fillin"},{ value:"dragdrop"} ] }
-                   , count:         {  klass:"copts num4",  value:count }
+                   , level:       {  type:"select", klass:"copts",  value:level,
+                                      options:[{ value:"any"},{ value:"easy"},{ value:"medium"},{ value:"hard"} ] }
                    , tags:         { value:usetags }
                  }
                };
@@ -2251,6 +2252,7 @@ function eedit(myid,q,target) {
            s += 'Instillinger for random: <div id="inputdiv">'
              + '<div title="Velg spørsmål med disse tags">Tags {tags}</div>'
              + '<div title="Bruk _all_ for alle typer (bare multiple,numeric,dragdrop,fillin)">Begrens til denne typen {seltype}</div>'
+             + '<div title="Velg fortrinnsvis vanskegrad :">Difficulty level {level}</div>'
              + '</div></div>';
            s = s.supplant(res);
            break;
@@ -2583,13 +2585,13 @@ wb.render.normal  = {
               var tit = shorttext.replace(/['"]/g,'«');    //' just to help the editor
               var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
               //if (wantlist) qdiv += '<input type="checkbox">';
-              var avg = 4+Math.floor(10* +qu.avg);
+              var avg = (qu.avg >0 && qu.count>5) ? 9+Math.floor(5* +qu.avg) : 1;
               qdiv += '<input type="checkbox">';
               qdiv +=      '<span '+owner+' class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
                          + '<span title="'+qu.name+remark+'" class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
-                         + '</span><span title="avg:'+qu.avg+' count:'+qu.count+'" class="qpoints n'+avg+'">'+ qu.points +'</span><div class="edme"></div>';
+                         + '</span><span title="avg:'+(qu.avg).toFixed(2)+' count:'+qu.count+'" class="qpoints n'+avg+'">'+ qu.points +'</span><div class="edme"></div>';
               //if (!wantlist) qdiv += '<div class="killer"></div>';
               qdiv += '</div>';
               qql.push(qdiv);

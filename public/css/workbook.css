@@ -203,6 +203,19 @@ ins {
   background:orange;
 }
 
+span.count, span.avg {
+  display:block;
+  float:right;
+  width:60px;
+  margin-left:5px;
+}
+span.count:before {
+  content:"Count:";
+}
+span.avg:before {
+  content:"Avg:";
+}
+
 
 ul.teach {
     display:none;
@@ -842,44 +855,34 @@ span.num {
   color:steelblue;
 }
 .n13 {
-  color:#a50026 !important;
-  background:white;
+  color:#00ff00 !important;
 }
 .n12 {
-  color:#d73027 !important;
-  background:white;
+  color:#00aC40 !important;
 }
 .n11 {
-  color:#f46d43 !important;
-  background:white;
+  color:#005970 !important;
 }
 .n10 {
-  color:#fdae61 !important;
-  background:black;
+  color:#003690 !important;
 }
 .n9 {
-  color:#fee08b !important;
-  background:black;
+  color:#0033e0 !important;
 }
 .n8 {
-  color:#d9ef8b !important;
-  background:black;
+  color:#4455db !important;
 }
 .n7 {
-  color:#a6d96a !important;
-  background:white;
+  color:#12a3cb !important;
 }
 .n6 {
   color:#66bd63 !important;
-  background:white;
 }
 .n5 {
   color:#1a9850 !important;
-  background:white;
 }
 .n4 {
   color:#006837 !important;
-  background:white;
 }
 
 .n3 {
