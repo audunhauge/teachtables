@@ -33,7 +33,7 @@ function getUser(uid,pref) {
 }
 
 function showdate(jsdate) {
-  var d = new Date(jsdate);
+  var d = new Date(+jsdate);
   var mdate = d.getDate();
   var mmonth = d.getMonth() + 1; //months are zero based
   var myear = d.getFullYear();
@@ -1823,13 +1823,13 @@ function workbook(coursename) {
 
 }
 
-function makeSelect(name,selected,arr) {
-  // prelim version - needs selected,value and ids
+function makeSelect(name,selected,arr,values) {
   var s = '<select name="'+name+'" id="'+name+'" ">';
   for (var ii in arr) {
     var oo = arr[ii];
+    var va = values && values[ii] ? values[ii] : oo;
     var sel = (selected == oo) ? ' selected="selected" ' : '';
-    s += '<option '+sel+' value="'+oo+'">'+oo+'</option>';
+    s += '<option '+sel+' value="'+va+'">'+oo+'</option>';
   }
   s += '</select>';
   return s;
@@ -1899,9 +1899,9 @@ function setupWB(heading) {
 var dialog = { daze:'', contopt:{} };  // pesky dialog
 
 var qdefault = {  "quiz"     : {navi:1,fasit:0,hints:1,omstart:1,adaptiv:1,antall:5 ,fiidback:"some",rank:1,karak:1,hintcost:0.10,attemptcost:0.1}
-                , "lab"      : {navi:1,fasit:1,hints:1,omstart:1,adaptiv:1,antall:50,fiidback:"lots",rank:1,karak:0,hintcost:0.0,attemptcost:0.0}
+                , "lab"      : {darwin:0,navi:1,fasit:1,hints:1,omstart:1,adaptiv:1,antall:50,fiidback:"lots",rank:1,karak:0,hintcost:0.0,attemptcost:0.0}
                 , "homework" : {navi:1,fasit:1,hints:1,omstart:0,adaptiv:1,antall:20,fiidback:"lots",rank:0,karak:0,hintcost:0.05,attemptcost:0.05}
-                , "exam"     : {navi:0,fasit:0,hints:0,omstart:0,adaptiv:0,antall:2 ,fiidback:"none",rank:0,karak:0}
+                , "exam"     : {darwin:0,navi:0,fasit:0,hints:0,omstart:0,adaptiv:0,antall:2 ,fiidback:"none",rank:0,karak:0}
                };
 
 function editquestion(myid, target) {
@@ -1915,6 +1915,7 @@ function editquestion(myid, target) {
        dialog.qtype = q.qtype;
        dialog.qpoints = q.points;
        dialog.subject = q.subject;
+       dialog.avg = q.avg;
        dialog.qcode = q.code;
        dialog.pycode = q.pycode;
        dialog.hints = q.hints || '';
@@ -1940,6 +1941,11 @@ function eedit(myid,q,target) {
    var statlist = "Normal,Partial,Testing,Fixme,Error".split(',');
    var stat = statlist[q.status];
    var status = makeSelect('status',stat,statlist);
+   var hard = (q.avg < 0.5) ? 'hard' : (q.avg < 0.8) ? 'medium' : 'easy' ;
+   var hardy = makeSelect('hardy',hard,"easy,medium,hard".split(','),[0.88,0.65,0.4]);
+   if (q.count > 3) {
+     hardy = hard;  // cant set hardness of a question if more than 3 studs have scored it
+   }
    var qdescript = descript[q.qtype] || q.qtype;
    var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,info,textarea,random,container,quiz".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
@@ -1979,7 +1985,8 @@ function eedit(myid,q,target) {
         + '<table class="qed">'
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
         + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Normal,Partial spørsmål vises i en prøve. Partial betyr del av serie"> Status '
-        + status + '</span><span class="count">'+q.count+'</span><span class="avg">'+(q.avg).toFixed(2)+'</span></td></tr>'
+        + status + '</span><span title="Kan bare overstyre dersom antall svar mindre enn 3">'+hardy
+	+ '</span><span class="count">'+q.count+'</span><span class="avg">'+(q.avg).toFixed(2)+'</span></td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr><th></th><td>'+remark+'</td><td></td></tr>'
         + '</table>'
@@ -2158,6 +2165,8 @@ function eedit(myid,q,target) {
         var qstatustxt = $j("select[name=status]").val();
         var qstatus = statlist.indexOf(qstatustxt);
         var qname = $j("input[name=qname]").val();
+        var hardnes = $j("select[name=hardy]").val();
+        var hard = q.count > 3 ? q.avg : hardnes; // three studs count for more than one teacher
         // wbinfo.courseinfo.qlistorder = trulist;
         var newqtx = { display:$j("#qdisplay").val(), options:q.options, fasit:q.fasit, code:dialog.qcode,
                         pycode:dialog.pycode, hints:dialog.hints, daze:daze, contopt:contopt };
@@ -2165,7 +2174,7 @@ function eedit(myid,q,target) {
             newqtx.qlistorder = dialog.qlistorder;
             // this preserves any question-list for quiz/container
         }
-        $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname, status:qstatus,
+        $j.post(mybase+'/editquest', { action:'update', qid:myid, qtext:newqtx, name:qname, status:qstatus, avg:hard,
                                 qtype:qtype, points:dialog.qpoints, subject:dialog.subject }, function(resp) {
            editquestion(myid,target);
         });
@@ -2244,7 +2253,7 @@ function eedit(myid,q,target) {
                      seltype:       {  type:"select", klass:"copts",  value:seltype,
                                       options:[{ value:"all"},{ value:"multiple"},{ value:"numeric"},{ value:"fillin"},{ value:"dragdrop"} ] }
                    , level:       {  type:"select", klass:"copts",  value:level,
-                                      options:[{ value:"any"},{ value:"easy"},{ value:"medium"},{ value:"hard"} ] }
+                                      options:[{ value:"any"},{ value:"darwin"},{ value:"easy"},{ value:"medium"},{ value:"hard"} ] }
                    , tags:         { value:usetags }
                  }
                };
@@ -2271,6 +2280,7 @@ function eedit(myid,q,target) {
            var locked = (dialog.contopt.locked != undefined) ? dialog.contopt.locked : 0;
            var hidden = (dialog.contopt.hidden != undefined) ? dialog.contopt.hidden : 0;
            var fasit = (dialog.contopt.fasit != undefined) ? dialog.contopt.fasit : 0;
+           var darwin = (dialog.contopt.darwin != undefined) ? dialog.contopt.darwin : 0;
            var skala = dialog.contopt.skala || 'medium';
            var rcount = dialog.contopt.rcount || '15';
            var xcount = dialog.contopt.xcount || '0';
@@ -2294,6 +2304,7 @@ function eedit(myid,q,target) {
                , elements:{
                    adaptiv:       {  type:"yesno", value:adaptiv }
                  , randlist:      {  type:"yesno", value:randlist }
+                 , darwin:        {  type:"yesno", value:darwin }
                  , hints:         {  type:"yesno", value:hints }
                  , omstart:       {  type:"checkbox", value:omstart }
                  , navi:          {  type:"checkbox", value:navi }
@@ -2342,8 +2353,9 @@ function eedit(myid,q,target) {
              + '<div class="underlined" title="Antall spørsmål pr side">Antall pr side {antall}</div>'
              + '<div class="underlined" title="Trinnvis visning av hjelpehint">Hjelpehint{hints}</div>'
              + '<div class="underlined" title="Pris for visning av hjelpehint">  Hintpris{hintcost}</div>'
-             + '<div class="underlined" title="Kan svare flere ganger mot poengtap (10%)">Adaptiv {adaptiv}</div>'
-             + '<div class="underlined" title="  Pris for adaptiv">  Adaptpris{attemptcost}</div>'
+             + '<div class="underlined" title="Velg vanskegrad etter elevnivå">Adaptiv {darwin}</div>'
+             + '<div class="underlined" title="Kan svare flere ganger mot poengtap (10%)">Forsøk {adaptiv}</div>'
+             + '<div class="underlined" title="  Pris for forsøk">  Forsøkpris{attemptcost}</div>'
              + '<div class="underlined" title="Prøve utilgjengelig før denne datoen">Start {start} H {hstart} : M {mstart}</div>'
              + '<div class="underlined" title="Prøve utilgjengelig etter denne datoen">Stop {stop} H {hstop} : M {mstop}</div>'
              + '</div></div>';

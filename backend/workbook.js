@@ -91,6 +91,7 @@ exports.editquest = function(user,query,callback) {
   var subject = query.subject || '';
   var qtype   = query.qtype || '';
   var status  = query.status;
+  var avg     = query.avg;
   var qcache  = query.cache || '';  // do we need to update cache
   var qtext   = JSON.stringify(query.qtext) || '';
   var teachid = +user.id;
@@ -136,6 +137,11 @@ exports.editquest = function(user,query,callback) {
         if (query.status != undefined) {
           sql += ',status=$'+idd;
           params.push(status);
+          idd++;
+        }
+        if (query.avg != undefined) {
+          sql += ',avg=$'+idd;
+          params.push(avg);
           idd++;
         }
         if (query.name) {
@@ -828,6 +834,10 @@ var remarked = exports.remarked = function(user,query,callback) {
     }));
 }
 
+var userstats = {};
+// memoize userstats for use by random question type
+// in darwin mode will choose difficulty adapted to user
+
 var quizstats = exports.quizstats = function(user,query,callback) {
   var isteach = (user.department == 'Undervisning');
   var studid  = query.studid;
@@ -856,6 +866,10 @@ var quizstats = exports.quizstats = function(user,query,callback) {
         var remap = {};
         for (var i =0; i < stats.rows.length; i++) {
           var elm = stats.rows[i];
+          if (!userstats[elm.userid]) {
+	    userstats[elm.userid] = {};
+	  }
+	  userstats[elm.userid][elm.tagname] = elm.oavg;
           if (elm.userid != user.id) {
             if (!remap[elm.userid]) {
               remap[elm.userid] = 'anonym' + ii++;
@@ -1245,19 +1259,43 @@ var renderq = exports.renderq = function(user,query,callback) {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
                       if (qu.qtype == 'random' && qu.contopt && qu.contopt.tags) {
-                        var thesetags = "'"+qu.contopt.tags.replace(/,/g,"','")+"'";
+                        var thesetags = qu.contopt.tags;
                         var seltype = (qu.contopt.seltype == 'all') ? " and qtype not in ('quiz','container','random')"
                                         : " and qtype = '"+qu.contopt.seltype +"'";
                         client.query('select q.*,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) '
-                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and t.tagname in ('+thesetags+')' + seltype
+                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and t.tagname = $2 ' + seltype
                                      + ' and points ='+qu.points
                                      + " and subject = '"+qu.subject+"'"
-                                     + ' and status = 0'
-                                     , [masterq.teachid],
+                                     + ' and status = 0 order by avg'
+                                     , [masterq.teachid,thesetags],
                         after(function(random) {
                             var nu = qu;
                             if (random.rows.length) {
-                               nu = _.shuffle(random.rows)[0];
+			       var list = random.rows;
+			       var len = list.length;
+			       var lev;
+			       if (len > 2) {    // need at least three questions to choose by difficulty
+			         var dar,darwin = [];
+				 lev = qu.contopt.level;
+			         if (lev == 'darwin' && userstats[uid] && userstats[uid][thesetags] ) {
+				   dar = 1.0 - +userstats[uid][thesetags];
+				   darwin = _.filter(list,function(q) {  return +q.avg + 0.01 > dar && +q.avg-0.35 < dar } );
+				 }
+			         if (lev == 'easy' || lev == 'medium' || lev == 'hard') {
+				   dar  = (lev == 'easy') ? 0.8 : (lev == 'hard') ? 0 : 0.5;
+				 }
+				 if (darwin.length > 2) {
+				      // the list is sufficiently long
+				      list = darwin;
+				 } else {
+				      var clen =  Math.floor(len/3);
+				      if (clen > 1) {  // picking random element from a list of two is .. well
+				        var kut = (dar < 0.33) ? 0 : (dar < 0.66) ? clen : clen+clen;
+				        list = list.slice(kut,kut+clen+1);
+				      }
+				 }
+			       }
+                               nu = _.shuffle(list)[0];
                                questlist[i] = nu;
                                quiz.question[nu.id] = nu;
                                query.questlist[i] = nu;   // replace the RANDOM-TYPE question with randomly chosen question
