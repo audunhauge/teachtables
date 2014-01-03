@@ -2603,7 +2603,7 @@ wb.render.normal  = {
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
                          + '<span title="'+qu.name+remark+'" class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
-                         + '</span><span title="avg:'+(qu.avg).toFixed(2)+' count:'+qu.count+'" class="qpoints n'+avg+'">'+ qu.points +'</span><div class="edme"></div>';
+                         + '</span><span title="avg:'+(+qu.avg).toFixed(2)+' count:'+qu.count+'" class="qpoints n'+avg+'">'+ qu.points +'</span><div class="edme"></div>';
               //if (!wantlist) qdiv += '<div class="killer"></div>';
               qdiv += '</div>';
               qql.push(qdiv);
