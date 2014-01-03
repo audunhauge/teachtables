@@ -867,9 +867,9 @@ var quizstats = exports.quizstats = function(user,query,callback) {
         for (var i =0; i < stats.rows.length; i++) {
           var elm = stats.rows[i];
           if (!userstats[elm.userid]) {
-	    userstats[elm.userid] = {};
-	  }
-	  userstats[elm.userid][elm.tagname] = elm.oavg;
+        userstats[elm.userid] = {};
+      }
+      userstats[elm.userid][elm.tagname] = elm.oavg;
           if (elm.userid != user.id) {
             if (!remap[elm.userid]) {
               remap[elm.userid] = 'anonym' + ii++;
@@ -1271,31 +1271,53 @@ var renderq = exports.renderq = function(user,query,callback) {
                         after(function(random) {
                             var nu = qu;
                             if (random.rows.length) {
-			       var list = random.rows;
-			       var len = list.length;
-			       var lev;
-			       if (len > 2) {    // need at least three questions to choose by difficulty
-			         var dar,darwin = [];
-				 lev = qu.contopt.level;
-			         if (lev == 'darwin' && userstats[uid] && userstats[uid][thesetags] ) {
-				   dar = 1.0 - +userstats[uid][thesetags];
-				   darwin = _.filter(list,function(q) {  return +q.avg + 0.01 > dar && +q.avg-0.35 < dar } );
-				 }
-			         if (lev == 'easy' || lev == 'medium' || lev == 'hard') {
-				   dar  = (lev == 'easy') ? 0.8 : (lev == 'hard') ? 0 : 0.5;
-				 }
-				 if (darwin.length > 2) {
-				      // the list is sufficiently long
-				      list = darwin;
-				 } else {
-				      var clen =  Math.floor(len/3);
-				      if (clen > 1) {  // picking random element from a list of two is .. well
-				        var kut = (dar < 0.33) ? 0 : (dar < 0.66) ? clen : clen+clen;
-				        list = list.slice(kut,kut+clen+1);
-				      }
-				 }
-			       }
+                               var list = random.rows;
+                               var len = list.length;
+                               var lev = qu.contopt.level;
+                               var doslice = false;
+                               //console.log("Checking for darwin: ",len,lev,contopt.darwin);
+                               if (len > 2 && (lev != 'any' || contopt.darwin == '1') ) {    // need at least three questions to choose by difficulty
+                                   // and options for using adaptive mode (lev can be hard,easy,darwin) or container is darwin
+                                //console.log("Seems to be Darwin");
+                                var dar;
+                                var darwin = _.filter(list,function(q) {  return +q.avg > 0 } );  // remove questions that are not graded
+                                // either all random questions are treated as darwin based on option for quiz
+                                // or we check each individual random for darwin option
+                                /*
+                                if (userstats[uid] && userstats[uid][thesetags] ) {
+                                    console.log("there are stats for this user");
+                                } else {
+                                    console.log("there are NO stats for this user");
+                                }
+                                */
+                                if ((contopt.darwin || lev == 'darwin') && userstats[uid] && userstats[uid][thesetags] ) {
+                                  dar = +userstats[uid][thesetags];
+                                  var span = (dar < 0.6) ? 0.3 : (dar < 0.8) ? 0.4 : 0.6 ;
+                                  dar = (dar < 0.6) ? 0.75 : (dar < 0.8) ? 0.5 : 0 ;
+                                  darwin = _.filter(list,function(q) {  return +q.avg + 0.01 > dar && +q.avg-span < dar } );
+                                  doslice = true;
+                                  //console.log("Darwin dar=",dar);
+                                }
+                                if (lev == 'easy' || lev == 'medium' || lev == 'hard') {
+                                  dar  = (lev == 'easy') ? 0.8 : (lev == 'hard') ? 0 : 0.5;
+                                  doslice = true;
+                                  //console.log("Level ",lev);
+                                }
+                                if (darwin.length > 2) {
+                                  // the list is sufficiently long
+                                  list = darwin;
+                                  //console.log("Sufficient list ",list.map(function (q) {return q.avg}));
+                                } else if (doslice) {
+                                  var clen =  Math.floor(len/3);
+                                  if (clen > 1) {  // picking random element from a list of two is .. well
+                                    //console.log("Dividing in three parts ",lev);
+                                    var kut = (dar < 0.33) ? 0 : (dar < 0.66) ? clen : clen+clen;
+                                    list = list.slice(kut,kut+clen+1);
+                                  }
+                                }
+                               }
                                nu = _.shuffle(list)[0];
+                               //console.log("Avg=",nu.avg);
                                questlist[i] = nu;
                                quiz.question[nu.id] = nu;
                                query.questlist[i] = nu;   // replace the RANDOM-TYPE question with randomly chosen question

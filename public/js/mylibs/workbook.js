@@ -1986,7 +1986,7 @@ function eedit(myid,q,target) {
         + '<tr><th>Navn</th><td><input class="txted" name="qname" type="text" value="' + q.name + '"></td></tr>'
         + '<tr><th>Type</th><td>'+selectype+' <span title="Bare Normal,Partial spørsmål vises i en prøve. Partial betyr del av serie"> Status '
         + status + '</span><span title="Kan bare overstyre dersom antall svar mindre enn 3">'+hardy
-	+ '</span><span class="count">'+q.count+'</span><span class="avg">'+(q.avg).toFixed(2)+'</span></td></tr>'
+        + '</span><span class="count">'+q.count+'</span><span class="avg">'+(+q.avg).toFixed(2)+'</span></td></tr>'
         + variants.qdisplay
         + '<tr><th>Detaljer <div id="details"></div></th><td>'+sync+'</td></tr><th></th><td>'+remark+'</td><td></td></tr>'
         + '</table>'
@@ -2076,8 +2076,8 @@ function eedit(myid,q,target) {
                 +   '<form><fieldset><table class="standard_info">'
                 +   '<tr><th>Points</th><td><input name="qpoints" class="num4" type="text" value="'+q.points+'"></td></tr>'
                 +   '<tr><th>Subject</th><td><input name="subject" type="text" value="'+q.subject+'"></td></tr>'
-		+   '<tr><th>Created</th><td>'+showdate(q.created)+'</td></tr>'
-		+   '<tr><th>Modified</th><td>'+showdate(q.modified)+'</td></tr>'
+        +   '<tr><th>Created</th><td>'+showdate(q.created)+'</td></tr>'
+        +   '<tr><th>Modified</th><td>'+showdate(q.modified)+'</td></tr>'
                 +   '<tr><th>Parent</th><td>'+q.parent+'</td></tr>'
                 +   '<tr><th>Javascript</th><td><textarea class="txted" id="qcode">'+dialog.qcode+'</textarea></td></tr>'
                 +   '<tr><th>SymbolicPython</th><td><textarea class="txted" id="pycode">'+dialog.pycode+'</textarea></td></tr>'
