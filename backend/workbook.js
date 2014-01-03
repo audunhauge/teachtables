@@ -1059,6 +1059,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                 var qopts =parseJSON(q.qtext);
                 ua.points = q.points;
                 ua.qtype = q.qtype;
+                ua.avg = q.avg;
                 ua.name = q.name;
                 ua.status = q.status;
                 ua.subject = q.subject;
