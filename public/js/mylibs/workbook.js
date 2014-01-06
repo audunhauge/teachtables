@@ -1784,7 +1784,7 @@ function workbook(coursename) {
     var elever = memberlist[gru];
     var info = synopsis(coursename,plandata);
     wbinfo.weeksummary = showAweek(false,gru,elever,info,absent,wbinfo.timmy,tests,plandata,uke,tjd,section);
-    $j.getJSON(mybase+'/workbook',{ courseid:wbinfo.courseid, coursename:coursename }, function(resp) {
+    $j.getJSON(mybase+'/workbook',{ courseid:wbinfo.courseid, coursename:coursename,studlist:elever.join(','),subject:fag }, function(resp) {
         if (resp) {
           var courseinfo;
           try {

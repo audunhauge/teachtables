@@ -838,14 +838,22 @@ var userstats = {};
 // memoize userstats for use by random question type
 // in darwin mode will choose difficulty adapted to user
 
-var quizstats = exports.quizstats = function(user,query,callback) {
+var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
+  // isupdate set to true if this is only to refresh userstats
+  var now = new Date();
+  var justnow = now.getTime();
+  if (isupdate && userstats.lasttime > justnow - 20 * 60 * 1000) {
+      // this is an update call - and less than 20 minutes since last
+      // just return doing nothing
+      callback({});
+      return;
+  }
   var isteach = (user.department == 'Undervisning');
-  var studid  = query.studid;
+  //var studid  = query.studid;
   var studlist = query.studlist || "" ;  // list of student ids
   var goodlist = _.every(studlist.split(","),function(e) { return (e == Math.floor(+e))});
   // test that studlist is list of numbers
-  var now = new Date();
-  var justnow = now.getTime();
+  userstats.lasttime = justnow;
   var lim1 = justnow-8*24*60*60*1000;
   var lim2 = justnow-18*24*60*60*1000;
   var lim3 = justnow-38*24*60*60*1000;
@@ -853,6 +861,13 @@ var quizstats = exports.quizstats = function(user,query,callback) {
   if (goodlist ) {
     // here we have everything in one query
     //   we only take scores [0,1] to avoid edge cases
+    console.log("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as oavg "
+            +      " , sum(case when u.time > $2 then u.score when u.time > $3 then u.score*0.7 when u.time > $4 then u.score*0.4 else u.score*0.2 end)  "
+            +      " / sum(case when u.time > $2 then 1 when u.time > $3 then 0.7 when u.time > $4 then 0.4 else 0.2 end) as avg  "
+            +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
+            +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
+            +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and q.points = 1 "
+            +      " group by u.userid,t.tagname having count(u.id) > 2 order by ant desc", [subject,lim1,lim2,lim3]);
     client.query("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as oavg "
             +      " , sum(case when u.time > $2 then u.score when u.time > $3 then u.score*0.7 when u.time > $4 then u.score*0.4 else u.score*0.2 end)  "
             +      " / sum(case when u.time > $2 then 1 when u.time > $3 then 0.7 when u.time > $4 then 0.4 else 0.2 end) as avg  "
@@ -861,21 +876,19 @@ var quizstats = exports.quizstats = function(user,query,callback) {
             +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and q.points = 1 "
             +      " group by u.userid,t.tagname having count(u.id) > 2 order by ant desc", [subject,lim1,lim2,lim3],
     after(function(stats) {
-      if (!isteach) {
-        var ii=0;
-        var remap = {};
-        for (var i =0; i < stats.rows.length; i++) {
-          var elm = stats.rows[i];
-          if (!userstats[elm.userid]) {
-        userstats[elm.userid] = {};
-      }
-      userstats[elm.userid][elm.tagname] = elm.oavg;
-          if (elm.userid != user.id) {
-            if (!remap[elm.userid]) {
+      var ii=0;
+      var remap = {};
+      if (stats && stats.rows) for (var i =0; i < stats.rows.length; i++) {
+        var elm = stats.rows[i];
+        if (!userstats[elm.userid]) {
+           userstats[elm.userid] = {};
+        }
+        userstats[elm.userid][elm.tagname] = elm.oavg;
+        if (!isteach && elm.userid != user.id) {
+           if (!remap[elm.userid]) {
               remap[elm.userid] = 'anonym' + ii++;
             }
-            elm.userid = remap[elm.userid];
-          }
+           elm.userid = remap[elm.userid];
         }
       }
       callback(stats)
@@ -1297,7 +1310,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                                   dar = (dar < 0.6) ? 0.75 : (dar < 0.8) ? 0.5 : 0 ;
                                   darwin = _.filter(list,function(q) {  return +q.avg + 0.01 > dar && +q.avg-span < dar } );
                                   doslice = true;
-                                  //console.log("Darwin dar=",dar);
+                                  console.log("Darwin dar=",dar);
                                 }
                                 if (lev == 'easy' || lev == 'medium' || lev == 'hard') {
                                   dar  = (lev == 'easy') ? 0.8 : (lev == 'hard') ? 0 : 0.5;
@@ -2036,7 +2049,9 @@ var getworkbook = exports.getworkbook = function(user,query,callback) {
   // returns quiz for given course
   // if non exists - then one is created
   var courseid    = +query.courseid ;
+  var studlist    = query.studlist ;
   var coursename  = query.coursename ;
+  var subject     = query.subject ;  // can be split out of coursename - but this is already done in caller
   var now = new Date();
   if (isNaN(courseid)) {
     console.log("This course may have no studs")
@@ -2047,6 +2062,9 @@ var getworkbook = exports.getworkbook = function(user,query,callback) {
   after(function(results) {
           if (results && results.rows && results.rows[0]) {
             callback(results.rows[0]);
+            quizstats(user,{studlist:studlist,subject:subject},function(re) {
+                console.log("quiz-stats updated");
+            },true);  // the true is to signal that we only need do this if more than 20 minutes since last update
           } else {
             if (user.department == 'Undervisning') {
               //console.log( "insert into quiz_question (qtype,teachid,created,modified) values ('container',$1,$2,$2) returning id ",[user.id, now.getTime() ]);
