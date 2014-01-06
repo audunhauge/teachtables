@@ -396,6 +396,7 @@ function quizstats(ttype,using,ignoring) {
     if (!ttype) {
         ttype = 0;
     }
+    var isteach = userinfo.department == 'Undervisning';
     var testtxt   = ['quiz','homework','lab','exam'][ttype];
     var course,group,config,basetemalist;
     var justnow = new Date();
@@ -492,7 +493,7 @@ function quizstats(ttype,using,ignoring) {
                 }).join('') + '<td>Avg</td></tr>';
             for (var ii=0,l=sortedstuds.length; ii<l; ii++) {
                 var e = enr = sortedstuds[ii];
-                if (userinfo.department != 'Undervisning' && userinfo.id != enr) continue;
+                if (!isteach && userinfo.id != enr) continue;
                 if (students[enr]) {
                   var usr = students[enr];
                   fn = usr.firstname.caps();
@@ -523,6 +524,22 @@ function quizstats(ttype,using,ignoring) {
                    return '<td>'+(tagavg[t].toFixed(2))+'</td>'
                 }).join('') + '<td></td></tr>';
             s += '</table>';
+            if (!isteach) {
+                s = "<h4>Egenvurdering for faget "+ course + '</h4><div class="centered sized1">'
+                   + 'På denne sida får du faglig tilbakemelding, framovermelding og anledning til egenvurdering. '
+                   + 'Meningen er at du aktivt skal bruke sida til å styre innsatsen din i faget.'
+                   + '<ul>'
+                   + '<li>Ut fra tabellen under kan du selv vurdere hvilke emner du må arbeide videre med.'
+                   + '<li>Emner markert med <span class="gg7">rødt</span> er de du er svakest i.'
+                   + '<li>Emner markert med <span class="gg6">oransje</span> er emner hvor du klarer en god del av oppgavene.'
+                   + '<li>Emner markert med <span class="gg2">grønt</span> er de du mestrer ganske godt.'
+                   + '<li>Blanke emner viser at her har du ikke løst tilstrekkelig mange oppgaver til at systemet kan vurdere deg.'
+                   + '<li>Fjern først de blanke feltene, så de røde, deretter de oransje.'
+                   + '</ul>'
+                   + s +'</div>';
+                $j("#results").html(s);
+                return;
+            }
             $j("#results").html(s);
             var ingress = canonical ? 'Canonical tags for this course' : 'These tags used' ;
             var tagcontrol = '<div class="gui"><h3>'+ingress+'</h3>'
