@@ -861,13 +861,6 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
   if (goodlist ) {
     // here we have everything in one query
     //   we only take scores [0,1] to avoid edge cases
-    console.log("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as oavg "
-            +      " , sum(case when u.time > $2 then u.score when u.time > $3 then u.score*0.7 when u.time > $4 then u.score*0.4 else u.score*0.2 end)  "
-            +      " / sum(case when u.time > $2 then 1 when u.time > $3 then 0.7 when u.time > $4 then 0.4 else 0.2 end) as avg  "
-            +      " from quiz_useranswer u inner join quiz_qtag qt on (u.qid = qt.qid) inner join quiz_tag t on (qt.tid=t.id) "
-            +      " inner join quiz_question q on (q.id = u.qid) where u.userid in (" + studlist
-            +      "  ) and u.attemptnum >0 and q.subject=$1 and u.score >= 0 and q.points = 1 "
-            +      " group by u.userid,t.tagname having count(u.id) > 2 order by ant desc", [subject,lim1,lim2,lim3]);
     client.query("select u.userid,t.tagname,sum(u.score) as su,count(u.id) as ant, sum(u.score)/count(u.id) as oavg "
             +      " , sum(case when u.time > $2 then u.score when u.time > $3 then u.score*0.7 when u.time > $4 then u.score*0.4 else u.score*0.2 end)  "
             +      " / sum(case when u.time > $2 then 1 when u.time > $3 then 0.7 when u.time > $4 then 0.4 else 0.2 end) as avg  "
@@ -1013,7 +1006,7 @@ var renderq = exports.renderq = function(user,query,callback) {
   // any questions/instances missing a useranswer
   // will have one inserted and parameters generated for it
   // all questions are assumed to be in quiz.question cache
-  var randlist = [];  // list of used random question ids - we only pick them once;
+  var randlist = {};  // list of used random question ids - we only pick them once;
   var container = +query.container;
   var questlist = query.questlist ;
   var uid       = +user.id;
@@ -1285,18 +1278,24 @@ var renderq = exports.renderq = function(user,query,callback) {
                         after(function(random) {
                             var nu = qu;
                             if (random.rows.length) {
-                               var list = random.rows;
+                               var list0 = random.rows;
+                               var list = _.filter(list0,function(q){ return !randlist[q.id]; });  // remove questions already in quiz
+                               // this is done so that two (or more ) random questions picking from same tag will differ if possible
+                               if (list.length < 3) {
+                                   list = list0;  // too few remaining
+                                   console.log("too few");
+                               }
                                var len = list.length;
                                var lev = qu.contopt.level;
                                var doslice = false;
                                //console.log("Checking for darwin: ",len,lev,contopt.darwin);
+                               // either all random questions are treated as darwin based on option for quiz
+                               // or we check each individual random for darwin option
                                if (len > 2 && (lev != 'any' || contopt.darwin == '1') ) {    // need at least three questions to choose by difficulty
                                    // and options for using adaptive mode (lev can be hard,easy,darwin) or container is darwin
                                 //console.log("Seems to be Darwin");
                                 var dar;
                                 var darwin = _.filter(list,function(q) {  return +q.avg > 0 } );  // remove questions that are not graded
-                                // either all random questions are treated as darwin based on option for quiz
-                                // or we check each individual random for darwin option
                                 /*
                                 if (userstats[uid] && userstats[uid][thesetags] ) {
                                     console.log("there are stats for this user");
@@ -1310,12 +1309,13 @@ var renderq = exports.renderq = function(user,query,callback) {
                                   dar = (dar < 0.6) ? 0.75 : (dar < 0.8) ? 0.5 : 0 ;
                                   darwin = _.filter(list,function(q) {  return +q.avg + 0.01 > dar && +q.avg-span < dar } );
                                   doslice = true;
-                                  console.log("Darwin dar=",dar);
-                                }
-                                if (lev == 'easy' || lev == 'medium' || lev == 'hard') {
+                                  //console.log("Darwin dar=",dar);
+                                } else if (lev == 'easy' || lev == 'medium' || lev == 'hard') {
                                   dar  = (lev == 'easy') ? 0.8 : (lev == 'hard') ? 0 : 0.5;
+                                  var span = (dar < 0.6) ? 0.3 : (dar < 0.8) ? 0.4 : 0.6 ;
+                                  darwin = _.filter(list,function(q) {  return +q.avg + 0.01 > dar && +q.avg-span < dar } );
                                   doslice = true;
-                                  //console.log("Level ",lev);
+                                  //console.log("Level ",lev,darwin.length);
                                 }
                                 if (darwin.length > 2) {
                                   // the list is sufficiently long
@@ -1331,6 +1331,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                                 }
                                }
                                nu = _.shuffle(list)[0];
+                               randlist[nu.id] = 1;
                                //console.log("Avg=",nu.avg);
                                questlist[i] = nu;
                                quiz.question[nu.id] = nu;

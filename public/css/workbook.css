@@ -965,10 +965,11 @@ span.qtype {
 
 span.qpoints {
   display:block;
-  text-align:left;
+  text-align:center;
   float:left;
-  color:black;
+  background:#ddb;
   width:15px;
+  border:solid 1px rgba(0,0,0,0.3);
 }
 span.questname {
   text-align:left;
@@ -1228,14 +1229,14 @@ span.qnumber {
   text-overflow:ellipsis;
 }
 
-span.qnumber.easy {
+span.easy {
   box-shadow: 2px 2px 2px rgba(0, 150, 0, .3);
 }
-span.qnumber.hard {
+span.hard {
   box-shadow: 2px 2px 2px rgba(150, 0, 0, .3);
 }
-span.qnumber.medium {
-  box-shadow: 2px 2px 2px rgba(0, 0, 150, .3);
+span.medium {
+  box-shadow: 2px 2px 2px rgba(0, 0, 200, .4);
 }
 
 /*

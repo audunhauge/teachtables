@@ -2614,13 +2614,13 @@ wb.render.normal  = {
               var tit = shorttext.replace(/['"]/g,'«');    //' just to help the editor
               var qdiv = '<div class="equest'+statusclass+'" id="qq_'+qu.id+'_'+qidx+'">';
               //if (wantlist) qdiv += '<input type="checkbox">';
-              var avg = (qu.avg >0 && qu.count>5) ? 9+Math.floor(5* +qu.avg) : 1;
+              var hardnes = (qu.avg == 0) ? '' : (qu.avg < 0.5) ? 'hard' : (qu.avg < 0.8) ? 'medium' : 'easy';
               qdiv += '<input type="checkbox">';
               qdiv +=      '<span '+owner+' class="num n'+qu.sync+'">'+(+qidx+1)+'</span>' + '<span class="qid">'
                          + qu.id+ '</span><span class="img img'+qu.qtype+'"></span>'
                          + '<span title="'+qu.name+remark+'" class="qtype">&nbsp;' + qu.name + '</span><div title="'+taggy+'" class="qname"> '
                          + qu.subject + '</div><span title="'+tit+'" class="qshort">' + shorttext.substr(0,50)
-                         + '</span><span title="avg:'+(+qu.avg).toFixed(2)+' count:'+qu.count+'" class="qpoints n'+avg+'">'+ qu.points +'</span><div class="edme"></div>';
+                         + '</span><span title="avg:'+(+qu.avg).toFixed(2)+' count:'+qu.count+'" class="qpoints '+hardnes+'">'+ qu.points +'</span><div class="edme"></div>';
               //if (!wantlist) qdiv += '<div class="killer"></div>';
               qdiv += '</div>';
               qql.push(qdiv);
