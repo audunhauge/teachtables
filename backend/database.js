@@ -414,7 +414,7 @@ exports.editcourse = function(user,query,callback) {
                var gro = {};  // list of seen groups
                for (var i=0; i< results.rows.length; i++) {
                  var re = results.rows[i];
-                 if (!courselist[re.shortname]) courselist[re.shortname] = { id:re.id, fullname:re.fullname, teachers:[], groups:[] };
+                 if (!courselist[re.shortname]) courselist[re.shortname] = { id:re.id, fullname:re.fullname, teachers:[], groups:[], config:re.config };
                  if (re.userid && !tea[re.shortname + '_' + re.userid]) courselist[re.shortname].teachers.push(re.userid);
                  if (re.groupid && !gro[re.shortname + '_' + re.groupid]) courselist[re.shortname].groups.push(re.groupid);
                  tea[re.shortname + '_' + re.userid] = 1;
@@ -651,15 +651,16 @@ var saveTimetableSlot = function(user,query,callback) {
 }
 
 
-
-
-
-
-
 exports.getsql = function(user,sql,param,reload,callback) {
   // runs a query and returns the recordset
   // only allows admin to run this query
-  if (!user || !user.isadmin) {
+  var losql = sql.toLowerCase();
+  var change = losql.indexOf('insert') >= 0 || losql.indexOf('update') >= 0 || losql.indexOf('delete') >= 0;
+  if (!user || (!user.isadmin && change)) {
+    callback("not allowed");
+    return;
+  }
+  if (!(user.isadmin || user.department == 'Undervisning')) {
     callback("not allowed");
     return;
   }

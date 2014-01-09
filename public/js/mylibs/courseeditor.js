@@ -19,6 +19,7 @@ function managecourse() {
   + '   </ul>'
   + '   <li><a id="newcourse" class="action" href="#">Add new course</a></li>'
   + '   <ul>'
+  + '     <li><a id="editcourse" class="action" href="#">Edit course</a></li>'
   + '     <li><a id="assignteach" class="action" href="#">Assign teachers</a></li>'
   + '     <li><a id="enrolgroup" class="action" href="#">Enrol groups</a></li>'
   + '   </ul>'
@@ -47,6 +48,10 @@ function managecourse() {
   $j("#genquizstats").click(function(event) {
       event.preventDefault();
       $j.get(mybase+ "/questionstats");
+  });
+  $j("#editcourse").click(function(event) {
+      event.preventDefault();
+      selectcourse(database.cname2id);
   });
   $j("#newroom").click(function(event) {
       event.preventDefault();
@@ -97,7 +102,111 @@ function managecourse() {
       event.preventDefault();
       selectuser(teachers);
   });
+}
 
+function editcourse(mylist) {
+  function edconfig(config){
+    var s = '<table>';
+    for (var prop in config) {
+        s += "<tr><td>"+prop+'</td><td><input class="props" id="pro_'+prop+'" type="text" value="'+escape(JSON.stringify(config[prop]))+'" size="50"></td></tr>' ;
+    }
+    s += '<tr><td>New prop</td><td><input class="props" id="pro_newprop" type="text" value="" size="9"></td></tr>' ;
+    s += '</table>';
+    $j("#courseconf").html(s);
+  }
+  $j.post(mybase+ "/editcourse", { action:"" }, function(data) {
+      // now have all course-data
+      var cnames = _.keys(mylist);
+      var cou = cnames[0];
+      var cour = data.course[cou];
+      var config = {};
+      if (cour) {
+          try {
+            config = JSON.parse(cour.config);
+          } catch (err) {
+            config = {};
+          }
+      }
+      var save   = '<div id="savenew" class="float button">Save</div>';
+      var s = '<form><table id="form" width="400"><tr><td><label>Course</label></td><td>'+(cnames.join(', '))+'</td></tr>'
+        + '  <tr><td colspan="2"><div id="courseconf"></div></td></tr>'
+        + '  <tr><td>'+save+'</td><td></td></tr>'
+        + '</table></form>';
+      $j("#cmstage").html(s.supplant(cour));
+      edconfig(config);
+      $j("#savenew").click(function(event) {
+            var fo = $j("#form");
+            fo.addClass("wait");
+            fo.animate({
+                      height: "toggle",
+                      opacity: "toggle"
+                }, {
+                      duration: "slow"
+                }).animate({
+                      height: "toggle",
+                      opacity: "toggle"
+                }, {
+                      duration: "slow",
+                      complete: function() { fo.removeClass("wait")}
+                });
+            var fields = [];
+            var uconf = $j(".props");
+            var nuconfig = {};
+            var error = false;
+            if (uconf.length) {
+                for (var i=0; i< uconf.length; i++) {
+                    var pro = uconf[i];
+                    var prokey = pro.id.substr(4);
+                    var val = pro.value;
+                    if (prokey == 'newprop') {
+                        if ( pro.value != '') {
+                          prokey = pro.value;
+                          val = '0';
+                        } else {
+                            continue;
+                        }
+                    }
+                    try {
+                      nuconfig[prokey] = JSON.parse(val);
+                    } catch (err) {
+                      alert("Not valid json:",val);
+                      error = true;
+                    }
+                }
+                if (! _.isEqual(config,nuconfig) && !error) {
+                    var conff = JSON.stringify(nuconfig);
+                    var funame ="'"+ cnames.join("','")+ "'";
+                    var sql = "update course set config=$1 where fullname in ( "+funame+" )";
+                    $j.get(mybase+ "/getsql", { sql:sql, param:[conff] }, function(res) {
+                      editcourse(mylist);
+                    });
+                }
+            }
+      });
+  });
+}
+
+function selectcourse(courselist) {
+  var s = '<div id="chooseme"></div>';
+  var save = '<div id="edit" class="float button">Edit</div><p>';
+  var mylist = {};
+  $j("#cmstage").html(save+s);
+  var elements = _.map(courselist,function(id,e) { var elm = e.split('_'); return { id:e, Subject:elm[0].substr(0,2),Group:elm[1].substr(0,3), lastname:elm[0],firstname:elm[1] } });
+  studChooser("#chooseme",elements,{},'Subject',{ Subject:1,Group:1});
+  // targetdiv,memberlist,info,tabfield,fieldlist,mapping
+  $j("#chooseme").undelegate(".tnames","click");
+  $j("#chooseme").delegate(".tnames","click",function() {
+     var tid = this.id.substr(2);
+     $j(this).toggleClass("someabs");
+     if (mylist[tid] != undefined) {
+       delete mylist[tid];
+     } else {
+       mylist[tid] = 0;
+     }
+  });
+  $j("#edit").click(function(event) {
+     editcourse(mylist);
+  });
 }
 
 function add_room() {
@@ -116,7 +225,6 @@ function add_room() {
 }
 
 function editgroup() {
-  $j("#cmstage").html("JALALAL");
 }
 
 function selectroom(roomlist) {
@@ -124,7 +232,8 @@ function selectroom(roomlist) {
   var save = '<div id="edit" class="float button">Edit</div><p>';
   var mylist = {};
   $j("#cmstage").html(save+s);
-  var elements = _.map(roomlist,function(e) { return { id:e, Name:e, lastname:e, firstname:'room' } });
+  var elements = _.map(roomlist,function(e) { return { id:e, Name:e.substr(0,2), lastname:e, firstname:'room' } });
+  //function studChooser(targetdiv,memberlist,info,tabfield,fieldlist,mapping) {
   studChooser("#chooseme",elements,{},'Name',{ Name:1});
   // targetdiv,memberlist,info,tabfield,fieldlist,mapping
   $j("#chooseme").undelegate(".tnames","click");

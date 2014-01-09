@@ -541,16 +541,24 @@ function quizstats(ttype,using,ignoring) {
                 return;
             }
             $j("#results").html(s);
+            var changed = false;  // no need to save
             var ingress = canonical ? 'Canonical tags for this course' : 'These tags used' ;
             var tagcontrol = '<div class="gui"><h3>'+ingress+'</h3>'
                 + _.reduce(temalist,function(m,e,i) { return m+' <span class="catt1">'+e+'</span>'},"")
-                + "<h3>These tags not shown</h3>" + _.reduce(ignoring,function(m,e) { return m+' <span class="catt0">'+e+'</span>'},"") + '</div>';
+                + "<h3>These tags not shown</h3>" + _.reduce(ignoring,function(m,e) { return m+' <span class="catt0">'+e+'</span>'},"")
+                + '<div id="saveconf" class="gradebutton">Save</div>'
+                + '</div>'
+
+            $j("#elist").html(tagcontrol);
+            if (basetemalist.length == using.length && _.difference(basetemalist,using).length == 0) {
+                $j("#saveconf").hide();
+            }
+
             $j("#results").undelegate(".enavn","click");
             $j("#results").delegate(".enavn","click", function() {
                          $j(".enavn").toggleClass("whiteout");
                          $j(this).removeClass("whiteout");
                     });
-            $j("#elist").html(tagcontrol);
             $j("#elist").undelegate(".catt0","click");
             $j("#elist").delegate(".catt0","click", function() {
                         var txt = this.innerHTML;
@@ -561,6 +569,12 @@ function quizstats(ttype,using,ignoring) {
                         var txt = this.innerHTML;
                         showstats(res, _.difference(temalist,[txt]), _.union([txt],ignoring));
                     });
+            $j("#saveconf").click(function() {
+                        $j("#saveconf").hide();
+                    });
+            function showsave() {
+                $j("#saveconf").hide();
+            }
          }
      }
 }

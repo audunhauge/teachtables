@@ -144,17 +144,17 @@ app.get(base +'/saml', function(req, res) {
 
 
 
-app.get(base,                           routes.index);                                // gives start-page
+app.get(base,                           routes.index);              // gives start-page
 app.get(base+'/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
-app.get(base+'/getsql',                 routes.getsql);
+app.get(base+'/getsql',                 routes.getsql);             // only admin can run any sql
 app.get(base+'/freedays',               routes.freedays);
 app.get(base+'/getexams',               routes.getexams);
 app.get(base+'/plain',                  routes.plain);              // simplified overview
 app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
 
-app.post(base+'/editcourse',             routes.editcourse);
-app.post(base+'/edituser',               routes.edituser);
-app.post(base+'/editgroup',              routes.editgroup);
+app.post(base+'/editcourse',            routes.editcourse);
+app.post(base+'/edituser',              routes.edituser);
+app.post(base+'/editgroup',             routes.editgroup);
 
 
 // user - info login config

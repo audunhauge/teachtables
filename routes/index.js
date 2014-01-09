@@ -9,7 +9,7 @@ var schoolyear = siteinf.schoolyear;
 var language = siteinf.language;
 var version = siteinf.version;
 var database = siteinf.database;
-var findUser = require('./utils').findUser; 
+var findUser = require('./utils').findUser;
 var db = database.db;
 var julian = require('../backend/julian');
 var addons = siteinf.addons;
@@ -21,8 +21,8 @@ exports.plain = function(req, res) {
     if ( req.session.user) {
           // user is logged in
           var user = req.session.user;
-          res.render('plain', { julday:thisjd, userid:user.id, loggedin:1, username:user.username, 
-              title:"index.jade", mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, 
+          res.render('plain', { julday:thisjd, userid:user.id, loggedin:1, username:user.username,
+              title:"index.jade", mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base,
               version:version, firstname:user.firstname, lastname:user.lastname } );
     } else {
           var uuid = 0;
@@ -44,8 +44,8 @@ exports.plain = function(req, res) {
               firstname = uu.firstname;
             }
           }
-          res.render('plain', { julday:thisjd,  userid:uuid, loggedin:0, 
-                    title:"index.jade",  mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, 
+          res.render('plain', { julday:thisjd,  userid:uuid, loggedin:0,
+                    title:"index.jade",  mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base,
                     version:version, username:username, firstname:firstname, lastname:lastname } );
     }
 };
@@ -57,6 +57,7 @@ exports.index = function(req, res){
 exports.gateway = function(req, res) {
   res.render('yearplain', { mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base, version:version });
 }
+
 
 exports.getsql =  function(req, res) {
     //console.log("getting some general data");
@@ -166,7 +167,7 @@ exports.basic = function(req, res) {
             //db_copy.userinfo.isadmin = (admins[db_copy.userinfo.username] && admins[db_copy.userinfo.username] == 1) ? true : false;
             //console.log(db_copy.userinfo.isadmin);
           }
-          req.userinfo = db_copy.userinfo; 
+          req.userinfo = db_copy.userinfo;
         }
         //console.log("I came here");
         res.send(db_copy);
