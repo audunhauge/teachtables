@@ -500,7 +500,7 @@ function quizstats(ttype,using,ignoring) {
                   ln = usr.lastname.caps();
                   e = fn + ' ' + ln;
                 }
-                s += '<tr><th class="enavn" id="ee'+enr+'">'+e+'</th>';
+                s += '<tr class="studline"><th class="enavn" id="ee'+enr+'">'+e+'</th>';
                 for (var i= 0; i < tgar.length; i++) {
                     var tg = tgar[i][0];
                     var inf = studstats[enr][tg];
@@ -516,7 +516,7 @@ function quizstats(ttype,using,ignoring) {
                     s += inf ? inf.avg : '';
                     s += "</td>";
                 }
-                s += '<td>'+(userscore[enr]/usercount[enr]).toFixed(2)+'</td>';
+                s += '<td class="showhide">'+(userscore[enr]/usercount[enr]).toFixed(2)+'</td>';
                 s += '</tr>';
             }
             s += '<tr><th>Avg</th>' + tgar.map(function(e) {
@@ -524,8 +524,7 @@ function quizstats(ttype,using,ignoring) {
                    return '<td>'+(tagavg[t].toFixed(2))+'</td>'
                 }).join('') + '<td></td></tr>';
             s += '</table>';
-            if (!isteach) {
-                s = "<h4>Egenvurdering for faget "+ course + '</h4><div class="centered sized1">'
+            s = '<div class="centered sized1"><div id="studinf"><h4>Egenvurdering for faget '+ course + '</h4>'
                    + 'På denne sida får du faglig tilbakemelding, framovermelding og anledning til egenvurdering. '
                    + 'Meningen er at du aktivt skal bruke sida til å styre innsatsen din i faget.'
                    + '<ul>'
@@ -535,12 +534,13 @@ function quizstats(ttype,using,ignoring) {
                    + '<li>Emner markert med <span class="gg2">grønt</span> er de du mestrer ganske godt.'
                    + '<li>Blanke emner viser at her har du ikke løst tilstrekkelig mange oppgaver til at systemet kan vurdere deg.'
                    + '<li>Fjern først de blanke feltene, så de røde, deretter de oransje.'
-                   + '</ul>'
+                   + '</ul></div>'
                    + s +'</div>';
-                $j("#results").html(s);
+            $j("#results").html(s);
+            if (!isteach) {
                 return;
             }
-            $j("#results").html(s);
+            $j("#studinf").toggle();
             var changed = false;  // no need to save
             var ingress = canonical ? 'Canonical tags for this course' : 'These tags used' ;
             var tagcontrol = '<div class="gui"><h3>'+ingress+'</h3>'
@@ -554,11 +554,36 @@ function quizstats(ttype,using,ignoring) {
                 $j("#saveconf").hide();
             }
 
+            $j("#results").undelegate(".showhide","click");
+            $j("#results").delegate(".showhide","click", function() {
+                         $j(".studline").toggle();
+                         $j(this).parent().toggle();
+                         $j("#studinf").toggle();
+                         $j("#elist").toggle();
+                    });
             $j("#results").undelegate(".enavn","click");
             $j("#results").delegate(".enavn","click", function() {
                          $j(".enavn").toggleClass("whiteout");
                          $j(this).removeClass("whiteout");
+                         $j("#studinf").toggle();
+                         $j("#elist").toggle();
                     });
+
+            $j("#results").undelegate(".enavn","click");
+            $j("#results").delegate(".enavn","click", function() {
+                         $j(".enavn").toggleClass("whiteout");
+                         $j(this).removeClass("whiteout");
+                         $j("#studinf").toggle();
+                         $j("#elist").toggle();
+                    });
+            $j("#results").undelegate(".enavn","click");
+            $j("#results").delegate(".enavn","click", function() {
+                         $j(".enavn").toggleClass("whiteout");
+                         $j(this).removeClass("whiteout");
+                         $j("#studinf").toggle();
+                         $j("#elist").toggle();
+                    });
+            // toggle tags to show
             $j("#elist").undelegate(".catt0","click");
             $j("#elist").delegate(".catt0","click", function() {
                         var txt = this.innerHTML;

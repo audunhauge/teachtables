@@ -1067,7 +1067,7 @@ div.question:hover  div.grademe {
 
 .whiteout {
     background:white;
-    color:#fffffa;
+    color:#fffffa !important;
 }
 
 div.gethint {
