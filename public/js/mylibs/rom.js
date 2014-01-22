@@ -131,9 +131,9 @@ function rom_reservering(room,delta,makeres) {
             + '</div><br>' )
             : '<div id="makeres" class="sized25 textcenter centered" ><span id="info" class="redfont" >Begrensa tilgang</span></div>' )
             + '<table class="sized2 centered border1">'
-            + '<caption class="retainer" ><div class="button blue gui" id="prv">&lt;</div>'
+            + '<caption><div class="retainer"><div class="button blue gui" id="prv">&lt;</div>'
             + room + ' '+roomdescript
-            + '<div class="button blue gui" id="nxt">&gt;</div></caption>'
+            + '<div class="button blue gui" id="nxt">&gt;</div></div></caption>'
             + '<tr><th class="time">Time</th>'+dayheadings+'</tr>';
     for (i= 0; i < numslots; i++) {
       s += "<tr>";

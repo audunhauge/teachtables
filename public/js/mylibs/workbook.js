@@ -451,7 +451,15 @@ function quizstats(ttype,using,ignoring) {
             var notused = {};
             var userscore = {};
             var usercount = {};
+            var tagquizlist = {};  // connects a tag to quiz with same name
             var tgar = [];
+            // build list of quizes with same name as tags
+            if (res.tagquiz && res.tagquiz.rows) {
+              for (var i=0,l=res.tagquiz.rows.length; i<l; i++) {
+                  var line = res.tagquiz.rows[i];
+                  tagquizlist[line.name] = line.id;
+              }
+            }
             for (var i=0,l=res.rows.length; i<l; i++) {
                 var line = res.rows[i];
                 if (_.isNaN(+line.avg)) continue;

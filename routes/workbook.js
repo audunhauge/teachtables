@@ -263,6 +263,12 @@ exports.displayuserresponse = function(req,res) {
     }
 };
 
+exports.quizconq = function(req,res) {
+      wb.quizconq(req.query, function(data) {
+        res.send(data);
+      });
+};
+
 exports.getuseranswers = function(req,res) {
     if (req.session.user ) {
       wb.getuseranswers(req.session.user, req.body, function(data) {

@@ -548,6 +548,17 @@ function do_maketag(uid,tagstr,qidlist,callback) {
   callback({ err:0, msg:"ok" } );
 }
 
+exports.quizconq = function(query,callback) {
+  // given list of quizes - returns scores viewing them as group competitions
+  console.log(query);
+  var conids     = _.filter(query.conid.split(','),function(e) { return +e > 0; });
+  // only accept conids if they are numerical > 0
+  client.query( "select cid,count(id) from quiz_useranswer where cid in ("+(conids.join(','))+") and score > 0.79 group by userid,cid;",
+  after(function(results) {
+      callback(results.rows);
+  }));
+}
+
 exports.gettagsq = function(user,query,callback) {
   // returns all tags for a given question
   var uid    = user.id;
@@ -767,7 +778,7 @@ exports.displayuserresponse = function(user,uid,container,callback) {
           if (typeof(qlist) == "string") {
             qlist = qlist.split(',');
           }
-          console.log("DIffer ? ",olist,qlist);
+          //console.log("DIffer ? ",olist,qlist);
           if (qlist && user.department == 'Undervisning' || ( (user.id == uid) && qcontopt.fasit && (+qcontopt.fasit & 1)) ) {
             // client.query(  "select q.points,q.qtype,q.name,q.subject,qua.* from quiz_useranswer qua inner join quiz_question q on (q.id = qua.qid) "
             //             + " where qua.qid in ("+(qlist.join(','))+" ) and qua.userid = $1 and qua.cid = $2 order by qua.time",[ uid, container ],
@@ -871,10 +882,14 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
     after(function(stats) {
       var ii=0;
       var remap = {};
+      var tags = {};
       if (stats && stats.rows) for (var i =0; i < stats.rows.length; i++) {
         var elm = stats.rows[i];
         if (!userstats[elm.userid]) {
            userstats[elm.userid] = {};
+        }
+        if (!tags[elm.tagname]) {
+           tags[elm.tagname] = 1;
         }
         userstats[elm.userid][elm.tagname] = elm.oavg;
         if (!isteach && elm.userid != user.id) {
@@ -884,7 +899,13 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
            elm.userid = remap[elm.userid];
         }
       }
-      callback(stats)
+      var namelist = "'" + _.keys(tags).join("','") + "'";
+      console.log("select id,name from quiz_question where qtype='quiz' and subject = $1 and name in ("+namelist+")" , [subject]);
+      client.query("select id,name from quiz_question where qtype='quiz' and subject = $1 and name in ("+namelist+")" , [subject],
+        after(function(tagquiz) {
+           stats.tagquiz = tagquiz;
+           callback(stats)
+        }));
     }));
   } else {
     callback({});
