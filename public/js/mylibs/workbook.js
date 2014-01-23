@@ -551,6 +551,8 @@ function quizstats(ttype,using,ignoring) {
                    + '</ul></div>'
                    + s +'</div>';
             $j("#results").html(s);
+            $j("#results").undelegate(".stud","click");
+            $j("#results").delegate(".stud","click", containerClick);
             if (!isteach) {
                 return;
             }
@@ -603,8 +605,6 @@ function quizstats(ttype,using,ignoring) {
                         var txt = this.innerHTML;
                         showstats(res, _.union([txt],temalist), _.difference(ignoring,[txt])  );
                     });
-            $j("#results").undelegate(".stud","click");
-            $j("#results").delegate(".stud","click", containerClick);
             $j("#elist").undelegate(".catt1","click");
             $j("#elist").delegate(".catt1","click", function() {
                         var txt = this.innerHTML;
