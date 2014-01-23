@@ -592,9 +592,6 @@ ul.prliste {
     border-bottom: solid blue 2px;
 }
 
-.catt0, .catt1, .catt2, .catt3, .catt4, .catt10, .catt11, .catt12 {
-  font-size:0.9em;
-}
 
 input#chroom {
   font-size:0.9em;
@@ -836,6 +833,11 @@ div.angled {
 
 }
 
+/*
+.catt0, .catt1, .catt2, .catt3, .catt4, .catt10, .catt11, .catt12 {
+  font-size:0.9em;
+}
+*/
 
 .catt0  { color:#c33; }
 .catt1  { color:#22f; }

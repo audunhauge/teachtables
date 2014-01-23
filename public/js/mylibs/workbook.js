@@ -497,7 +497,13 @@ function quizstats(ttype,using,ignoring) {
             tgar.sort(function(a,b) { return tagavg[b[0]] - tagavg[a[0]]});
             var s = '<p><p><p><p><table>';
             s += '<tr><th class="enavn">Navn</th>' + tgar.map(function(e) {
-                   return '<td><div class="rel"><div class="angled" stud>'+e[0]+'</div></div></td>'
+                   var hasid = '';
+                   var active = '';
+                   if (tagquizlist[e[0]]) {
+                       hasid = ' id="qq'+tagquizlist[e[0]]+'" '
+                       active = " catt1";
+                   }
+                   return '<td><div class="rel"><div '+hasid+'class="angled stud'+active+'" tag="'+e[0]+'">'+e[0]+'</div></div></td>'
                 }).join('') + '<td>Avg</td></tr>';
             for (var ii=0,l=sortedstuds.length; ii<l; ii++) {
                 var e = enr = sortedstuds[ii];
@@ -597,6 +603,8 @@ function quizstats(ttype,using,ignoring) {
                         var txt = this.innerHTML;
                         showstats(res, _.union([txt],temalist), _.difference(ignoring,[txt])  );
                     });
+            $j("#results").undelegate(".stud","click");
+            $j("#results").delegate(".stud","click", containerClick);
             $j("#elist").undelegate(".catt1","click");
             $j("#elist").delegate(".catt1","click", function() {
                         var txt = this.innerHTML;
@@ -1010,6 +1018,38 @@ function unwindResults(res,sscore) {
       return rr;
 }
 
+function containerClick() {
+            if ( $j(this).hasClass("clock")) {
+               if (!teaches(userinfo.id,wbinfo.coursename)) {
+                 alert("Test not open");
+                 return;
+               }
+            }
+            var containerid = this.id.substr(2).split('_')[0];
+            if (containerid == wbinfo.containerid) {
+              // self-click - last element in trail is ident
+              // just reset page and rerender
+              if (contopt.navi && contopt.navi == "1") {
+                wbinfo.page[containerid] = 0;
+                renderPage();
+              }
+              return;
+            }
+            var istrail = ( this.id.substr(0,2)  == 'tt');
+            if (istrail) {
+              // pop from trail until we hit this container-id
+              var cinf;
+              do {
+                cinf = wbinfo.trail.pop();
+              } while (wbinfo.trail.length > 0 && cinf.id != containerid );
+            } else {
+              wbinfo.trail.push({id:wbinfo.containerid,name:$j("#"+this.id).attr("tag") });
+            }
+            wbinfo.page[containerid] = wbinfo.page[containerid] || 0;
+            wbinfo.parentid = wbinfo.containerid;   // remember parent
+            wbinfo.containerid = containerid;
+            renderPage();
+    };
 
 function renderPage() {
   // render a page of questions
@@ -1187,38 +1227,7 @@ function renderPage() {
               connectWith: ".connectedSortable"
          }).disableSelection();
         $j("#main").undelegate(".cont","click");
-        $j("#main").delegate(".cont","click", function() {
-            if ( $j(this).hasClass("clock")) {
-               if (!teaches(userinfo.id,wbinfo.coursename)) {
-                 alert("Test not open");
-                 return;
-               }
-            }
-            var containerid = this.id.substr(2).split('_')[0];
-            if (containerid == wbinfo.containerid) {
-              // self-click - last element in trail is ident
-              // just reset page and rerender
-              if (contopt.navi && contopt.navi == "1") {
-                wbinfo.page[containerid] = 0;
-                renderPage();
-              }
-              return;
-            }
-            var istrail = ( this.id.substr(0,2)  == 'tt');
-            if (istrail) {
-              // pop from trail until we hit this container-id
-              var cinf;
-              do {
-                cinf = wbinfo.trail.pop();
-              } while (wbinfo.trail.length > 0 && cinf.id != containerid );
-            } else {
-              wbinfo.trail.push({id:wbinfo.containerid,name:$j("#"+this.id).attr("tag") });
-            }
-            wbinfo.page[containerid] = wbinfo.page[containerid] || 0;
-            wbinfo.parentid = wbinfo.containerid;   // remember parent
-            wbinfo.containerid = containerid;
-            renderPage();
-        });
+        $j("#main").delegate(".cont","click", containerClick);
        prettyPrint();
 
     }

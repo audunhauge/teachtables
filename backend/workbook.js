@@ -900,7 +900,6 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
         }
       }
       var namelist = "'" + _.keys(tags).join("','") + "'";
-      console.log("select id,name from quiz_question where qtype='quiz' and subject = $1 and name in ("+namelist+")" , [subject]);
       client.query("select id,name from quiz_question where qtype='quiz' and subject = $1 and name in ("+namelist+")" , [subject],
         after(function(tagquiz) {
            stats.tagquiz = tagquiz;
