@@ -457,7 +457,8 @@ function quizstats(ttype,using,ignoring) {
             if (res.tagquiz && res.tagquiz.rows) {
               for (var i=0,l=res.tagquiz.rows.length; i<l; i++) {
                   var line = res.tagquiz.rows[i];
-                  tagquizlist[line.name] = line.id;
+                  if (!tagquizlist[line.name]) tagquizlist[line.name] = line.id;
+                  // they are sorted by number of answers, only use the first
               }
             }
             for (var i=0,l=res.rows.length; i<l; i++) {
