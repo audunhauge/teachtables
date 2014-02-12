@@ -1429,7 +1429,7 @@ function genNewQlistOrder(already,questlist,contopt,coo,uid,container) {
         }
     }
     questlist = fresh;
-    if (always.length == 0 && contopt.xcount && +contopt.xcount > 0) {
+    if (always.length == 0 && contopt && contopt.xcount && +contopt.xcount > 0) {
         // the first N questions are to be used no matter what
         // we slice them of only do this if always is still empty
         // if not empty - then always contains already answered questions
@@ -1437,7 +1437,7 @@ function genNewQlistOrder(already,questlist,contopt,coo,uid,container) {
         always = questlist.slice(0,n);
         questlist = questlist.slice(n);
     }
-    if (contopt.randlist && contopt.randlist == "1") {
+    if (contopt && contopt.randlist && contopt.randlist == "1") {
       // pick N random questions
       if (contopt.rcount && +contopt.rcount >= always.length && +contopt.rcount - always.length <= questlist.length) {
          questlist = quiz.shuffle(questlist);
@@ -1445,7 +1445,7 @@ function genNewQlistOrder(already,questlist,contopt,coo,uid,container) {
       }
     }
     questlist = always.concat(questlist);
-    if (contopt.shuffle && contopt.shuffle == "1") {
+    if (contopt && contopt.shuffle && contopt.shuffle == "1") {
       // must reshuffle so _always_ list gets mixed in
       questlist = quiz.shuffle(questlist);
     }
