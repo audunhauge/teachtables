@@ -2183,7 +2183,7 @@ exports.editqncontainer = function(user,query,callback) {
                   if (existing && existing.rows && existing.rows.length && (existing.rows[0].parent || existing.rows[0].qid)) {
                       console.log("Already quiz ",existing.rows);
                       var dupcon = existing.rows[0].id;
-                      var containedqs = "select c.qid from question_container c where c.cid =$1";
+                      var containedqs = "select c.qid from question_container c where c.cid ="+dupcon;
                       // default sql to use if copying my own container
                       if (existing.rows[0].parent) {
                           dupcon = existing.rows[0].parent;
