@@ -1180,21 +1180,41 @@ var qz = {
               A:u, B:u, C:u, D:u, E:u, F:u, G:u, H:u, I:u, J:u, K:u, L:u, M:u, N:u, O:u,
               P:u, Q:u, R:u, S:u, T:u, U:u, V:u, W:u, X:u, Y:u, Z:u
        , sin:Math.sin ,cos:Math.cos, tan:Math.tan
+       , asin:Math.asin ,acos:Math.acos, atan:Math.atan
+       , exp:Math.exp ,log:Math.log, sqrt:Math.sqrt
+       , random:Math.random, floor:Math.floor
        , pow:Math.pow
        , abs:Math.abs
-       , sqrt:Math.sqrt
        , fix:qz.fix
        , getprime:qz.getprime
        , isprime:qz.isprime
        , factor:qz.factor
        , leastfactor:qz.leastfactor
        , getnthprime:qz.getnthprime
-       , random:Math.random, floor:Math.floor
        , modinv:qz.modinv
        , powmod:qz.powmod
        , egcd:qz.egcd
        , phi:qz.phi
        , gcd:qz.gcd
+       , gammaln: jstat.gammaln
+       , gammafn: jstat.gammafn
+       , gammap: jstat.gammap
+       , factorialln: jstat.factorialln
+       , factorial: jstat.factorial
+       , combination: jstat.combination
+       , combinationln: jstat.combinationln
+       , permutation: jstat.permutation
+       , betafn: jstat.betafn
+       , betaln: jstat.betaln
+       , betacf: jstat.betacf
+       , gammapinv: jstat.gammapinv
+       , erf: jstat.erf
+       , erfc: jstat.erfc
+       , erfcinv: jstat.erfcinv
+       , ibetainv: jstat.ibetainv
+       , ibeta: jstat.ibeta
+       , randn: jstat.randn
+       , randg: jstat.randg
        , quantile:qz.quantile
        , freqvalues:qz.freqvalues
        , valfreq:qz.valfreq

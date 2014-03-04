@@ -160,6 +160,7 @@ function crossResults() {
       group = '';
     }
     var trail = makeTrail();
+    var anonym = wbinfo.courseinfo.contopt.anonym == 1;
     var s = '<div id="crosstab"><h1 class="result" id="tt'+wbinfo.containerid+'">CrossTab</h1>'
              +trail+'<div id="results"></div></div>';
     $j("#main").html(s);
@@ -229,7 +230,8 @@ function crossResults() {
               var uu = userorder[uui].id;
               var elev = id2elev[uu];
               if (elev)  {
-                ss += '<td><div class="rel"><div id="stu'+uu+'" class="angled stud">' + elev.firstname.caps()+ ' ' + elev.lastname.caps() + '</div></div></td>';
+                var elevnavn =  anonym ? 'anonym elev ' + scramble(uu) : elev.firstname.caps()+ ' ' + elev.lastname.caps();
+                ss += '<td><div class="rel"><div id="stu'+uu+'" class="angled stud">' + elevnavn + '</div></div></td>';
               } else {
                 elev = teachers[uu];
                 if (elev)  {
@@ -277,7 +279,7 @@ function crossResults() {
                     displayscore = (ucro.attemptnum) ? displayscore : '<span class="redfont">&nbsp;0&nbsp;</span>';
                     txt = displayscore;
                    }
-                   ss += '<td '+tclass+'>'+txt+'</td>';
+                   ss += '<td '+tclass+'><a href="#'+qid+'_'+uu+'">'+txt+'</a></td>';
                }
                ss += '<td>'+((+qord.score).toFixed(1))+'</td>';
                ss += '</tr>';
@@ -300,7 +302,8 @@ function crossResults() {
               var usr = getUser(uu);
               fn = usr.firstname.caps();
               ln = usr.lastname.caps();
-              ss += '<th>'+fn+'&nbsp;'+ln+'</th>';
+              var elevnavn =  anonym ? 'anonym elev ' + scramble(uu) : fn + '&nbsp;' + ln;
+              ss += '<th>'+elevnavn+'</th>';
            }
            ss += '</tr>';
            for (var qidi in qorder) {
@@ -309,7 +312,7 @@ function crossResults() {
                ss += '<tr><th>'+qid+'</th>';
                for (var uui =0; uui < userorder.length; uui++) {
                    var uu = userorder[uui].id;
-                   ss += '<td>';
+                   ss += '<td id="'+qid+'_'+uu+'" class="crosstd">';
                    if (cro[uu]) {
                     var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
                     ss += wb.render.normal.displayQuest(cro[uu],1,{},sscore,0,cro[uu].param.fasit);
@@ -353,6 +356,7 @@ function remarked() {
 
 function longList() {
     var group;
+    var anonym = wbinfo.courseinfo.contopt.anonym == 1;
     try {
       group = wbinfo.coursename.split('_');
       group = group[1];
@@ -382,6 +386,11 @@ function longList() {
                       fn = usr.firstname.caps();
                       ln = usr.lastname.caps();
                       depp = usr.department;
+                      if (anonym) {
+                           fn = 'anonym';
+                           ln = 'elev ' + scramble(uid);
+                           depp = '';
+                      }
                       var header = '<h4 class="pb" >'+fn+' '+ln+' '+depp+'</h4>';
                       $j("#results").append(header+rr);
                       MathJax.Hub.Queue(["Typeset",MathJax.Hub,"main"]);
@@ -782,6 +791,16 @@ function startTime(d) {
   return d.getDate() + '/'+(1+d.getMonth())+ '/' + ("" +d.getFullYear()).substr(2) + ' ' + d.getHours() +':'+ d.getMinutes();
 }
 
+
+
+function scramble(n) {
+  var i = +n;
+  var prime = 7687; //982451653;
+  var num = (i*i) % prime;
+  num = i <= prime/2 ? num : prime - num;
+  return num;
+}
+
 function showResults(group,container,contopt) {
     if (group == undefined) {
       try {
@@ -820,6 +839,7 @@ function showResults(group,container,contopt) {
       return spark;
     }
     var skala = wbinfo.courseinfo.contopt.skala;
+    var anonym = wbinfo.courseinfo.contopt.anonym == 1;
     var s = '<div id="wbmain"><h1 class="result" id="tt'+wbinfo.containerid+'">Resultat </h1>'
              +trail+' &nbsp; <span class="bluefont cross" id="yy'+wbinfo.containerid+'">CrossTab</span>'
              + ' &nbsp; <span class="bluefont long" id="yy'+wbinfo.containerid+'">LongList</span><div id="results"></div></div>';
@@ -864,6 +884,11 @@ function showResults(group,container,contopt) {
                var usr = getUser(uui);
                fn = usr.firstname.caps();
                ln = usr.lastname.caps();
+               if (anonym) {
+                   fn = 'anonym';
+                   ln = 'elev ' + scramble(uui);
+
+               }
                active =' showme';
                if (reslist[uui]) {
                  resultat = reslist[uui].text;
@@ -953,6 +978,7 @@ function showUserResponse(uid,cid,results) {
   // given a user-id and a container
   // show detailed response for all questions in container for this user
   var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
+  var anonym = wbinfo.courseinfo.contopt.anonym == 1;
   if (results.ret[uid] != undefined) {
     // var contopt = wbinfo.courseinfo.contopt;
     $j.getJSON(mybase+'/displayuserresponse',{ uid:uid, container:cid }, function(results) {
@@ -972,6 +998,11 @@ function showUserResponse(uid,cid,results) {
       fn = usr.firstname.caps();
       ln = usr.lastname.caps();
       depp = usr.department;
+      if (anonym) {
+           fn = 'anonym';
+           ln = 'elev ' + scramble(uid);
+           depp = '';
+      }
       var header = '<h4>'+fn+' '+ln+' '+depp+'</h4>';
       header += '<h4>'+score+" av "+tot+" Karakter: "+grade+'</h4>'
         + ((teaches(userinfo.id,wbinfo.coursename)) ?
@@ -2352,6 +2383,7 @@ function eedit(myid,q,target) {
            var mstop = dialog.contopt.mstop || '';
            var mstart = dialog.contopt.mstart || '';
            var locked = (dialog.contopt.locked != undefined) ? dialog.contopt.locked : 0;
+           var anonym = (dialog.contopt.anonym != undefined) ? dialog.contopt.anonym : 0;
            var hidden = (dialog.contopt.hidden != undefined) ? dialog.contopt.hidden : 0;
            var fasit = (dialog.contopt.fasit != undefined) ? dialog.contopt.fasit : 0;
            var darwin = (dialog.contopt.darwin != undefined) ? dialog.contopt.darwin : 0;
@@ -2386,6 +2418,7 @@ function eedit(myid,q,target) {
                  , komme:         {  type:"checkbox", value:komme }
                  , exam:          {  type:"select", klass:"copts",  value:exam, options:[{ value:"quiz"},{ value:"homework"},{ value:"lab"},{ value:"exam"} ] }
                  , locked:        {  type:"checkbox", value:locked }
+                 , anonym:        {  type:"checkbox", value:anonym }
                  , hidden:        {  type:"checkbox", value:hidden }
                  , fasit:         {  type:"checkbox", value:fasit }
                  , karak:         {  type:"checkbox",  value:karak }
@@ -2416,6 +2449,7 @@ function eedit(myid,q,target) {
              + '<div class="underlined" title="Neste spørsmål vises dersom 80% riktig eller mer enn 4 forsøk">Trinnvis {trinn}</div>'
              + '<div class="underlined" title="Elever kan ikke se prøven.">Skjult {hidden}</div>'
              + '<div class="underlined" title="Skal karakter vises">Karakter{karak} </div>'
+             + '<div class="underlined" title="Navn på elev er skjult (anonym retting)">Anonym {anonym}</div>'
              + '<div class="underlined" title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
              + '<div class="underlined" title="Nivå for fasit visning">Fasit {fasit}</div>'
              + '<div class="underlined" title="Rangering i klassen">Rank{rank} </div>'

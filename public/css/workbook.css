@@ -256,6 +256,11 @@ ul.math li:nth-last-child(1) {
   left:0.8em;
 }
 
+td.crosstd {
+    min-width:400px;
+}
+
+
 table.math {
     border:none;
     font-size:1.7em;
