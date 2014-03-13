@@ -187,11 +187,17 @@ function sympify(txt) {
   return fu;
 }
 
-function normalizeFunction(txt,nosubst) {
+function normalizeFunction(txt,nosubst,ua) {
   // convert 2x^2+3(x-2)(x+1) to 2*pow(t,2)+3*(t-2)*(t+1)
   // x,y => t
   if (txt =='' || txt == undefined) return txt;
   nosubst = (typeof nosubst != "undefined") ? 1 : 0;
+  if (ua) {
+      console.log("TESTING ua",ua,txt);
+      // use ua to supply values for u1 u2 u3 ... values given in other userinput
+      txt = txt.replace(/u([0-9])/gm,function(m,n) { var i = +n; if (ua[i] && _.isNumber(+ua[i])) {return +ua[i]} else {return m;}   } );
+      console.log("CHANGED TO ua",ua,txt);
+  }
   var fu = txt.replace(/ /g,'').replace(/exp/gm,'©');
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
       fu = fu.replace(/([xyt])\^([0-9]+)/gm,function(m,n,o) { return 'pow('+n+','+o+')'; } );
@@ -1179,9 +1185,6 @@ var qz = {
               p:u, q:u, r:u, s:u, t:u, u:u, v:u, w:u, x:u, y:u, z:u,
               A:u, B:u, C:u, D:u, E:u, F:u, G:u, H:u, I:u, J:u, K:u, L:u, M:u, N:u, O:u,
               P:u, Q:u, R:u, S:u, T:u, U:u, V:u, W:u, X:u, Y:u, Z:u
-       , sin:Math.sin ,cos:Math.cos, tan:Math.tan
-       , asin:Math.asin ,acos:Math.acos, atan:Math.atan
-       , exp:Math.exp ,log:Math.log, sqrt:Math.sqrt
        , random:Math.random, floor:Math.floor
        , pow:Math.pow
        , abs:Math.abs
@@ -1324,6 +1327,10 @@ var qz = {
            // takes a question and returns a formatted display text
            options = typeof(options) != 'undefined' ?  options : true;
            var qobj = qz.getQobj(qu.qtext,qu.qtype,qu.id,qu.instance);
+           var otxt = qu.qtext.substring(0,100);
+           qobj.md5 = crypto.createHash('md5').update(otxt).digest("hex");
+           // so that we have easy test to see if two questions are the same
+           // can not compare display as quiz-items are replaced with ids dependent on question id
            qobj.origtext = '' ; // only used in editor
            qobj.fasit = [];  // we never send fasit for display
            qobj.cats = {};  // we never send categories for display
@@ -1569,7 +1576,7 @@ var qz = {
                          var lolim =  -5;
                          var hilim =   5;
                          var sco = 0;
-                         exp = normalizeFunction(exp);
+                         exp = normalizeFunction(exp,0,ua);
                          var ufu = normalizeFunction(uatxt);
                          var udiff =normalizeFunction(differ);
                          //console.log(exp,lolim,hilim,ufu);

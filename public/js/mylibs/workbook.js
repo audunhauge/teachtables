@@ -2624,12 +2624,21 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
 
 // check question list for similar questions and warn if seeming duplicates
 function warn_duplicates(qlist) {
-    var lenhash = {};  // stored by length
+    var md5hash = {};  // stored by md5
     var dupes = {};    // these may be dupes
     for (var i=0;i<qlist.length;i++) {
         var qu = qlist[i];
+        var md5 = qu.md5;
         var txt = qu.display;
         if (!txt) continue;
+        if (md5hash[md5] == undefined) {
+            md5hash[md5] = i;
+        } else {
+            var qo = qlist[md5hash[md5]];
+            dupes[qu.id] = qo.id;  // only show first dupe
+            dupes[qo.id] = qu.id;
+        }
+        /*
         if (!lenhash[txt.length]) {
           // no question of this length seen before
           lenhash[txt.length] = [];
@@ -2645,6 +2654,7 @@ function warn_duplicates(qlist) {
             }
         }
         lenhash[txt.length].push(i);
+        */
     }
     return dupes;
 }
