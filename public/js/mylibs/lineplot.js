@@ -25,6 +25,7 @@ function fubug(fub) {
 function lineplot(param) {
 
   // variables
+ try {
   var data = [],
       target = param.target || 'body',
       jitter = +param.jitter || 0,
@@ -394,6 +395,10 @@ function lineplot(param) {
         .attr("y2", function(d) { return -1 * y(d); })
         .attr("x2", w-margin)
   }
+ }
+ catch (er) {
+      console.log("bad plot")
+ }
 };
 
 function vfield(param) {
