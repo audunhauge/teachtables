@@ -1120,6 +1120,8 @@ var qz = {
  , range:function(lo,hi,step) {
    // range(1,10,1) => [1,2,3,4,5,6,7,8,9]
    // range(1,4,0.1) => [1.0, 1.1, 1.2, 1.3 .. 3.9]
+   step = typeof(step) != 'undefined' ?  +step : 1;
+   step = (step == 0 || isNaN(step)) ? 1 : step;
    var list = [], i=lo;
    if (hi <= lo) return list;
    while (i<hi) {
@@ -1576,7 +1578,7 @@ var qz = {
                          var lolim =  -5;
                          var hilim =   5;
                          var sco = 0;
-                         exp = normalizeFunction(exp,0,ua);
+                         exp = normalizeFunction(exp,1,ua);
                          var ufu = normalizeFunction(uatxt);
                          var udiff =normalizeFunction(differ);
                          //console.log(exp,lolim,hilim,ufu);
