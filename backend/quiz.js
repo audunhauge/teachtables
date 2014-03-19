@@ -1578,9 +1578,9 @@ var qz = {
                          var lolim =  -5;
                          var hilim =   5;
                          var sco = 0;
-                         exp = normalizeFunction(exp,1,ua);
-                         var ufu = normalizeFunction(uatxt);
-                         var udiff =normalizeFunction(differ);
+                         exp = normalizeFunction(exp,0,ua);
+                         var ufu = normalizeFunction(uatxt,0);
+                         var udiff =normalizeFunction(differ,0);
                          //console.log(exp,lolim,hilim,ufu);
                          if (differ && (differ == uatxt || udiff == ufu) ) {
                             uerr++;
