@@ -1598,8 +1598,8 @@ var qz = {
                              var bad = false;
                              try {
                                //return 'with(Math) { return ' + fu + '; }';
-                               var fu1 = new Function("t",' with(Math) { return ' +exp+'; }' );
-                               var fu2 = new Function("t",' with(Math) { return ' +ufu+'; }' );
+                               var fu1 = new Function("x",' with(Math) { return ' +exp+'; }' );
+                               var fu2 = new Function("x",' with(Math) { return ' +ufu+'; }' );
                                var reltol,f1,f2;
                                for (var pi=0,xi = lolim; pi < 20; xi += dx, pi++) {
                                    console.log("testing with ",xi);
