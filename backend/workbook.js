@@ -1953,7 +1953,7 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
        hist[res.userid].push(res.score);
     }
     container = results.rows[0];
-    var masterq = parseJSON(container.qtext);  // this is the ruling qlist
+    var masterq = (container) ? parseJSON(container.qtext) : {} ;  // this is the ruling qlist
     var shuffle = false;
     if (masterq.contopt && (masterq.contopt.randlist || masterq.contopt.shuffle)) {
           shuffle = true;
