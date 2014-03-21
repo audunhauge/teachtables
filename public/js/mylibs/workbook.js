@@ -56,7 +56,7 @@ function makeTrail() {
       prev = e.name;
     }
     //if (l > 0) trail += '<span class="chapter">' + prev + '</span>';
-    if (l > 0) trail += '<span id="tt'+wbinfo.containerid+'_a" class="gui chapter cont container">'+prev+'</span>';
+    if (wbinfo.pagelink || l > 0) trail += '<span id="tt'+wbinfo.containerid+'_a" class="gui chapter cont container">'+prev+'</span>';
     return trail;
 }
 
@@ -1050,6 +1050,8 @@ function unwindResults(res,sscore) {
       return rr;
 }
 
+var contopt = {};   // options for this container
+
 function containerClick() {
             if ( $j(this).hasClass("clock")) {
                if (!teaches(userinfo.id,wbinfo.coursename)) {
@@ -1061,8 +1063,10 @@ function containerClick() {
             if (containerid == wbinfo.containerid) {
               // self-click - last element in trail is ident
               // just reset page and rerender
-              if (contopt.navi && contopt.navi == "1") {
+              if (contopt && contopt.navi && contopt.navi == "1") {
                 wbinfo.page[containerid] = 0;
+                renderPage();
+              } else {
                 renderPage();
               }
               return;
@@ -1090,6 +1094,8 @@ function renderPage() {
   //   also if navi is set then render back button when not on first page
   relax(30000);  // we are not editing - so relax
   $j.getJSON(mybase+'/getqcon',{ container:wbinfo.containerid }, function(container) {
+    ignorehashchg = true;   // dont reload this page just because we set new hash
+    $j.bbq.pushState("#quiz/" + wbinfo.containerid);
     tablets = { usedlist:{} };    // forget any stored info for dragndrop for tablets on rerender
     if (!container) {
       // we are most likely not logged in any more
@@ -1111,11 +1117,11 @@ function renderPage() {
     // render the question list and update order if changed
     // typeset any math
     // prepare the workbook editor (setupWB)
+    wbinfo.coursename = wbinfo.coursename || container.name;
 
     var trail = makeTrail();
     var nav   = '';              // default no page navigation
 
-    var contopt = {};   // options for this container
     if (courseinfo.contopt) {
       contopt = courseinfo.contopt;
     }
@@ -2638,23 +2644,6 @@ function warn_duplicates(qlist) {
             dupes[qu.id] = qo.id;  // only show first dupe
             dupes[qo.id] = qu.id;
         }
-        /*
-        if (!lenhash[txt.length]) {
-          // no question of this length seen before
-          lenhash[txt.length] = [];
-        } else {
-            for (var j=0; j <lenhash[txt.length].length; j++) {
-                var qoi = lenhash[txt.length][j];
-                var qo = qlist[qoi];
-                if (qo.display == qu.display) {
-                    dupes[qu.id] = qo.id;  // only show first dupe
-                    dupes[qo.id] = qu.id;
-                    break;
-                }
-            }
-        }
-        lenhash[txt.length].push(i);
-        */
     }
     return dupes;
 }

@@ -103,7 +103,12 @@ var promises = {};      // hash of promises that functions may fulfill when they
 var romliste = {};      // structured list of rooms - grouped by floor,building etc - defined in sites/sitename.js
 var allrooms = [];      // straight list of all room names
 
+var ignorehashchg = false;
 $j(window).bind('hashchange', function(event) {
+         if (ignorehashchg) {
+           ignorehashchg = false;
+           return;
+         }
          var state = $j.bbq.getState();
          var s;
          for (var k in state) {
@@ -202,10 +207,12 @@ function gotoPage() {
     var main = element.shift();
     switch (main) {
       case 'quiz':
-        $j.get(mybase+'/getdom',function(data) {
-          wbinfo = data;
-          edqlist();
-        });
+            var cid = element.shift();
+            wbinfo.containerid = cid;
+            wbinfo.pagelink = cid;
+            wbinfo.layout = 'normal';
+            promises = {};
+            renderPage();
         break;
       case 'plans':
         var fagnavn = element.shift();
@@ -237,6 +244,7 @@ function gotoPage() {
         break;
       case "thisweek":
         show_thisweek();
+        $j.bbq.pushState("#thisweek");
         break;
       case "hdtest":
         show_heldag();
@@ -339,6 +347,8 @@ function take_action() {
         case 'login':
             // go to the login page
             get_login();
+            break;
+        case 'quiz':
             break;
 
         case 'plan':
@@ -1051,6 +1061,7 @@ $j(document).ready(function() {
         relax(30000);
         event.preventDefault();
         show_thisweek();
+        $j.bbq.pushState("#thisweek");
     });
     $j("#timeplaner").click(function(event) {
         relax(30000);

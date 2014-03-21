@@ -25,7 +25,6 @@ function show_thisweek(delta) {
           show_thisweek(delta);
         };
     delta = typeof(delta) != 'undefined' ?  +delta : 0;  // vis timeplan for en anne uke
-    $j.bbq.pushState("#thisweek");
     var uid = database.userinfo.id || 0;
     var s='<div id="timeviser"><h1 id="oskrift">'+user+'</h1>';
     s+= '<div id="sectionimg"></div>';
