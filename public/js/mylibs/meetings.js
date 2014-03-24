@@ -154,7 +154,7 @@ function reduceSlots(userlist,roomname,jd) {
          if (day == undefined || slot == undefined) continue;
          if (!biglump[day][slot]) { console.log("reduceSlots: bad slot=",slot); continue;}
          for (var di=0; di < 8; di++) {   // a lesson is 8 slots
-           delete biglump[day][slot+di][roomname];
+           if (slot+di >= 0 && slot+di < 95) delete biglump[day][slot+di][roomname];
          }
        }
   }
@@ -190,7 +190,7 @@ function reduceSlots(userlist,roomname,jd) {
          if (day == undefined || slot == undefined) continue;
          if (!biglump[day][slot]) { console.log("reduceSlots: bad slot=",slot); continue;}
          for (var di=0; di < 8; di++) {   // a lesson is 8 slots
-           delete biglump[day][slot+di][+tuid];
+           if (slot+di >= 0 && slot+di < 95) delete biglump[day][slot+di][+tuid];
          }
        }
     }
