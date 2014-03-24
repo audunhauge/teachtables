@@ -1095,7 +1095,6 @@ function renderPage() {
   relax(30000);  // we are not editing - so relax
   $j.getJSON(mybase+'/getqcon',{ container:wbinfo.containerid }, function(container) {
     ignorehashchg = true;   // dont reload this page just because we set new hash
-    $j.bbq.pushState("#quiz/" + wbinfo.containerid);
     tablets = { usedlist:{} };    // forget any stored info for dragndrop for tablets on rerender
     if (!container) {
       // we are most likely not logged in any more
@@ -1122,6 +1121,7 @@ function renderPage() {
     var trail = makeTrail();
     var nav   = '';              // default no page navigation
 
+    contopt = {};
     if (courseinfo.contopt) {
       contopt = courseinfo.contopt;
     }
@@ -1131,6 +1131,7 @@ function renderPage() {
 
     // if this is a quiz ...
     if (container.qtype == 'quiz') {
+      $j.bbq.pushState("#quiz/" + wbinfo.containerid);
       trail += '<h1 id="quiz" class="gui">QUIZ </h1>';
       header = '';
     } else {

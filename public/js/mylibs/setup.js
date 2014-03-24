@@ -210,6 +210,8 @@ function gotoPage() {
             var cid = element.shift();
             wbinfo.containerid = cid;
             wbinfo.pagelink = cid;
+            contopt = {};
+            wbinfo.contopt = contopt;
             wbinfo.layout = 'normal';
             promises = {};
             renderPage();
