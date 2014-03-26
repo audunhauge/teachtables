@@ -6,6 +6,7 @@
 var client = siteinf.client;
 var julian = require('./julian');
 var after = require('./utils').after;
+var sys = require('util');
 var database = siteinf.database;
 var db = database.db;
 
