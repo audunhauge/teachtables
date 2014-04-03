@@ -189,6 +189,39 @@ function drawTable(day,dagnavn,ssta) {
 
 var teachul;
 
+// shows a list of absent teach orderd by date
+function show_absentteach() {
+  var liste = '';
+  for (var i in absent) {
+      var aab = absent[i];
+      var ss = [];
+      for (var jaa in aab) {
+        if (teachers[jaa] ) {
+          var te = teachers[jaa];
+          var teachname =  te.lastname.caps()  + ' ' + te.firstname.caps() ;
+          ss.push('&nbsp;' + teachname + ' '+ aab[jaa].name + ' ' + aab[jaa].value);
+        }
+      }
+      if (ss.length) {
+          var dd = julian.jdtogregorian(+i);
+          liste += '<h5>'+dd.day + '.' + dd.month + '.'+dd.year+'</h5>'  + ss.join('<br>');
+      }
+    }
+
+  var s = '<h4>Absent teach</h4>';
+  $j("#main").html(s);
+  var s = '<div id="fraa" class="sized1 centered gradback">'
+            + '<h1 id="oskrift">Lærer-fravær oversikt</h1>'
+            + liste
+            + '<div id="workspace"></div>';
+            + '</div>';
+  $j("#main").html(s);
+  $j("#oskrift").click(function() {
+       teachAbsent();
+    });
+
+}
+
 function teachAbsent() {
   $j.getJSON(mybase+ "/getabsent", function(data) {
     absent = data;
@@ -257,6 +290,9 @@ function teachAbsent() {
      $j(".chapter").hide();
      $j("#chapA").toggle();
      $j("#tabA").addClass("shadow");
+     $j("#oskrift").click(function() {
+       show_absentteach();
+       });
      $j(".tab").click(function() {
            $j(".tab").removeClass("shadow");
            $j("#" + this.id).addClass("shadow");

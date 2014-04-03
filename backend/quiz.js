@@ -1181,7 +1181,8 @@ var qz = {
    }
    return list;
  }
- , generateParams:function(question,userid,instance,container,callback) {
+ , generateParams:function(question,userid,instance,container,stripfasit,callback) {
+     // stripfasit is true if fasit is off
      var u = 'niu';
      symb = { a:u, b:u, c:u, d:u, e:u, f:u, g:u, h:u, i:u, j:u, k:u, l:u, m:u, n:u, o:u,
               p:u, q:u, r:u, s:u, t:u, u:u, v:u, w:u, x:u, y:u, z:u,
@@ -1320,6 +1321,10 @@ var qz = {
              break;
            default:
              break;
+       }
+       if (stripfasit) {
+           var parts = qobj.display.split(/FASIT/);
+           qobj.display = parts[0];
        }
        callback(qobj);
      });

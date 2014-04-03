@@ -1165,6 +1165,7 @@ var renderq = exports.renderq = function(user,query,callback) {
       //if (quiz.question[container]) {
       //var containerq = quiz.question[container];
       contopt = moo.contopt || {};
+      var stripfasit = (contopt.fasit == 0);
       if (contopt.start || contopt.stop) {
         var start,stop,elm,hstart,mstart,hstop,mstop;
         hstart = hstop = mstart = mstop = 0;
@@ -1362,13 +1363,13 @@ var renderq = exports.renderq = function(user,query,callback) {
                                // grading this question doesnt work - checks remove answers to questions that are no longer part of
                                // a quiz - a random question (randomly chosen based on tags) is never part of a quiz
                             }
-                            quiz.generateParams(nu,user.id,i,container,function(params) {
+                            quiz.generateParams(nu,user.id,i,container,stripfasit,function(params) {
                               missing.push( " ( "+nu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
                               loopWait(i+1,cb);
                             });
                         }));
                       } else {
-                        quiz.generateParams(qu,user.id,i,container,function(params) {
+                        quiz.generateParams(qu,user.id,i,container,stripfasit,function(params) {
                           missing.push( " ( "+qu.id+","+uid+","+container+",'',"+now+",0,'"+JSON.stringify(params)+"',"+i+" ) " );
                           loopWait(i+1,cb);
                         });

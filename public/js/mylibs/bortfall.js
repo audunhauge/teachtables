@@ -1,6 +1,6 @@
+
+
 // editing functions
-
-
 function edit_bortfall(uid, target) {
     target   = typeof(target) != 'undefined' ? target : '#main';
     // enter dates where teach is absent

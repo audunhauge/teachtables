@@ -260,6 +260,11 @@ td.crosstd {
     min-width:400px;
 }
 
+table.border {
+    border:solid 1px gray;
+    border-collapse:collapse;
+}
+
 
 table.math {
     border:none;
