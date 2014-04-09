@@ -136,6 +136,8 @@ exports.regstarb = function(ip,user, query, callback) {
   var userid    = +query.userid     || 0;
   var utz       = +query.utz        || 0;  // user timezone
   var resp = { fail:1, text:"error", info:"" };
+
+  regkey = Math.min(2100000000,regkey);  // just to avoid error in postgresql - int larger than maxint
   /*
   if (ip.substr(0,6) != '152.93' ) {
       resp.text = "Bare fra skolen";
@@ -158,7 +160,7 @@ exports.regstarb = function(ip,user, query, callback) {
   //client.query( 'select * from starb where julday=$1 and (userid=$2 or ip=$2) ' , [jd,userid,ip ],
   client.query( 'select * from starb where julday=$1 and userid=$2 ' , [jd,userid ],
       after(function(results) {
-          if (results.rows && results.rows[0]) {
+          if (results && results.rows && results.rows[0]) {
             var starb = results.rows[0];
             if (starb.userid == userid) {
               resp.fail = 0;

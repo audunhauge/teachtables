@@ -631,6 +631,7 @@ function quizstats(ttype,using,ignoring) {
 }
 
 var colorize = 0;
+
 function showProgress(ttype) {
     if (!ttype) {
         ttype = 0;
@@ -2266,6 +2267,9 @@ function eedit(myid,q,target) {
           for (var coi = 0; coi < containeropts.length; coi++) {
             var inp = containeropts[coi];
             contopt[inp.name] = inp.value;
+            if (inp.type == "textarea") {
+                 contopt[inp.name] = $j('#intro').val();
+            }
             if (inp.type == "checkbox") {
                  contopt[inp.name] = (inp.checked == true) ? "1":"0";
             }
@@ -2387,6 +2391,7 @@ function eedit(myid,q,target) {
            var stop = dialog.contopt.stop || '';
            var hstop = dialog.contopt.hstop || '';
            var hstart = dialog.contopt.hstart || '';
+           var intro = dialog.contopt.intro || '';
            var mstop = dialog.contopt.mstop || '';
            var mstart = dialog.contopt.mstart || '';
            var locked = (dialog.contopt.locked != undefined) ? dialog.contopt.locked : 0;
@@ -2419,6 +2424,7 @@ function eedit(myid,q,target) {
                  , randlist:      {  type:"yesno", value:randlist }
                  , darwin:        {  type:"yesno", value:darwin }
                  , hints:         {  type:"yesno", value:hints }
+                 , intro:         {  klass:"smalltext copts",  value:intro, type:"textarea" }
                  , omstart:       {  type:"checkbox", value:omstart }
                  , navi:          {  type:"checkbox", value:navi }
                  , trinn:         {  type:"checkbox", value:trinn }
@@ -2448,6 +2454,7 @@ function eedit(myid,q,target) {
                };
            var res = gui(elements);
            s += '<h4>Instillinger for prøven</h4> <div id="inputdiv">'
+             + '<div class="underlined" title="En valgfri introtext for elevene">Intro {intro}</div>'
              + '<div class="underlined" title="quiz,lekse,lab,prøve - styrer oppsummering">QuizType{exam}</div>'
              + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
              + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
@@ -2458,12 +2465,12 @@ function eedit(myid,q,target) {
              + '<div class="underlined" title="Skal karakter vises">Karakter{karak} </div>'
              + '<div class="underlined" title="Navn på elev er skjult (anonym retting)">Anonym {anonym}</div>'
              + '<div class="underlined" title="Elever kan ikke lenger endre svar, låst for retting.">Låst {locked}</div>'
-             + '<div class="underlined" title="Nivå for fasit visning">Fasit {fasit}</div>'
+             + '<div class="underlined" title="Prøven er ferdig - vis fasit/riktige svar">Fasit {fasit}</div>'
              + '<div class="underlined" title="Rangering i klassen">Rank{rank} </div>'
              + '<div class="underlined" title="Velger ut N fra spørsmålslista">Utvalg fra liste {randlist}</div>'
              + '<div class="underlined" title="Bruk uansett de første N spørsmålene, alle vil da få disse.">Faste spørsmål {xcount}</div>'
              + '<div class="underlined" title="Antall spørsmål som skal trekkes (i tillegg til de faste)">Antall tilfeldig valgte {rcount}</div>'
-             + '<div class="underlined" title="Tilbakemeldinger for hvert spørsmål">Feedback{fiidback} </div>'
+             + '<div class="underlined" title="Vis løsningsforslag etter 4 forsøk/riktig svar">Løsningsforslag{fiidback} </div>'
              + '<div class="underlined" title="Karakterskala som skal brukes, easy for en lett prøve (streng vurdering), hard gir snill vurdering">Skala {skala}</div>'
              + '<div class="underlined" title="Antall spørsmål pr side">Antall pr side {antall}</div>'
              + '<div class="underlined" title="Trinnvis visning av hjelpehint">Hjelpehint{hints}</div>'
@@ -2782,14 +2789,16 @@ wb.render.normal  = {
             var qql = [];
             var qqdiv = [];
             var sscore = { userscore:0, maxscore:0 ,scorelist:{} };
-            console.log("wb.render.qlist:",questlist);
+            //console.log("wb.render.qlist:",questlist);
             $j.post(mybase+'/renderq',{ container:container, questlist:questlist }, function(qrender) {
-              console.log("wb.render.qlist after renderq:",qrender);
+              //console.log("wb.render.qlist after renderq:",qrender);
               var qstart = 0, qant = qrender.length;
+              var qintro = (contopt && contopt.intro) ? contopt.intro : '';
               if (contopt && contopt.antall) {
                // paged display
                qstart = Math.min(qrender.length-1, (+contopt.antall * +wbinfo.page[wbinfo.containerid]));
                qant =  Math.min(qrender.length, qstart + +contopt.antall);
+               qintro = (qstart == 0) ? qintro : '';
               }
               var gonext = true;  // if navi != 1 then can not go to next page before submitting all on this page
               var open = true;  // open next question if prev already answerd
@@ -2821,7 +2830,8 @@ wb.render.normal  = {
                    }
                 }
               }
-              qq = qql.join('');
+              qintro = (qintro != '') ? '<div class="qintro">'+qintro+'</div>' : '';
+              qq = qintro + qql.join('');
               if (contopt.antall) {
                  //if (qant < qrender.length && (contopt.trinn == '0' || qu.attemptnum > 0 ) ) {
                  //var hidden =  (contopt.trinn == '0' || qu.attemptnum > 0 ) ? '' : ' hidden';

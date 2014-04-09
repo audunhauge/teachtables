@@ -210,6 +210,14 @@ function gui(elements) {
         s += '<option value="0"{checked} >nei</option>'.supplant(elm);
         s += '</select>';
         break;
+      case 'textarea':
+        s = '<textarea ';
+        if (elm.klass) {
+           s += '{disabled} {depp} class="{klass}" ';
+        }
+        s += ' rows="2" name="{name}" id="{id}">{value}</textarea>';
+        s = s.supplant(elm);
+        break;
       case 'select':
         s += '>';
         if (elm.options) {

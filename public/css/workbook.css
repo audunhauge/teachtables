@@ -553,7 +553,7 @@ span.wbedit {
   background:#ffffe0;
 }
 #editform textarea {
-  height:130px;
+  /* height:130px; */
 }
 
 div.textareaq textarea {
@@ -1256,10 +1256,30 @@ span.qnumber:hover span.addcomment {
 }
 */
 
+
+div.qintro {
+    position:relative;
+    top:-20px;
+    margin-left:auto;
+    margin-right:auto;
+    width:300px;
+    color:#44c;
+    font-size:1.2em;
+}
+
+div.qintro:first-child:first-letter {
+  float: left;
+  color: blue;
+  font-size: 3em;
+  padding-top: 4px;
+  padding-right: 8px;
+  padding-left: 3px;
+}
+
 #details {
     width:16px;
     height:16px;
-        background:transparent url(img/edit.gif) no-repeat;
+    background:transparent url(img/edit.gif) no-repeat;
 }
 
 input:disabled {
@@ -1269,6 +1289,12 @@ input:disabled {
 .gradebutton.disabled {
   background:#999 !important;
 }
+
+textarea.smalltext {
+    width:200px !important;
+    margin-left:50px;
+}
+
 input.text15 {
     width:10em;
 }

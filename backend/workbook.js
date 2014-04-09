@@ -1165,7 +1165,7 @@ var renderq = exports.renderq = function(user,query,callback) {
       //if (quiz.question[container]) {
       //var containerq = quiz.question[container];
       contopt = moo.contopt || {};
-      var stripfasit = (contopt.fasit == 0);
+      var stripfasit = !(contopt.fiidback && contopt.fiidback != 'none');
       if (contopt.start || contopt.stop) {
         var start,stop,elm,hstart,mstart,hstop,mstop;
         hstart = hstop = mstart = mstop = 0;
