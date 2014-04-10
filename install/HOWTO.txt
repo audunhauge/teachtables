@@ -1,0 +1,62 @@
+Assumptions:
+  ubuntu linux server
+
+Install these packages:
+sudo apt-get install build-essential 
+sudo apt-get install git
+sudo apt-get install postgresql
+sudo apt-get install libpq-dev
+
+As user (the user owning teachtables directory) for nodejs:
+git clone    https://github.com/joyent/node.git
+cd node
+git checkout vxx.yy.zz  (check out current stable version)
+./configure
+make
+sudo make install
+cd
+git clone git://github.com/audunhauge/teachtables.git
+cd teachtables
+npm install
+
+This might give errors if you are missing some dependencies
+
+Setting up postgres
+Edit /etc/postgresql/9.x/main/pg_hba.conf    (9.x assumed to be pg-version)
+
+# "local" is for Unix domain socket connections only
+local   planner     admin                             md5
+host    planner     admin       127.0.0.1/32          md5
+local   all         all                               ident
+# IPv4 local connections:
+host    all         all         127.0.0.1/32          ident
+# IPv6 local connections:
+host    all         all         ::1/128               ident
+
+Edit  postgresql.conf (same directory - likely)
+
+# - Connection Settings -
+
+listen_addresses = 'localhost'          # what IP address(es) to listen on;
+
+
+start postgres in runlevel
+su postgres (assumed to exist)
+
+> psql
+ create database planner;
+ create user admin with password '123';
+ ALTER DATABASE planner OWNER TO admin;
+
+\q
+
+
+As normal user:
+  cd
+  cd edplan
+  psql planner -U admin
+  \i schema.sql
+
+Create a site config file based on default.js in sites
+Start the server from  ../teachtables with node app.js sitename
+

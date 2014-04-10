@@ -1259,20 +1259,24 @@ span.qnumber:hover span.addcomment {
 
 div.qintro {
     position:relative;
-    top:-20px;
+    top:0px;
     margin-left:auto;
     margin-right:auto;
-    width:300px;
+    padding:18px;
+    width:400px;
     color:#44c;
     font-size:1.2em;
+    background: #fff;
+    box-shadow: 1px 1px 10px rgba(0,0,0,0.7);
 }
 
 div.qintro:first-child:first-letter {
   float: left;
+  text-transform: uppercase;
   color: blue;
-  font-size: 3em;
+  font-size: 2em;
   padding-top: 4px;
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 3px;
 }
 
