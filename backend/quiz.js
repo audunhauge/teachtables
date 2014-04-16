@@ -1468,7 +1468,7 @@ var qz = {
                      var tch = ff.substr(4);    // remainder after removing prefix
                      var num = +ff;             // get numeric value
                      var tol = 0.0000001;       // default tolerance
-                     var uanum = ua[ii].replace(',','.');  // user input 3,141 => 3.14
+                     var uanum = (uatxt.replace) ? uatxt.replace(',','.') : 0;  // user input 3,141 => 3.14
                      uanum = +uanum;       // numeric value of user input
                      switch (swi) {
                        case 'nor:':
