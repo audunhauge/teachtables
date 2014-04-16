@@ -1460,7 +1460,9 @@ var qz = {
                    var uatxt =  ua[ii];
                    tot++;
                    var ff = unescape(fasit[ii]);
-                   if (uatxt && ff.toLowerCase() == uatxt.toLowerCase()  ) {        // MARK: exact answer
+                   if (uatxt == undefined) {
+                      uerr++;
+                   } else if (ff.toLowerCase() == uatxt.toLowerCase()  ) {        // MARK: exact answer
                      ucorr++;
                      feedb = '1';  // mark as correct
                    } else {
@@ -1468,7 +1470,7 @@ var qz = {
                      var tch = ff.substr(4);    // remainder after removing prefix
                      var num = +ff;             // get numeric value
                      var tol = 0.0000001;       // default tolerance
-                     var uanum = (uatxt.replace) ? uatxt.replace(',','.') : 0;  // user input 3,141 => 3.14
+                     var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
                      uanum = +uanum;       // numeric value of user input
                      switch (swi) {
                        case 'nor:':
