@@ -97,10 +97,20 @@ marker#arrowhead {
     }
 }
 
+div.popme {
+  display:none;
+  position:absolute;
+  top:0px;
+  font-size:0.8em;
+  right:100px;
+}
+#quiz { position:relative; }
+#quiz:hover > div.popme { display:block; }
 
 #teachbox  { 
     position:relative;
 }
+ 
 #teachbox > ul { 
   display:none; 
   position:absolute;
