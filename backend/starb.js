@@ -137,7 +137,7 @@ exports.regstarb = function(ip,user, query, callback) {
   var utz       = +query.utz        || 0;  // user timezone
   var resp = { fail:1, text:"error", info:"" };
 
-  regkey = Math.min(2100000000,regkey);  // just to avoid error in postgresql - int larger than maxint
+  regkey = Math.max(0,Math.min(2100000000,regkey));  // just to avoid error in postgresql - int larger than maxint
   /*
   if (ip.substr(0,6) != '152.93' ) {
       resp.text = "Bare fra skolen";
@@ -186,8 +186,8 @@ exports.regstarb = function(ip,user, query, callback) {
                     var starbkey = results.rows[0];
                     if (starbkey.ecount > 0 && (starbkey.start <= minutcount+1) && (starbkey.start + starbkey.minutes >= minutcount-1) ) {
                       // note we use userid instead of ip - cause pound removes original ip
-                      console.log( 'insert into starb (julday,userid,teachid,roomid,ip) values'
-                          + ' ($1,$2,$3,$4,$2) ' , [jd, userid, starbkey.teachid, starbkey.roomid, ip]);
+                      //console.log( 'insert into starb (julday,userid,teachid,roomid,ip) values'
+                      //+ ' ($1,$2,$3,$4,$2) ' , [jd, userid, starbkey.teachid, starbkey.roomid, ip]);
                       client.query( 'insert into starb (julday,userid,teachid,roomid,ip) values'
                           + ' ($1,$2,$3,$4,$5) ' , [jd, userid, starbkey.teachid, starbkey.roomid, ""+userid ],
                         function(err,results) {

@@ -1448,7 +1448,8 @@ var qz = {
                  //   32.0..33.5        the answer must be in the interval [32.0,33.5]
                  //   nor:m,s           the answer x is scored as e^-((1/(2) * ((x-m)/s)^2
                  //   sym:exp           the answer x is scored as pycas(x - exp) == 0
-                 //   eva:exp,a,b       the answer x is scored as eval(x) == exp, for 20 rand in [a,b]
+                 //   eva:exp|a|b       the answer x is scored as eval(x) == exp
+                 //   zro:exp|a         the answer x is correct if |exp(x)| < a
                  //   reg:r             the answer x is scored as regular exp match for x,r
                  //   lis:a:A,b:B,c     the answer x is scored as  x == one of a,b,c - score is given by :A or 1
                  var fasit = param.fasit;
@@ -1565,6 +1566,40 @@ var qz = {
                                    });
                                }
                           }
+                         break;
+                       case 'zro:':
+                         //   zro:exp|a      the answer x is correct if |exp(x)| < a
+                         var elem = tch.split('|');
+                         var exp = elem[0];
+                         var tol = elem[1] || 0.001 ;
+                         var sco = 0;
+                         exp = normalizeFunction(exp,0,ua);
+                         var num = +uatxt;
+                         if (uatxt != undefined && uatxt != '' && uatxt != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                            // user supplied root checked
+                            console.log("Checking if root:",uatxt,exp);
+                            var bad = false;
+                            try {
+                               var fu1 = new Function("x",' with(Math) { return ' +exp+'; }' );
+                               var f1 = Math.abs(fu1(num));
+                               console.log("Evalueated to ",f1,tol)
+                               if (f1 <= tol) {
+                                   sco = 1;
+                                   feedb = '1';  // mark as correct
+                               } else {
+                                   bad = true;
+                               }
+                             }
+                             catch (err) {
+                                 console.log("EVAL fu ",err);
+                                 bad = true;
+                             }
+                             if (bad) {
+                               uerr++;
+                             } else {
+                               ucorr += sco;
+                             }
+                           }
                          break;
                        case 'eva:':
                          //   eva:exp|a|b      the answer x is scored as eval(x) == exp
