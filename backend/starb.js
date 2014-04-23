@@ -9,6 +9,7 @@ var after = require('./utils').after;
 var sys = require('util');
 var database = siteinf.database;
 var db = database.db;
+var starbsec = require('./starbsec');
 
 
 exports.getstarbless = function(user, query, callback) {
@@ -136,6 +137,11 @@ exports.regstarb = function(ip,user, query, callback) {
   var userid    = +query.userid     || 0;
   var utz       = +query.utz        || 0;  // user timezone
   var resp = { fail:1, text:"error", info:"" };
+  if (!starbsec.secure(userid)) {
+      resp.text="dont spam";
+      callback(resp);
+      return;
+  }
 
   regkey = Math.max(0,Math.min(2100000000,regkey));  // just to avoid error in postgresql - int larger than maxint
   /*

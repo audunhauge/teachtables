@@ -1458,9 +1458,12 @@ var qz = {
                  var uerr = 0;     // user false choices
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    var feedb = '-';  // mark as failed
+                   var uatxt =  ua[ii];
                    tot++;
                    var ff = unescape(fasit[ii]);
-                   if (ff.toLowerCase() == ua[ii].toLowerCase()  ) {        // MARK: exact answer
+                   if (uatxt == undefined) {
+                      uerr++;
+                   } else if (ff.toLowerCase() == uatxt.toLowerCase()  ) {        // MARK: exact answer
                      ucorr++;
                      feedb = '1';  // mark as correct
                    } else {
@@ -1468,9 +1471,8 @@ var qz = {
                      var tch = ff.substr(4);    // remainder after removing prefix
                      var num = +ff;             // get numeric value
                      var tol = 0.0000001;       // default tolerance
-                     var uanum = ua[ii].replace(',','.');  // user input 3,141 => 3.14
+                     var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
                      uanum = +uanum;       // numeric value of user input
-                     var uatxt = ua[ii];
                      switch (swi) {
                        case 'nor:':
                          var norm = tch.split(',');

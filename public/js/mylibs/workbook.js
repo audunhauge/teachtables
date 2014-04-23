@@ -1133,7 +1133,7 @@ function renderPage() {
     // if this is a quiz ...
     if (container.qtype == 'quiz') {
       $j.bbq.pushState("#quiz/" + wbinfo.containerid);
-      trail += '<h1 id="quiz" class="gui">QUIZ </h1>';
+      trail += '<h1 id="quiz" class="gui">'+container.name+'<div class="popme">⇐ vis resultat</div></h1>';
       header = '';
     } else {
         header = wb.render[wbinfo.layout].header();
