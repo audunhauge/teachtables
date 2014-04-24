@@ -214,13 +214,13 @@ function crossResults() {
                for (var uui =0; uui < 5; uui++) {
                    var uu = userorder[uui].id;
                    if (cro[uu]) {
-                       top5 += cro[uu].score;
+                       top5 += +cro[uu].score;
                    }
                }
                // now if top5 > 0.4 times total for this question then this
                // question discriminates efficiently
-               if (qord.score > 0) { // && top5/qord.score > 10/qord.count) {
-                   qord.discrim = ((top5/qord.score) / (5/qord.count)).toFixed(1);
+               if (+qord.score > 0 && +quord.count > 0) { // && top5/qord.score > 10/qord.count) {
+                   qord.discrim = ((+top5/(+qord.score) / (5/(+qord.count))).toFixed(1);
                }
            }
 
