@@ -2362,6 +2362,7 @@ function eedit(myid,q,target) {
            var seltype = dialog.contopt.seltype || 'all';
            var usetags = dialog.contopt.tags || 'Test';
            var level = dialog.contopt.level || 'any';
+           var demand = dialog.contopt.demand || '';
            qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted hidden" id="qdisplay" >Random Question '+usetags+','+seltype+ '</textarea></td></tr>';
            var elements = {
                  defaults:{  type:"text", klass:"copts" }
@@ -2371,11 +2372,13 @@ function eedit(myid,q,target) {
                    , level:       {  type:"select", klass:"copts",  value:level,
                                       options:[{ value:"any"},{ value:"darwin"},{ value:"easy"},{ value:"medium"},{ value:"hard"} ] }
                    , tags:         { value:usetags }
+                   , demand:         { value:demand }
                  }
                };
            var res = gui(elements);
            s += 'Instillinger for random: <div id="inputdiv">'
-             + '<div title="Velg spørsmål med disse tags">Tags {tags}</div>'
+             + '<div title="Velg spørsmål som har noen av disse tags">Velg blandt {tags}</div>'
+             + '<div title="Krev at spørsmål har alle disse tags">Krev disse {demand}</div>'
              + '<div title="Bruk _all_ for alle typer (bare multiple,numeric,dragdrop,fillin)">Begrens til denne typen {seltype}</div>'
              + '<div title="Velg fortrinnsvis vanskegrad :">Difficulty level {level}</div>'
              + '</div></div>';

@@ -1314,32 +1314,37 @@ var renderq = exports.renderq = function(user,query,callback) {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
                       if (qu.qtype == 'random' && qu.contopt && qu.contopt.tags) {
+                        var demand = qu.contopt.demand ? qu.contopt.demand.split(',') : [];
                         var thesetags = qu.contopt.tags.split(',');
-                        var maintag = thesetags[0];
+                        var maintag = " and t.tagname in ('"+thesetags.join("','")+ "')";
                         var teachid = masterq.teachid;
                         var seltype = (qu.contopt.seltype == 'all') ? " and qtype not in ('quiz','container','random')"
                                         : " and qtype = '"+qu.contopt.seltype +"'";
-                        client.query('select q.*,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) '
-                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 and t.tagname = $2 ' + seltype
+                        var sql = 'select q.*,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) '
+                                     + 'inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$1 ' + seltype
                                      + ' and points ='+qu.points
+                                     + maintag
                                      + " and subject = '"+qu.subject+"'"
-                                     + ' and status = 0 order by avg'
-                                     , [teachid,maintag],
+                                     + ' and status = 0 order by avg';
+                        console.log(sql);
+                        client.query(sql , [teachid],
                         after(function(random) {
-                            // selected questions all have maintag
+                            // selected questions all have one of maintag
                             // filter on remaining tags using quicktags populated when workbook was opened
                             var nu = qu;
                             if (random.rows.length) {
                                var list0 = random.rows;
                                var list = _.filter(list0,function(q){ return !randlist[q.id]; });  // remove questions already in quiz
                                // this is done so that two (or more ) random questions picking from same tag will differ if possible
-                               if (thesetags.length > 1 && quicktags[teachid]) {
+                               if (demand.length  && thesetags.length > 1 && quicktags[teachid]) {
                                    // need to filter on extra tags
                                    // using map and reduce to filter question ids
                                    var possible = quicktags[teachid];  // tags with array of qids
                                    var ids = list.map(function(e) { return e.id;}); // ids from query
-                                   var f = thesetags.map(function(e) { return possible[e]; });  // arrays of questions for each tag in thesetags
+                                   var f = demand.map(function(e) { return possible[e]; });  // arrays of questions for each tag in thesetags
                                    var g = _.reduce(f,function(m,e) { return _.intersection(m,e);},ids);
+                                   console.log("came in with length =",list.length);
+                                   console.log("REDUCED to ",g);
                                    list = _.filter(list,function(q) {
                                        return _.indexOf(g,q.id) >= 0;
                                    })
@@ -1348,6 +1353,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                                    list = list0;  // too few remaining
                                    console.log("too few");
                                }
+                               console.log("QLIST LENGTH =",list.length);
                                var len = list.length;
                                var lev = qu.contopt.level;
                                var doslice = false;
