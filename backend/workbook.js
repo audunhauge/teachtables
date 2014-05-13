@@ -1326,7 +1326,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                                      + maintag
                                      + " and subject = '"+qu.subject+"'"
                                      + ' and status = 0 order by avg';
-                        console.log(sql);
+                        console.log(sql,demand,thesetags);
                         client.query(sql , [teachid],
                         after(function(random) {
                             // selected questions all have one of maintag
