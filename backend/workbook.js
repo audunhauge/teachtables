@@ -845,30 +845,54 @@ var remarked = exports.remarked = function(user,query,callback) {
     }));
 }
 
-var userstats = {};
+var quicktags = {};
+// memoize questions connected to tag
+
+
+var userstats = { lasttime:{} };
 // memoize userstats for use by random question type
 // in darwin mode will choose difficulty adapted to user
 
 var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
   // isupdate set to true if this is only to refresh userstats
+  var subject  = query.subject || "";
+  var teachid  = query.teachid || 0;
+  console.log("TEACHID=",teachid);
   var now = new Date();
   var justnow = now.getTime();
-  if (isupdate && userstats.lasttime > justnow - 20 * 60 * 1000) {
+  if (isupdate && userstats.lasttime[subject] > justnow - 20 * 60 * 1000) {
       // this is an update call - and less than 20 minutes since last
       // just return doing nothing
       callback({});
       return;
   }
+  client.query("select q.id,q.teachid,t.tagname from quiz_question q inner join quiz_qtag qt on (qt.qid=q.id) "
+               + "inner join quiz_tag t on (qt.tid = t.id) where q.teachid=$2 and q.subject=$1",[subject,teachid],
+    after(function(qts) {
+      if (qts && qts.rows) {
+          for (var i =0; i < qts.rows.length; i++) {
+            var elm = qts.rows[i];
+            if (!quicktags[elm.teachid]) {
+               quicktags[elm.teachid] = {};
+            }
+            if (!quicktags[elm.teachid][elm.tagname]) {
+               quicktags[elm.teachid][elm.tagname] = [];
+            }
+            quicktags[elm.teachid][elm.tagname].push(elm.id);
+          }
+      }
+      console.log(quicktags);
+
+    }));
   var isteach = (user.department == 'Undervisning');
   //var studid  = query.studid;
   var studlist = query.studlist || "" ;  // list of student ids
   var goodlist = _.every(studlist.split(","),function(e) { return (e == Math.floor(+e))});
   // test that studlist is list of numbers
-  userstats.lasttime = justnow;
+  userstats.lasttime[subject] = justnow;
   var lim1 = justnow-8*24*60*60*1000;
   var lim2 = justnow-18*24*60*60*1000;
   var lim3 = justnow-38*24*60*60*1000;
-  var subject  = query.subject || "";
   if (goodlist ) {
     // here we have everything in one query
     //   we only take scores [0,1] to avoid edge cases
@@ -1290,7 +1314,9 @@ var renderq = exports.renderq = function(user,query,callback) {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
                       if (qu.qtype == 'random' && qu.contopt && qu.contopt.tags) {
-                        var thesetags = qu.contopt.tags;
+                        var thesetags = qu.contopt.tags.split(',');
+                        var maintag = thesetags[0];
+                        var teachid = masterq.teachid;
                         var seltype = (qu.contopt.seltype == 'all') ? " and qtype not in ('quiz','container','random')"
                                         : " and qtype = '"+qu.contopt.seltype +"'";
                         client.query('select q.*,t.tagname from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) '
@@ -1298,13 +1324,26 @@ var renderq = exports.renderq = function(user,query,callback) {
                                      + ' and points ='+qu.points
                                      + " and subject = '"+qu.subject+"'"
                                      + ' and status = 0 order by avg'
-                                     , [masterq.teachid,thesetags],
+                                     , [teachid,maintag],
                         after(function(random) {
+                            // selected questions all have maintag
+                            // filter on remaining tags using quicktags populated when workbook was opened
                             var nu = qu;
                             if (random.rows.length) {
                                var list0 = random.rows;
                                var list = _.filter(list0,function(q){ return !randlist[q.id]; });  // remove questions already in quiz
                                // this is done so that two (or more ) random questions picking from same tag will differ if possible
+                               if (thesetags.length > 1 && quicktags[teachid]) {
+                                   // need to filter on extra tags
+                                   // using map and reduce to filter question ids
+                                   var possible = quicktags[teachid];  // tags with array of qids
+                                   var ids = list.map(function(e) { return e.id;}); // ids from query
+                                   var f = thesetags.map(function(e) { return possible[e]; });  // arrays of questions for each tag in thesetags
+                                   var g = _.reduce(f,function(m,e) { return _.intersection(m,e);},ids);
+                                   list = _.filter(list,function(q) {
+                                       return _.indexOf(g,q.id) >= 0;
+                                   })
+                               }
                                if (list.length < 3) {
                                    list = list0;  // too few remaining
                                    console.log("too few");
@@ -2087,7 +2126,8 @@ var getworkbook = exports.getworkbook = function(user,query,callback) {
   after(function(results) {
           if (results && results.rows && results.rows[0]) {
             callback(results.rows[0]);
-            quizstats(user,{studlist:studlist,subject:subject},function(re) {
+            var teachid = results.rows[0].teachid;
+            quizstats(user,{teachid:teachid, studlist:studlist,subject:subject},function(re) {
                 console.log("quiz-stats updated");
             },true);  // the true is to signal that we only need do this if more than 20 minutes since last update
           } else {

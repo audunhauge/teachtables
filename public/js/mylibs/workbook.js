@@ -447,7 +447,7 @@ function quizstats(ttype,using,ignoring) {
           var myid = this.id;
           workbook(myid);
         });
-        $j.get(mybase+'/quizstats',{ studid:userinfo.id, subject:course, studlist:elever.join(',')},function(res){
+        $j.get(mybase+'/quizstats',{ teachid:teachid,studid:userinfo.id, subject:course, studlist:elever.join(',')},function(res){
             showstats(res,basetemalist);
         });
         function showstats(res,using,ignoring) {
