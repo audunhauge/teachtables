@@ -1311,9 +1311,9 @@ var renderq = exports.renderq = function(user,query,callback) {
                     } else {
                       // create empty user-answer for this (question,instance)
                       // run any filters and macros found in qtext
-                      if (qu.qtype == 'random' && qu.contopt && qu.contopt.tags) {
+                      if (qu.qtype == 'random' && qu.contopt && (qu.contopt.tags || qu.contopt.demand)) {
                         var demand = qu.contopt.demand ? qu.contopt.demand.split(',') : [];
-                        var thesetags = qu.contopt.tags.split(',');
+                        var thesetags = qu.contopt.tags ? qu.contopt.tags.split(',') : demand;
                         var maintag = " and t.tagname in ('"+thesetags.join("','")+ "')";
                         var teachid = masterq.teachid;
                         var seltype = (qu.contopt.seltype == 'all') ? " and qtype not in ('quiz','container','random')"
