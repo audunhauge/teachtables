@@ -881,8 +881,6 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
             quicktags[elm.teachid][elm.tagname].push(elm.id);
           }
       }
-      console.log(quicktags);
-
     }));
   var isteach = (user.department == 'Undervisning');
   //var studid  = query.studid;
@@ -1326,7 +1324,6 @@ var renderq = exports.renderq = function(user,query,callback) {
                                      + maintag
                                      + " and subject = '"+qu.subject+"'"
                                      + ' and status = 0 order by avg';
-                        console.log(sql,demand,thesetags,quicktags[teachid]);
                         client.query(sql , [teachid],
                         after(function(random) {
                             // selected questions all have one of maintag

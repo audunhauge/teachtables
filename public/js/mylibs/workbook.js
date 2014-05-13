@@ -2360,7 +2360,7 @@ function eedit(myid,q,target) {
            break;
         case 'random':
            var seltype = dialog.contopt.seltype || 'all';
-           var usetags = dialog.contopt.tags || 'Test';
+           var usetags = dialog.contopt.tags || '';
            var level = dialog.contopt.level || 'any';
            var demand = dialog.contopt.demand || '';
            qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted hidden" id="qdisplay" >Random Question '+usetags+','+seltype+ '</textarea></td></tr>';
