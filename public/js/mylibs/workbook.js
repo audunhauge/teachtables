@@ -3175,7 +3175,7 @@ wb.render.normal  = {
                       statusclass = ' status'+status;
                   }
                   var hardnes = (qu.avg == 0) ? '' : (qu.avg < 0.5) ? 'hard' : (qu.avg < 0.8) ? 'medium' : 'easy';
-                  qtxt = '<span class="qnumber '+hardnes+'">Spørsmål '+qnum + qname
+                  qtxt = '<span class="qnumber '+hardnes+'">Spørsmål '+qnum + qname + ' ' + qu.points + 'p'
                     +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt;
                   if (sscore.qdiv != undefined) {
                     sscore.qdiv = hints+qtxt+studnote;
