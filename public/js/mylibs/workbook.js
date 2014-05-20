@@ -2043,6 +2043,7 @@ function editquestion(myid, target) {
 function eedit(myid,q,target) {
  var descript = { multiple:'Multiple choice', dragdrop:'Drag and Drop', sequence:'Place in order'
                , info:'Information'
+               , a_b_c:'Connected numeric subquestions'
                , textarea:'Free text'
                , numeric:'Numeric answers'
                , fillin:'Textbox'
@@ -2060,7 +2061,7 @@ function eedit(myid,q,target) {
      hardy = hard;  // cant set hardness of a question if more than 3 studs have scored it
    }
    var qdescript = descript[q.qtype] || q.qtype;
-   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,info,textarea,random,container,quiz".split(','));
+   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,a_b_c,info,textarea,random,container,quiz".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -2206,7 +2207,11 @@ function eedit(myid,q,target) {
         var myid = $j(this).parent().attr("id").substr(1);
         q.options.splice(myid,1);
         q.fasit.splice(myid,1);
-        optlist = drawOpts(q.options,q.fasit);
+        if (q.qtype == 'multiple') {
+          optlist = drawOpts(q.options,q.fasit);
+        } else {
+          optlist = drawABC(q.options,q.fasit);
+        }
         $j("#opts").html(optlist);
       });
    $j(target).undelegate(".txted","change");
@@ -2240,7 +2245,11 @@ function eedit(myid,q,target) {
         }
         preserve();
         q.options.push('');
-        optlist = drawOpts(q.options,q.fasit);
+        if (q.qtype == 'multiple') {
+          optlist = drawOpts(q.options,q.fasit);
+        } else {
+          optlist = drawABC(q.options,q.fasit);
+        }
         $j("#opts").html(optlist);
       });
    $j("#saveq").click(function() {
@@ -2344,6 +2353,14 @@ function eedit(myid,q,target) {
       var s = '<hr />'
       var qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted" id="qdisplay" >' + q.display + '</textarea></td></tr>';
       switch(q.qtype) {
+        case 'a_b_c':
+           var optlist = drawABC(q.options,q.fasit);
+           s += '<h3>Delspørsmål</h3>'
+           + '<table id="opts" class="opts">'
+           + optlist
+           + '</table>'
+           + '</div><div class="button" id="addopt">+</div>'
+           break;
         case 'multiple':
            var optlist = drawOpts(q.options,q.fasit);
            s += '<h3>Alternativer</h3>'
@@ -2499,6 +2516,32 @@ function eedit(myid,q,target) {
       return {qdisplay:qdisplay, options:s};
    }
 
+   function drawABC(options,fasit) {
+     // given a list of options - creates rows for each
+     var optlist = '';
+     if (options) {
+       for (var i=0,l=options.length; i<l; i++) {
+         var fa = fasit[i];
+         var parts = options[i].split('-||-');
+         var first = parts[0];
+         var p2nd = parts[1] || '';
+         var p3rd = parts[2] || '';
+         optlist += '<tr><td>'
+             + '<ol class="abc"><li>Guidance: <input name="q'+i+'" class="gu" type="text" value="'
+             + p2nd +'">'
+             + '<li>Question: <input name="o'+i+'" class="gu" type="text" value="'
+             + first +'">'
+             + '<li>Answer:<input name="a'+i+'" class="gu" type="text" value="'
+             + p3rd +'">'
+             + '<li>Skip next:<input name="s'+i+'" class="skip" type="text" value="'
+             + fa +'">'
+             + '</ol>'
+             + '</td><td><div id="c'+i+'" class="eopt"><div class="killer"></div></div></td></tr>';
+       }
+     }
+     return optlist;
+   }
+
    function drawOpts(options,fasit) {
      // given a list of options - creates rows for each
      var optlist = '';
@@ -2514,17 +2557,29 @@ function eedit(myid,q,target) {
    function preserve() {
         // preserve any changed option text
       if (q.options) {
-        for (var i=0,l=q.options.length; i<l; i++) {
-          var oval = $j("input[name=o"+i+"]").val();
-          q.options[i] = oval;
-          q.fasit[+i] = 0;
-        }
-        // preserve any changed checkboxes
-        var fas = $j("div.eopt input:checked");
-        for (var i=0,l=fas.length; i<l; i++) {
-          var b = fas[i];
-          var ii = $j(b).parent().attr("id").substr(1);
-          q.fasit[+ii] = 1;
+        if (q.qtype == 'multiple') {
+            for (var i=0,l=q.options.length; i<l; i++) {
+              var oval = $j("input[name=o"+i+"]").val();
+              q.options[i] = oval;
+              q.fasit[+i] = 0;
+            }
+            // preserve any changed checkboxes
+            var fas = $j("div.eopt input:checked");
+            for (var i=0,l=fas.length; i<l; i++) {
+              var b = fas[i];
+              var ii = $j(b).parent().attr("id").substr(1);
+              q.fasit[+ii] = 1;
+            }
+        } else {
+            // assumed to be "a_b_c"
+            for (var i=0,l=q.options.length; i<l; i++) {
+              var question = $j("input[name=o"+i+"]").val();
+              var guidance = $j("input[name=q"+i+"]").val();
+              var answer = $j("input[name=a"+i+"]").val();
+              var skip = $j("input[name=s"+i+"]").val();
+              q.options[i] = question + '-||-'+guidance+'-||-'+answer;
+              q.fasit[+i] = +skip;
+            }
         }
         $j("#saveq").addClass('red');
       }
@@ -3136,6 +3191,25 @@ wb.render.normal  = {
                               }
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 
+                          } else {
+                              qtxt += '</div>';
+                          }
+                          break;
+                      case 'a_b_c':
+                          qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted;
+                          if (!param.donotshow && param.options && param.options.length) {
+                              qtxt += '<ol class="math showabc">'
+                              for (var i=0, l= param.options.length; i<l; i++) {
+                                  var opt = param.options[i];
+                                  var parts = opt.split('-||-');
+                                  var first = parts[0];
+                                  var p2nd = parts[1] || '';
+                                  var ch = chosen[i] || '';
+                                  qtxt += '<li><div class="guide">' + p2nd + '</div>'
+                                  + '<dl><dt>'+first+'</dt><dd><span class="fillin"><input type="text" value="'+ch+'"></span></dd></dl></li>';
+                              }
+                              qtxt += '</ol>' + grademe;
+                              decoration();
                           } else {
                               qtxt += '</div>';
                           }

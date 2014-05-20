@@ -375,6 +375,7 @@ var qz = {
          qobj.fasit = draggers;
          //console.log("Draggers = ",draggers);
          break;
+       case 'a_b_c':
        case 'multiple':
          break;
        default:
@@ -1304,6 +1305,8 @@ var qz = {
            case 'diff':
            case 'info':
            case 'sequence':
+           case 'a_b_c':
+             break;
            case 'multiple':
              if (qobj.options && qobj.options.length) {
                qobj.optorder = qz.perturbe(qobj.options.length);
@@ -1752,6 +1755,7 @@ var qz = {
                  }
                  qgrade = Math.max(0,qgrade);
                break;
+             case 'a_b_c':
              case 'textarea':
              case 'fillin':
                  //var fasit = qobj.fasit;

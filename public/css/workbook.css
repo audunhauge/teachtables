@@ -303,6 +303,9 @@ ol.math {
   margin-left:0;
   padding-left:0;
  }
+ol.showabc {
+  margin-left:10px;
+}
 ol.math li {
     position:relative;
     margin:0 0 6px 2em;
@@ -569,6 +572,25 @@ span.wbedit {
 div.textareaq textarea {
   width:80%;
   height:180px;
+}
+
+ol.abc {
+    line-height:2.5em;
+}
+
+ol.abc span.txt {
+    position:relative;
+    width:150px;
+}
+ol.abc input.gu {
+    width:300px;
+    position:absolute;
+    left:180px;
+}
+ol.abc input.skip {
+    width:30px;
+    position:absolute;
+    left:180px;
 }
 
 #editform input.option {
