@@ -282,10 +282,20 @@ exports.gradeuseranswer = function(user,query,callback) {
                       //   if so then all other questions in this container will be updated to complete (score=1,attemptnum=1)
                       //   so that a stepwise container is completed if first (difficult) question answered correct
                       qua.param = param;
+		      if (myquest.qtype == 'abcde') console.log("ABCDE param=",qua.param,qua.attemptnum);
                       qua.param.display = unescape(qua.param.display);
-                      for (var oi in qua.param.options) {
-                           qua.param.options[oi] = unescape(qua.param.options[oi]);
-                      }
+		      if (myquest.qtype == 'abcde') {
+			  for (var oi in qua.param.abcde) {
+			     var elm = qua.param.abcde[oi].split('-||-');
+			     var qtx = elm[0];
+			     var guidance = (qua.attemptnum+1 >= oi) ? elm[1] : '';
+			     qua.param.options[oi] = unescape(qtx+'-||-'+guidance);
+			  }
+		      } else {
+			  for (var oi in qua.param.options) {
+			     qua.param.options[oi] = unescape(qua.param.options[oi]);
+			  }
+		      }
                       qua.response = parseJSON(ua);
                       qua.feedback = feedback;
                       qua.param.optorder = '';
@@ -1119,6 +1129,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                   ualist[ua.qid] = {};
                 }
                 ua.param = parseJSON(ua.param);
+		//if (q.qtype == 'abcde') console.log("ABCDE param=",ua.param);
                 ua.param.display = unescape(ua.param.display);
                 ua.param.fasit = '';
                 ua.param.cats = '';
@@ -1139,11 +1150,18 @@ var renderq = exports.renderq = function(user,query,callback) {
                   // correct answer
                   ua.param.options = [];
                 }
-
-
-                for (var oi in ua.param.options) {
-                   ua.param.options[oi] = unescape(ua.param.options[oi]);
-                }
+	        if (q.qtype == 'abcde') {
+		  for (var oi in ua.param.abcde) {
+		     var elm = ua.param.abcde[oi].split('-||-');
+		     var qtx = elm[0];
+		     var guidance = (ua.attemptnum > 0 && ua.attemptnum+1 > oi) ? elm[1] : '';
+		     ua.param.options[oi] = unescape(qtx+'-||-'+guidance);
+		  }
+	        } else {
+                  for (var oi in ua.param.options) {
+		     ua.param.options[oi] = unescape(ua.param.options[oi]);
+		  }
+	        }
                 ua.response = parseJSON(ua.response);
                 ua.param.optorder = '';
                 ualist[ua.qid][ua.instance] = ua;

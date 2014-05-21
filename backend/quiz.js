@@ -1314,8 +1314,7 @@ var qz = {
             for (var i in qobj.options) {
                 var elements = optcopy[i].split('-||-');
                 var questiontxt = elements[0];
-                var guidance = elements[1] || '';
-                qobj.options[i] = escape(questiontxt + '-||-'+guidance);
+                qobj.options[i] = escape(questiontxt);
                 qobj.abcde = optcopy;
             }
             break;
@@ -1457,16 +1456,6 @@ var qz = {
            var now = new Date().getTime();
            switch(aquest.qtype) {
              case 'numeric':
-                 //var fasit = qobj.fasit;
-                 // for numeric the fasit is a template like this
-                 //   33.13:0.5         the answer is 33.13 +- 0.5
-                 //   32.0..33.5        the answer must be in the interval [32.0,33.5]
-                 //   nor:m,s           the answer x is scored as e^-((1/(2) * ((x-m)/s)^2
-                 //   sym:exp           the answer x is scored as pycas(x - exp) == 0
-                 //   eva:exp|a|b       the answer x is scored as eval(x) == exp
-                 //   zro:exp|a         the answer x is correct if |exp(x)| < a
-                 //   reg:r             the answer x is scored as regular exp match for x,r
-                 //   lis:a:A,b:B,c     the answer x is scored as  x == one of a,b,c - score is given by :A or 1
                  var fasit = param.fasit;
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
@@ -1488,6 +1477,380 @@ var qz = {
                      var tol = 0.0000001;       // default tolerance
                      var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
                      uanum = +uanum;       // numeric value of user input
+                     gradenumeric();
+                   }
+                   if (fiib != 'none') feedback += feedb;
+                 }
+                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
+                 if (tot > 0) {
+                   qgrade = (ucorr - uerr/6) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+                 break;
+             case 'abcde':
+                 console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);
+                 var answers = param.abcde;
+                 var tot = 0;      // total number of options
+                 var ucorr = 0;    // user correct answers
+                 var uerr = 0;     // user false answers
+                 for (var ii=0,l=answers.length; ii < l; ii++) {
+                   var feedb = '-';  // mark as failed
+                   var uatxt =  ua[ii];
+                   tot++;
+                   var elements = answers[ii].split('-||-');
+                   var ff = elements[2];
+                   if (uatxt == undefined) {
+                      uerr++;
+                   } else if (ff.toLowerCase() == uatxt.toLowerCase()  ) {        // MARK: exact answer
+                     ucorr++;
+                     feedb = '1';  // mark as correct
+                   } else {
+                     var swi = ff.substr(0,4);  // check for nor: sym: eva: reg: lis:
+                     var tch = ff.substr(4);    // remainder after removing prefix
+                     var num = +ff;             // get numeric value
+                     var tol = 0.0000001;       // default tolerance
+                     var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
+                     uanum = +uanum;       // numeric value of user input
+                     gradenumeric();
+                   }
+                   if (fiib != 'none') feedback += feedb;
+                 }
+                 if (tot > 0) {
+                   qgrade = (ucorr) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+                 break;
+             case 'textarea':
+             case 'fillin':
+                 //var fasit = qobj.fasit;
+                 var fasit = param.fasit;
+                 var tot = 0;      // total number of options
+                 var ucorr = 0;    // user correct choices
+                 var uerr = 0;     // user false choices
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   tot++;
+                   var feedb = '-';  // mark as failed
+                   var ff = unescape(fasit[ii]);
+                   var fasil = ff.split(',');
+                   if (ff == ua[ii] || fasil.indexOf(ua[ii]) >= 0 ) {
+                     ucorr++;
+                     feedb = '1';  // mark as correct
+                   } else {
+                     // first do a check using fasit as a regular expression
+                     //console.log("trying regexp");
+                     try {
+                       var myreg = new RegExp('('+ff+')',"gi");
+                       var isgood = false;
+                       ua[ii].replace(myreg,function (m,ch) {
+                             isgood = (m == ua[ii]);
+                             //console.log("m ch:",m,ch);
+                           });
+                       if ( isgood) {
+                         ucorr++;     // good match for regular expression
+                         feedb = '1';  // mark as correct
+                       } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                         uerr++;
+                       }
+                     }
+                     catch (err) {
+                       if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                         uerr++;
+                       }
+                     }
+                   }
+                   if (fiib != 'none') feedback += feedb;
+                 }
+                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
+                 if (tot > 0) {
+                   qgrade = (ucorr - uerr/6) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+               break;
+             case 'diff':
+                 var fasit = param.fasit;
+                 var tot = 0;      // total number of options
+                 var ucorr = 0;    // user correct choices
+                 var uerr = 0;     // user false choices
+                 feedback = '';
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   tot++;
+                   var ff = unescape(fasit[ii]);
+                   if (ff == ua[ii] ) {
+                     ucorr++;
+                   } else {
+                     //try {
+                       var codeA = prep(ff);
+                       var codeB = prep(ua[ii]);
+                       var cdiff = jdiff.diffString2(codeA,codeB,contopt.fiidback);
+                       feedback += cdiff.diff+'<br>';
+                       ucorr += cdiff.similar;
+                     //} catch(err) {
+                     //  console.log("parse err");
+                     //  feedback = 'feil';
+                     //}
+                   }
+                 }
+                 if (tot > 0) {
+                   qgrade = ucorr / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+               break;
+             case 'sequence':
+                 // adjustment for orderd sequence
+                 var adjust =  {   2 : 0.51,  3 : 0.5,   4 : 0.38,  5 : 0.35,
+                                   6 : 0.38,  7 : 0.38,  8 : 0.32,  9 : 0.32,
+                                  10 : 0.34, 11 : 0.34, 12 : 0.3,  13 : 0.3,
+                                  14 : 0.31, 15 : 0.32, 16 : 0.28, 17 : 0.28,
+                                  18 : 0.26, 19 : 0.26, 20 : 0.24, 21 : 0.24,
+                                  22 : 0.22, 23 : 0.22, 24 : 0.21, 25 : 0.21,
+                                  26 : 0.2,  27 : 0.19, 28 : 0.18, 29 : 0.18,
+                                  30 : 0.17, 31 : 0.17, 32 : 0.16, 33 : 0.16,
+                                  34 : 0.16, 35 : 0.16, 36 : 0.14, 37 : 0.15,
+                                  38 : 0.14, 39 : 0.14, 40 : 0.13, 41 : 0.14,
+                                  42 : 0.13, 43 : 0.13, 44 : 0.12, 45 : 0.13,
+                                  46 : 0.12, 47 : 0.12, 48 : 0.11, 49 : 0.11,
+                                  50 : 0.11, 51 : 0.11, 52 : 0.1, 53 : 0.1,
+                                  54 : 0.1,  55 : 0.1, 56  : 0.1, 57 : 0.1,
+                                  58 : 0.1,  59 : 0.1, 60  : 0.09,
+                                  61 : 0.09, 62 : 0.09, 63 : 0.09 };
+
+                 var fasit = param.cats;
+                 var tot = 0;  // total number of options
+                 var daze = (qobj.daze) ? qobj.daze.split(',').length :  0;  // fake options
+                 var ucorr = 0;    // user correct choices
+                 var uerr = 0;     // user false choices
+                 var idx;
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   tot += fasit[ii].length;
+                 }
+                 feedback = [];
+                 for (var ii=0,l=ua.length; ii < l; ii++) {
+                   feedback[ii] ={ inv:{}, seq:{},inorder:{},reverse:{} };
+                   if (ua[ii]) {
+                     var mytot = fasit[ii].length;
+                     var myuco = 0;
+                     var myuer = 0;
+                     if (param.catnames[ii].charAt(0) == '+') {
+                       // this sequence is ordered
+                       // we check the sequence and also the reversed sequence
+                       // first we make a reverse lookup list
+                       var idlist = {};
+                       for (var jj=0; jj < mytot; jj++) {
+                         var elm = fasit[ii][jj];
+                         idlist[elm] = jj;
+                       }
+                       var w = Math.min(4,Math.max(1,Math.floor(mytot/2)));
+                         // width of sequence
+                       var pr = -1;  // prev value
+                       var seq = 0;  // score for sequence  a,b,c,d,e,f
+                       var inv = 0;  // score for inverse sequence  f,e,d,c,b,a
+                       var idx;      // idx we should have for this element
+                       var dscore,rdscore;
+                       var inorder = 0;
+                       var reverse = 0;
+                       for (var jj=0,jl=ua[ii].length; jj < jl; jj++) {
+                         var ff = unescape(ua[ii][jj]);
+                         idx = idlist[ff];
+                         if (idx == undefined) idx = -999;
+                         dscore = 1 - Math.min(w,Math.abs(jj-idx))/w;
+                         rdscore = 1 - Math.min(w,Math.abs(mytot-jj-idx))/w;
+                         feedback[ii].inv[jj] = 0;
+                         feedback[ii].seq[jj] = 0;
+                         if (idx == pr + 1) {
+                           seq++;
+                           feedback[ii].seq[jj] = 1;
+                         }
+                         if (idx == pr - 1) {
+                           inv++;
+                           feedback[ii].inv[jj] = 1;
+                         }
+                         pr = idx;
+                         inorder += dscore;
+                         reverse += rdscore;
+                         feedback[ii].inorder[jj] = dscore;
+                         feedback[ii].reverse[jj] = rdscore;
+                       }
+                       if (inv > seq) {
+                         inorder = reverse * 0.9;
+                         seq = inv;
+                         feedback[ii].inorder = feedback[ii].reverse;
+                       }
+                       feedback[ii].order = inorder;
+                       feedback[ii].sequ = seq;
+                       myuco = (inorder+seq)/2;
+                       if (mytot > 0.45 * (tot+daze)) {
+                         // this sequence is a large part of this question
+                         // we dont need adjustment if we have many small sequences
+                         // as then its hard placing an element in the correct sequence
+                         // in the first place - getting the order right is simple addon
+                         var adj = adjust[Math.min(63,mytot+daze)] * mytot;
+                         feedback[ii].adj = adj;
+                         //console.log(myuco,adj);
+                         myuco = myuco*Math.max(0,(myuco-adj)/(mytot-adj));
+                         feedback[ii].myuco = myuco;
+                       } else {
+                         feedback[ii].myuco = myuco;
+                         feedback[ii].adj = 0;
+                       }
+                     } else {
+                       for (var jj=0,jl=ua[ii].length; jj < jl; jj++) {
+                         var ff = unescape(ua[ii][jj]);
+                         if (fasit[ii].indexOf(ff) >= 0) {
+                           feedback[ii].seq[jj] = 1;
+                           myuco++;
+                         } else {
+                           myuer++;
+                         }
+                       }
+                       feedback[ii].myuco = myuco;
+                       feedback[ii].myuer = myuer;
+                       feedback[ii].adj = 0;
+                     }
+                   }
+                   //console.log("UERR,UCORR",myuer,myuco,tot,adj,mytot,fasit);
+                   uerr += myuer;
+                   ucorr += myuco;
+                 }
+                 if (tot > 0) {
+                   qgrade = (ucorr - uerr/6) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+                 feedback = JSON.stringify(feedback);
+               break;
+             case 'textmark':
+             case 'info':
+             case 'dragdrop':
+                 //var fasit = qobj.fasit;
+                 var fasit = param.fasit;
+                 var tot = 0;      // total number of options
+                 var ucorr = 0;    // user correct choices
+                 var uerr = 0;     // user false choices
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   var ff = unescape(fasit[ii]);
+                   if (ff == ' ' ) {
+                     // blank fields dont count - unless you place something on them
+                     if (ua[ii] == undefined || ua[ii] == '' || ua[ii] == '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                         continue;
+                     }
+                   }
+                   tot++;
+                   // ignore blank bokses - so we can have place one item in correct position
+                   var fasil = ff.split(',');
+                   if (ff == ua[ii] || fasil.indexOf(ua[ii]) >= 0 ) {
+                     ucorr++;
+                   } else {
+                     if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                       uerr++;
+                     }
+                   }
+                 }
+                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
+                 if (tot > 0) {
+                   qgrade = (ucorr - uerr/6) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+               break;
+             case 'multiple':
+                 //console.log(qobj,useranswer);
+                 var fasit = qz.reorder(qobj.fasit,optorder);
+                 var tot = 0;      // total number of options
+                 var totfasit = 0; // total of choices that are true
+                 var ucorr = 0;    // user correct choices
+                 var uerr = 0;     // user false choices
+                 var utotch = 0;   // user total choices - should not eq tot
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   var truthy = (fasit[ii] == '1');
+                   tot++;
+                   if (ua[ii]) utotch++;
+                   if (truthy) totfasit++;
+                   if (ua[ii] && truthy ) {
+                     ucorr++;
+                   } else if(!truthy  && ua[ii] ) {
+                     uerr++;
+                   }
+                 }
+                 //console.log('tot=',tot,'fasit=',totfasit,'uco=',ucorr,'uer=',uerr);
+                 if (totfasit > 0) {
+                   qgrade = (ucorr - uerr / 3) / totfasit;
+                 }
+                 if (utotch == tot) {
+                   qgrade = 0;    // all options checked => no score
+                 }
+                 qgrade = Math.max(0,qgrade);
+               break;
+             case 'info':
+               break;
+             default:
+               break;
+           }
+           if (simple) {  // only symbolic math is not simple
+             var adjust;
+             if (aquest.qtype == 'abcde') {
+                 // no penalty for multiple attempts on this type
+                 // its the point to grade each subquestion separatly
+                 adjust = qgrade;
+             } else {
+                 var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
+                 adjust = qgrade * (1 - cutcost - hintcost*hintcount);
+             }
+             //console.log(qgrade,adjust,attnum,cost);
+             qgrade = aquest.points * Math.max(0,adjust);
+             var completed = { comp:0, lock:0 };
+             console.log("GSYMB=",gsymb);
+             if (gsymb.lock && gsymb.limit && gsymb.limit <= qgrade) {
+               completed.lock = 1;
+             }
+             if (gsymb.key) {
+                 // this question is unanswerable until question aa:bb is answered
+                 //   in container aa there is a question with name bb
+                 //   if this has a score > 0 then accept answer
+                 completed.lock = 1;
+                 var keyel = gsymb.key.split(':');
+                 var cname = keyel[0];
+                 var qname = keyel[1] || '';
+                 feedback = 'Must complete: '+gsymb.key+' (container:question)';
+                 var sql = 'select  u.score,u.id,c.name from quiz_question q inner join quiz_useranswer u on (q.id = u.qid) '
+                        +  ' inner join quiz_question c on (u.cid = c.id) where q.name=$1 and c.name=$2 and u.userid=$3';
+                client.query( sql,[ qname,cname,user.id],
+                  after(function(res) {
+                      var score = 0;
+                      if (res && res.rows) {
+                        var uan = res.rows[0];
+                        console.log("TESTING KEY",feedback);
+                        if (uan && (uan.id == uaid && qgrade > 0 || uan.score > 0)) {
+                            score = qgrade;
+                            completed.lock = 0;
+                            feedback = '';
+                        }
+                      }
+                      callback(score,feedback,completed);
+
+                  }));
+             } else {
+                 if (gsymb.limit && gsymb.limit <= qgrade) {
+                  var tempq = parseJSON(aquiz.qtext);
+                  var skip = gsymb.skip ? gsymb.skip : tempq.qlistorder.length;
+                  remaining = tempq.qlistorder.slice(instance+1,instance+skip+1);
+                  console.log("UNLOCK ALL",instance,remaining,tempq.qlistorder);
+                  completed.comp = 1;
+                  client.query( "update quiz_useranswer set score = 1,attemptnum = 1 "
+                              + " where qid != $3 and cid=$1 and userid=$2 and qid in (" + remaining.join(',')+ ')',
+                                    [aquiz.id, user.id,aquest.id ] );
+                 }
+               callback(qgrade,feedback,completed);
+             }
+           }
+          function gradenumeric() {
+                 //var fasit = qobj.fasit;
+                 // for numeric the fasit is a template like this
+                 //   33.13:0.5         the answer is 33.13 +- 0.5
+                 //   32.0..33.5        the answer must be in the interval [32.0,33.5]
+                 //   nor:m,s           the answer x is scored as e^-((1/(2) * ((x-m)/s)^2
+                 //   sym:exp           the answer x is scored as pycas(x - exp) == 0
+                 //   eva:exp|a|b       the answer x is scored as eval(x) == exp
+                 //   zro:exp|a         the answer x is correct if |exp(x)| < a
+                 //   reg:r             the answer x is scored as regular exp match for x,r
+                 //   lis:a:A,b:B,c     the answer x is scored as  x == one of a,b,c - score is given by :A or 1
                      switch (swi) {
                        case 'nor:':
                          var norm = tch.split(',');
@@ -1758,356 +2121,7 @@ var qz = {
                          }
                          break;
                      }
-                   }
-                   if (fiib != 'none') feedback += feedb;
-                 }
-                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
-                 if (tot > 0) {
-                   qgrade = (ucorr - uerr/6) / tot;
-                 }
-                 qgrade = Math.max(0,qgrade);
-               break;
-             case 'textarea':
-             case 'fillin':
-                 //var fasit = qobj.fasit;
-                 var fasit = param.fasit;
-                 var tot = 0;      // total number of options
-                 var ucorr = 0;    // user correct choices
-                 var uerr = 0;     // user false choices
-                 for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   tot++;
-                   var feedb = '-';  // mark as failed
-                   var ff = unescape(fasit[ii]);
-                   var fasil = ff.split(',');
-                   if (ff == ua[ii] || fasil.indexOf(ua[ii]) >= 0 ) {
-                     ucorr++;
-                     feedb = '1';  // mark as correct
-                   } else {
-                     // first do a check using fasit as a regular expression
-                     //console.log("trying regexp");
-                     try {
-                       var myreg = new RegExp('('+ff+')',"gi");
-                       var isgood = false;
-                       ua[ii].replace(myreg,function (m,ch) {
-                             isgood = (m == ua[ii]);
-                             //console.log("m ch:",m,ch);
-                           });
-                       if ( isgood) {
-                         ucorr++;     // good match for regular expression
-                         feedb = '1';  // mark as correct
-                       } else if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
-                         uerr++;
-                       }
-                     }
-                     catch (err) {
-                       if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
-                         uerr++;
-                       }
-                     }
-                   }
-                   if (fiib != 'none') feedback += feedb;
-                 }
-                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
-                 if (tot > 0) {
-                   qgrade = (ucorr - uerr/6) / tot;
-                 }
-                 qgrade = Math.max(0,qgrade);
-               break;
-             case 'diff':
-                 var fasit = param.fasit;
-                 var tot = 0;      // total number of options
-                 var ucorr = 0;    // user correct choices
-                 var uerr = 0;     // user false choices
-                 feedback = '';
-                 for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   tot++;
-                   var ff = unescape(fasit[ii]);
-                   if (ff == ua[ii] ) {
-                     ucorr++;
-                   } else {
-                     //try {
-                       var codeA = prep(ff);
-                       var codeB = prep(ua[ii]);
-                       var cdiff = jdiff.diffString2(codeA,codeB,contopt.fiidback);
-                       feedback += cdiff.diff+'<br>';
-                       ucorr += cdiff.similar;
-                     //} catch(err) {
-                     //  console.log("parse err");
-                     //  feedback = 'feil';
-                     //}
-                   }
-                 }
-                 if (tot > 0) {
-                   qgrade = ucorr / tot;
-                 }
-                 qgrade = Math.max(0,qgrade);
-               break;
-             case 'sequence':
-                 // adjustment for orderd sequence
-                 var adjust =  {   2 : 0.51,  3 : 0.5,   4 : 0.38,  5 : 0.35,
-                                   6 : 0.38,  7 : 0.38,  8 : 0.32,  9 : 0.32,
-                                  10 : 0.34, 11 : 0.34, 12 : 0.3,  13 : 0.3,
-                                  14 : 0.31, 15 : 0.32, 16 : 0.28, 17 : 0.28,
-                                  18 : 0.26, 19 : 0.26, 20 : 0.24, 21 : 0.24,
-                                  22 : 0.22, 23 : 0.22, 24 : 0.21, 25 : 0.21,
-                                  26 : 0.2,  27 : 0.19, 28 : 0.18, 29 : 0.18,
-                                  30 : 0.17, 31 : 0.17, 32 : 0.16, 33 : 0.16,
-                                  34 : 0.16, 35 : 0.16, 36 : 0.14, 37 : 0.15,
-                                  38 : 0.14, 39 : 0.14, 40 : 0.13, 41 : 0.14,
-                                  42 : 0.13, 43 : 0.13, 44 : 0.12, 45 : 0.13,
-                                  46 : 0.12, 47 : 0.12, 48 : 0.11, 49 : 0.11,
-                                  50 : 0.11, 51 : 0.11, 52 : 0.1, 53 : 0.1,
-                                  54 : 0.1,  55 : 0.1, 56  : 0.1, 57 : 0.1,
-                                  58 : 0.1,  59 : 0.1, 60  : 0.09,
-                                  61 : 0.09, 62 : 0.09, 63 : 0.09 };
-
-                 var fasit = param.cats;
-                 var tot = 0;  // total number of options
-                 var daze = (qobj.daze) ? qobj.daze.split(',').length :  0;  // fake options
-                 var ucorr = 0;    // user correct choices
-                 var uerr = 0;     // user false choices
-                 var idx;
-                 for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   tot += fasit[ii].length;
-                 }
-                 feedback = [];
-                 for (var ii=0,l=ua.length; ii < l; ii++) {
-                   feedback[ii] ={ inv:{}, seq:{},inorder:{},reverse:{} };
-                   if (ua[ii]) {
-                     var mytot = fasit[ii].length;
-                     var myuco = 0;
-                     var myuer = 0;
-                     if (param.catnames[ii].charAt(0) == '+') {
-                       // this sequence is ordered
-                       // we check the sequence and also the reversed sequence
-                       // first we make a reverse lookup list
-                       var idlist = {};
-                       for (var jj=0; jj < mytot; jj++) {
-                         var elm = fasit[ii][jj];
-                         idlist[elm] = jj;
-                       }
-                       var w = Math.min(4,Math.max(1,Math.floor(mytot/2)));
-                         // width of sequence
-                       var pr = -1;  // prev value
-                       var seq = 0;  // score for sequence  a,b,c,d,e,f
-                       var inv = 0;  // score for inverse sequence  f,e,d,c,b,a
-                       var idx;      // idx we should have for this element
-                       var dscore,rdscore;
-                       var inorder = 0;
-                       var reverse = 0;
-                       for (var jj=0,jl=ua[ii].length; jj < jl; jj++) {
-                         var ff = unescape(ua[ii][jj]);
-                         idx = idlist[ff];
-                         if (idx == undefined) idx = -999;
-                         dscore = 1 - Math.min(w,Math.abs(jj-idx))/w;
-                         rdscore = 1 - Math.min(w,Math.abs(mytot-jj-idx))/w;
-                         feedback[ii].inv[jj] = 0;
-                         feedback[ii].seq[jj] = 0;
-                         if (idx == pr + 1) {
-                           seq++;
-                           feedback[ii].seq[jj] = 1;
-                         }
-                         if (idx == pr - 1) {
-                           inv++;
-                           feedback[ii].inv[jj] = 1;
-                         }
-                         pr = idx;
-                         inorder += dscore;
-                         reverse += rdscore;
-                         feedback[ii].inorder[jj] = dscore;
-                         feedback[ii].reverse[jj] = rdscore;
-                       }
-                       if (inv > seq) {
-                         inorder = reverse * 0.9;
-                         seq = inv;
-                         feedback[ii].inorder = feedback[ii].reverse;
-                       }
-                       feedback[ii].order = inorder;
-                       feedback[ii].sequ = seq;
-                       myuco = (inorder+seq)/2;
-                       if (mytot > 0.45 * (tot+daze)) {
-                         // this sequence is a large part of this question
-                         // we dont need adjustment if we have many small sequences
-                         // as then its hard placing an element in the correct sequence
-                         // in the first place - getting the order right is simple addon
-                         var adj = adjust[Math.min(63,mytot+daze)] * mytot;
-                         feedback[ii].adj = adj;
-                         //console.log(myuco,adj);
-                         myuco = myuco*Math.max(0,(myuco-adj)/(mytot-adj));
-                         feedback[ii].myuco = myuco;
-                       } else {
-                         feedback[ii].myuco = myuco;
-                         feedback[ii].adj = 0;
-                       }
-                     } else {
-                       for (var jj=0,jl=ua[ii].length; jj < jl; jj++) {
-                         var ff = unescape(ua[ii][jj]);
-                         if (fasit[ii].indexOf(ff) >= 0) {
-                           feedback[ii].seq[jj] = 1;
-                           myuco++;
-                         } else {
-                           myuer++;
-                         }
-                       }
-                       feedback[ii].myuco = myuco;
-                       feedback[ii].myuer = myuer;
-                       feedback[ii].adj = 0;
-                     }
-                   }
-                   //console.log("UERR,UCORR",myuer,myuco,tot,adj,mytot,fasit);
-                   uerr += myuer;
-                   ucorr += myuco;
-                 }
-                 if (tot > 0) {
-                   qgrade = (ucorr - uerr/6) / tot;
-                 }
-                 qgrade = Math.max(0,qgrade);
-                 feedback = JSON.stringify(feedback);
-               break;
-             case 'textmark':
-             case 'info':
-             case 'dragdrop':
-                 //var fasit = qobj.fasit;
-                 var fasit = param.fasit;
-                 var tot = 0;      // total number of options
-                 var ucorr = 0;    // user correct choices
-                 var uerr = 0;     // user false choices
-                 for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   var ff = unescape(fasit[ii]);
-                   if (ff == ' ' ) {
-                     // blank fields dont count - unless you place something on them
-                     if (ua[ii] == undefined || ua[ii] == '' || ua[ii] == '&nbsp;&nbsp;&nbsp;&nbsp;') {
-                         continue;
-                     }
-                   }
-                   tot++;
-                   // ignore blank bokses - so we can have place one item in correct position
-                   var fasil = ff.split(',');
-                   if (ff == ua[ii] || fasil.indexOf(ua[ii]) >= 0 ) {
-                     ucorr++;
-                   } else {
-                     if (ua[ii] != undefined && ua[ii] != '' && ua[ii] != '&nbsp;&nbsp;&nbsp;&nbsp;') {
-                       uerr++;
-                     }
-                   }
-                 }
-                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
-                 if (tot > 0) {
-                   qgrade = (ucorr - uerr/6) / tot;
-                 }
-                 qgrade = Math.max(0,qgrade);
-               break;
-             case 'abcde':
-                 console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);
-                 var answers = param.abcde;
-                 var tot = 0;      // total number of options
-                 var ucorr = 0;    // user correct answers
-                 var uerr = 0;     // user false answers
-                 for (var ii=0,l=answers.length; ii < l; ii++) {
-                   var elements = answers[ii].split('-||-');
-                   var solution = elements[2];
-                   tot++;
-                   if (ua[ii] == solution) {
-                       ucorr++;
-                   } else {
-                       uerr++;
-                   }
-                 }
-                 if (tot > 0) {
-                   qgrade = (ucorr) / tot;
-                 }
-                 qgrade = Math.max(0,qgrade);
-                 break;
-             case 'multiple':
-                 //console.log(qobj,useranswer);
-                 var fasit = qz.reorder(qobj.fasit,optorder);
-                 var tot = 0;      // total number of options
-                 var totfasit = 0; // total of choices that are true
-                 var ucorr = 0;    // user correct choices
-                 var uerr = 0;     // user false choices
-                 var utotch = 0;   // user total choices - should not eq tot
-                 for (var ii=0,l=fasit.length; ii < l; ii++) {
-                   var truthy = (fasit[ii] == '1');
-                   tot++;
-                   if (ua[ii]) utotch++;
-                   if (truthy) totfasit++;
-                   if (ua[ii] && truthy ) {
-                     ucorr++;
-                   } else if(!truthy  && ua[ii] ) {
-                     uerr++;
-                   }
-                 }
-                 //console.log('tot=',tot,'fasit=',totfasit,'uco=',ucorr,'uer=',uerr);
-                 if (totfasit > 0) {
-                   qgrade = (ucorr - uerr / 3) / totfasit;
-                 }
-                 if (utotch == tot) {
-                   qgrade = 0;    // all options checked => no score
-                 }
-                 qgrade = Math.max(0,qgrade);
-               break;
-             case 'info':
-               break;
-             default:
-               break;
-           }
-           if (simple) {  // only symbolic math is not simple
-             var adjust;
-             if (aquest.qtype == 'abcde') {
-                 // no penalty for multiple attempts on this type
-                 // its the point to grade each subquestion separatly
-                 adjust = qgrade;
-             } else {
-                 var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
-                 adjust = qgrade * (1 - cutcost - hintcost*hintcount);
-             }
-             //console.log(qgrade,adjust,attnum,cost);
-             qgrade = aquest.points * Math.max(0,adjust);
-             var completed = { comp:0, lock:0 };
-             console.log("GSYMB=",gsymb);
-             if (gsymb.lock && gsymb.limit && gsymb.limit <= qgrade) {
-               completed.lock = 1;
-             }
-             if (gsymb.key) {
-                 // this question is unanswerable until question aa:bb is answered
-                 //   in container aa there is a question with name bb
-                 //   if this has a score > 0 then accept answer
-                 completed.lock = 1;
-                 var keyel = gsymb.key.split(':');
-                 var cname = keyel[0];
-                 var qname = keyel[1] || '';
-                 feedback = 'Must complete: '+gsymb.key+' (container:question)';
-                 var sql = 'select  u.score,u.id,c.name from quiz_question q inner join quiz_useranswer u on (q.id = u.qid) '
-                        +  ' inner join quiz_question c on (u.cid = c.id) where q.name=$1 and c.name=$2 and u.userid=$3';
-                client.query( sql,[ qname,cname,user.id],
-                  after(function(res) {
-                      var score = 0;
-                      if (res && res.rows) {
-                        var uan = res.rows[0];
-                        console.log("TESTING KEY",feedback);
-                        if (uan && (uan.id == uaid && qgrade > 0 || uan.score > 0)) {
-                            score = qgrade;
-                            completed.lock = 0;
-                            feedback = '';
-                        }
-                      }
-                      callback(score,feedback,completed);
-
-                  }));
-             } else {
-                 if (gsymb.limit && gsymb.limit <= qgrade) {
-                  var tempq = parseJSON(aquiz.qtext);
-                  var skip = gsymb.skip ? gsymb.skip : tempq.qlistorder.length;
-                  remaining = tempq.qlistorder.slice(instance+1,instance+skip+1);
-                  console.log("UNLOCK ALL",instance,remaining,tempq.qlistorder);
-                  completed.comp = 1;
-                  client.query( "update quiz_useranswer set score = 1,attemptnum = 1 "
-                              + " where qid != $3 and cid=$1 and userid=$2 and qid in (" + remaining.join(',')+ ')',
-                                    [aquiz.id, user.id,aquest.id ] );
-                 }
-               callback(qgrade,feedback,completed);
-             }
-           }
+          }
   }
 }
 

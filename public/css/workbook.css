@@ -705,14 +705,23 @@ div.status6 { /* this is a duplicate question */
 }
 
 
+div.guide {
+  color:#339;
+}
 
 div.qtext span.fillin input {
   width:4em;
   background:#f0f032;
   text-align:right;
 }
+
+span.abcde input {
+  box-shadow: 3px 3px 2px rgba(90, 90, 180, .7);
+}
+
 span.readonly input {
-  background:#606060 !important;
+  /*background:#aaa !important;*/
+  box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
 }
 
 div.qtext .medium span.fillin input {

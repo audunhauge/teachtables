@@ -2917,6 +2917,7 @@ wb.render.normal  = {
                 var score = qu.score || 0;
                 var chosen = qu.response;
                 var param = qu.param;
+		var displayfasit;
                 var status = qu.status;
                 param.display = param.display.replace(/«/g,'"');
                 param.display = param.display.replace(/»/g,"'");
@@ -2928,10 +2929,17 @@ wb.render.normal  = {
                 var parts = param.display.split(/FASIT/);
                 // fasit.length != 0 if displaying results for a user
                 param.display = parts[0];
-                if ( fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) ) {
-                    param.display = parts[0];
+                var abc = false;
+                if (qu.qtype == 'abcde') {
+		   // for abcde partial questions - do not show fasit before all
+		   // subquestions are answered - ie attempt >= options.length
+		   abc = param.options.length > attempt;
+                }
+                if ( abc || (fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) )) {
+                    //param.display = parts[0];
+		    displayfasit = '';
                 } else if (fasit.length  || (contopt && contopt.fiidback && contopt.fiidback != 'none')) {
-                    param.display = parts.join('<h4>FASIT</h4>');
+                    displayfasit = '<h4>FASIT</h4>' + parts[1];
                 }
                 score = Math.round(score*100)/100;
                 var delta = score || 0;
@@ -3018,9 +3026,11 @@ wb.render.normal  = {
                             embellish += " trinn";
                           }
                           if (mycopt && mycopt.exam && mycopt.exam.length) {
-                            return '<div tag="'+qu.name+'" class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
+                            return '<div tag="'+qu.name+'" class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' 
+                              + qu.name + '<div class="account">'+account+'</div></div>';
                           }
-                          return '<div tag="'+qu.name+'" class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' + qu.name + '<div class="account">'+account+'</div></div>';
+                          return '<div tag="'+qu.name+'" class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' 
+                             + qu.name + '<div class="account">'+account+'</div></div>';
                           break;
                       case 'container':
                           return '<div tag="'+qu.name+'" class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';
@@ -3048,6 +3058,35 @@ wb.render.normal  = {
                               qtxt += grademe;
                               qtxt += '<div class="clearbox">&nbsp;</div>';
 
+                          } else {
+                              qtxt += '</div>';
+                          }
+                          break;
+                      case 'abcde':
+                          qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted;
+                          if (qu.feedback && qu.feedback != 'none' ) {
+                            if (/^[0-9-]+$/.test(qu.feedback)) {
+                              checkmarks = qu.feedback.split('');
+                              qu.feedback = '';
+                            }
+                          }
+                          if (!param.donotshow && param.options && param.options.length) {
+                              qtxt += '<ol class="math showabcde">'
+                              for (var i=0, l= param.options.length; i<l; i++) {
+                                  var opt = param.options[i];
+                                  var enabled = (scored +attempt == i || (!scored && i == 0 && attempt==0)) ? '' : ' readonly="readonly"';
+                                  var klass = (enabled) ? ' readonly' : '';
+                                  var parts = opt.split('-||-');
+                                  var question = parts[0];
+                                  var guidance = parts[1] || '';
+                                  var answer = chosen[i] || '';
+                                  var chk = (checkmarks[i] != undefined && checkmarks[i]!='-') ? ' class="heck' + checkmarks[i]+ '"' : '';
+                                  qtxt += '<li><div class="guide">' + guidance + '</div>'
+                                  + '<dl><dt>'+question+'</dt><dd><span class="abcde fillin'+klass+'"><input '
+                                  + chk+ enabled+' type="text" value="'+answer+'"></span></dd></dl></li>';
+                              }
+                              qtxt += '</ol>' + grademe;
+                              decoration();
                           } else {
                               qtxt += '</div>';
                           }
@@ -3196,27 +3235,6 @@ wb.render.normal  = {
                               qtxt += '</div>';
                           }
                           break;
-                      case 'abcde':
-                          qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted;
-                          if (!param.donotshow && param.options && param.options.length) {
-                              qtxt += '<ol class="math showabcde">'
-                              for (var i=0, l= param.options.length; i<l; i++) {
-                                  var opt = param.options[i];
-                                  var enabled = (scored && 1+attempt == i || (!scored && i == 0)) ? '' : 'readonly="readonly"';
-                                  var klass = (enabled) ? ' readonly' : '';
-                                  var parts = opt.split('-||-');
-                                  var question = parts[0];
-                                  var guidance = parts[1] || '';
-                                  var answer = chosen[i] || '';
-                                  qtxt += '<li><div class="guide">' + guidance + '</div>'
-                                  + '<dl><dt>'+question+'</dt><dd><span class="fillin'+klass+'"><input '+enabled+'type="text" value="'+answer+'"></span></dd></dl></li>';
-                              }
-                              qtxt += '</ol>' + grademe;
-                              decoration();
-                          } else {
-                              qtxt += '</div>';
-                          }
-                          break;
                       case 'multiple':
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted
                           if (!param.donotshow && param.options && param.options.length) {
@@ -3253,7 +3271,7 @@ wb.render.normal  = {
                   }
                   var hardnes = (qu.avg == 0) ? '' : (qu.avg < 0.5) ? 'hard' : (qu.avg < 0.8) ? 'medium' : 'easy';
                   qtxt = '<span class="qnumber '+hardnes+'">Spørsmål '+qnum + qname + ' ' + qu.points + 'p'
-                    +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt;
+                    +' &nbsp; <span id="com'+qu.id+'" class="addcomment wbedit">&nbsp;</span></span>' + qtxt+displayfasit;
                   if (sscore.qdiv != undefined) {
                     sscore.qdiv = hints+qtxt+studnote;
                     sscore.qdivid = 'qq'+qu.qid+'_'+qi;
