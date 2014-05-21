@@ -2043,7 +2043,7 @@ function editquestion(myid, target) {
 function eedit(myid,q,target) {
  var descript = { multiple:'Multiple choice', dragdrop:'Drag and Drop', sequence:'Place in order'
                , info:'Information'
-               , a_b_c:'Connected numeric subquestions'
+               , abcde:'Connected numeric subquestions'
                , textarea:'Free text'
                , numeric:'Numeric answers'
                , fillin:'Textbox'
@@ -2061,7 +2061,7 @@ function eedit(myid,q,target) {
      hardy = hard;  // cant set hardness of a question if more than 3 studs have scored it
    }
    var qdescript = descript[q.qtype] || q.qtype;
-   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,a_b_c,info,textarea,random,container,quiz".split(','));
+   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,abcde,info,textarea,random,container,quiz".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -2210,7 +2210,7 @@ function eedit(myid,q,target) {
         if (q.qtype == 'multiple') {
           optlist = drawOpts(q.options,q.fasit);
         } else {
-          optlist = drawABC(q.options,q.fasit);
+          optlist = drawABCDE(q.options,q.fasit);
         }
         $j("#opts").html(optlist);
       });
@@ -2248,7 +2248,7 @@ function eedit(myid,q,target) {
         if (q.qtype == 'multiple') {
           optlist = drawOpts(q.options,q.fasit);
         } else {
-          optlist = drawABC(q.options,q.fasit);
+          optlist = drawABCDE(q.options,q.fasit);
         }
         $j("#opts").html(optlist);
       });
@@ -2353,8 +2353,8 @@ function eedit(myid,q,target) {
       var s = '<hr />'
       var qdisplay = '<tr id="qtextarea"><th>Spørsmål</th><td><textarea class="txted" id="qdisplay" >' + q.display + '</textarea></td></tr>';
       switch(q.qtype) {
-        case 'a_b_c':
-           var optlist = drawABC(q.options,q.fasit);
+        case 'abcde':
+           var optlist = drawABCDE(q.options,q.fasit);
            s += '<h3>Delspørsmål</h3>'
            + '<table id="opts" class="opts">'
            + optlist
@@ -2516,7 +2516,7 @@ function eedit(myid,q,target) {
       return {qdisplay:qdisplay, options:s};
    }
 
-   function drawABC(options,fasit) {
+   function drawABCDE(options,fasit) {
      // given a list of options - creates rows for each
      var optlist = '';
      if (options) {
@@ -2527,7 +2527,7 @@ function eedit(myid,q,target) {
          var p2nd = parts[1] || '';
          var p3rd = parts[2] || '';
          optlist += '<tr><td>'
-             + '<ol class="abc"><li>Guidance: <input name="q'+i+'" class="gu" type="text" value="'
+             + '<ol class="abcde"><li>Guidance: <input name="q'+i+'" class="gu" type="text" value="'
              + p2nd +'">'
              + '<li>Question: <input name="o'+i+'" class="gu" type="text" value="'
              + first +'">'
@@ -2571,7 +2571,7 @@ function eedit(myid,q,target) {
               q.fasit[+ii] = 1;
             }
         } else {
-            // assumed to be "a_b_c"
+            // assumed to be "abcde"
             for (var i=0,l=q.options.length; i<l; i++) {
               var question = $j("input[name=o"+i+"]").val();
               var guidance = $j("input[name=q"+i+"]").val();
@@ -2655,6 +2655,7 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
           ua[optid] = otxt;
         }
         break;
+      case 'abcde':
       case 'diff':
       case 'textarea':
       case 'numeric':
@@ -2912,7 +2913,7 @@ wb.render.normal  = {
               // (we display ungraded questions on first show of question)
                 fasit   = typeof(fasit) != 'undefined' ? fasit : [];
                 if (qu.display == '') return '';
-                var attempt = qu.attemptnum || '';
+                var attempt = (qu.attemptnum != undefined) ? qu.attemptnum : 0;
                 var score = qu.score || 0;
                 var chosen = qu.response;
                 var param = qu.param;
@@ -2952,7 +2953,7 @@ wb.render.normal  = {
                          +(cost*100)+'% pr klikk" class="gui gethint">Koster:'+cost+'</div>';
                   }
                 }
-                if (contopt.adaptiv && contopt.adaptiv == "1" || !(scored || attempt != '' && attempt > 0) ) {
+                if (contopt.adaptiv && contopt.adaptiv == "1" || !(scored || attempt > 0) ) {
                    grademe = '<div class="grademe"></div></div>';
                 }
                 if (param.donotshow) {
@@ -3195,18 +3196,20 @@ wb.render.normal  = {
                               qtxt += '</div>';
                           }
                           break;
-                      case 'a_b_c':
+                      case 'abcde':
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted;
                           if (!param.donotshow && param.options && param.options.length) {
-                              qtxt += '<ol class="math showabc">'
+                              qtxt += '<ol class="math showabcde">'
                               for (var i=0, l= param.options.length; i<l; i++) {
                                   var opt = param.options[i];
+                                  var enabled = (scored && 1+attempt == i || (!scored && i == 0)) ? '' : 'readonly="readonly"';
+                                  var klass = (enabled) ? ' readonly' : '';
                                   var parts = opt.split('-||-');
-                                  var first = parts[0];
-                                  var p2nd = parts[1] || '';
-                                  var ch = chosen[i] || '';
-                                  qtxt += '<li><div class="guide">' + p2nd + '</div>'
-                                  + '<dl><dt>'+first+'</dt><dd><span class="fillin"><input type="text" value="'+ch+'"></span></dd></dl></li>';
+                                  var question = parts[0];
+                                  var guidance = parts[1] || '';
+                                  var answer = chosen[i] || '';
+                                  qtxt += '<li><div class="guide">' + guidance + '</div>'
+                                  + '<dl><dt>'+question+'</dt><dd><span class="fillin'+klass+'"><input '+enabled+'type="text" value="'+answer+'"></span></dd></dl></li>';
                               }
                               qtxt += '</ol>' + grademe;
                               decoration();

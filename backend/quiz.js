@@ -375,7 +375,8 @@ var qz = {
          qobj.fasit = draggers;
          //console.log("Draggers = ",draggers);
          break;
-       case 'a_b_c':
+       case 'abcde':
+         break;
        case 'multiple':
          break;
        default:
@@ -1288,8 +1289,10 @@ var qz = {
          qobj.options = qobj.fasit;
        }
        if (qobj.hints != '') qobj.hints = qz.macro(qobj.hints);
+       var optcopy = [];  // needed for partial questions abcde
        for (var i in qobj.options) {
-         qobj.options[i] = escape(qz.macro(qobj.options[i]));
+         optcopy[i] = qz.macro(qobj.options[i]);  // need to get correct answer for use in multipart abcde
+         qobj.options[i] = escape(optcopy[i]);
        }
        qobj.daze = qz.macro(qobj.daze,container);
        qobj.pycode = '';  // remove pycode and code - they are not needed in useranswer
@@ -1305,25 +1308,34 @@ var qz = {
            case 'diff':
            case 'info':
            case 'sequence':
-           case 'a_b_c':
-             break;
+            break;
+           case 'abcde':
+            // muste remove correct answer from options for multipart question
+            for (var i in qobj.options) {
+                var elements = optcopy[i].split('-||-');
+                var questiontxt = elements[0];
+                var guidance = elements[1] || '';
+                qobj.options[i] = escape(questiontxt + '-||-'+guidance);
+                qobj.abcde = optcopy;
+            }
+            break;
            case 'multiple':
-             if (qobj.options && qobj.options.length) {
+            if (qobj.options && qobj.options.length) {
                qobj.optorder = qz.perturbe(qobj.options.length);
                //qobj.fasit = '';   // don't return fasit
                qobj.options = qz.reorder(qobj.options,qobj.optorder);
-             }
-             break;
+            }
+            break;
            case 'container':
            case 'quiz':
-             // stash container symbols for use by contained questions
-             if (!qz.containers[container]) {
+            // stash container symbols for use by contained questions
+            if (!qz.containers[container]) {
                qz.containers[container] = {};
-             }
-             qz.containers[container][userid] = symb  ;
-             break;
+            }
+            qz.containers[container][userid] = symb  ;
+            break;
            default:
-             break;
+            break;
        }
        if (stripfasit) {
            var parts = qobj.display.split(/FASIT/);
@@ -1755,7 +1767,6 @@ var qz = {
                  }
                  qgrade = Math.max(0,qgrade);
                break;
-             case 'a_b_c':
              case 'textarea':
              case 'fillin':
                  //var fasit = qobj.fasit;
@@ -1986,6 +1997,27 @@ var qz = {
                  }
                  qgrade = Math.max(0,qgrade);
                break;
+             case 'abcde':
+                 console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);
+                 var answers = param.abcde;
+                 var tot = 0;      // total number of options
+                 var ucorr = 0;    // user correct answers
+                 var uerr = 0;     // user false answers
+                 for (var ii=0,l=answers.length; ii < l; ii++) {
+                   var elements = answers[ii].split('-||-');
+                   var solution = elements[2];
+                   tot++;
+                   if (ua[ii] == solution) {
+                       ucorr++;
+                   } else {
+                       uerr++;
+                   }
+                 }
+                 if (tot > 0) {
+                   qgrade = (ucorr) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+                 break;
              case 'multiple':
                  //console.log(qobj,useranswer);
                  var fasit = qz.reorder(qobj.fasit,optorder);
@@ -2020,8 +2052,15 @@ var qz = {
                break;
            }
            if (simple) {  // only symbolic math is not simple
-             var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
-             var adjust = qgrade * (1 - cutcost - hintcost*hintcount);
+             var adjust;
+             if (aquest.qtype == 'abcde') {
+                 // no penalty for multiple attempts on this type
+                 // its the point to grade each subquestion separatly
+                 adjust = qgrade;
+             } else {
+                 var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
+                 adjust = qgrade * (1 - cutcost - hintcost*hintcount);
+             }
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
              var completed = { comp:0, lock:0 };

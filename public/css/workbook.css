@@ -303,7 +303,7 @@ ol.math {
   margin-left:0;
   padding-left:0;
  }
-ol.showabc {
+ol.showabcde {
   margin-left:10px;
 }
 ol.math li {
@@ -574,20 +574,20 @@ div.textareaq textarea {
   height:180px;
 }
 
-ol.abc {
+ol.abcde {
     line-height:2.5em;
 }
 
-ol.abc span.txt {
+ol.abcde span.txt {
     position:relative;
     width:150px;
 }
-ol.abc input.gu {
+ol.abcde input.gu {
     width:300px;
     position:absolute;
     left:180px;
 }
-ol.abc input.skip {
+ol.abcde input.skip {
     width:30px;
     position:absolute;
     left:180px;
@@ -704,10 +704,15 @@ div.status6 { /* this is a duplicate question */
     font-size:0.8em;
 }
 
+
+
 div.qtext span.fillin input {
   width:4em;
   background:#f0f032;
   text-align:right;
+}
+span.readonly input {
+  background:#606060 !important;
 }
 
 div.qtext .medium span.fillin input {
@@ -973,6 +978,9 @@ span.imgdragdrop {
 }
 span.imgrandom {
   background:transparent url(img/random.png) no-repeat;
+}
+span.imgabcde {
+  background:transparent url(img/abcde.png) no-repeat;
 }
 span.imgnumeric {
   background:transparent url(img/numeric.png) no-repeat;
