@@ -1495,25 +1495,51 @@ var qz = {
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct answers
                  var uerr = 0;     // user false answers
+                 var doskip = false; // no skip so far
+                 var upskip = false;
+                 var skip = 0;       // skip so far
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    var feedb = '-';  // mark as failed
+                   var cdiff = ucorr;
+                   var memer = uerr;
                    var uatxt =  ua[ii];
-                   tot++;
                    //var elements = answers[ii].split('-||-');
                    var ff = fasit[ii];
+                   var swi = ff.substr(0,4);  // check for nor: sym: eva: reg: lis:
+                   var tch = ff.substr(4);    // remainder after removing prefix
+                   var num = +ff;             // get numeric value
+                   var tol = 0.0000001;       // default tolerance
+                   var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
+                   uanum = +uanum;       // numeric value of user input
+                   tot++;
+                   if (doskip) {
+                     var cor =  gradenumeric();
+                     uerr = memer;
+                     ucorr = cdiff + 1;
+                     ua[ii] = cor;
+                     skip--;
+                     if (skip < 1) doskip = false;
+                     continue;
+                   }
                    if (uatxt == undefined) {
                       uerr++;
                    } else if (ff.toLowerCase() == uatxt.toLowerCase()  ) {        // MARK: exact answer
                      ucorr++;
                      feedb = '1';  // mark as correct
                    } else {
-                     var swi = ff.substr(0,4);  // check for nor: sym: eva: reg: lis:
-                     var tch = ff.substr(4);    // remainder after removing prefix
-                     var num = +ff;             // get numeric value
-                     var tol = 0.0000001;       // default tolerance
-                     var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
-                     uanum = +uanum;       // numeric value of user input
-                     gradenumeric();
+                     var cor =  gradenumeric();
+                     if (ucorr - cdiff == 1) {
+                         // correct answer last question
+                         console.log("Correct last qp:",attnum,ii,param.abcde);
+                         if (attnum == ii) {
+                            var elements = param.abcde[ii].split('-||-');
+                            skip = elements[3] || 0;
+                            if (skip > 0) {
+                              doskip = true;
+                              upskip = true;
+                            }
+                         }
+                     }
                    }
                    if (fiib != 'none') feedback += feedb;
                  }
@@ -1842,6 +1868,8 @@ var qz = {
                callback(qgrade,feedback,completed);
              }
            }
+
+          // returns the correct answer
           function gradenumeric() {
                  //var fasit = qobj.fasit;
                  // for numeric the fasit is a template like this
@@ -1853,6 +1881,7 @@ var qz = {
                  //   zro:exp|a         the answer x is correct if |exp(x)| < a
                  //   reg:r             the answer x is scored as regular exp match for x,r
                  //   lis:a:A,b:B,c     the answer x is scored as  x == one of a,b,c - score is given by :A or 1
+                 var cor = '';
                      switch (swi) {
                        case 'nor:':
                          var norm = tch.split(',');
@@ -1866,6 +1895,7 @@ var qz = {
                          } else {
                            uerr++;
                          }
+                         cor = med;
                          break;
                        case 'rng:':    // [[rng:10,20]]
                          var lims = tch.split(',');
@@ -1877,6 +1907,7 @@ var qz = {
                          } else {
                            uerr++;
                          }
+                         cor = lo;
                          break;
                        case 'sym:':
                           simple = false;  // callback done after sympy is finished
@@ -1894,6 +1925,7 @@ var qz = {
                                   callback(score,'sicut prius',completed);
                                } else {
                                    var ufu  =   sympify(target);   // fasit
+                                   cor = ufu;
                                    var fafu =   sympify(uatxt);    // user response
                                    var diffu =  sympify(differ);   // if testing equality - must be as short or shorter than this
                                    var intro = '# coding=utf-8\n'
@@ -1982,6 +2014,7 @@ var qz = {
                                ucorr += sco;
                              }
                            }
+                           cor = 'NaN';
                          break;
                        case 'eva:':
                          //   eva:exp|a|b      the answer x is scored as eval(x) == exp
@@ -2001,6 +2034,7 @@ var qz = {
                          var hilim =   5;
                          var sco = 0;
                          exp = normalizeFunction(exp,0,ua);
+                         cor = exp;
                          var ufu = normalizeFunction(uatxt,0);
                          var udiff =normalizeFunction(differ,0);
                          //console.log(exp,lolim,hilim,ufu);
@@ -2087,6 +2121,7 @@ var qz = {
                              uerr++;
                            }
                          }
+                         cor = 'NaN';
                          break;
                        case 'lis:':
                          var goodies = tch.split(',');
@@ -2096,6 +2131,7 @@ var qz = {
                          } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                            uerr++;
                          }
+                         cor = goodies[0];
                          break;
                        default:
                          //console.log("trying numeric",ff,uatxt );
@@ -2104,6 +2140,7 @@ var qz = {
                            var elm = ff.split(':');
                            num = +elm[0];
                            tol = +elm[1];
+                           cor = num;
                            //console.log("NUM:TOL",ff,num,tol,uanum);
                          } else if ( ff.indexOf('..') > 0) {
                            // we have a fasit like [[23.0..23.5]]
@@ -2112,6 +2149,7 @@ var qz = {
                            var hi = +elm[1];
                            tol = (hi - lo) / 2;
                            num = lo + tol;
+                           cor = num;
                            //console.log("LO..HI",ff,lo,hi,num,tol,uanum);
                          }
                          //console.log(num,tol,uanum);
@@ -2123,6 +2161,7 @@ var qz = {
                          }
                          break;
                      }
+                     return cor;
           }
   }
 }
