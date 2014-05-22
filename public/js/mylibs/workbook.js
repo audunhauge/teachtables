@@ -2523,18 +2523,21 @@ function eedit(myid,q,target) {
        for (var i=0,l=options.length; i<l; i++) {
          var fa = fasit[i];
          var parts = options[i].split('-||-');
-         var first = parts[0];
-         var p2nd = parts[1] || '';
-         var p3rd = parts[2] || '';
+         var qtx = parts[0];
+         var guidance = parts[1] || '';
+         var unit = parts[2] || '';
+         var skip = parts[3] || 0;
          optlist += '<tr><td>'
              + '<ol class="abcde"><li>Guidance: <input name="q'+i+'" class="gu" type="text" value="'
-             + p2nd +'">'
+             + guidance +'">'
              + '<li>Question: <input name="o'+i+'" class="gu" type="text" value="'
-             + first +'">'
+             + qtx +'">'
              + '<li>Answer:<input name="a'+i+'" class="gu" type="text" value="'
-             + p3rd +'">'
-             + '<li>Skip next:<input name="s'+i+'" class="skip" type="text" value="'
              + fa +'">'
+             + '<li>Units:<input name="u'+i+'" class="gu" type="text" value="'
+             + unit +'">'
+             + '<li>Skip next:<input name="s'+i+'" class="skip" type="text" value="'
+             + skip +'">'
              + '</ol>'
              + '</td><td><div id="c'+i+'" class="eopt"><div class="killer"></div></div></td></tr>';
        }
@@ -2576,9 +2579,10 @@ function eedit(myid,q,target) {
               var question = $j("input[name=o"+i+"]").val();
               var guidance = $j("input[name=q"+i+"]").val();
               var answer = $j("input[name=a"+i+"]").val();
+              var unit = $j("input[name=u"+i+"]").val();
               var skip = $j("input[name=s"+i+"]").val();
-              q.options[i] = question + '-||-'+guidance+'-||-'+answer;
-              q.fasit[+i] = +skip;
+              q.options[i] = question + '-||-'+guidance+'-||-'+unit+'-||-'+skip;
+              q.fasit[i] = answer;
             }
         }
         $j("#saveq").addClass('red');
@@ -2917,7 +2921,7 @@ wb.render.normal  = {
                 var score = qu.score || 0;
                 var chosen = qu.response;
                 var param = qu.param;
-		var displayfasit;
+                var displayfasit = '';
                 var status = qu.status;
                 param.display = param.display.replace(/«/g,'"');
                 param.display = param.display.replace(/»/g,"'");
@@ -2931,15 +2935,15 @@ wb.render.normal  = {
                 param.display = parts[0];
                 var abc = false;
                 if (qu.qtype == 'abcde') {
-		   // for abcde partial questions - do not show fasit before all
-		   // subquestions are answered - ie attempt >= options.length
-		   abc = param.options.length > attempt;
+                  // for abcde partial questions - do not show fasit before all
+                  // subquestions are answered - ie attempt >= options.length
+                  abc = param.options.length > attempt;
                 }
                 if ( abc || (fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) )) {
                     //param.display = parts[0];
-		    displayfasit = '';
-                } else if (fasit.length  || (contopt && contopt.fiidback && contopt.fiidback != 'none')) {
-                    displayfasit = '<h4>FASIT</h4>' + parts[1];
+                  displayfasit = '';
+                } else if (parts[1] && (fasit.length  || (contopt && contopt.fiidback && contopt.fiidback != 'none'))) {
+                  displayfasit = '<h4>FASIT</h4>' + parts[1];
                 }
                 score = Math.round(score*100)/100;
                 var delta = score || 0;
@@ -3026,10 +3030,10 @@ wb.render.normal  = {
                             embellish += " trinn";
                           }
                           if (mycopt && mycopt.exam && mycopt.exam.length) {
-                            return '<div tag="'+qu.name+'" class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">' 
+                            return '<div tag="'+qu.name+'" class="cont '+mycopt.exam+embellish+' quiz" id="qq'+qu.qid+'_'+qi+'">'
                               + qu.name + '<div class="account">'+account+'</div></div>';
                           }
-                          return '<div tag="'+qu.name+'" class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">' 
+                          return '<div tag="'+qu.name+'" class="cont quiz'+embellish+'" id="qq'+qu.qid+'_'+qi+'">'
                              + qu.name + '<div class="account">'+account+'</div></div>';
                           break;
                       case 'container':
@@ -3079,11 +3083,14 @@ wb.render.normal  = {
                                   var parts = opt.split('-||-');
                                   var question = parts[0];
                                   var guidance = parts[1] || '';
+                                  var unit = parts[2] || '';
                                   var answer = chosen[i] || '';
+                                  var ff = fasit[i] || '';
+                                  var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
                                   var chk = (checkmarks[i] != undefined && checkmarks[i]!='-') ? ' class="heck' + checkmarks[i]+ '"' : '';
                                   qtxt += '<li><div class="guide">' + guidance + '</div>'
                                   + '<dl><dt>'+question+'</dt><dd><span class="abcde fillin'+klass+'"><input '
-                                  + chk+ enabled+' type="text" value="'+answer+'"></span></dd></dl></li>';
+                                  + chk+ enabled+' type="text" value="'+answer+'"></span><span class="units">'+unit+'</span>'+ffy+'</dd></dl></li>';
                               }
                               qtxt += '</ol>' + grademe;
                               decoration();

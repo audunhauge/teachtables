@@ -1310,7 +1310,7 @@ var qz = {
            case 'sequence':
             break;
            case 'abcde':
-            // muste remove correct answer from options for multipart question
+            // must remove guidance from options for multipart question
             for (var i in qobj.options) {
                 var elements = optcopy[i].split('-||-');
                 var questiontxt = elements[0];
@@ -1489,16 +1489,17 @@ var qz = {
                  break;
              case 'abcde':
                  console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);
-                 var answers = param.abcde;
+                 //var answers = param.abcde;
+                 var fasit = param.fasit;
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct answers
                  var uerr = 0;     // user false answers
-                 for (var ii=0,l=answers.length; ii < l; ii++) {
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
                    var feedb = '-';  // mark as failed
                    var uatxt =  ua[ii];
                    tot++;
-                   var elements = answers[ii].split('-||-');
-                   var ff = elements[2];
+                   //var elements = answers[ii].split('-||-');
+                   var ff = fasit[ii];
                    if (uatxt == undefined) {
                       uerr++;
                    } else if (ff.toLowerCase() == uatxt.toLowerCase()  ) {        // MARK: exact answer
