@@ -1138,7 +1138,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                   ualist[ua.qid] = {};
                 }
                 ua.param = parseJSON(ua.param);
-        //if (q.qtype == 'abcde') console.log("ABCDE param=",ua.param);
+                //if (q.qtype == 'abcde') console.log("ABCDE param=",ua.param);
                 ua.param.display = unescape(ua.param.display);
                 ua.param.fasit = '';
                 ua.param.cats = '';

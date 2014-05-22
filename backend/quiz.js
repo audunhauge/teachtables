@@ -1315,6 +1315,7 @@ var qz = {
                 var elements = optcopy[i].split('-||-');
                 var questiontxt = elements[0];
                 qobj.options[i] = escape(questiontxt);
+                qobj.fasit[i] = qz.macro(qobj.fasit[i]);
                 qobj.abcde = optcopy;
             }
             break;
