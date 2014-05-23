@@ -1517,11 +1517,16 @@ var qz = {
                    if (doskip && skip > 0 && ii > attnum) {
                      var cor =  gradenumeric();
                      uerr = memer;
-                     ucorr = cdiff + 1;
+                     ucorr = cdiff;
                      ua[ii] = cor;
-                     console.log("Changed useranswer to ",ua);
+                     uatxt =  ua[ii];
+                     uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
+                     uanum = +uanum;       // numeric value of user input
+                     cor =  gradenumeric();
+                     console.log("Changed useranswer to ",ua," skip=",skip,tot,ucorr);
                      skip--;
                      if (skip < 1) doskip = false;
+                     if (fiib != 'none') feedback += feedb;
                      continue;
                    }
                    if (uatxt == undefined) {
@@ -1548,6 +1553,7 @@ var qz = {
                  }
                  if (tot > 0) {
                    qgrade = (ucorr) / tot;
+                   console.log("Calculated score = ",qgrade);
                  }
                  qgrade = Math.max(0,qgrade);
                  break;

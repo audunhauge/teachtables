@@ -1317,6 +1317,7 @@ function renderPage() {
                               if (ggrade.completed == 1) {
                                  renderPage();
                               } else {
+                                ggrade.qua.attemptnum=ggrade.att-1;
                                 ggrade.qua.display = ggrade.qua.param.display;
                                 ggrade.qua.score = ggrade.score;
                                 wb.render[wbinfo.layout].qrend(contopt,iid,qid,ggrade.qua,renderq.qrender,renderq.scorelist,function(adjust) {
@@ -1324,6 +1325,7 @@ function renderPage() {
                                       $j("#"+adjust.sscore.qdivid).html(adjust.sscore.qdiv);
                                       $j("#"+adjust.sscore.scid).html( adjust.sscore.userscore);
                                       $j("#"+adjust.sscore.atid).html( ggrade.att);
+                                      $j("#"+adjust.sscore.qdivid +" .wantfocus input").focus();
                                       $j("#uscore").html(Math.floor(100*adjust.sumscore) / 100);
                                       redrawQuestion(iid,ggrade.att,adjust.sscore.userscore);  // redraw next question if any
                                 });
@@ -3079,7 +3081,7 @@ wb.render.normal  = {
                               for (var i=0, l= param.options.length; i<l; i++) {
                                   var opt = param.options[i];
                                   var enabled = (scored +attempt == i || (!scored && i == 0 && attempt==0)) ? '' : ' readonly="readonly"';
-                                  var klass = (enabled) ? ' readonly' : '';
+                                  var klass = (enabled) ? ' readonly' : ' wantfocus';
                                   var parts = opt.split('-||-');
                                   var question = parts[0];
                                   var guidance = parts[1] || '';
