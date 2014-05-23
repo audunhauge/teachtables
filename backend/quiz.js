@@ -1393,6 +1393,7 @@ var qz = {
            // has been generated
            // contopt - options for this container - sent from user web page
            var feedback = '';  // default feedback
+           var overskip = 1;   // move on to next question
            var qobj = qz.getQobj(aquest.qtext,aquest.qtype,aquest.id,aquest.instance);
            var gsymb = {};
            if (contopt && contopt.trinn == "1" && qobj.code && (qobj.code.indexOf('control') >= 0)) {
@@ -1454,6 +1455,7 @@ var qz = {
            if (!ua) {
              ua = [];
            }
+           console.log("USERANSWER=",ua);
            var now = new Date().getTime();
            switch(aquest.qtype) {
              case 'numeric':
@@ -1512,11 +1514,12 @@ var qz = {
                    var uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
                    uanum = +uanum;       // numeric value of user input
                    tot++;
-                   if (doskip) {
+                   if (doskip && skip > 0 && ii > attnum) {
                      var cor =  gradenumeric();
                      uerr = memer;
                      ucorr = cdiff + 1;
                      ua[ii] = cor;
+                     console.log("Changed useranswer to ",ua);
                      skip--;
                      if (skip < 1) doskip = false;
                      continue;
@@ -1528,18 +1531,18 @@ var qz = {
                      feedb = '1';  // mark as correct
                    } else {
                      var cor =  gradenumeric();
-                     if (ucorr - cdiff == 1) {
+                   }
+                   if (ucorr - cdiff == 1) {
                          // correct answer last question
                          console.log("Correct last qp:",attnum,ii,param.abcde);
                          if (attnum == ii) {
                             var elements = param.abcde[ii].split('-||-');
-                            skip = elements[3] || 0;
+                            skip = +elements[3] || 0;
                             if (skip > 0) {
                               doskip = true;
-                              upskip = true;
+                              overskip = skip+1;
                             }
                          }
-                     }
                    }
                    if (fiib != 'none') feedback += feedb;
                  }
@@ -1851,7 +1854,7 @@ var qz = {
                             feedback = '';
                         }
                       }
-                      callback(score,feedback,completed);
+                      callback(score,feedback,completed,ua,1);
 
                   }));
              } else {
@@ -1865,7 +1868,7 @@ var qz = {
                               + " where qid != $3 and cid=$1 and userid=$2 and qid in (" + remaining.join(',')+ ')',
                                     [aquiz.id, user.id,aquest.id ] );
                  }
-               callback(qgrade,feedback,completed);
+               callback(qgrade,feedback,completed,ua,overskip);
              }
            }
 
@@ -1881,7 +1884,7 @@ var qz = {
                  //   zro:exp|a         the answer x is correct if |exp(x)| < a
                  //   reg:r             the answer x is scored as regular exp match for x,r
                  //   lis:a:A,b:B,c     the answer x is scored as  x == one of a,b,c - score is given by :A or 1
-                 var cor = '';
+                 var cor = ff;
                      switch (swi) {
                        case 'nor:':
                          var norm = tch.split(',');
@@ -2134,7 +2137,7 @@ var qz = {
                          cor = goodies[0];
                          break;
                        default:
-                         //console.log("trying numeric",ff,uatxt );
+                         console.log("trying numeric",ff,uatxt );
                          if ( ff.indexOf(':') > 0) {
                            // we have a fasit like [[23.3:0.5]]
                            var elm = ff.split(':');

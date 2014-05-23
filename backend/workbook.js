@@ -276,8 +276,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                     var qua = results.rows[0];
                     var param = parseJSON(qua.param);
                     //var nugrade = quiz.grade(myquiz,myquest,ua,param);
-                    quiz.grade(contopt,myquiz,myquest,ua,param,qua.attemptnum,qua.hintcount,user,iid,qua.id,function(nugrade,feedback,completed) {
-                      //console.log("FEEDBACK IS NOW",feedback);
+                    quiz.grade(contopt,myquiz,myquest,ua,param,qua.attemptnum,qua.hintcount,user,iid,qua.id,function(nugrade,feedback,completed,newua,upskip) {
                       // completed will be 1 if this is a question with complete=1 in code section
                       //   if so then all other questions in this container will be updated to complete (score=1,attemptnum=1)
                       //   so that a stepwise container is completed if first (difficult) question answered correct
@@ -285,6 +284,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                       //if (myquest.qtype == 'abcde') console.log("ABCDE param=",qua.param,qua.attemptnum);
                       qua.param.display = unescape(qua.param.display);
                       if (myquest.qtype == 'abcde') {
+                          console.log("Useranswer may be changed - its = ",ua);
                           // multiple choice options corrupted to be used as
                           // partial questions. Each option has the structure
                           //  question-||-guidance-||-skip
@@ -305,7 +305,10 @@ exports.gradeuseranswer = function(user,query,callback) {
                              qua.param.options[oi] = unescape(qua.param.options[oi]);
                           }
                       }
-                      qua.response = parseJSON(ua);
+                      //qua.response = parseJSON(ua);
+                      console.log("CAME HERE with newua=",newua);
+                      var sqlnewua = '["'+newua.join('","')+'"]';
+                      qua.response = newua;
                       qua.feedback = feedback;
                       qua.param.optorder = '';
                       qua.qtype = myquest.qtype;
@@ -313,13 +316,13 @@ exports.gradeuseranswer = function(user,query,callback) {
                       if (completed && completed.lock) {
                         callback({score:nugrade, att:0, qua:qua, completed:0} );
                       } else client.query( "update quiz_useranswer set score = $5,instance=$4,response=$1,"
-                                    + "feedback='"+feedback+"', attemptnum = attemptnum + 1,time=$2 where id=$3",
-                                    [ua,now,qua.id,iid,nugrade,],
+                                    + "feedback='"+feedback+"', attemptnum = attemptnum + $6,time=$2 where id=$3",
+                                    [sqlnewua,now,qua.id,iid,nugrade,upskip],
                       after(function(results) {
                         // return parsed version of param
                         // as the question needs to be redisplayed
                         // to reflect userchoice
-                        callback({score:nugrade, att:qua.attemptnum+1, qua:qua, completed:completed.comp} );
+                        callback({score:nugrade, att:qua.attemptnum + +upskip, qua:qua, completed:completed.comp} );
                       }));
                     });
                   } else {
