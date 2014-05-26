@@ -2521,6 +2521,7 @@ function eedit(myid,q,target) {
    function drawABCDE(options,fasit) {
      // given a list of options - creates rows for each
      var optlist = '';
+     var order = "a".charCodeAt(0);
      if (options) {
        for (var i=0,l=options.length; i<l; i++) {
          var fa = fasit[i];
@@ -2530,16 +2531,18 @@ function eedit(myid,q,target) {
          var unit = parts[2] || '';
          var skip = parts[3] || 0;
          optlist += '<tr><td>'
-             + '<ol class="abcde"><li>Guidance: <input name="q'+i+'" class="gu" type="text" value="'
+             + '<ol class="abcde"><li title="Text to show after completing prev quest">Guidance: <input name="q'+i+'" class="gu" type="text" value="'
              + guidance +'">'
              + '<li>Question: <input name="o'+i+'" class="gu" type="text" value="'
              + qtx +'">'
              + '<li>Answer:<input name="a'+i+'" class="gu" type="text" value="'
              + fa +'">'
-             + '<li>Units:<input name="u'+i+'" class="gu" type="text" value="'
+             + '<li title="Units used for the answer">Units:<input name="u'+i+'" class="skip" type="text" value="'
              + unit +'">'
-             + '<li>Skip next:<input name="s'+i+'" class="skip" type="text" value="'
+             + '<li title="If correct then next n questions implicitly answered">Skip next:<input name="s'+i+'" class="skip" type="text" value="'
              + skip +'">'
+             + '<li title="Change a to b (and visaversa) to swap order">Order :<input name="r'+i+'" class="skip" type="text" value="'
+             + String.fromCharCode(order+i) +'">'
              + '</ol>'
              + '</td><td><div id="c'+i+'" class="eopt"><div class="killer"></div></div></td></tr>';
        }
@@ -2577,14 +2580,21 @@ function eedit(myid,q,target) {
             }
         } else {
             // assumed to be "abcde"
+            var sortme = [];
             for (var i=0,l=q.options.length; i<l; i++) {
               var question = $j("input[name=o"+i+"]").val();
               var guidance = $j("input[name=q"+i+"]").val();
               var answer = $j("input[name=a"+i+"]").val();
               var unit = $j("input[name=u"+i+"]").val();
               var skip = $j("input[name=s"+i+"]").val();
-              q.options[i] = question + '-||-'+guidance+'-||-'+unit+'-||-'+skip;
-              q.fasit[i] = answer;
+              var order = $j("input[name=r"+i+"]").val();
+              sortme.push({ q:question,g:guidance,a:answer,u:unit,s:skip,o:order})
+            }
+            sortme.sort(function(a,b) { return a.o.charCodeAt(0) - b.o.charCodeAt(0) });
+            for (var i=0,l=q.options.length; i<l; i++) {
+              var me = sortme[i];
+              q.options[i] = me.q + '-||-'+me.g+'-||-'+me.u+'-||-'+me.s;
+              q.fasit[i] = me.a;
             }
         }
         $j("#saveq").addClass('red');

@@ -1519,7 +1519,7 @@ var qz = {
                      uerr = memer;
                      ucorr = cdiff;
                      ua[ii] = cor;
-                     uatxt =  ua[ii];
+                     uatxt =  ""+ua[ii];
                      uanum = uatxt.replace(',','.') ;  // user input 3,141 => 3.14
                      uanum = +uanum;       // numeric value of user input
                      cor =  gradenumeric();
@@ -2143,7 +2143,9 @@ var qz = {
                          cor = goodies[0];
                          break;
                        default:
+                         cor = ff;
                          console.log("trying numeric",ff,uatxt );
+                         if (ff == num) feedb = 1;
                          if ( ff.indexOf(':') > 0) {
                            // we have a fasit like [[23.3:0.5]]
                            var elm = ff.split(':');
