@@ -495,7 +495,19 @@ exports.gettags = function(user,query,callback) {
           tags[ta.teachid].push(ta.tagname);
         }
       }
-      callback(tags);
+      // we now have direct tags - need to also gather tags on parent
+      client.query( "select distinct q.teachid,t.tagname from quiz_tag t inner join quiz_qtag qt on (qt.tid=t.id) inner join quiz_question q on (q.parent = qt.qid) "
+          + " where q.parent != 0 and q.teachid = $1 and q.subject in "+sublist+" and q.status != 9 order by t.tagname ", [uid],
+      after(function(results) {
+          if (results && results.rows && results.rows[0]) {
+            for (var i=0,l=results.rows.length; i<l; i++) {
+              var ta = results.rows[i];
+              if (!tags[ta.teachid]) tags[ta.teachid] = [];
+              tags[ta.teachid].push(ta.tagname);
+            }
+          }
+          callback(tags);
+      }));
   }));
 }
 
@@ -658,7 +670,21 @@ exports.getquesttags = function(user,query,callback) {
             qtlist[qta.tagname][qta.teachid].push(qta);
           }
         }
-        callback(qtlist);
+        // now do the same for tags on parent
+        client.query( "select q.id,q.qtype,q.qtext,q.name,q.status,q.teachid,t.tagname,q.parent from quiz_question q inner join quiz_qtag qt on (q.id = qt.qid) "
+          + " inner join quiz_tag t on (qt.tid = t.id) where q.parent != 0 and q.teachid=$1 "  // and q.subject in "+sublist
+          + " and q.status != 9 and t.tagname in  " + tags,[ uid ],
+        after(function(results) {
+            if (results && results.rows && results.rows[0]) {
+              for (var i=0,l=results.rows.length; i<l; i++) {
+                var qta = results.rows[i];
+                if (!qtlist[qta.tagname]) qtlist[qta.tagname] = {};
+                if (!qtlist[qta.tagname][qta.teachid]) qtlist[qta.tagname][qta.teachid] = [];
+                qtlist[qta.tagname][qta.teachid].push(qta);
+              }
+            }
+            callback(qtlist);
+        }));
     }));
   }
 }
