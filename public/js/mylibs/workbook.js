@@ -2977,6 +2977,9 @@ wb.render.normal  = {
                          +(cost*100)+'% pr klikk" class="gui gethint">Koster:'+cost+'</div>';
                   }
                 }
+                // special case for questions of type abcde - they can/must always be attempted as many times
+                // as there are partial questions.
+                // grademe is changed in case abcde
                 if (contopt.adaptiv && contopt.adaptiv == "1" || !(scored || attempt > 0) ) {
                    grademe = '<div class="grademe"></div></div>';
                 }
@@ -3079,6 +3082,11 @@ wb.render.normal  = {
                           }
                           break;
                       case 'abcde':
+                          // this question type must always be attempted at least as many times as
+                          // there are sub-questions.
+                          // The active subquestion is selected based on attemptnum - so stud
+                          // can never make a second attempt on already answered subq
+                          grademe = '<div class="grademe"></div></div>';
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted;
                           if (qu.feedback && qu.feedback != 'none' ) {
                             if (/^[0-9-]+$/.test(qu.feedback)) {

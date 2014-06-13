@@ -10,7 +10,7 @@ function editshow(userid) {
     var s = ''
     + ' <div id="ramme" class="border1 sized1 gradback centered" >'
     + '   <h1 id="edshow" >Rediger show</h1>'
-    + '   <div id="showlist">'  
+    + '   <div id="showlist">'
     + '      <div id="leftside"></div>'
     + '      <div id="rightside"></div>'
     + '      <div id="chooser">'
@@ -27,7 +27,7 @@ function editshow(userid) {
            ashow = mylist[i];
            var ismine = (ashow.userid == userid);
            var owner = (ismine) ? 'myown' : '';
-           mineshow += '<li><div class="resme show '+owner+'" id="'+i+'">' + ashow.name 
+           mineshow += '<li><div class="resme show '+owner+'" id="'+i+'">' + ashow.name
                     + ((ismine) ? '<div class="killer">x</div>' : '' ) + '</div></li>';
         }
         mineshow += '<li><div id="addshow" class="button">Add Show</div></li>';
@@ -156,6 +156,15 @@ var idx;
 var sold = []; // accu for performed sales
 var kksum;
 
+function blackbook(romid) {
+    var s = '<h1>Reservasjon av blackbox</h1>'
+    + ' <div id="ramme" class="border1 sized1 gradback centered" >'
+    + 'dette er en text'
+    + ' </div>';
+    $j("#main").html(s);
+    rom_reservering(romid,0,false);
+}
+
 function tickets(userid) {
   selectedshow = '';
   selectedprice = '';
@@ -168,16 +177,16 @@ function tickets(userid) {
     + '<div class="simple_overlay" id="summary"><div id="summarytext"></div><div id="closer"></div></div>'
     + ' <div id="ramme" class="border1 sized1 gradback centered" >'
     + '   <h3 id="total_log" > &nbsp;<a title="Klikk for å vise salgslog" href="#">Velg show</a><div class="whitehand" ><p><p>Klikk for salgslogg</div></h3>'
-    + '   <div id="showlist">'  
+    + '   <div id="showlist">'
     + '   </div>'
-      
-    + '   <div id="salg" >'  
+
+    + '   <div id="salg" >'
     + '   </div>'
-    + '   <div id="userchoice" >'  
+    + '   <div id="userchoice" >'
     + '   </div>'
-    + '   <ul id="accu" >'  
+    + '   <ul id="accu" >'
     + '   </ul>'
-    + '   <div id="bekreft" >'  
+    + '   <div id="bekreft" >'
     + '     <table>'
     + '     <tr><td><div id="kort" class="betaling button bigbu blue">Kort</div></td>'
     + '         <td><div id="kontant" class="betaling button bigbu blue">Kontant</div>    </td></tr>'
@@ -276,7 +285,7 @@ function tickets(userid) {
         if (accumul.length > 0) {
           $j("#accu").html('<li>Lagrer data ....</li>');
           $j.post(mybase+'/buytickets',{showid:ashow.id, accu:accumul.join('|'), type:type },function(resp) {
-               $j("#salg").show(); 
+               $j("#salg").show();
                var s = resp.msg;
                $j("#accu").html(s);
                $j("#showlist").removeClass("murky");
@@ -284,15 +293,15 @@ function tickets(userid) {
             });
         } else {
           $j("#accu").html('Ingen data å lagre');
-          $j("#salg").show(); 
+          $j("#salg").show();
           $j("#showlist").removeClass("murky");
           accu = {};
         }
 
       });
   });
-  
-  
+
+
 }
 
 function totallog() {
@@ -400,7 +409,7 @@ function showaccu() {
                 }
                 s += '<tr id="acc,'+asho+','+apri+'" class="'+klass+'regline"><td>' + accu[asho][apri] + '</td><td>' + apri + '</td><td>'+ asho + '</td>'
                     + '<td class="increment">+</td><td class="decrement">-</td>'
-                    + '</tr>'; 
+                    + '</tr>';
             }
         }
         s += '</table>';

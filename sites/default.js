@@ -63,6 +63,7 @@ var site = {
                                 }
  , depleader :                  {  // department -leaders  get email when people are sick
                                 }
+ , showrooms            :       [  ]   // booking for these rooms viewable for studs in category 10,11,12
  , course               :       [  ]   // missing course list
  , schoolyear           :       "2011-2012"
  , connectionString     :       "postgres://admin:123@localhost/planner"

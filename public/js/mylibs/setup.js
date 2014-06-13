@@ -696,11 +696,21 @@ function afterloggin(uinfo) {
       // add new and dainty things to the menu
       // same as isteach
       if (userinfo.mdd) {
+         var specialrooms = database.showrooms;
+         //var specialrooms = 'B001,B002,M119'.split(',');
+         var specr = '';
+         for (var spi in specialrooms) {
+            var rom = specialrooms[spi];
+            specr += '<li><a class="bbd" id="rom'+rom +'" href="#">'+rom+'</a></li>';
+         }
          $j.get(mybase+ '/show', function(showlist) {
             show = showlist;
             s =  '<li><a id="show" href="#">Show</a><ul>'
-                +    '<li><a id="editshow"       href="#">Rediger show</a></li>'
-                +    '<li><a id="tickets"       href="#">Billettsalg</a></li>'
+                +    '<li><a id="editshow"  href="#">Rediger show</a></li>'
+                +    '<li><a id="tickets"   href="#">Billettsalg</a></li>'
+                +    '<li><a id="blackbook" href="#">RomRes</a><ul>'
+                +       specr
+                +    '</li>'
                 + '</ul></li>';
             $j("#nav").append(s);
             $j("#editshow").click(function(event) {
@@ -710,6 +720,10 @@ function afterloggin(uinfo) {
             $j("#tickets").click(function(event) {
                 event.preventDefault();
                 tickets(userinfo.id);
+            });
+            $j(".bbd").click(function(event) {
+                var idd = $j(this).attr("id");
+                blackbook(idd.substr(3));
             });
            });
       }

@@ -34,9 +34,9 @@ function hsv2rgb(h, s, v) {
 }
 
 var statuscolor = "111,77f,7f7,7ff,f00".split(',');
-var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png"};
+var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png",abcde:"abcde.png"};
 var qparam = { tag:'any', subj:'', filter:"multiple", joy:"only", limit:"17", keyword:"all", other:0 };
-var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric'.split(' ');
+var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric abcde'.split(' ');
 var mylink;
 var orbits,
     wordobj,
@@ -582,7 +582,7 @@ function makeForcePlot(filter,limit,keyword,subj) {
           w += 130;  // extra space for labels
 
 
-          tcolors.domain(["multiple","dragdrop","fillin","numeric","info","textarea","math","diff","sequence"]);
+          tcolors.domain(["multiple","dragdrop","fillin","numeric","abcde","info","textarea","math","diff","sequence"]);
           teachcolors.domain(teachids);
 
           var force = d3.layout.force()

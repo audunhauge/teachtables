@@ -1611,6 +1611,7 @@ var getBasicData = function() {
   db.memgr        = {}   ;
   db.teachcourse  = {}   ;
   db.vigilis      = {}   ;
+  db.showrooms    = siteinf.showrooms;  // for these rooms studs can view booking
   console.log("getting basic data");
   checkSetup();
   getroomids();
