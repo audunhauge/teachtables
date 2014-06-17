@@ -818,13 +818,29 @@ var qz = {
      //var cha = 'abcdefghijklmnopqrstuvwxyz';
      // expand #a to value of symb.a
      // expand #{name[2]} to value of symb.con.name[2]
+     var fix = 4; // default precision
+     fix = (symb.fix != undefined && _.isNumber(symb.fix) && +symb.fix < 12 && +symb.fix >= 0 ) ?  +symb.fix : 4;
+     function fixx(v,m,fix) {
+         if (v != 'niu') {
+             return _.isNumber(v) ? (+v).toFixed(fix) : v;
+         } else {
+             return m;
+         }
+     }
      var idx = 0;
+     // all numeric answers toFixed(fix) if not otherwise specified by fix = 2 etc
+     // precision can be overrridden as " add #a3 and #b5 ", will use 3 and 5 decimal places
      if (!text || text == '') return text;
-     text = text.replace(/\#([a-zA-Z])/g,function(m,ch) {
-         return symb[ch] != 'niu' ? symb[ch]  : m;   // if symbol undefined leave unchanged
+     text = text.replace(/\#([a-zA-Z])([0-9]?)/g,function(m,ch,fx) {
+         var afix = (fx != '') ? +fx : fix;
+         return fixx(symb[ch],m,afix);
        });
      text = text.replace(/\#{([a-zA-Z]+)}/g,function(m,c1) {
-       if (symb.con[c1]) return symb.con[c1] || 0;
+       return fixx(symb.con[c1],m,fix);
+       });
+     text = text.replace(/\#{([a-zA-Z]+)\[(.+?)\]}/g,function(m,c1,c2) {
+       //  symb.a[2]
+       if (symb.con[c1]) return fixx(symb.con[c1][c2],fix);
        return 0;
        });
      // if any #{ ... } left - try them as expressions
@@ -856,11 +872,6 @@ var qz = {
          } catch(err) {
             return exp;
          }
-       });
-     text = text.replace(/\#{([a-zA-Z]+)\[(.+?)\]}/g,function(m,c1,c2) {
-       //  symb.a[2]
-       if (symb.con[c1]) return symb.con[c1][c2] || 0;
-       return 0;
        });
      return text;
    }

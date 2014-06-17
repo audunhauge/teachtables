@@ -324,10 +324,6 @@ ol.math li:before {
 ol.math.number li:before {
     content:counter(li,decimal) ;
     counter-increment:li;
-    position:absolute;
-    top:16px;
-    left:-2em;
-    width:2em;
 }
 
 
