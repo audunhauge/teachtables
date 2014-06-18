@@ -373,7 +373,7 @@ function show_all(thisweek,options) {
          s += tfooter + '<div class="page-break"></div><p>' + theader;
          s += "<caption>Første halvår II</caption>";
       }
-      if (julian.week(i) == "1") {
+      if (julian.week(i) == "1" || (julian.week(i) == "2" && julian.week(i-7) == "53" )) {
          s += tfooter + '<div class="page-break"></div><p>' + theader;
          s += "<caption>Andre halvår</caption>";
       }
