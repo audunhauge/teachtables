@@ -330,14 +330,14 @@ function show_all(thisweek,options) {
     var adminevent = (options & 8) ? 'checked="true"' : '';
     var events = database.aarsplan;
     var prover = alleprover;
-    s = '<div class="centered sized1"><div id="editmsg">Kryss av for å vise hd og prøver.'
+    s = '<div class="centered sized1"><div class="gui" id="editmsg">Kryss av for å vise hd og prøver.'
          + ((options > 0 ) ? 'Viser ' : '')
          + ((options & 1) ? ' heldagsprøver' : '')
          + ((options & 2) ? ' timeprøver' : '')
          + ((options & 4) ? ' utsatt eksamen' : '')
          + ((options & 8) ? ' admin events' : '')
          + '</div>'
-         + '<div id="options"><label for="usehd" class="hdliste">Heldag <input id="usehd"'+hdchecked+' type="checkbox"></label>'
+         + '<div class="gui" id="options"><label for="usehd" class="hdliste">Heldag <input id="usehd"'+hdchecked+' type="checkbox"></label>'
          + '<label for="usexd" class="xdliste">Utsatt eksamen <input id="usexd"'+xdchecked+' type="checkbox"></label>'
          + (isadmin ? '<label for="useadm" class="adliste">Admin notater <input id="useadm"'+adminevent+' type="checkbox"></label>' : '')
          + '<label for="usetp" class="prliste">Timeprøver <input id="usetp" '+tpchecked+' type="checkbox"></label></div></div>';
