@@ -1015,6 +1015,7 @@ function edit_aarsplan(edchoice) {
       var hdchecked = (edchoice == 1) ? 'checked="true"' : '';
       var tpchecked = (edchoice == 2) ? 'checked="true"' : '';
       s += '<div class="centered sized1"><div id="editmsg"> Klikk på rutene for å redigere, klikk utenfor for å avbryte.'
+           + '<br>For å legge til et admin-notat - skriv ADMIN i teksten. All etterfølgende tekst vil bare være synlig for medlemmer av admin gruppa.'
            + ((edchoice == 1) ? '<p>Klikk på grønn sirkel for å legge til ny heldag. Klikk deretter på changeme og velg fag og legg til tekst.'
                   + 'Fagene hentes med autocomplete - skriv første 1-3 bokstaver og velg fra lista.'
                   + 'Du kan bare registrer prøver på fag med navn som finnes i SATS.'
