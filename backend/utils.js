@@ -57,6 +57,10 @@ if (!String.prototype.quote) {
     };
 }
 
+exports.isInt = function(n) {
+     return typeof n === 'number' && n % 1 == 0;
+}
+
 
 exports.after = function(callback) {
     return function(err, queryResult) {

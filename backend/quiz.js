@@ -11,6 +11,7 @@ var jstat = require('./jstat').jstat;
 var jdiff = require('./jdiff');
 var client = siteinf.client;
 var after = require('./utils').after;
+var isInt = require('./utils').isInt;
 var saveconf = require('./user').save_config;
 var studans = {}; // cache of stud answers
 var database = siteinf.database;
@@ -822,7 +823,7 @@ var qz = {
      fix = (symb.fix != undefined && _.isNumber(symb.fix) && +symb.fix < 12 && +symb.fix >= 0 ) ?  +symb.fix : 4;
      function fixx(v,m,fix) {
          if (v != 'niu') {
-             return _.isNumber(v) ? (+v).toFixed(fix) : v;
+             return (_.isNumber(v) && ! isInt(v)) ? (+v).toFixed(fix) : v;
          } else {
              return m;
          }
