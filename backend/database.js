@@ -69,7 +69,7 @@ var db = {
   ,coursesgr    : {}    // hash of { "3inf5":[ "3304" ] , ... }  -- groups connected to a course
   ,memgr        : {}    // hash of { 234:["3304","2303","3sta" ..], ... }  --- groups stud is member of
   ,teachcourse  : {}    // array of courses the teacher teaches (inverse of courseteach)
-  ,category     : { '3TY5':2,'3SP35':2,'2TY14':2 }    // hash of coursename:category { '3inf5':4 , '1nat5':2 ... }
+  ,category     : { '3TY5':2,'3SP35':2,'2TY14':2,'3TY35':2 }    // hash of coursename:category { '3inf5':4 , '1nat5':2 ... }
   ,classes      : ("1STA,1STB,1STC,1STD,1STE,1STF,1MDA,1MDB,2STA,2STB,2STC,"
                    + "2STD,2STE,2STF,2DDA,2MUA,3STA,3STB,3STC,3STD,3STE,3STF,3DDA,3MUA").split(",")
                       // array of class-names ( assumes all studs are member of
