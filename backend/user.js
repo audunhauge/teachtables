@@ -101,10 +101,10 @@ exports.feide = function(token, ini4, now, pid, callback) {
 
 exports.authenticate = function(login, password, its, callback) {
   var username = login || 'nn';
+  var password = password || '';
   client.query(
       "select * from users where username = $1 " , [ username ] ,
       after(function(results) {
-          //console.log(results);
           if (results.rows[0]) {
             var user = results.rows[0];
             var md5pwd = crypto.createHash('md5').update(password).digest("hex");
