@@ -1966,12 +1966,13 @@ var qz = {
                                          //console.log("err=",stderr,"out=",stdout,"SOO");
                                          if (error) {
                                            console.log(error,stderr);
-                                           callback(score,'error2',completed);
+                                           callback(score,'error2',completed,ua);
                                          } else {
                                            if (stdout && stdout != '') {
                                              //console.log(stdout);
+                                             var feedb = stdout;
                                              var eta = +stdout.trim();
-                                             if (eta == 0 || Math.abs(eta) < 0.001 ) {
+                                             if (_.isFinite(eta) && eta == 0 || Math.abs(eta) < 0.001 ) {
                                                score = 1
                                                if (differ) {
                                                  // we are testing for simplification
@@ -1982,9 +1983,13 @@ var qz = {
                                                    score = Math.max(0,Math.min(1,1-dif/span));
                                                    // relative score depending on how many chars
                                                    // you have shortened the eq - span assumed to be max
+                                                   feedb = (score > 0.8) ? 'Good answer' : (score > 0.5) ?  'Nearly' : 'Not quite';
                                                  }
+                                               } else {
+                                                   feedb = 'Correct answer';
                                                }
                                              } else {
+                                               feedb = 'Incorrect answer';
                                                score = 0;
                                              }
                                              var cutcost = (attnum > 2) ? Math.min(1,cost*attnum*2) : cost*attnum;
@@ -1992,11 +1997,12 @@ var qz = {
                                              //console.log(qgrade,adjust,attnum,cost);
                                              score = aquest.points * Math.max(0,adjust);
                                            }
-                                           callback(score,stdout,completed);
+                                           //console.log("CAME SO FAR SYMBOLIC PYTHON ",eta,score,stdout,stderr,error);
+                                           callback(score,feedb,completed,ua);
                                          }
                                        });
                                      } catch(err) {
-                                           callback(score,'error3',completed);
+                                           callback(score,'error3',completed,ua);
                                      }
                                    });
                                }

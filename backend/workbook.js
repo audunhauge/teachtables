@@ -306,7 +306,6 @@ exports.gradeuseranswer = function(user,query,callback) {
                           }
                       }
                       //qua.response = parseJSON(ua);
-                      console.log("CAME HERE with newua=",newua);
                       var sqlnewua = '["'+newua.join('","')+'"]';
                       qua.response = newua;
                       qua.feedback = feedback;
