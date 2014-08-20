@@ -1935,7 +1935,7 @@ var qz = {
                                  // fixup for 3x => 3*x etc
                           var completed = { comp:0, lock:0 };
                           if (uatxt == undefined || uatxt == '') {
-                            callback(score,'no input',completed);
+                            callback(score,'no input',completed,ua);
                           } else {
                                var elem = tch.split('|');
                                var target = elem[0];
@@ -1943,7 +1943,7 @@ var qz = {
                                // for symbolic equality - dont accept original equation
                                // or new eq that is longer (not simpler)
                                if (differ && (differ == uatxt  || differ.length < uatxt.length)  ) {
-                                  callback(score,'sicut prius',completed);
+                                  callback(score,'sicut prius',completed,ua);
                                } else {
                                    var ufu  =   sympify(target);   // fasit
                                    cor = ufu;
@@ -1959,7 +1959,7 @@ var qz = {
                                    var score = 0;
                                    console.log(intro+text);
                                    fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
-                                     if (err) { callback(score,'error1'); throw err; }
+                                     if (err) { callback(score,'error1',completed,ua); throw err; }
                                       try {
                                        var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
                                          fs.unlink('/tmp/symp'+now);
