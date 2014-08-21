@@ -1256,10 +1256,12 @@ var getstudents = function() {
             for (var i=0,k= results.rows.length; i < k; i++) {
                 var user = results.rows[i];
                 if (user.department == 'Undervisning') {
-                  db.teachIds.push(user.id);
-                  db.teachers[user.id] = user;
-                  db.tnames.push(user.username);
-                  db.teachuname[user.username] = user.id;
+                  if (user.institution && user.institution != '') {
+                    db.teachIds.push(user.id);
+                    db.teachers[user.id] = user;
+                    db.tnames.push(user.username);
+                    db.teachuname[user.username] = user.id;
+                  }
                 } else {
                   delete user.email;  // save some space
                   db.studentIds.push(user.id);
