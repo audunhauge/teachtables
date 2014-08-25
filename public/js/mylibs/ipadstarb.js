@@ -35,7 +35,7 @@ var badkeys = {};
 
 
 
-var antall = 10; 
+var antall = 10;
 var d = new Date();
 var starth = d.getHours();
 var startm = d.getMinutes();
@@ -75,7 +75,8 @@ function getPassword() {
           var mytab = timetables.teach[uuid];
           for (var ii in mytab) {
             var entry = mytab[ii];
-            if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+            //if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+            if (entry[0] == day && (entry[2].substr(0,5) == 'STARB' || entry[2].substr(0,2) == 'TP')) {
               rom = entry[3];
               break;
             }
@@ -101,7 +102,8 @@ function getPassword() {
                 var mytab = timetables.teach[uuid];
                 for (var ii in mytab) {
                   var entry = mytab[ii];
-                  if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+                  //if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+                  if (entry[0] == day && (entry[2].substr(0,5) == 'STARB' || entry[2].substr(0,2) == 'TP')) {
                     rom = entry[3];
                     break;
                   }
@@ -121,7 +123,7 @@ if (uuid == 0) {
   userNotFound();
 } else if (+uuid > 10000) {
   getPassword();
-} 
+}
 
 
 function userNotFound() {
@@ -190,7 +192,7 @@ function baseState() {
             generateKey();
        });
 }
-  
+
 
 
 
@@ -220,7 +222,7 @@ function generateKey() {
        $j("#inp").remove();
        $j("#qbox").after('<div id="elever"></div>');
        $j.getJSON( '/starbkey',{ "uid":uid, "duration":duration, "starth":starth, "startm":startm, "antall":antall, "romid":romid }, function(data) {
-             $j.getJSON( '/elevstarb',{ "romid":romid }, 
+             $j.getJSON( '/elevstarb',{ "romid":romid },
                        function(data) {
                           elevliste = data.elever;
                           makeOL(0);
@@ -251,7 +253,7 @@ function makeOL(offset) {
                 th.html("<td colspan=4>...SLETTER...</td>");
                 $j.getJSON("/fjernelev",{ romid:romid, eid:eid, alle:0 },
                 function() {
-                  $j.getJSON( '/elevstarb',{ "romid":romid }, 
+                  $j.getJSON( '/elevstarb',{ "romid":romid },
                        function(data) {
                           elevliste = data.elever;
                           makeOL(offset);
@@ -270,12 +272,12 @@ function makeOL(offset) {
       ant = Math.min(tot,10+offset);
       if (ant < tot) {
          $j("#nxt").show().click(function() {
-                  makeOL(ant); 
+                  makeOL(ant);
                });
       }
       if (offset > 0) {
         $j("#prv").show().click(function() {
-                  makeOL(offset-10); 
+                  makeOL(offset-10);
                });
       }
   }
@@ -291,7 +293,7 @@ function makeOL(offset) {
         +"<caption id=\"alle\" >"+tot+" elever</caption>"
         +"<tr><th></th><th>Etternavn</th><th>Fornavn</th><th>Klasse</th></tr>"
             +(s.join(""))+"</table>";
-      $j("#elever").html(r); 
+      $j("#elever").html(r);
       $j("#alle").click(function() {
           var pos = $j(this).position();
           var th = $j(this);
@@ -299,7 +301,7 @@ function makeOL(offset) {
                     th.html("<td colspan=4>...SLETTER...</td>");
                     $j.getJSON("/fjernelev",{ romid:romid, eid:0, alle:1 },
                     function() {
-                      $j.getJSON( '/elevstarb',{ "romid":romid }, 
+                      $j.getJSON( '/elevstarb',{ "romid":romid },
                            function(data) {
                               elevliste = data.elever;
                               makeOL(offset);
@@ -307,7 +309,7 @@ function makeOL(offset) {
                     }
                     );
           });
-      });    
+      });
 }
 
 

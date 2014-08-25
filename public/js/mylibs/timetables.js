@@ -136,7 +136,7 @@ function addonTimePlan(delta,mos) {
       $j(".totip").tooltip({position:"bottom right" } );
       $j(".goto").click(function() {
               var fagnavn = $j(this).attr("tag");
-              if (fagnavn.substr(0,5) == 'STARB') {
+              if (fagnavn.substr(0,5) == 'STARB' || fagnavn.substr(0,2) == 'TP') {
                 if (inlogged && isteach) {
                   var room = $j(this).attr("room");
                   var day = $j(this).attr("day");
@@ -849,7 +849,7 @@ function vis_timeplan_helper(userplan,uid,filter,isuser,visfagplan,delta,edit) {
   }
   var myinf = {};
   var freetime = {};  // hash used by timeplan editor - blocked if defined for a slot
-  if (database.userinfo.isadmin) {
+  if (database.userinfo.isadmin && edit) {
     var fagliste = '';
     if (database.teachcourse[uid]) fagliste = '<div>'+database.teachcourse[uid].map(function(e,i) {
         return '<span tag="course" class="ccc course">'+e+'</span>'; }
@@ -863,15 +863,16 @@ function vis_timeplan_helper(userplan,uid,filter,isuser,visfagplan,delta,edit) {
           var tag = $j(this).attr("tag");
           $j("."+tag).removeClass('redfont');
           $j(this).addClass('redfont');
-          $j(".edit").removeClass("blockedgroup");
-          $j(".edit").removeClass("blockedroom");
-          $j(".edit").removeClass("blockedteach");
+          $j(".goto").removeClass("blockedgroup");
+          $j(".goto").removeClass("blockedroom");
+          $j(".goto").removeClass("blockedteach");
           myinf[tag] = $j(this).text();
           freetime.blocked = [ {},{},{},{},{},{},{} ];
           if (myinf.room && myinf.course) {
             var rtt = timetables.room[myinf.room];
             var gtt = timetables.course[myinf.course];
             var ttt = timetables.teach[uid];
+            // each timetable gui element has id = "uid_day_slot""
             // block by room
             for (var ri in rtt) {
               var rit = rtt[ri];

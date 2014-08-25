@@ -498,7 +498,7 @@ function assignstud() {
    $j.post(mybase+ "/editgroup", { action:"" },
       function(data) {
           if (data.ok) {
-              var save = '<div id="update" class="float button">Save</div>';
+              var save = '<div id="doupdate" class="float button">Save</div>';
               var s = '<form><table id="form">'
               + ' <tr><td><label>Choose group</label></td><td><div id="selector"></div></td></tr>'
               + ' <tr><td><label>Studs</label></td><td><div id="studlist"></div></td></tr>'
@@ -529,7 +529,7 @@ function assignstud() {
                     studChooser("#chooseme",students,sstud);
                     //$j("#teachlist").html(s);
                });
-               $j("#update").click(function(event) {
+               $j("#doupdate").click(function(event) {
                     // save new studs
                     if (changed) {
                       //alert("delete from teacher where courseid="+ cc.id );
@@ -610,7 +610,7 @@ function enrol() {
    $j.post(mybase+ "/editcourse", { action:"" },
       function(data) {
           if (data.ok) {
-              var save = '<div id="update" class="float button">Save</div>';
+              var save = '<div id="doupdate" class="float button">Save</div>';
               var s = '<form><table id="form">'
               + ' <tr><td><label>Choose course</label></td><td><div id="selector"></div></td></tr>'
               + ' <tr><td><label>Groups</label></td><td><div id="grouplist"></div></td></tr>'
@@ -625,7 +625,7 @@ function enrol() {
                }
                s += '</select>';
                $j("#selector").html(s);
-               $j("#update").click(function(event) {
+               $j("#doupdate").click(function(event) {
                     // save new teachers
                     if (changed) {
                       //alert("delete from teacher where courseid="+ cc.id );
@@ -686,7 +686,7 @@ function change_course() {
    $j.post(mybase+ "/editcourse", { action:"" },
       function(data) {
           if (data.ok) {
-              var save = '<div id="update" class="float button">Save</div>';
+              var save = '<div id="doupdate" class="float button">Save</div>';
               var s = '<form><table id="form">'
               + ' <tr><td><label>Choose course</label></td><td><div id="selector"></div></td></tr>'
               + ' <tr><td><label>Teachers</label></td><td><div id="teachlist"></div></td></tr>'
@@ -701,7 +701,7 @@ function change_course() {
                }
                s += '</select>';
                $j("#selector").html(s);
-               $j("#update").click(function(event) {
+               $j("#doupdate").click(function(event) {
                     // save new teachers
                     if (changed) {
                       //alert("delete from teacher where courseid="+ cc.id );

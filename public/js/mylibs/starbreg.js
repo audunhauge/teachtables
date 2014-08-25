@@ -78,7 +78,7 @@ function getPassword() {
           var day = jd % 7;
           for (var ii in mytab) {
             var entry = mytab[ii];
-            if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+            if (entry[0] == day && (entry[2].substr(0,5) == 'STARB' || entry[2].substr(0,2) == 'TP')) {
               rom = entry[3];
               break;
             }
@@ -109,7 +109,8 @@ function getPassword() {
                 var day = jd % 7;
                 for (var ii in mytab) {
                   var entry = mytab[ii];
-                  if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+                  //if (entry[0] == day && entry[2].substr(0,5) == 'STARB') {
+                  if (entry[0] == day && (entry[2].substr(0,5) == 'STARB' || entry[2].substr(0,2) == 'TP')) {
                     rom = entry[3];
                     break;
                   }
