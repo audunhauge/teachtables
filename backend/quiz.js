@@ -183,7 +183,7 @@ function sympify(txt) {
       fu = fu.replace(/\-\+/gm,'-');
       fu = fu.replace(/^1\*/gm,'');
       fu = fu.replace(/^\-1\*/gm,'-');
-      fu = fu.replace(/(^[0-9])1\*/gm,function(m,f) { return f; });
+      fu = fu.replace(/([^0-9])1\*/gm,function(m,f) { return f; });
       fu = fu.replace(/\)\(/gm,')*(');
   return fu;
 }
