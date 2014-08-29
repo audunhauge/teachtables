@@ -2161,6 +2161,7 @@ var qz = {
                          cor = goodies[0];
                          break;
                        default:
+                         var num,tol,cor;
                          cor = ff;
                          console.log("trying numeric",ff,uatxt );
                          if (ff == num) feedb = 1;
@@ -2180,13 +2181,14 @@ var qz = {
                            num = lo + tol;
                            cor = num;
                            //console.log("LO..HI",ff,lo,hi,num,tol,uanum);
-                         }
-                         //console.log(num,tol,uanum);
-                         if ( ff == 'any' || ff == 'anytext' || Math.abs(num - uanum) <= tol) {
-                           ucorr++;
-                           feedb = '1';  // mark as correct
-                         } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
-                           uerr++;
+                         } else {
+                             num = +ff; tol = 0.0001;
+                             if ( ff == 'any' || ff == 'anytext' || Math.abs(num - uanum) <= tol) {
+                               ucorr++;
+                               feedb = '1';  // mark as correct
+                             } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                               uerr++;
+                             }
                          }
                          break;
                      }
