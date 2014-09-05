@@ -2183,12 +2183,12 @@ var qz = {
                            //console.log("LO..HI",ff,lo,hi,num,tol,uanum);
                          } else {
                              num = +ff; tol = 0.0001;
-                             if ( ff == 'any' || ff == 'anytext' || Math.abs(num - uanum) <= tol) {
+                         }
+                         if ( ff == 'any' || ff == 'anytext' || Math.abs(num - uanum) <= tol) {
                                ucorr++;
                                feedb = '1';  // mark as correct
-                             } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
+                         } else if (uatxt != undefined && uatxt  != '' && uatxt  != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                                uerr++;
-                             }
                          }
                          break;
                      }

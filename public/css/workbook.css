@@ -1726,3 +1726,8 @@ span.chapter {
   color:blue;
   padding:4px;
 }
+@media print { 
+    div.multipleopt  {
+        border:none !important;
+    }
+}

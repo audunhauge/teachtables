@@ -2955,7 +2955,7 @@ wb.render.normal  = {
                     //param.display = parts[0];
                   displayfasit = '';
                 } else if (parts[1] && (fasit.length  || (contopt && contopt.fiidback && contopt.fiidback != 'none'))) {
-                  displayfasit = '<h4>FASIT</h4>' + parts[1];
+                  displayfasit = '<h4 class="gui">FASIT</h4><div class="gui">' + parts[1]+ '</div>';
                 }
                 score = Math.round(score*100)/100;
                 var delta = score || 0;
