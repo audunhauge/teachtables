@@ -363,7 +363,7 @@ var qz = {
          did = 0;
          qobj.display = qobj.display.replace(/\[\[(.+?)\]\]/g,function(m,ch) {
              if (ch == ' ') {
-                 // special: a single blank means BLANK option - dosnt generate a draggable
+                 // special: a single blank means BLANK option - doesnt generate a draggable
                  // thus questions like : place x on the third position: [[ ]] [[ ]] [[x]] [[ ]]
                  // works basically like checkbox - but can place the box anywhere in text
                  // TODO we may not need to do anything here
@@ -1313,6 +1313,8 @@ var qz = {
        //console.log(qobj);
        switch(question.qtype) {
            case 'dragdrop':
+            qobj.options = _.shuffle(qobj.options);
+            break;
            case 'textarea':
            case 'fillin':
            case 'numeric':
