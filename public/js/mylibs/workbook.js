@@ -2051,6 +2051,7 @@ function eedit(myid,q,target) {
                , fillin:'Textbox'
                , random:'Random pick based on tag'
                , diff:'Difference'
+               , js:'Javascript'
                , container:'SubChapter'
                , quiz:'A quiz'
  };
@@ -2063,7 +2064,7 @@ function eedit(myid,q,target) {
      hardy = hard;  // cant set hardness of a question if more than 3 studs have scored it
    }
    var qdescript = descript[q.qtype] || q.qtype;
-   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,dragdrop,sequence,fillin,numeric,abcde,info,textarea,random,container,quiz".split(','));
+   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,js,dragdrop,sequence,fillin,numeric,abcde,info,textarea,random,container,quiz".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -2508,6 +2509,7 @@ function eedit(myid,q,target) {
         case 'numeric':
         case 'info':
         case 'diff':
+        case 'js':
         case 'textarea':
         case 'fillin':
         default:
@@ -2669,6 +2671,26 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
           var optid = elm[1];   // elm[0] is the same as qid
           var otxt = qu.param.options[optid];
           ua[optid] = otxt;
+        }
+        break;
+      case 'js':
+	var datalist = qu.param.options;  // test data for user function
+        var ch = $j("#qq"+quii+" .fillin :input");
+        for (var i=0, l=ch.length; i<l; i++) {
+          var opti = $j(ch[i]).val();
+	  var usfu = new Function("a","b","c"," { "+opti+"; }");
+	  var myopt = datalist[i].split(";");
+	  var resp = [];
+	  for (var jik=0;jik<myopt.length; jik++) {
+	     try {
+	     var para = JSON.parse(myopt[jik]);
+	     } catch(err) {
+	       console.log("Parse err ",err);
+	       break;
+	     }
+	     resp.push(usfu.apply(null,para));
+	  }
+          ua[i] = opti+"_|_"+resp.join(";");
         }
         break;
       case 'abcde':
@@ -3054,13 +3076,14 @@ wb.render.normal  = {
                       case 'container':
                           return '<div tag="'+qu.name+'" class="cont container" id="qq'+qu.qid+'_'+qi+'">' +  qu.name + '</div>';
                           break;
+                      case 'js':
                       case 'diff':
                       case 'textarea':
                           var iid = 0;
                           adjusted = adjusted.replace(/(&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
                                 var vv = ''
                                 if (chosen[iid]) {
-                                  vv = chosen[iid];
+                                  vv = chosen[iid].split('_|_')[0];
                                 }
                                 var ff = fasit[iid] || '';
                                 var ret = '<textarea>'+vv+'</textarea>';
