@@ -1627,7 +1627,7 @@ var qz = {
                  var uerr = 0;     // user false choices
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    tot++;
-                   var feedb = '-';  // mark as failed
+                   var feedb = 'failed';  // mark as failed
                    var ff = unescape(fasit[ii]);
                    console.log("This is the fasit:",ff);
                    var elm = ff.split('|');
@@ -1636,7 +1636,7 @@ var qz = {
                    var useuf = ua[ii].split('_|_')[1];
                    if (parastring && funk) {
                        try {
-                         var isgood = true;
+                         var passed = 0;   // passed 0 tests
                          var uua = useuf.split(";");
                          var fyfu = new Function("a","b","c","d","e","f",' { ' +funk+'; }' );
                          console.log("FUNCTION",fyfu);
@@ -1644,22 +1644,24 @@ var qz = {
                            var uuu = uua[jk];
                            try {
                                var para = JSON.parse(parastring[jk]);
-                               if (uuu != fyfu.apply(null,para)) {
-                                  isgood = false;
-                               } 
+                               if (uuu == fyfu.apply(null,para)) {
+                                  passed += 1;
+                               }
                            } catch(err) {
                              console.log("PARAMETER err ",err,parastring[jk]);
                              feedback += err+"<br>"+parastring[jk];
-                             isgood = false;
+                             passed = 0;
                            }
                          }
-                         if (isgood) {
-                           ucorr++;     
-                           feedb = '1';  // mark as correct
+                         console.log("PASSED some tests ",passed);
+                         passed = passed ? passed / parastring.length : 0;
+                         if (passed > 0) {
+                           ucorr += passed;
+                           feedb = 'passed';
                          } else {
                            uerr++;
                          }
-                       } 
+                       }
                        catch(err) {
                          console.log("some bad",err,funk);
                          uerr++;

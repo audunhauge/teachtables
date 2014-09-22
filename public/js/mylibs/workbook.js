@@ -2674,22 +2674,22 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
         }
         break;
       case 'js':
-	var datalist = qu.param.options;  // test data for user function
+        var datalist = qu.param.options;  // test data for user function
         var ch = $j("#qq"+quii+" .fillin :input");
         for (var i=0, l=ch.length; i<l; i++) {
           var opti = $j(ch[i]).val();
-	  var usfu = new Function("a","b","c"," { "+opti+"; }");
-	  var myopt = datalist[i].split(";");
-	  var resp = [];
-	  for (var jik=0;jik<myopt.length; jik++) {
-	     try {
-	     var para = JSON.parse(myopt[jik]);
-	     } catch(err) {
-	       console.log("Parse err ",err);
-	       break;
-	     }
-	     resp.push(usfu.apply(null,para));
-	  }
+          var usfu = new Function("a","b","c"," { "+opti+"; }");
+          var myopt = datalist[i].split(";");
+          var resp = [];
+          for (var jik=0;jik<myopt.length; jik++) {
+             try {
+             var para = JSON.parse(myopt[jik]);
+             } catch(err) {
+               console.log("Parse err ",err);
+               break;
+             }
+             resp.push(usfu.apply(null,para));
+          }
           ua[i] = opti+"_|_"+resp.join(";");
         }
         break;

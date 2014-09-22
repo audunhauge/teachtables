@@ -1182,7 +1182,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                   ua.param.hints = hin.slice(0,ua.hintcount);
                   ua.param.havehints = 'y';
                 }
-                if (q.qtype == 'js' ) {
+                if (q.qtype == 'js'  && ua.param && ua.param.options ) {
                   // first part of options is parameter list used
                   // to test the user defined function
                   ua.param.options = ua.param.options.map(function(a) { var b = unescape(a); return b.split('|')[0];});

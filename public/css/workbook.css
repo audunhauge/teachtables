@@ -994,6 +994,9 @@ span.imgrandom {
 span.imgabcde {
   background:transparent url(img/abcde.png) no-repeat;
 }
+span.imgjs {
+  background:transparent url(img/js.png) no-repeat;
+}
 span.imgnumeric {
   background:transparent url(img/numeric.png) no-repeat;
 }

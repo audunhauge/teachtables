@@ -34,9 +34,9 @@ function hsv2rgb(h, s, v) {
 }
 
 var statuscolor = "111,77f,7f7,7ff,f00".split(',');
-var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png",abcde:"abcde.png"};
+var imgnames = { quiz:"quizz.png",container:"container.png",numeric:"numeric.png",js:"js.png",abcde:"abcde.png"};
 var qparam = { tag:'any', subj:'', filter:"multiple", joy:"only", limit:"17", keyword:"all", other:0 };
-var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric abcde'.split(' ');
+var qtypes = 'all multiple fillin dragdrop textarea math diff info sequence numeric js abcde'.split(' ');
 var mylink;
 var orbits,
     wordobj,
@@ -411,6 +411,12 @@ function makeForcePlot(filter,limit,keyword,subj) {
                 quizDemo();
                 //makeForcePlot(qparam.filter,qparam.limit,qparam.keyword,qparam.subj);
               });
+          $j("#qnr").keypress(function(event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+                    questEditor([ +$j(this).val()]);
+                }
+              });
           $j("#joy").change(function() {
                 qparam.joy = $j("#joy option:selected").text();
               });
@@ -677,6 +683,7 @@ function quizDemo() {
             + 'Quiz:<span id="quizbox"></span>'
             + 'Tags:<span id="tagbox"></span>'
             + 'Join:<span id="joybox"></span>'
+            + 'QNR:<span><input id="qnr" type="text" value=""></span>'
             + '<div id="choosen"><div id="wordlist"></div></div>'
             + '<div class="quizeditor" id="info"><h4>Question editor</h4> Leser og indekserer alle dine spørsmål ...</div>'
             + '<div id="rapp"></div>'
