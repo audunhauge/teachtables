@@ -1937,7 +1937,7 @@ var qz = {
                                  // fixup for 3x => 3*x etc
                           var completed = { comp:0, lock:0 };
                           if (uatxt == undefined || uatxt == '') {
-                            callback(score,'no input',completed,ua);
+                            callback(score,'no input',completed,ua,1);
                           } else {
                                var elem = tch.split('|');
                                var target = elem[0];
@@ -1945,7 +1945,7 @@ var qz = {
                                // for symbolic equality - dont accept original equation
                                // or new eq that is longer (not simpler)
                                if (differ && (differ == uatxt  || differ.length < uatxt.length)  ) {
-                                  callback(score,'sicut prius',completed,ua);
+                                  callback(score,'sicut prius',completed,ua,1);
                                } else {
                                    var ufu  =   sympify(target);   // fasit
                                    cor = ufu;
@@ -1961,14 +1961,14 @@ var qz = {
                                    var score = 0;
                                    console.log(intro+text);
                                    fs.writeFile("/tmp/symp"+now, intro+text, function (err) {
-                                     if (err) { callback(score,'error1',completed,ua); throw err; }
+                                     if (err) { callback(score,'error1',completed,ua,1); throw err; }
                                       try {
                                        var child = exec("/usr/bin/python /tmp/symp"+now, function(error,stdout,stderr) {
                                          fs.unlink('/tmp/symp'+now);
                                          //console.log("err=",stderr,"out=",stdout,"SOO");
                                          if (error) {
                                            console.log(error,stderr);
-                                           callback(score,'error2',completed,ua);
+                                           callback(score,'error2',completed,ua,1);
                                          } else {
                                            if (stdout && stdout != '') {
                                              //console.log(stdout);
@@ -2000,11 +2000,11 @@ var qz = {
                                              score = aquest.points * Math.max(0,adjust);
                                            }
                                            //console.log("CAME SO FAR SYMBOLIC PYTHON ",eta,score,stdout,stderr,error);
-                                           callback(score,feedb,completed,ua);
+                                           callback(score,feedb,completed,ua,1);
                                          }
                                        });
                                      } catch(err) {
-                                           callback(score,'error3',completed,ua);
+                                           callback(score,'error3',completed,ua,1);
                                      }
                                    });
                                }
