@@ -717,6 +717,7 @@ exports.getquestion = function(user,query,callback) {
             if (qu.qtype == 'dragdrop' || qu.qtype == 'sequence'
               || qu.qtype == 'fillin'
               || qu.qtype == 'diff'
+              || qu.qtype == 'js'
               || qu.qtype == 'numeric'
               || qu.qtype == 'textarea') {
               // display is what we show the student
@@ -1166,7 +1167,6 @@ var renderq = exports.renderq = function(user,query,callback) {
                   ualist[ua.qid] = {};
                 }
                 ua.param = parseJSON(ua.param);
-                //if (q.qtype == 'abcde') console.log("ABCDE param=",ua.param);
                 ua.param.display = unescape(ua.param.display);
                 ua.param.fasit = '';
                 ua.param.cats = '';
@@ -1181,6 +1181,11 @@ var renderq = exports.renderq = function(user,query,callback) {
                   var hin = ua.param.hints.split(/\n|_&_/);
                   ua.param.hints = hin.slice(0,ua.hintcount);
                   ua.param.havehints = 'y';
+                }
+                if (q.qtype == 'js' ) {
+                  // first part of options is parameter list used
+                  // to test the user defined function
+                  ua.param.options = ua.param.options.map(function(a) { var b = unescape(a); return b.split('|')[0];});
                 }
                 if (q.qtype == 'fillin' || q.qtype == 'numeric' ) {
                   // must blank out options for these as they give
@@ -1201,6 +1206,7 @@ var renderq = exports.renderq = function(user,query,callback) {
                         ua.param.options[oi] = unescape(ua.param.options[oi]);
                       }
                 }
+                //if (q.qtype == 'js') console.log("JS param=",ua.param);
                 ua.response = parseJSON(ua.response);
                 ua.param.optorder = '';
                 ualist[ua.qid][ua.instance] = ua;

@@ -291,6 +291,7 @@ var qz = {
      switch(qtype) {
        case 'textarea':
        case 'diff':
+       case 'js':
        case 'numeric':
        case 'fillin':
          draggers = [];
@@ -1297,6 +1298,7 @@ var qz = {
            || question.qtype == 'sequence'
            || question.qtype == 'numeric'
            || question.qtype == 'diff'
+           || question.qtype == 'js'
            || question.qtype == 'fillin' ) {
          qobj.options = qobj.fasit;
        }
@@ -1320,6 +1322,7 @@ var qz = {
            case 'numeric':
            case 'textmark':
            case 'diff':
+           case 'js':
            case 'info':
            case 'sequence':
             break;
@@ -1469,7 +1472,7 @@ var qz = {
            if (!ua) {
              ua = [];
            }
-           console.log("USERANSWER=",ua);
+           //console.log("USERANSWER=",ua);
            var now = new Date().getTime();
            switch(aquest.qtype) {
              case 'numeric':
@@ -1608,6 +1611,64 @@ var qz = {
                          uerr++;
                        }
                      }
+                   }
+                   if (fiib != 'none') feedback += feedb;
+                 }
+                 //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
+                 if (tot > 0) {
+                   qgrade = (ucorr - uerr/6) / tot;
+                 }
+                 qgrade = Math.max(0,qgrade);
+               break;
+             case 'js':
+                 var fasit = param.fasit;
+                 var tot = 0;      // total number of options
+                 var ucorr = 0;    // user correct choices
+                 var uerr = 0;     // user false choices
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   tot++;
+                   var feedb = '-';  // mark as failed
+                   var ff = unescape(fasit[ii]);
+                   console.log("This is the fasit:",ff);
+                   var elm = ff.split('|');
+                   var parastring = elm[0].split(";");
+                   var funk = elm[1];
+                   var useuf = ua[ii].split('_|_')[1];
+                   if (parastring && funk) {
+                       try {
+                         var isgood = true;
+                         var uua = useuf.split(";");
+                         var fyfu = new Function("a","b","c","d","e","f",' { ' +funk+'; }' );
+                         console.log("FUNCTION",fyfu);
+                         for (var jk=0; jk < parastring.length; jk++) {
+                           var uuu = uua[jk];
+                           try {
+                               var para = JSON.parse(parastring[jk]);
+                               if (uuu != fyfu.apply(null,para)) {
+                                  isgood = false;
+                               } 
+                           } catch(err) {
+                             console.log("PARAMETER err ",err,parastring[jk]);
+                             feedback += err+"<br>"+parastring[jk];
+                             isgood = false;
+                           }
+                         }
+                         if (isgood) {
+                           ucorr++;     
+                           feedb = '1';  // mark as correct
+                         } else {
+                           uerr++;
+                         }
+                       } 
+                       catch(err) {
+                         console.log("some bad",err,funk);
+                         uerr++;
+                         feedback += err+"<br>"+funk;
+                       }
+
+                   } else {
+                     uerr++;
+                     feedback += "something wrong with this question";
                    }
                    if (fiib != 'none') feedback += feedb;
                  }
