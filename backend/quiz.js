@@ -1627,7 +1627,7 @@ var qz = {
                  var uerr = 0;     // user false choices
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    tot++;
-                   var feedb = 'failed';  // mark as failed
+                   var feedb = 'passed';  // mark as passed
                    var ff = unescape(fasit[ii]);
                    console.log("This is the fasit:",ff);
                    var elm = ff.split('|');
@@ -1644,9 +1644,14 @@ var qz = {
                            var uuu = uua[jk];
                            try {
                                var para = JSON.parse(parastring[jk]);
-                               if (uuu == fyfu.apply(null,para)) {
+			       var myu =fyfu.apply(null,para);
+                               if (uuu == myu) {
                                   passed += 1;
-                               }
+				  console.log("THEY ARE EQ  ",uuu,myu);
+                               } else {
+			          feedb += "<br>"+uuu+ " != "+myu;
+				  console.log("DIFFUU ",uuu,myu);
+			       }
                            } catch(err) {
                              console.log("PARAMETER err ",err,parastring[jk]);
                              feedback += err+"<br>"+parastring[jk];
@@ -1655,10 +1660,13 @@ var qz = {
                          }
                          console.log("PASSED some tests ",passed);
                          passed = passed ? passed / parastring.length : 0;
-                         if (passed > 0) {
+                         if (passed > 0.2) {
                            ucorr += passed;
-                           feedb = 'passed';
+			   if (passed < 0.6) {
+                             feedb = 'close';
+			   } 
                          } else {
+                           feedb = 'failed';
                            uerr++;
                          }
                        }

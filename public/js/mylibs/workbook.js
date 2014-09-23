@@ -2678,7 +2678,8 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
         var ch = $j("#qq"+quii+" .fillin :input");
         for (var i=0, l=ch.length; i<l; i++) {
           var opti = $j(ch[i]).val();
-          var usfu = new Function("a","b","c"," { "+opti+"; }");
+          var optii = (opti.indexOf("return") < 0) ? 'return '+opti : opti;
+          var usfu = new Function("a","b","c"," { "+optii+"; }");
           var myopt = datalist[i].split(";");
           var resp = [];
           for (var jik=0;jik<myopt.length; jik++) {
