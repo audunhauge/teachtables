@@ -1644,14 +1644,14 @@ var qz = {
                            var uuu = uua[jk];
                            try {
                                var para = JSON.parse(parastring[jk]);
-			       var myu =fyfu.apply(null,para);
+                               var myu =fyfu.apply(null,para);
                                if (uuu == myu) {
                                   passed += 1;
-				  console.log("THEY ARE EQ  ",uuu,myu);
+                                  console.log("THEY ARE EQ  ",uuu,myu);
                                } else {
-			          feedb += "<br>"+uuu+ " != "+myu;
-				  console.log("DIFFUU ",uuu,myu);
-			       }
+                                 feedb += "<br>"+uuu+ " != "+myu;
+                                 console.log("DIFFUU ",uuu,myu);
+                               }
                            } catch(err) {
                              console.log("PARAMETER err ",err,parastring[jk]);
                              feedback += err+"<br>"+parastring[jk];
@@ -1662,9 +1662,9 @@ var qz = {
                          passed = passed ? passed / parastring.length : 0;
                          if (passed > 0.2) {
                            ucorr += passed;
-			   if (passed < 0.6) {
-                             feedb = 'close';
-			   } 
+                           if (passed < 0.6) {
+                                         feedb = 'close';
+                           }
                          } else {
                            feedb = 'failed';
                            uerr++;
