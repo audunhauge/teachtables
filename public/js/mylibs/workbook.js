@@ -2676,20 +2676,26 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
       case 'js':
         var datalist = qu.param.options;  // test data for user function
         var ch = $j("#qq"+quii+" .fillin :input");
+        var usfu;
         for (var i=0, l=ch.length; i<l; i++) {
           var opti = $j(ch[i]).val();
           var optii = (opti.indexOf("return") < 0) ? 'return '+opti : opti;
-          var usfu = new Function("a","b","c"," { "+optii+"; }");
+          try {
+            usfu = new Function("a","b","c"," { "+optii+"; }");
+          } catch(err) {
+              opti += " "+err;
+              usfu = function(a,b,c,d,e,f) { return 0;};
+          }
           var myopt = datalist[i].split(";");
           var resp = [];
           for (var jik=0;jik<myopt.length; jik++) {
              try {
-             var para = JSON.parse(myopt[jik]);
+               var para = JSON.parse(myopt[jik]);
+               resp.push(JSON.stringify(usfu.apply(null,para)));
              } catch(err) {
                console.log("Parse err ",err);
                break;
              }
-             resp.push(usfu.apply(null,para));
           }
           ua[i] = opti+"_|_"+resp.join(";");
         }

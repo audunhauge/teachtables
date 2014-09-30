@@ -1629,28 +1629,47 @@ var qz = {
                    tot++;
                    var feedb = 'passed';  // mark as passed
                    var ff = unescape(fasit[ii]);
-                   console.log("This is the fasit:",ff);
                    var elm = ff.split('|');
                    var parastring = elm[0].split(";");
                    var funk = elm[1];
+                   // if funk contains return then create a function
+                   // else JSON decode and use as values for comparison
+                   // thus [[ [1,2,3];[-2,0,3]  | return a+b+c  ]]
+                   // and  [[ [1,2,3];[-2,0,3]  | [6,1]  ]]
+                   // produce the same effect
                    var useuf = ua[ii].split('_|_')[1];
                    if (parastring && funk) {
                        try {
                          var passed = 0;   // passed 0 tests
                          var uua = useuf.split(";");
-                         var fyfu = new Function("a","b","c","d","e","f",' { ' +funk+'; }' );
-                         console.log("FUNCTION",fyfu);
+                         var values =[];
+                         var fyfu;
+                         if (funk.indexOf("return") < 0) {
+                            // assume we have a value list
+                            try {
+                              values = JSON.parse(funk);
+                            }
+                            catch(err) {
+                                values = [];
+                                console.log("PARSE FAILED",funk)
+                            }
+                         } else {
+                            fyfu = new Function("a","b","c","d","e","f",' { ' +funk+'; }' );
+                         }
+                         var myu;
                          for (var jk=0; jk < parastring.length; jk++) {
-                           var uuu = uua[jk];
                            try {
+                               var uuu = JSON.parse(uua[jk]);
                                var para = JSON.parse(parastring[jk]);
-                               var myu =fyfu.apply(null,para);
-                               if (uuu == myu) {
+                               if (values && values[jk] != undefined) {
+                                 myu = values[jk];
+                               } else {
+                                 myu =fyfu.apply(null,para);
+                               }
+                               if (_.isEqual(uuu , myu)) {
                                   passed += 1;
-                                  console.log("THEY ARE EQ  ",uuu,myu);
                                } else {
                                  feedb += "<br>"+uuu+ " != "+myu;
-                                 console.log("DIFFUU ",uuu,myu);
                                }
                            } catch(err) {
                              console.log("PARAMETER err ",err,parastring[jk]);
@@ -1658,7 +1677,6 @@ var qz = {
                              passed = 0;
                            }
                          }
-                         console.log("PASSED some tests ",passed);
                          passed = passed ? passed / parastring.length : 0;
                          if (passed > 0.2) {
                            ucorr += passed;
