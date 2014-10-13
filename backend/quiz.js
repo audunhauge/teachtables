@@ -1315,6 +1315,7 @@ var qz = {
        //console.log(qobj);
        switch(question.qtype) {
            case 'dragdrop':
+           case 'sequence':
             qobj.options = _.shuffle(qobj.options);
             break;
            case 'textarea':
@@ -1324,7 +1325,6 @@ var qz = {
            case 'diff':
            case 'js':
            case 'info':
-           case 'sequence':
             break;
            case 'abcde':
             // must remove guidance from options for multipart question
@@ -1641,7 +1641,7 @@ var qz = {
                    if (parastring && funk) {
                        try {
                          var passed = 0;   // passed 0 tests
-                         var uua = useuf.split(";");
+                         var uua = useuf.split(";");  // user results passed as json;json;json ...
                          var values =[];
                          var fyfu;
                          if (funk.indexOf("return") < 0) {
@@ -1659,8 +1659,17 @@ var qz = {
                          var myu;
                          for (var jk=0; jk < parastring.length; jk++) {
                            try {
-                               var uuu = JSON.parse(uua[jk]);
-                               var para = JSON.parse(parastring[jk]);
+                               var uuu,para;
+                               try {
+                                 uuu = JSON.parse(uua[jk]);
+                               } catch(e) {
+                                   console.log("BAD userfunk ",uua,uua[jk]);
+                               }
+                               try {
+                                 para = JSON.parse(parastring[jk]);
+                               } catch(e) {
+                                   console.log("BAD test data ",e,para,parastring);
+                               }
                                if (values && values[jk] != undefined) {
                                  myu = values[jk];
                                } else {
@@ -1670,6 +1679,7 @@ var qz = {
                                   passed += 1;
                                } else {
                                  feedb += "<br>"+uuu+ " != "+myu;
+                                 console.log("DIFFER:",uuu,myu);
                                }
                            } catch(err) {
                              console.log("PARAMETER err ",err,parastring[jk]);
@@ -1698,7 +1708,7 @@ var qz = {
                      uerr++;
                      feedback += "something wrong with this question";
                    }
-                   if (fiib != 'none') feedback += feedb;
+                   if (fiib == 'lots') feedback += feedb;
                  }
                  //console.log(fasit,ua,'tot=',tot,'uco=',ucorr,'uer=',uerr);
                  if (tot > 0) {
@@ -2262,7 +2272,7 @@ var qz = {
                            num = +elm[0];
                            tol = +elm[1];
                            cor = num;
-                           //console.log("NUM:TOL",ff,num,tol,uanum);
+                           console.log("NUM:TOL",ff,num,tol,uanum);
                          } else if ( ff.indexOf('..') > 0) {
                            // we have a fasit like [[23.0..23.5]]
                            var elm = ff.split('..');
