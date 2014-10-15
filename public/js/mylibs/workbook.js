@@ -3215,8 +3215,9 @@ wb.render.normal  = {
                                 var ret = '';
                                 var fee = feedback[iid];
                                 if (chosen[iid]) {
-                                  for (var j=0, m = chosen[iid].length; j<m; j++) {
-                                      var opt = chosen[iid][j];
+                                  var chozz = chosen[iid].split(',');
+                                  for (var j=0, m = chozz.length; j<m; j++) {
+                                      var opt = chozz[j];
                                       var oo = 'a';
                                       used[opt] ? used[opt]++ : used[opt] = 1;
                                       ret += '<li id="ddm'+qu.qid+'_'+qi+'_'+j+'" class="dragme">' + opt + '</li>';
