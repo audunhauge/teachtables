@@ -1638,10 +1638,19 @@ var qz = {
                    // and  [[ [1,2,3];[-2,0,3]  | [6,1]  ]]
                    // produce the same effect
                    var useuf = ua[ii].split('_|_')[1];
+                   var passlimit = 0.2;  // give some score if passed 20% tests
                    if (parastring && funk) {
                        try {
                          var passed = 0;   // passed 0 tests
                          var uua = useuf.split(";");  // user results passed as json;json;json ...
+                         var uniqtest = _.uniq(uua);  // useranswer independent of input
+                         if (uniqtest.length < 2) {
+                            console.log("JS user returned constant values",useuf);
+                            passlimit = 0.99;  // if all useranswers are the same then passlimit is 0.99
+                            // this is meant to capture situation where expected result is ( 0,0,0,0,0,1,0,0,0)
+                            // user might then score by returning (0,0,0,0,0,0,0,0,0) (i.e return 0 for all tests)
+                            // so if userresponse is ~ (0,0,0,0,0,) then we demand all tests pass
+                         }
                          var values =[];
                          var fyfu;
                          if (funk.indexOf("return") < 0) {
@@ -1688,10 +1697,10 @@ var qz = {
                            }
                          }
                          passed = passed ? passed / parastring.length : 0;
-                         if (passed > 0.2) {
+                         if (passed > passlimit) {
                            ucorr += passed;
                            if (passed < 0.6) {
-                                         feedb = 'close';
+                            feedb = 'close';
                            }
                          } else {
                            feedb = 'failed';
