@@ -3214,8 +3214,8 @@ wb.render.normal  = {
                           adjusted = adjusted.replace(/(ª)/g,function(m,ch) {
                                 var ret = '';
                                 var fee = feedback[iid];
-                                if (chosen[iid]) {
-                                  var chozz = chosen[iid].split(',');
+                                if (chosen[iid]) {  // if the separator was newline then already array, else csv
+                                  var chozz = _.isArray(chosen[iid]) ? chosen[iid] : chosen[iid].split(',');
                                   for (var j=0, m = chozz.length; j<m; j++) {
                                       var opt = chozz[j];
                                       var oo = 'a';
