@@ -150,6 +150,7 @@ app.get(base+'/getsql',                 routes.getsql);             // only admi
 app.get(base+'/freedays',               routes.freedays);
 app.get(base+'/getexams',               routes.getexams);
 app.get(base+'/plain',                  routes.plain);              // simplified overview
+app.get(base+'/kurs',                   routes.kurs);               // even simpler simplified overview
 app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
 
 app.post(base+'/editcourse',            routes.editcourse);

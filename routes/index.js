@@ -14,6 +14,19 @@ var db = database.db;
 var julian = require('../backend/julian');
 var addons = siteinf.addons;
 
+exports.kurs = function(req, res) {
+    var today = new Date();
+    var month = today.getMonth()+1; var day = today.getDate(); var year = today.getFullYear();
+    var thisjd = julian.greg2jul(month,day,year );
+    var uuid = 0;
+    var username = req.query.navn;
+    var firstname = '';
+    var lastname = '';
+    res.render('kurs', { julday:thisjd,  userid:uuid, loggedin:0,
+        title:"index.jade",  mytitle:mytitle, schoolyear:schoolyear, menu:siteinf.menu, language:language, jbase:base,
+        version:version, username:username, firstname:firstname, lastname:lastname } );
+};
+
 exports.plain = function(req, res) {
     var today = new Date();
     var month = today.getMonth()+1; var day = today.getDate(); var year = today.getFullYear();
