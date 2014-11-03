@@ -48,7 +48,7 @@ function conlog(a,b,c,d) {
 
 // test backend for grading questions
 var quiz = rewire("../backend/quiz.js");
-quiz.__set__("console",{ log:conlog});
+//quiz.__set__("console",{ log:conlog});
 describe("Quiz", function(){
   describe("#prep()", function(){
     it("should convert actionscript to javascript", function(){
@@ -283,9 +283,16 @@ describe("Quiz", function(){
         qz.question[123]={ qtext:'{"display":"drop dead #a","code":"a=3","pycode":"","hints":""}',qtype:"info",id:123 };
         qz.question[124]={ qtext:'{"display":"sort em [[1]] [[2]] [[3]] [[4]]","fasit":["1","2","3","4"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:124 };
         qz.question[125]={ qtext:'{"display":"sort em [[1]] ","fasit":["1"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:125 };
+        qz.question[126]={ qtext:'{"display":"a fraction [[eva:2/3]] and a decimal [[0.667:0.01]]","fasit":["eva:2/3","0.667:0.01"],"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
         it("should take a raw question and expand macros", function(done){
           qz.generateParams({id:123,qtype:"info"},314,0,1,false,function(qobj) {
               expect(qobj).to.have.property("display","drop%20dead%203");
+              done();
+          });
+        });
+        it("should work for numeric", function(done){
+          qz.generateParams({id:126,qtype:"numeric"},314,0,1,false,function(qobj) {
+              expect(qobj.fasit).to.not.equal(qobj.options);
               done();
           });
         });

@@ -79,8 +79,8 @@ function score2grade(score,grad) {
       0.80: '5-',
       0.84: '5',
       0.91: '5+',
-      0.95: '6-',
-      0.97: '6'
+      0.97: '6-',
+      0.98: '6'
              },
     medium: { // normal TEST, standard limits
       0.00: '1',
@@ -94,11 +94,11 @@ function score2grade(score,grad) {
       0.58: '4-',
       0.64: '4',
       0.72: '4+',
-      0.75: '5-',
-      0.80: '5',
-      0.87: '5+',
-      0.93: '6-',
-      0.96: '6'
+      0.78: '5-',
+      0.82: '5',
+      0.88: '5+',
+      0.96: '6-',
+      0.97: '6'
              },
     hard: { // the TEST was hard, go easy on the grade limits
       0.00: '1',

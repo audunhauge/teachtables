@@ -232,6 +232,22 @@ function stripslashes(str) {
   return str;
 }
 
+var subtypes = { "eva:":1,"reg:":2,"nor:":3,}
+function getSubtypes(fasit) {
+  // pick out subtypes for each element in fasit;
+  //
+  console.log(subtypes,fasit);
+  var subus = [];
+  for (var i=0,l=fasit.length; i < l; i++) {
+      var e = unescape(fasit[i]).substr(0,4);
+      if (subtypes[e]) {
+        subus[i] = subtypes[e];
+      } else {
+        subus[i] = 0;
+      }
+  }
+  return subus;
+}
 
 var qz = {
     quiz:{}         // cache for quiz info
@@ -266,7 +282,7 @@ var qz = {
      return jane;
  }
  , getQobj: function(qtext,qtype,qid,instance) {
-     var qobj = { display:'', options:[] , fasit:[] , code:'', pycode:'', hints:'',  daze:'', contopt:{} };
+     var qobj = { display:'', options:[] , fasit:[] , subtype:[], code:'', pycode:'', hints:'',  daze:'', contopt:{} };
      if (!qtext ) return qobj;
      try {
          qobj = JSON.parse(qtext);
@@ -274,7 +290,7 @@ var qz = {
        console.log("getOBJ EVAL-ERROR",err,qtext);
      }
      if (qobj == undefined) {
-        qobj = { display:'', options:[] , fasit:[] , daze:'', code:'', pycode:'', hints:'',  contopt:{}};
+        qobj = { display:'', options:[] , fasit:[] , subtype:[], daze:'', code:'', pycode:'', hints:'',  contopt:{}};
      }
      if (!qobj.code) qobj.code = '';
      if (!qobj.pycode) qobj.pycode = '';
@@ -292,7 +308,6 @@ var qz = {
        case 'textarea':
        case 'diff':
        case 'js':
-       case 'numeric':
        case 'fillin':
          draggers = [];
          did = 0;
@@ -377,6 +392,7 @@ var qz = {
          qobj.fasit = draggers;
          //console.log("Draggers = ",draggers);
          break;
+       case 'numeric':
        case 'abcde':
          break;
        case 'multiple':
@@ -1320,6 +1336,12 @@ var qz = {
            case 'textarea':
            case 'fillin':
            case 'numeric':
+            // we want to pick out the subtype for each answer
+            // a numeric with [[eva:2/3]] [[0.667:0.005]] should have some extra
+            // info/js to help user fill in correct values.
+            // So we avoid users trying to answer 2/3 when answer is not evalueated
+            qobj.subtype = getSubtypes(qobj.fasit);
+            console.log("SUBTYPES",qobj)
            case 'textmark':
            case 'diff':
            case 'js':
@@ -1334,6 +1356,7 @@ var qz = {
                 qobj.fasit[i] = qz.macro(qobj.fasit[i]);
                 qobj.abcde = optcopy;
             }
+            qobj.subtype = getSubtypes(qobj.fasit);
             break;
            case 'multiple':
             if (qobj.options && qobj.options.length) {
