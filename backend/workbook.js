@@ -219,7 +219,9 @@ exports.gradeuseranswer = function(user,query,callback) {
   var cid     = +query.cid ;   // the question (container) containing the question
   var uid     = user.id;
   var contopt = query.contopt;
+  //console.log("USERANSWER =",query.ua);
   var ua      = JSON.stringify(query.ua) || '';
+  //console.log("USERANSWER JSON STR=",ua);
   var now = new Date().getTime()
   var mycontainer,myquest;
   async.parallel( [
@@ -306,7 +308,8 @@ exports.gradeuseranswer = function(user,query,callback) {
                           }
                       }
                       //qua.response = parseJSON(ua);
-                      var sqlnewua = '["'+newua.join('","')+'"]';
+                      //var sqlnewua = '["'+newua.join('","')+'"]';
+                      var sqlnewua = JSON.stringify(newua);
                       qua.response = newua;
                       qua.feedback = feedback;
                       qua.param.optorder = '';

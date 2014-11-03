@@ -3238,7 +3238,8 @@ wb.render.normal  = {
                               qtxt += grademe;
                               qtxt += '<ul id="sou'+qu.qid+'_'+qi+'" class="qtext sourcelist connectedSortable">';
                               for (var i=0, l= param.options.length; i<l; i++) {
-                                  var opt = param.options[i].split(',')[0];
+                                  //var opt = param.options[i].split(',')[0];
+                                  var opt = param.options[i];
                                   if (used[opt]) {
                                     used[opt]--;
                                     continue;
@@ -3277,7 +3278,7 @@ wb.render.normal  = {
                               if (param.daze && param.daze.length) {
                                 // distractors are defined - stir them in
                                 param.options = param.options.concat(param.daze.split(','));
-                                shuffle(param.options);
+                                shuffle(param.options);   // TODO daze should be shuffled into options server-side
                               }
                               qtxt += '<hr>';
                               decoration();

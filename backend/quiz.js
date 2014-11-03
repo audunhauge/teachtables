@@ -54,7 +54,7 @@ function prep(code) {
    ast.compute_char_frequency();
    ast.mangle_names();
    var res = ast.print_to_string({beautify:true});
-   console.log(res);
+   //console.log(res);
    return res;
   }
   catch (err) {
@@ -194,10 +194,10 @@ function normalizeFunction(txt,nosubst,ua) {
   if (txt =='' || txt == undefined) return txt;
   nosubst = (typeof nosubst != "undefined") ? 1 : 0;
   if (ua) {
-      console.log("TESTING ua",ua,txt);
+      //console.log("TESTING ua",ua,txt);
       // use ua to supply values for u1 u2 u3 ... values given in other userinput
       txt = txt.replace(/u([0-9])/gm,function(m,n) { var i = +n; if (ua[i] && _.isNumber(+ua[i])) {return +ua[i]} else {return m;}   } );
-      console.log("CHANGED TO ua",ua,txt);
+      //console.log("CHANGED TO ua",ua,txt);
   }
   var fu = txt.replace(/ /g,'').replace(/exp/gm,'©');
       if (!nosubst) fu = fu.replace(/[xy]/gm,'t');
@@ -814,7 +814,6 @@ var qz = {
                console.log("EVAL-ERROR err=",err," EXPRESSION=",exp,":::");
          }
      }
-     //console.log("SYMB=",symb);
    }
  , macro:function(text,container) {
      //var cha = 'abcdefghijklmnopqrstuvwxyz';
@@ -1294,12 +1293,12 @@ var qz = {
        qobj.display = qz.asymp(qobj.display);        // generate graph for ££ draw(graph(x,y,operator ..) ££
        qobj.display = qz.diagram(qobj.display,q.id,instance);    // generate graph for €€ plot(sin(x)) €€
        qobj.display = escape(qobj.display);
-       if (question.qtype == 'dragdrop'
-           || question.qtype == 'sequence'
-           || question.qtype == 'numeric'
-           || question.qtype == 'diff'
-           || question.qtype == 'js'
-           || question.qtype == 'fillin' ) {
+       if (q.qtype == 'dragdrop'
+           || q.qtype == 'sequence'
+           || q.qtype == 'numeric'
+           || q.qtype == 'diff'
+           || q.qtype == 'js'
+           || q.qtype == 'fillin' ) {
          qobj.options = qobj.fasit;
        }
        if (qobj.hints != '') qobj.hints = qz.macro(qobj.hints);
@@ -1313,10 +1312,10 @@ var qz = {
        // only used to generate params susbtituted into display
        qobj.code = '';
        //console.log(qobj);
-       switch(question.qtype) {
+       switch(q.qtype) {
            case 'dragdrop':
            case 'sequence':
-            qobj.options = _.shuffle(qobj.options);
+            qobj.options = _.shuffle(qobj.options); /// TODO  this is where options are shuffled
             break;
            case 'textarea':
            case 'fillin':
@@ -1467,7 +1466,9 @@ var qz = {
            useranswer = useranswer.replace(/&amp;/g,'&');
            try {
              eval( 'ua ='+(useranswer));
+             //ua = JSON.parse(ua);
            } catch(err) {
+               console.log("PARSE ERROR",ua)
            }
            if (!ua) {
              ua = [];
@@ -1645,7 +1646,7 @@ var qz = {
                          var uua = useuf.split(";");  // user results passed as json;json;json ...
                          var uniqtest = _.uniq(uua);  // useranswer independent of input
                          if (uniqtest.length < 2) {
-                            console.log("JS user returned constant values",useuf);
+                            //console.log("JS user returned constant values",useuf);
                             passlimit = 0.99;  // if all useranswers are the same then passlimit is 0.99
                             // this is meant to capture situation where expected result is ( 0,0,0,0,0,1,0,0,0)
                             // user might then score by returning (0,0,0,0,0,0,0,0,0) (i.e return 0 for all tests)
@@ -1811,6 +1812,7 @@ var qz = {
                          var ff = unescape(ua[ii][jj]);
                          idx = idlist[ff];
                          if (idx == undefined) idx = -999;
+                         //console.log(ff,idx);
                          dscore = 1 - Math.min(w,Math.abs(jj-idx))/w;
                          rdscore = 1 - Math.min(w,Math.abs(mytot-jj-idx))/w;
                          feedback[ii].inv[jj] = 0;
@@ -1955,7 +1957,7 @@ var qz = {
              //console.log(qgrade,adjust,attnum,cost);
              qgrade = aquest.points * Math.max(0,adjust);
              var completed = { comp:0, lock:0 };
-             console.log("GSYMB=",gsymb);
+             //console.log("GSYMB=",gsymb);
              if (gsymb.lock && gsymb.limit && gsymb.limit <= qgrade) {
                completed.lock = 1;
              }
@@ -2006,6 +2008,7 @@ var qz = {
                  // for numeric the fasit is a template like this
                  //   33.13:0.5         the answer is 33.13 +- 0.5
                  //   32.0..33.5        the answer must be in the interval [32.0,33.5]
+                 //   TODO  a..b is the same as rng:a,b  -- should we drop one of them?
                  //   nor:m,s           the answer x is scored as e^-((1/(2) * ((x-m)/s)^2
                  //   sym:exp           the answer x is scored as pycas(x - exp) == 0
                  //   eva:exp|a|b       the answer x is scored as eval(x) == exp
@@ -2175,15 +2178,15 @@ var qz = {
                          var ufu = normalizeFunction(uatxt,0);
                          var udiff =normalizeFunction(differ,0);
                          //console.log(exp,lolim,hilim,ufu);
-                         if (differ && (differ == uatxt || udiff == ufu) ) {
+                         if (differ && (differ === uatxt || udiff === ufu) ) {
                             uerr++;
                             console.log("sicut prius");
-                         } else if (exp == ufu) {
-                            ucorr++;     // good match for regular expression
+                         } else if (exp === ufu) {
+                            ucorr++;      // they are exactly equal
                             feedb = '1';  // mark as correct
-                            console.log("exact");
+                            //console.log("exact");
                          } else {
-                           console.log("EVA:",exp,ufu);
+                           //console.log("EVA:",exp,ufu);
                            if (uatxt != undefined && uatxt != '' && uatxt != '&nbsp;&nbsp;&nbsp;&nbsp;') {
                              // user supplied function numericly tested against fasit
                              // for x values lolim .. hilim , 20 steps
@@ -2195,7 +2198,7 @@ var qz = {
                                var fu2 = new Function("x",' with(Math) { return ' +ufu+'; }' );
                                var reltol,f1,f2;
                                for (var pi=0,xi = lolim; pi < 20; xi += dx, pi++) {
-                                   console.log("testing with ",xi);
+                                   //console.log("testing with ",xi);
                                    f1 = fu1(xi);
                                    f2 = fu2(xi);
                                    if (!isFinite(f1) && !isFinite(f2)) {
@@ -2242,7 +2245,7 @@ var qz = {
                            var myreg = new RegExp('('+tch+')',"gi");
                            var isgood = false;
                            uatxt.replace(myreg,function (m,ch) {
-                                 console.log("REG:",uatxt,tch,m,ch);
+                                 //console.log("REG:",uatxt,tch,m,ch);
                                  isgood = (m == uatxt);
                                });
                            if ( isgood) {
@@ -2273,7 +2276,7 @@ var qz = {
                        default:
                          var num,tol,cor;
                          cor = ff;
-                         console.log("trying numeric",ff,uatxt );
+                         //console.log("trying numeric",ff,uatxt );
                          if (ff == num) feedb = 1;
                          if ( ff.indexOf(':') > 0) {
                            // we have a fasit like [[23.3:0.5]]
@@ -2281,7 +2284,7 @@ var qz = {
                            num = +elm[0];
                            tol = +elm[1];
                            cor = num;
-                           console.log("NUM:TOL",ff,num,tol,uanum);
+                           //console.log("NUM:TOL",ff,num,tol,uanum);
                          } else if ( ff.indexOf('..') > 0) {
                            // we have a fasit like [[23.0..23.5]]
                            var elm = ff.split('..');
