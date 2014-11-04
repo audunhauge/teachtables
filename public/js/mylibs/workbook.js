@@ -1268,15 +1268,17 @@ function renderPage() {
          }).disableSelection();
         $j("#main").undelegate(".cont","click");
         $j("#main").delegate(".cont","click", containerClick);
-        $j("#main").undelegate(".valid1","keypress");
-        $j("#main").delegate(".valid1","keypress",validNum);
+        $j("#main").undelegate(".valid0","keypress");
+        $j("#main").delegate(".valid0","keypress",function(e) { validNum(e,/[-+0-9\.]/); });
        prettyPrint();
 
     }
 
-    function validNum(event) {
+    function validNum(event,reg) {
       var code = (event.keyCode ? event.keyCode : event.which);
-      if ((code < 48 || code > 57) && code != 46) event.preventDefault();
+      var character = String.fromCharCode(code);
+      if (character.match(reg)) return;
+      event.preventDefault();
     }
 
     $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(wqqlist) {
