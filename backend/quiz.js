@@ -232,7 +232,7 @@ function stripslashes(str) {
   return str;
 }
 
-var subtypes = { "eva:":1,"reg:":2,"nor:":3,}
+var subtypes = { "eva:":1,"reg:":2,"nor:":3,"rng:":4,"zro:":5,"sym:":6,"lis:":7};
 function getSubtypes(fasit) {
   // pick out subtypes for each element in fasit;
   //
@@ -310,6 +310,7 @@ var qz = {
        case 'textarea':
        case 'diff':
        case 'js':
+       case 'numeric':
        case 'fillin':
          draggers = [];
          did = 0;
@@ -394,7 +395,6 @@ var qz = {
          qobj.fasit = draggers;
          //console.log("Draggers = ",draggers);
          break;
-       case 'numeric':
        case 'abcde':
          break;
        case 'multiple':
@@ -1343,7 +1343,6 @@ var qz = {
             // info/js to help user fill in correct values.
             // So we avoid users trying to answer 2/3 when answer is not evalueated
             qobj.subtype = getSubtypes(qobj.fasit);
-            console.log("SUBTYPES",qobj)
            case 'textmark':
            case 'diff':
            case 'js':

@@ -1268,9 +1268,19 @@ function renderPage() {
          }).disableSelection();
         $j("#main").undelegate(".cont","click");
         $j("#main").delegate(".cont","click", containerClick);
+        $j("#main").undelegate(".valid0","keypress");
+        $j("#main").delegate(".valid0","keypress",function(e) { validNum(e,/[-+0-9\.]/); });
        prettyPrint();
 
     }
+
+    function validNum(event,reg) {
+      var code = (event.keyCode ? event.keyCode : event.which);
+      var character = String.fromCharCode(code);
+      if (character.match(reg)) return;
+      event.preventDefault();
+    }
+
     $j.getJSON(mybase+'/getcontainer',{ container:wbinfo.containerid }, function(wqqlist) {
       // list of distinct questions - can not be used for displaying - as they may need
       // modification based on params stored in useranswers
@@ -3156,6 +3166,10 @@ wb.render.normal  = {
                               qu.feedback = '';
                             }
                           }
+                          var subtype;
+                          if (qu.param.subtype && qu.param.subtype.length) {
+                            subtype = qu.param.subtype;
+                          }
                           var iid = 0;
                           // special case for numeric match anytext [[anytext]] - use textarea instead of <input text>
                           adjusted = adjusted.replace(/(_&nbsp;&nbsp;_)/g,function(m,ch) {
@@ -3170,18 +3184,23 @@ wb.render.normal  = {
                                 return ret;
                               });
                           adjusted = adjusted.replace(/(_?&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
-                                var vv = '', ret;
+                                var vv = '', ret;    
+                                var klasslist = [];
                                 if (chosen[iid]) {
                                   vv = chosen[iid];
+                                }
+                                if (subtype && subtype[iid] != undefined) {
+                                  klasslist.push('valid'+subtype[iid]);    // add class to check input valid while typing
                                 }
                                 var ff = fasit[iid] || '';
                                 if (ch.substr(0,1) == '_') {  // [[anytext]] will be repaced by textarea - not input text
                                   ret = '<textarea>'+vv+'</textarea>';
                                   ret += '<div class="fasit gui">'+unescape(ff)+'</div>';
                                 } else {
-                                  var chk = (checkmarks[iid] != undefined && checkmarks[iid]!='-') ? 'class="heck' + checkmarks[iid]+ '"' : '';
+                                  //var chk = (checkmarks[iid] != undefined && checkmarks[iid]!='-') ? 'class="heck' + checkmarks[iid]+ '"' : '';
+                                  if (checkmarks[iid] != undefined && checkmarks[iid]!='-') klasslist.push('heck' + checkmarks[iid]);
+                                  var chk = klasslist.length ? 'class="'+klasslist.join(' ')+'"' : '';
                                   var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
-                                  //ff=ff.replace(/%3A/g,':');
                                   ret = '<input '+chk+' type="text" value="'+vv+'" />'+ffy;
                                 }
                                 iid++;
