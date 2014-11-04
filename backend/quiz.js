@@ -296,6 +296,8 @@ var qz = {
      if (!qobj.pycode) qobj.pycode = '';
      if (!qobj.hints) qobj.hints = '';
      qobj.origtext = qobj.display;  // used by editor
+     // TODO note that fasit is undefined if parse of qtext works
+     // TODO see generateParams for genesis of fasit
      var did,cid;
      plots = [];
      // strip out function plot descriptions like €€line { points:[[[1,2],[1,2]]] } €€
