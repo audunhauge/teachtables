@@ -18,6 +18,7 @@ var allattend;          // attendance for all students
 var meetings;           // meetings for teachers
 
 var usersonline = '';   // logged in users with session active
+var euids = {};         // ids for pics
 
 
 var showyear = 0;       // used to choose school year to show
@@ -408,6 +409,9 @@ function setup_teach() {
     alreadyappended = true;
     $j("#htitle").append('<div id="alive" class="green"><span id="dead">Server may be asleep ... </span></div>');
     relax(30000);
+    $j.get(mybase+"/geteuids", function(eu) {
+      euids = eu;
+    });
     var romvalg = '<ul>';
     romvalg += '<li><a id="ledigrom" href="#">'+ss.setup.freeroom+'</a></li>';
     var ii=0; // so we can have link for rooms under several different headings

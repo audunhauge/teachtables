@@ -44,6 +44,11 @@ function stripRooms(text) {
 
 var julian = require('./julian');
 
+var euids = {};   // hash of ids for students - only send if teacher
+var geteuids = exports.geteuids = function(user,query,callback) {
+   callback(euids);
+}
+
 var db = {
    studentIds   : []    // array of students ids [ 2343,4567 ]
   ,students     : {}    // hash of student objects {  2343:{username,firstname,lastname,institution,department} , ... ]
@@ -1250,11 +1255,13 @@ var getstudents = function() {
   // list of all rooms, array of coursenames (for autocomplete)
   client.query(
       // fetch students and teachers
-      'SELECT id,username,firstname,lastname,department,institution,email from users order by department,institution,lastname,firstname',
+      'SELECT id,username,firstname,lastname,department,institution,email,euid from users order by department,institution,lastname,firstname',
             after(function(results) {
             //console.log(results.rows);
             for (var i=0,k= results.rows.length; i < k; i++) {
                 var user = results.rows[i];
+                if (user.euid) euids[user.id] = user.euid;
+                delete user.euid;  // save some space
                 if (user.department == 'Undervisning') {
                   if (user.institution && user.institution != '') {
                     db.teachIds.push(user.id);

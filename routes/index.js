@@ -103,6 +103,17 @@ exports.freedays = function(req, res) {
     });
 };
 
+exports.geteuids =  function(req, res) {
+    // get euids for images of studs
+    if (req.session.user && req.session.user.department === 'Undervisning') {
+      database.geteuids(req.session.user,req.body,function(euids) {
+         res.send(euids);
+      });
+    } else {
+      res.send({});
+    }
+};
+
 exports.editgroup =  function(req, res) {
     // edit/create group
     if (req.session.user && req.session.user.isadmin) {

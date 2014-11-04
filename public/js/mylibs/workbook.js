@@ -872,6 +872,7 @@ function showResults(group,container,contopt) {
                          + '<span class="kara"> '+first+'</span><span class="kara"> '+last+'</span>'+hist,
                                         grade:gr, first:re.start, last:re.fresh, hist:hist };
              }
+             var teachesThisCourse= teaches(userinfo.id,wbinfo.coursename);
              for (var uui in results.ulist) {
                //var started = results.ulist[uui];
                var fn = '--',
@@ -898,12 +899,17 @@ function showResults(group,container,contopt) {
                  ll = reslist[uui].last;
                  his = reslist[uui].hist;
                }
-               displaylist[uui] =  '<div id="ures'+uui+'" class="userres'+active+'"><span class="fn">' + fn
+               var face = '';
+               if (teachesThisCourse) {
+                   var pix = euids[uui] ? euids[uui]+'.jpg' : 'anonym.gif';
+                   face = '<div class="upic"><img src="/skeisvangstat/pic/'+pix+'"></div>';
+               }
+               displaylist[uui] =  '<div id="ures'+uui+'" class="upics relative userres'+active+'"><span class="numb">1</span><span class="fn">' + fn + face
                  + '</span><span class="ln">' + ln + '</span>' + resultat + '</div>';
                showorder.push( { id:uui, fn:fn, ln:ln, grade:gg, first:ff, last:ll } );
              }
              _showresults();
-             if (teaches(userinfo.id,wbinfo.coursename)) {
+             if (teachesThisCourse) {
                $j("#results").undelegate(".userres","click");
                $j("#results").delegate(".userres","click", function() {
                    var uid = this.id.substr(4);
@@ -933,13 +939,15 @@ function showResults(group,container,contopt) {
              return a[field] == b[field] ? 0 : (a[field] > b[field] ? dir : -dir) ;
            });
        var display = '<div id="gradelist">';
-       display +=  '<div class="userres heading"><span sort="fn" class="fn">Fornavn</span>'
+       display +=  '<div class="userres heading"><span class="numb">#</span><span sort="fn" class="fn">Fornavn</span>'
                     + '<span sort="ln" class="ln">Etternavn</span><span sort="grade" class="kara">Score</span>'
                     + ((wbinfo.courseinfo.contopt.karak == 1) ? '<span sort="grade" class="kara">Grade</span>' : '' )
                     + '<span sort="first" class="kara">Start</span><span sort="last" class="kara">Siste</span></div>';
        for (var ii = 0; ii < showorder.length; ii++) {
          if (userinfo.department == 'Undervisning' || wbinfo.courseinfo.contopt.rank == 1 || userinfo.id == showorder[ii].id ) {
-           display += displaylist[showorder[ii].id];
+           //var numb = ii ? '<div class="studnum">'+ii+'</div>' : '';
+           var toshow = displaylist[showorder[ii].id].replace(/<span class="numb">[0-9]+/,'<span class="numb">'+(ii+1));
+           display += toshow;
          }
        }
        display += '<div class="userres"></div>';
@@ -3184,7 +3192,7 @@ wb.render.normal  = {
                                 return ret;
                               });
                           adjusted = adjusted.replace(/(_?&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
-                                var vv = '', ret;    
+                                var vv = '', ret;
                                 var klasslist = [];
                                 if (chosen[iid]) {
                                   vv = chosen[iid];

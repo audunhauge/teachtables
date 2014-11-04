@@ -348,7 +348,7 @@ div.userres {
    clear:both;
 }
 
-#gradelist .fn, #gradelist .ln , #gradelist .kara {
+#gradelist .fn, #gradelist .ln , #gradelist .kara , #gradelist .numb {
   display:block;
   float:left;
   width:9em;
@@ -356,6 +356,9 @@ div.userres {
   white-space:nowrap;
   text-overflow:ellipsis;
   padding-right:3px;
+}
+#gradelist .numb {
+  width:2em;
 }
 #gradelist div.heading .fn, #gradelist div.heading .ln , #gradelist div.heading .kara {
   font-weight:bold;
@@ -1026,6 +1029,29 @@ span.qtype {
   text-overflow:ellipsis;
   white-space:nowrap;
   overflow:hidden;
+}
+
+.relative {
+    position:relative;
+}
+
+div.studnum {
+    position:absolute;
+    top:10px;
+    left:10px;
+    width:40px;
+}
+
+div.upic {
+    position:absolute;
+    left:-60px;
+    top:2px;
+    width:64px;
+    height:64px;
+    opacity:0;
+}
+div.upics:hover  div.upic {
+  opacity:1;
 }
 
 span.qpoints {

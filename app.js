@@ -121,6 +121,15 @@ app.configure(function(){
   app.use(express.cookieParser('anaglypsis'));
   app.use(express.session());
   app.use(app.router);
+  app.use(base+'stat/pic',function(req,res,next) {
+      if (req.url.match(/anonym.gif/)) {
+        next();
+      } else if (req.session && req.session.user && req.session.user.department === 'Undervisning') {
+        next();
+      } else {
+        res.redirect( base+'stat/pic/anonym.gif');
+      }
+  });
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(base+'stat',express.static(path.join(__dirname, 'public')));
   app.use(express.static(path.join(__dirname, 'public')));
@@ -152,6 +161,7 @@ app.get(base+'/getexams',               routes.getexams);
 app.get(base+'/plain',                  routes.plain);              // simplified overview
 app.get(base+'/kurs',                   routes.kurs);               // even simpler simplified overview
 app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
+app.get(base+'/geteuids',               routes.geteuids);           // ids for pics
 
 app.post(base+'/editcourse',            routes.editcourse);
 app.post(base+'/edituser',              routes.edituser);
@@ -161,11 +171,11 @@ app.post(base+'/editgroup',             routes.editgroup);
 // user - info login config
 app.get(base+'/login',                  user.login);                // logg in
 app.get(base+'/feide',                  user.feide);                // logg in with feide (simplesaml)
+app.get(base+'/pict',                   user.pict);                 // get user picture
 app.get(base+'/alive',                  user.alive);                // {alive:true} if logged in
 app.get(base+'/ses',                    user.ses);                  // get login info for active users
 app.get(base+'/userconfig',             user.userconfig);           // fresh read of config (used in config editor)
-
-app.post(base+'/saveconfig',             user.saveconfig);
+app.post(base+'/saveconfig',            user.saveconfig);
 
 
 // workbook
