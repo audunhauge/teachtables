@@ -1096,6 +1096,7 @@ function containerClick() {
             renderPage();
     };
 
+
 function renderPage() {
   // render a page of questions
   // if questions pr page is given
@@ -1276,8 +1277,22 @@ function renderPage() {
          }).disableSelection();
         $j("#main").undelegate(".cont","click");
         $j("#main").delegate(".cont","click", containerClick);
-        $j("#main").undelegate(".valid0","keypress");
-        $j("#main").delegate(".valid0","keypress",function(e) { validNum(e,/[-+0-9\.]/); });
+        $j("#main").undelegate(".validate","keypress");
+        $j("#main").delegate(".validate","keypress",function(e) {
+            var subus = $j(this).attr("subtype");
+            switch(subus) {
+                case "0":  //  match plain number
+                case "3":  //  plain number - test against nor(x,y)
+                case "4":  //  plain number - range test
+                case "7":  //  plain number - list of correct values
+                    return validNum(e,/[-+.eE0-9]+/ );
+                    break;
+                default:
+                    return true;
+                    break;
+            }
+
+        });
        prettyPrint();
 
     }
@@ -3194,11 +3209,16 @@ wb.render.normal  = {
                           adjusted = adjusted.replace(/(_?&nbsp;&nbsp;&nbsp;&nbsp;)/g,function(m,ch) {
                                 var vv = '', ret;
                                 var klasslist = [];
+                                var subus = '', subclass='';
                                 if (chosen[iid]) {
                                   vv = chosen[iid];
                                 }
                                 if (subtype && subtype[iid] != undefined) {
-                                  klasslist.push('valid'+subtype[iid]);    // add class to check input valid while typing
+                                  klasslist.push('validate');    // add class to check input valid while typing
+                                  var su =""+ subtype[iid];
+                                  subus = ' subtype="'+su+'" ';
+                                  su = su.replace(/[347]/,"0");   // these are treated equally
+                                  subclass = ' class="valid'+su+'" ';
                                 }
                                 var ff = fasit[iid] || '';
                                 if (ch.substr(0,1) == '_') {  // [[anytext]] will be repaced by textarea - not input text
@@ -3209,7 +3229,7 @@ wb.render.normal  = {
                                   if (checkmarks[iid] != undefined && checkmarks[iid]!='-') klasslist.push('heck' + checkmarks[iid]);
                                   var chk = klasslist.length ? 'class="'+klasslist.join(' ')+'"' : '';
                                   var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
-                                  ret = '<input '+chk+' type="text" value="'+vv+'" />'+ffy;
+                                  ret = '<span '+subclass+'><input '+chk+subus+' type="text" value="'+vv+'" /></span>'+ffy;
                                 }
                                 iid++;
                                 return ret;

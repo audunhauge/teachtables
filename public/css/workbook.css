@@ -1035,6 +1035,25 @@ span.qtype {
     position:relative;
 }
 
+span.valid0 {
+    position:relative;
+}
+span.valid0 input {
+  margin:4px;
+}
+span.valid0:hover:after {
+  content:"1.23";
+  display:block;
+  padding:2px;
+  position:absolute;
+  background:#dfd;
+  right:-65px;
+  top:-2px;
+  width:62px;
+  -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+
 div.studnum {
     position:absolute;
     top:10px;
