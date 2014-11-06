@@ -1038,13 +1038,13 @@ span.qtype {
 span.valid0 , span.valid1 {
     position:relative;
 }
-span.valid0 input,span.valid0 input {
-  margin:4px;
+span.valid0 input,span.valid1 input {
+  margin:1px;
 }
 span.valid0:hover:after ,
 span.valid1:hover:after {
   text-align:center;
-  content:"1.23";
+  content:"1.2";
   display:block;
   padding:2px;
   padding-left:0px;

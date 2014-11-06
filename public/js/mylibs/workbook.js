@@ -17,6 +17,8 @@ var tablets = {};   // workaround for lack of drag and drop on tablets
 var remarks = {};   // questions with remarks from other teachers
 var scoresum = {};  // score summary for each quiz/container - only used for quiz
 
+var youSure = {};   // track warnings for incomplete answers
+
 function getUser(uid,pref) {
   // will always get a user
   // notfound will be true if no valid
@@ -1341,11 +1343,22 @@ function renderPage() {
                             $j("#quiz").html("Feil i html for dette spørsmålet ...");
                             return;
                         }
-                        $j("#"+myid+" div.gradebutton").html("Lagrer..");
-                        $j("#"+myid+" div.gradebutton").addClass("working");
                         var elm = myid.substr(5).split('_');  // fetch questionid and instance id (is equal to index in display-list)
                         var qid = elm[0], iid = elm[1];
-                        var ua = wb.getUserAnswer(qid,iid,myid,renderq.qrender);
+                        var rr = wb.getUserAnswer(qid,iid,myid,renderq.qrender);
+                        var ua =rr[0], missing = rr[1];
+                        var answered = _.filter(ua,function(e) { return e !== ''});
+                        //console.log("USERANSWER=",ua,answered);
+                        if (missing && answered.length < missing ) {  // missing only set for numeric,fillin questions
+                            // not all elements answered
+                            if (youSure[qid] == undefined) {
+                                youSure[qid] = 1;
+                                alert("Fill inn answers in all fields before grading");
+                                return;
+                            }
+                        }
+                        $j("#"+myid+" div.gradebutton").html("Lagrer..");
+                        $j("#"+myid+" div.gradebutton").addClass("working");
                         $j.post(mybase+'/gradeuseranswer', {  contopt:contopt, iid:iid, qid:qid, cid:wbinfo.containerid, ua:ua }, function(ggrade) {
                               if (ggrade.completed == 1) {
                                  renderPage();
@@ -2692,6 +2705,7 @@ function dropquestion(morituri) {
 
 wb.getUserAnswer = function(qid,iid,myid,showlist) {
   // parses out user answer for a given question
+  var missing = 0;
   var qu = showlist[iid];
   var ua = {};
   var quii = myid.substr(5);  // drop 'quest' from 'quest' + qid_iid
@@ -2733,16 +2747,17 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
           ua[i] = opti+"_|_"+resp.join(";");
         }
         break;
+      case 'fillin':
+      case 'numeric':
       case 'abcde':
       case 'diff':
       case 'textarea':
-      case 'numeric':
-      case 'fillin':
         var ch = $j("#qq"+quii+" .fillin :input");
         for (var i=0, l=ch.length; i<l; i++) {
           var opti = $j(ch[i]).val();
           ua[i] = opti
         }
+        if (qu.qtype == 'numeric' || qu.qtype == 'fillin')  missing = ch.length;
         break;
       case 'textmark':
         break;
@@ -2770,7 +2785,7 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
         }
         break;
   }
-  return ua;
+  return [ua,missing];
 }
 
 // check question list for similar questions and warn if seeming duplicates
@@ -3050,7 +3065,8 @@ wb.render.normal  = {
                 }
                 var checkmarks = [];  // mark correct if feedback for numeric
                 var qtxt = ''
-                  switch(qu.qtype) {
+                var subtype; // used by numeric to limit input to valid range
+                switch(qu.qtype) {
                       case 'quiz':
                           var mycopt = qu.param.contopt;
                           var embellish = '';
@@ -3149,6 +3165,9 @@ wb.render.normal  = {
                           // there are sub-questions.
                           // The active subquestion is selected based on attemptnum - so stud
                           // can never make a second attempt on already answered subq
+                          if (qu.param.subtype && qu.param.subtype.length) {
+                            subtype = qu.param.subtype;
+                          }
                           grademe = '<div class="grademe"></div></div>';
                           qtxt = '<div id="quest'+qu.qid+'_'+qi+'" class="qtext multipleq">'+adjusted;
                           if (qu.feedback && qu.feedback != 'none' ) {
@@ -3160,20 +3179,33 @@ wb.render.normal  = {
                           if (!param.donotshow && param.options && param.options.length) {
                               qtxt += '<ol class="math showabcde">'
                               for (var i=0, l= param.options.length; i<l; i++) {
-                                  var opt = param.options[i];
-                                  var enabled = (scored +attempt == i || (!scored && i == 0 && attempt==0)) ? '' : ' readonly="readonly"';
-                                  var klass = (enabled) ? ' readonly' : ' wantfocus';
-                                  var parts = opt.split('-||-');
-                                  var question = parts[0];
-                                  var guidance = parts[1] || '';
-                                  var unit = parts[2] || '';
-                                  var answer = chosen[i] || '';
-                                  var ff = fasit[i] || '';
-                                  var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
-                                  var chk = (checkmarks[i] != undefined && checkmarks[i]!='-') ? ' class="heck' + checkmarks[i]+ '"' : '';
-                                  qtxt += '<li><div class="guide">' + guidance + '</div>'
-                                  + '<dl><dt>'+question+'</dt><dd><span class="abcde fillin'+klass+'"><input '
-                                  + chk+ enabled+' type="text" value="'+answer+'"></span><span class="units">'+unit+'</span>'+ffy+'</dd></dl></li>';
+                                var klasslist = [];
+                                var subus = '', subclass='';
+                                var opt = param.options[i];
+                                var enabled = (scored +attempt == i || (!scored && i == 0 && attempt==0)) ? '' : ' readonly="readonly"';
+                                var klass = (enabled) ? ' readonly' : ' wantfocus';
+                                var parts = opt.split('-||-');
+                                var question = parts[0];
+                                var guidance = parts[1] || '';
+                                var unit = parts[2] || '';
+                                var answer = chosen[i] || '';
+                                var ff = fasit[i] || '';
+                                if (subtype && subtype[i] != undefined) {
+                                      klasslist.push('validate');    // add class to check input valid while typing
+                                      var su =""+ subtype[i];
+                                      subus = ' subtype="'+su+'" ';
+                                      su = su.replace(/[347]/,"0");    // restricted to [-+eE0-9]
+                                      su = su.replace(/[1256]/,"1");   // any input allowed
+                                      subclass = ' valid'+su;
+                                }
+                                var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
+                                //var chk = (checkmarks[i] != undefined && checkmarks[i]!='-') ? ' class="heck' + checkmarks[i]+ '"' : '';
+                                if (checkmarks[i] != undefined && checkmarks[i]!='-') klasslist.push('heck' + checkmarks[i]);
+                                var chk = klasslist.length ? 'class="'+klasslist.join(' ')+'"' : '';
+                                qtxt += '<li><div class="guide">' + guidance + '</div>'
+                                  + '<dl><dt>'+question+'</dt><dd><span class="abcde fillin'+klass+subclass+'"><input '
+                                  + chk+ enabled+subus+' type="text" value="'+answer+'"></span><span class="units">'+unit+'</span>'+ffy+'</dd></dl></li>';
+                                  //ret = '<span '+subclass+'><input '+chk+subus+' type="text" value="'+vv+'" /></span>'+ffy;
                               }
                               qtxt += '</ol>' + grademe;
                               decoration();
@@ -3182,16 +3214,16 @@ wb.render.normal  = {
                           }
                           break;
                       case 'numeric':
+                          if (qu.param.subtype && qu.param.subtype.length) {
+                            subtype = qu.param.subtype;
+                          }
+                          // TODO intentional drop thru to fillin
                       case 'fillin':
                           if (qu.feedback && qu.feedback != 'none' ) {
                             if (/^[0-9-]+$/.test(qu.feedback)) {
                               checkmarks = qu.feedback.split('');
                               qu.feedback = '';
                             }
-                          }
-                          var subtype;
-                          if (qu.param.subtype && qu.param.subtype.length) {
-                            subtype = qu.param.subtype;
                           }
                           var iid = 0;
                           // special case for numeric match anytext [[anytext]] - use textarea instead of <input text>
@@ -3217,7 +3249,8 @@ wb.render.normal  = {
                                   klasslist.push('validate');    // add class to check input valid while typing
                                   var su =""+ subtype[iid];
                                   subus = ' subtype="'+su+'" ';
-                                  su = su.replace(/[347]/,"0");   // these are treated equally
+                                  su = su.replace(/[347]/,"0");    // restricted to [-+eE0-9]
+                                  su = su.replace(/[1256]/,"1");   // any input allowed
                                   subclass = ' class="valid'+su+'" ';
                                 }
                                 var ff = fasit[iid] || '';
@@ -3225,7 +3258,6 @@ wb.render.normal  = {
                                   ret = '<textarea>'+vv+'</textarea>';
                                   ret += '<div class="fasit gui">'+unescape(ff)+'</div>';
                                 } else {
-                                  //var chk = (checkmarks[iid] != undefined && checkmarks[iid]!='-') ? 'class="heck' + checkmarks[iid]+ '"' : '';
                                   if (checkmarks[iid] != undefined && checkmarks[iid]!='-') klasslist.push('heck' + checkmarks[iid]);
                                   var chk = klasslist.length ? 'class="'+klasslist.join(' ')+'"' : '';
                                   var ffy = (ff) ? '<span class="fasit gui">'+unescape(ff)+'</span>' : '';
