@@ -1035,23 +1035,31 @@ span.qtype {
     position:relative;
 }
 
-span.valid0 {
+span.valid0 , span.valid1 {
     position:relative;
 }
-span.valid0 input {
+span.valid0 input,span.valid0 input {
   margin:4px;
 }
-span.valid0:hover:after {
+span.valid0:hover:after ,
+span.valid1:hover:after {
+  text-align:center;
   content:"1.23";
   display:block;
   padding:2px;
+  padding-left:0px;
   position:absolute;
+  border:solid rgba(150,150,200,0.5) 1px;
   background:#dfd;
-  right:-65px;
+  right:-69px;
   top:-2px;
   width:62px;
   -webkit-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
   -moz-box-shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+}
+span.valid1:hover:after {
+  content:"2x+3/4";
+  background:#cfb;
 }
 
 div.studnum {
