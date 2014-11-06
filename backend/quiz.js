@@ -236,7 +236,6 @@ var subtypes = { "eva:":1,"reg:":2,"nor:":3,"rng:":4,"zro:":5,"sym:":6,"lis:":7}
 function getSubtypes(fasit) {
   // pick out subtypes for each element in fasit;
   //
-  console.log(subtypes,fasit);
   var subus = [];
   for (var i=0,l=fasit.length; i < l; i++) {
       var e = unescape(fasit[i]).substr(0,4);
@@ -1335,14 +1334,15 @@ var qz = {
            case 'sequence':
             qobj.options = _.shuffle(qobj.options); /// TODO  this is where options are shuffled
             break;
-           case 'textarea':
-           case 'fillin':
            case 'numeric':
             // we want to pick out the subtype for each answer
             // a numeric with [[eva:2/3]] [[0.667:0.005]] should have some extra
             // info/js to help user fill in correct values.
             // So we avoid users trying to answer 2/3 when answer is not evalueated
             qobj.subtype = getSubtypes(qobj.fasit);
+            break;
+           case 'textarea':
+           case 'fillin':
            case 'textmark':
            case 'diff':
            case 'js':
