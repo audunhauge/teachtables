@@ -10,6 +10,17 @@ describe('Array', function(){
 })
 */
 
+// question database mockup used for testing
+var question = {};
+question[123]={ qtext:'{"display":"drop dead #a","code":"a=3","pycode":"","hints":""}',qtype:"info",id:123 };
+question[124]={ qtext:'{"display":"sort em [[1]] [[2]] [[3]] [[4]]","fasit":["1","2","3","4"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:124 };
+question[125]={ qtext:'{"display":"sort em [[1]] ","fasit":["1"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:125 };
+question[126]={ qtext:'{"display":"a decimal [[0.667:0.01]], fraction [[eva:2/3]], regular [[reg:2+]], normal [[nor:10,1]], range [[rng:10,20]], expression has zero [[zro:x+2,0.001]],'
+			     + ' symbolic [[sym:2a+4b]], list [[lis:1,2,4,7]]"'
+			     + ',"fasit":["0.667:0.01","eva:2/3","reg:2+","nor:10,1","rng:10,20","zro:x+2,0.001","sym:2a+4b","lis:1,2,4,7"]'
+			     + ',"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
+question[127]={ qtext:'{"display":"simple number [[12]] and a fraction [[eva:2/3]] ","fasit":["12","eva:2/3" ],"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:127 };
+
 var expect = require("chai").expect;
 
 var julian = require("../backend/julian.js");
@@ -64,6 +75,7 @@ describe("Quiz", function(){
   });
   describe("#qz", function(){
       var qz = quiz.__get__("qz");
+      qz.question = question;        // attach to test base for questions
       describe("#grade", function(){
         it("should give full credit for sequence with newline and comma", function(done){
           qz.grade({ attemptcost:0,fiidback:'none',hintcost:0} ,
@@ -276,17 +288,12 @@ describe("Quiz", function(){
           });
         });
       });
+      
+      // testing generateParams
       describe("#generateParams", function(){
         // setting up for generateParam
         quiz.__set__("db" ,{ quizbase:{}});
         qz.containers = { 11:{ 314:{ }  } };  // the container
-        qz.question[123]={ qtext:'{"display":"drop dead #a","code":"a=3","pycode":"","hints":""}',qtype:"info",id:123 };
-        qz.question[124]={ qtext:'{"display":"sort em [[1]] [[2]] [[3]] [[4]]","fasit":["1","2","3","4"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:124 };
-        qz.question[125]={ qtext:'{"display":"sort em [[1]] ","fasit":["1"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:125 };
-        qz.question[126]={ qtext:'{"display":"a decimal [[0.667:0.01]], fraction [[eva:2/3]], regular [[reg:2+]], normal [[nor:10,1]], range [[rng:10,20]], expression has zero [[zro:x+2,0.001]],'
-                                     + ' symbolic [[sym:2a+4b]], list [[lis:1,2,4,7]]"'
-                                     + ',"fasit":["0.667:0.01","eva:2/3","reg:2+","nor:10,1","rng:10,20","zro:x+2,0.001","sym:2a+4b","lis:1,2,4,7"]'
-                                     + ',"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
         it("should take a raw question and expand macros", function(done){
           qz.generateParams({id:123,qtype:"info"},314,0,1,false,function(qobj) {
               expect(qobj).to.have.property("display","drop%20dead%203");
@@ -312,6 +319,8 @@ describe("Quiz", function(){
           });
         });
       });
+
+      // testing getQobj
       describe("#getQobj", function(){
         it("should parse info", function(){
           var result = qz.getQobj('{"display":"some stuff","code":"","pycode":"","hints":"","daze":""}',"info",123,0);

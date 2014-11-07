@@ -133,6 +133,9 @@ app.configure(function(){
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(base+'stat',express.static(path.join(__dirname, 'public')));
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use(function(req, res) {
+     res.redirect( base+'stat/pic/anonym.gif');
+  });
 });
 
 app.configure('development', function(){
