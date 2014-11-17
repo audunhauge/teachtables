@@ -13,13 +13,14 @@ describe('Array', function(){
 // question database mockup used for testing
 var question = {};
 question[123]={ qtext:'{"display":"drop dead #a","code":"a=3","pycode":"","hints":""}',qtype:"info",id:123 };
-question[124]={ qtext:'{"display":"sort em [[1]] [[2]] [[3]] [[4]]","fasit":["1","2","3","4"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:124 };
-question[125]={ qtext:'{"display":"sort em [[1]] ","fasit":["1"],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:125 };
+question[124]={ qtext:'{"display":"sort em [[1]] [[2]] [[3]] [[4]]","fasit":[],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:124 };
+question[125]={ qtext:'{"display":"sort em [[1]] ","fasit":[],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:125 };
 question[126]={ qtext:'{"display":"a decimal [[0.667:0.01]], fraction [[eva:2/3]], regular [[reg:2+]], normal [[nor:10,1]], range [[rng:10,20]], expression has zero [[zro:x+2,0.001]],'
-			     + ' symbolic [[sym:2a+4b]], list [[lis:1,2,4,7]]"'
-			     + ',"fasit":["0.667:0.01","eva:2/3","reg:2+","nor:10,1","rng:10,20","zro:x+2,0.001","sym:2a+4b","lis:1,2,4,7"]'
-			     + ',"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
-question[127]={ qtext:'{"display":"simple number [[12]] and a fraction [[eva:2/3]] ","fasit":["12","eva:2/3" ],"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:127 };
+       + ' symbolic [[sym:2a+4b]], list [[lis:1,2,4,7]]"'
+           + ',"fasit":[]'
+           + ',"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
+question[127]={ qtext:'{"display":"simple number [[#{ar[0]}]] and a missing value [[#{ar[12]}]] ","fasit":[],'
+     + '"code":"con.ar=[1,2,3]","pycode":"","hints":"","daze":""}',qtype:"numeric",id:127 };
 
 var expect = require("chai").expect;
 
@@ -288,7 +289,7 @@ describe("Quiz", function(){
           });
         });
       });
-      
+
       // testing generateParams
       describe("#generateParams", function(){
         // setting up for generateParam
@@ -297,12 +298,6 @@ describe("Quiz", function(){
         it("should take a raw question and expand macros", function(done){
           qz.generateParams({id:123,qtype:"info"},314,0,1,false,function(qobj) {
               expect(qobj).to.have.property("display","drop%20dead%203");
-              done();
-          });
-        });
-        it("should get subtypes for numeric", function(done){
-          qz.generateParams({id:126,qtype:"numeric"},314,0,1,false,function(qobj) {
-              expect(qobj.subtype).to.deep.equal([0,1,2,3,4,5,6,7]);
               done();
           });
         });
@@ -315,6 +310,18 @@ describe("Quiz", function(){
         it("should be unable to shuffle choices for dragdrop with one option", function(done){
           qz.generateParams({id:125,qtype:"dragdrop"},314,0,1,false,function(qobj) {
               expect(qobj.fasit[0]).to.equal(qobj.options[0]);
+              done();
+          });
+        });
+        it("should get subtypes for numeric", function(done){
+          qz.generateParams({id:126,qtype:"numeric"},314,0,1,false,function(qobj) {
+              expect(qobj.subtype).to.deep.equal([0,1,2,3,4,5,6,7]);
+              done();
+          });
+        });
+        it("substitution with arrays should work - #{ar[1]}", function(done){
+          qz.generateParams({id:127,qtype:"numeric"},314,0,1,false,function(qobj) {
+              expect(qobj.fasit).to.deep.equal(['1','undefined']);
               done();
           });
         });

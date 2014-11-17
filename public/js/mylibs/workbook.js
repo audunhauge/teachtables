@@ -1352,7 +1352,7 @@ function renderPage() {
                         if (missing && answered.length < missing ) {  // missing only set for numeric,fillin questions
                             // not all elements answered
                             if (youSure[qid] == undefined) {
-                                youSure[qid] = 1;
+                                youSure[qid] = 1;       // page reload clears this cache
                                 alert("Fill inn answers in all fields before grading");
                                 return;
                             }
@@ -2412,11 +2412,28 @@ function eedit(myid,q,target) {
            break;
         case 'multiple':
            var optlist = drawOpts(q.options,q.fasit);
-           s += '<h3>Alternativer</h3>'
+           var rikt = dialog.contopt.rikt || '1';
+           var feil = dialog.contopt.feil || '1';
+           var plukk = (dialog.contopt.plukk != undefined) ? dialog.contopt.plukk : 0;
+           var elements = {
+                 defaults:{  type:"text", klass:"copts num4" }
+               , elements:{
+                    plukk:       {  type:"yesno", value:plukk }
+                   ,rikt :       { value:rikt, depend:{plukk:1} }
+                   ,feil :       { value:feil, depend:{plukk:1} }
+                 }
+               };
+           var res = gui(elements);
+           s += '<span id="inputdiv">'
+              + ' <span title="Plukk ut tilfeldig riktig/gale alternativ. Du bør ha mange av hver (5++)">Plukk {plukk}</span>'
+              + ' <span title="Antall riktige">Riktige {rikt}</span>'
+              + ' <span title="Antall feil">Feil {feil}</span> </span>'
+           + '<h3>Alternativer</h3>'
            + '<table id="opts" class="opts">'
            + optlist
            + '</table>'
            + '</div><div class="button" id="addopt">+</div>'
+           s = s.supplant(res);
            break;
         case 'sequence':
         case 'dragdrop':

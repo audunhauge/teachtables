@@ -1043,6 +1043,7 @@ span.valid0 input,span.valid1 input {
 }
 span.valid0:hover:after ,
 span.valid1:hover:after {
+  z-index:99;
   text-align:center;
   content:"1.2";
   display:block;
@@ -1679,7 +1680,7 @@ div.catt {
 }
 
 
-#inputdiv select {
+div#inputdiv select {
   float:right;
   margin-right:12em;
 }

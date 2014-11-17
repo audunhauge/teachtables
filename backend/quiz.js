@@ -1361,8 +1361,21 @@ var qz = {
             break;
            case 'multiple':
             if (qobj.options && qobj.options.length) {
+               if (qobj.contopt && qobj.contopt.plukk == '1') {
+                   // pick some tru and some false values from options
+                   var truish = qobj.options.filter(function(e,i){ return qobj.fasit[i]=='1';});
+                   var falsy  = qobj.options.filter(function(e,i){ return qobj.fasit[i]=='0';});
+                   if (truish.length > +qobj.contopt.rikt && falsy.length > +qobj.contopt.feil) {
+                       // sufficient options to pick some tru and some falsy
+                       truish = (_.shuffle(truish)).slice(0,+qobj.contopt.rikt);
+                       falsy = (_.shuffle(falsy)).slice(0,+qobj.contopt.feil);
+                       console.log("IN genPara:",qobj,truish,falsy);
+                       var nufasit = (truish.map(function(e) { return '1';})).concat(falsy.map(function(e) { return '0';}));
+                       qobj.fasit = nufasit;
+                       qobj.options = truish.concat(falsy);
+                   }
+               }
                qobj.optorder = qz.perturbe(qobj.options.length);
-               //qobj.fasit = '';   // don't return fasit
                qobj.options = qz.reorder(qobj.options,qobj.optorder);
             }
             break;
