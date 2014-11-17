@@ -165,7 +165,7 @@ exports.editquest = function(user,query,callback) {
           idd++;
         }
         sql += ' where id=$1 and teachid=$2';
-        console.log(sql,params);
+        //console.log(sql,params);
         client.query( sql, params,
           after(function(results) {
             delete quiz.question[qid];  // remove it from cache
@@ -278,6 +278,7 @@ exports.gradeuseranswer = function(user,query,callback) {
                     var qua = results.rows[0];
                     var param = parseJSON(qua.param);
                     //var nugrade = quiz.grade(myquiz,myquest,ua,param);
+                    //console.log("Which to use -- ",myquest,qua);
                     quiz.grade(contopt,myquiz,myquest,ua,param,qua.attemptnum,qua.hintcount,user,iid,qua.id,function(nugrade,feedback,completed,newua,upskip) {
                       // completed will be 1 if this is a question with complete=1 in code section
                       //   if so then all other questions in this container will be updated to complete (score=1,attemptnum=1)

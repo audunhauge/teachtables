@@ -21,6 +21,9 @@ question[126]={ qtext:'{"display":"a decimal [[0.667:0.01]], fraction [[eva:2/3]
            + ',"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
 question[127]={ qtext:'{"display":"simple number [[#{ar[0]}]] and a missing value [[#{ar[12]}]] ","fasit":[],'
      + '"code":"con.ar=[1,2,3]","pycode":"","hints":"","daze":""}',qtype:"numeric",id:127 };
+question[128]={ qtext:'{"display":"bokstaver","options":["a","1","2","3","4","5","6","7","8","9","10"],'
+                    + '"fasit":["1","0","0","0","0","0","0","0","0","0","0"],'
+                    + '"code":"","pycode":"","hints":"","contopt":{"plukk":"1","rikt":"1","feil":"2"}}',qtype:"multiple",id:128 };
 
 var expect = require("chai").expect;
 
@@ -322,6 +325,13 @@ describe("Quiz", function(){
         it("substitution with arrays should work - #{ar[1]}", function(done){
           qz.generateParams({id:127,qtype:"numeric"},314,0,1,false,function(qobj) {
               expect(qobj.fasit).to.deep.equal(['1','undefined']);
+              done();
+          });
+        });
+        it("multiple with pick correct/incorrect should work", function(done){
+          qz.generateParams({id:128,qtype:"multiple"},314,0,1,false,function(qobj) {
+              expect(qobj.fasit).to.have.length(3);
+              expect(qobj.options).to.contain('a');
               done();
           });
         });

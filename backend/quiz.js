@@ -1365,15 +1365,13 @@ var qz = {
                    // pick some tru and some false values from options
                    var truish = qobj.options.filter(function(e,i){ return qobj.fasit[i]=='1';});
                    var falsy  = qobj.options.filter(function(e,i){ return qobj.fasit[i]=='0';});
-                   if (truish.length > +qobj.contopt.rikt && falsy.length > +qobj.contopt.feil) {
-                       // sufficient options to pick some tru and some falsy
-                       truish = (_.shuffle(truish)).slice(0,+qobj.contopt.rikt);
-                       falsy = (_.shuffle(falsy)).slice(0,+qobj.contopt.feil);
-                       console.log("IN genPara:",qobj,truish,falsy);
-                       var nufasit = (truish.map(function(e) { return '1';})).concat(falsy.map(function(e) { return '0';}));
-                       qobj.fasit = nufasit;
-                       qobj.options = truish.concat(falsy);
-                   }
+                   var rikt = Math.min(truish.length,+qz.macro(qobj.contopt.rikt));   // expand macroes in these options
+                   var feil = Math.min(falsy.length,+qz.macro(qobj.contopt.feil));    // can thus roll dice for number of correct/incorrect options
+                   truish = (_.shuffle(truish)).slice(0,rikt);
+                   falsy = (_.shuffle(falsy)).slice(0,feil);
+                   var nufasit = (truish.map(function(e) { return '1';})).concat(falsy.map(function(e) { return '0';}));
+                   qobj.fasit = nufasit;
+                   qobj.options = truish.concat(falsy);
                }
                qobj.optorder = qz.perturbe(qobj.options.length);
                qobj.options = qz.reorder(qobj.options,qobj.optorder);
@@ -1546,7 +1544,7 @@ var qz = {
                  qgrade = Math.max(0,qgrade);
                  break;
              case 'abcde':
-                 console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);
+                 //console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);
                  //var answers = param.abcde;
                  var fasit = param.fasit;
                  var tot = 0;      // total number of options
@@ -1614,7 +1612,6 @@ var qz = {
                  break;
              case 'textarea':
              case 'fillin':
-                 //var fasit = qobj.fasit;
                  var fasit = param.fasit;
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
@@ -1918,7 +1915,6 @@ var qz = {
              case 'textmark':
              case 'info':
              case 'dragdrop':
-                 //var fasit = qobj.fasit;
                  var fasit = param.fasit;
                  var tot = 0;      // total number of options
                  var ucorr = 0;    // user correct choices
@@ -1949,8 +1945,7 @@ var qz = {
                  qgrade = Math.max(0,qgrade);
                break;
              case 'multiple':
-                 //console.log(qobj,useranswer);
-                 var fasit = qz.reorder(qobj.fasit,optorder);
+                 var fasit = qz.reorder(param.fasit,optorder);
                  var tot = 0;      // total number of options
                  var totfasit = 0; // total of choices that are true
                  var ucorr = 0;    // user correct choices
