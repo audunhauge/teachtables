@@ -1346,9 +1346,14 @@ function renderPage() {
                         var elm = myid.substr(5).split('_');  // fetch questionid and instance id (is equal to index in display-list)
                         var qid = elm[0], iid = elm[1];
                         var rr = wb.getUserAnswer(qid,iid,myid,renderq.qrender);
-                        var ua =rr[0], missing = rr[1];
+                        var ua =rr[0], missing = rr[1], jserror=rr[2];
                         var answered = _.filter(ua,function(e) { return e !== ''});
                         //console.log("USERANSWER=",ua,answered);
+                        if (jserror != '') {
+                            // the questiontype is js, the entered javascript has errors
+                            alert(jserror);
+                            return;
+                        }
                         if (missing && answered.length < missing ) {  // missing only set for numeric,fillin questions
                             // not all elements answered
                             if (youSure[qid] == undefined) {
@@ -2712,17 +2717,11 @@ function dropquestion(morituri) {
 }
 
 
-/*    The code below belongs in workbook/normal.js
- *        it is placed here only while debugging
- *        so that errors can show line number
- *        and chrome can step the code
- *
- *
- */
 
 wb.getUserAnswer = function(qid,iid,myid,showlist) {
   // parses out user answer for a given question
   var missing = 0;
+  var jserror = '';  // used to check javascript for errors
   var qu = showlist[iid];
   var ua = {};
   var quii = myid.substr(5);  // drop 'quest' from 'quest' + qid_iid
@@ -2745,10 +2744,11 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
           var opti = $j(ch[i]).val();
           var optii = (opti.indexOf("return") < 0) ? 'return '+opti : opti;
           try {
-            usfu = new Function("a","b","c"," { "+optii+"; }");
+            usfu = new Function("a","b","c","d","e","f"," { "+optii+"; }");
           } catch(err) {
-              opti += " "+err;
+              opti += " \n\n"+err;
               usfu = function(a,b,c,d,e,f) { return 0;};
+              jserror = "SYNTAX: "+err;
           }
           var myopt = datalist[i].split(";");
           var resp = [];
@@ -2757,7 +2757,8 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
                var para = JSON.parse(myopt[jik]);
                resp.push(JSON.stringify(usfu.apply(null,para)));
              } catch(err) {
-               console.log("Parse err ",err);
+               //console.log("Parse err ",err);
+               jserror = "EVALUATE: "+err;
                break;
              }
           }
@@ -2802,7 +2803,7 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
         }
         break;
   }
-  return [ua,missing];
+  return [ua,missing,jserror];
 }
 
 // check question list for similar questions and warn if seeming duplicates
