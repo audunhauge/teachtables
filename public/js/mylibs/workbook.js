@@ -2427,13 +2427,13 @@ function eedit(myid,q,target) {
            s += '<span id="inputdiv">'
               + ' <span title="Plukk ut tilfeldig riktig/gale alternativ. Du bør ha mange av hver (5++)">Plukk {plukk}</span>'
               + ' <span title="Antall riktige">Riktige {rikt}</span>'
-              + ' <span title="Antall feil">Feil {feil}</span> </span>'
-           + '<h3>Alternativer</h3>'
+              + ' <span title="Antall feil">Feil {feil}</span> </span>';
+           s = s.supplant(res);           // supplant before we paste on options - they may contain macros #{varname}
+           s += '<h3>Alternativer</h3>'
            + '<table id="opts" class="opts">'
            + optlist
            + '</table>'
            + '</div><div class="button" id="addopt">+</div>'
-           s = s.supplant(res);
            break;
         case 'sequence':
         case 'dragdrop':
