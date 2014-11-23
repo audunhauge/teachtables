@@ -233,16 +233,26 @@ function stripslashes(str) {
 }
 
 var subtypes = { "eva:":1,"reg:":2,"nor:":3,"rng:":4,"zro:":5,"sym:":6,"lis:":7};
+// special codes [[any]] and [[anytext]] are subtype 8 - write anything
 function getSubtypes(fasit) {
   // pick out subtypes for each element in fasit;
   //
-  var subus = [];
+  var subus = [], m;
   for (var i=0,l=fasit.length; i < l; i++) {
-      var e = unescape(fasit[i]).substr(0,4);
-      if (subtypes[e]) {
-        subus[i] = subtypes[e];
-      } else {
+      var e = unescape(fasit[i])
+      if ( e.match(/^[-0-9.+:]+$/) ) {
+        // fasit is a pure number, or number with tolerance 3.4:0.5
         subus[i] = 0;
+      } else if (e === "any" || e === "anytext" ) {
+        subus[i] = 8;
+      } else {
+        e = e.substr(0,4);
+        if (subtypes[e]) {
+	  subus[i] = subtypes[e];
+        } else {
+          subus[i] = 9;   // most likely just a word like [[one]]
+          // thus allow all keys on input
+        }
       }
   }
   return subus;
@@ -310,6 +320,7 @@ var qz = {
        case 'diff':
        case 'js':
        case 'numeric':
+       case 'jscore':
        case 'fillin':
          draggers = [];
          did = 0;
@@ -1313,6 +1324,7 @@ var qz = {
        if (q.qtype == 'dragdrop'
            || q.qtype == 'sequence'
            || q.qtype == 'numeric'
+           || q.qtype == 'jscore'
            || q.qtype == 'diff'
            || q.qtype == 'js'
            || q.qtype == 'fillin' ) {
@@ -1341,6 +1353,12 @@ var qz = {
             // So we avoid users trying to answer 2/3 when answer is not evalueated
             qobj.subtype = getSubtypes(qobj.fasit);
             break;
+           case 'jscore':
+               // expand any macroes in score function
+               if (qobj.contopt && qobj.contopt.jscore) {
+                 qobj.contopt.jscore = qz.macro(qobj.contopt.jscore);
+               }
+               break;
            case 'textarea':
            case 'fillin':
            case 'textmark':
@@ -1542,6 +1560,53 @@ var qz = {
                    qgrade = (ucorr - uerr/6) / tot;
                  }
                  qgrade = Math.max(0,qgrade);
+                 break;
+             case 'jscore':
+                 // create fields for user to fill like
+                 // ** for function f(x) = axx+bx+c enter values for a,b,c
+                 // **   a = [[num:a]],  b = [[num:c]],  c = [[num:c]]
+                 // ** Enter values for roots of f(x)  -- there MUST be two
+                 // ** if none or singular then score == 0
+                 // ** r1 = [[num:r1]] , r2 = [[num:r2]]
+                 // scorefunk defined as
+                 //    var f=function(x) { return a*x*x+b*x+c };
+                 //    if (r1 != r2 && f(r1) == f(r2) && f(r1) == 0 )  return 1;
+                 //    return 0;
+                 qgrade = 0;
+                 var fasit = param.fasit;
+                 var envir = { };   // empty environment
+                 var funs = [];     // empty list of functions
+                 // pick out any normal vars - numeric or text
+                 for (var ii=0,l=fasit.length; ii < l; ii++) {
+                   var uatxt =  ua[ii];
+                   var ff = (unescape(fasit[ii])).split(":");
+                   var typ = ff[0], vname = ff[1];   // type and name of variable
+                   var exp = normalizeFunction(uatxt,0);
+                   if (typ == "fun") {
+                      funs.push({exp:exp,vname:vname});
+                   } else envir[vname] = (typ == "num") ? +uatxt : uatxt;
+                 }
+                 // pick out any userdefined functions
+                 for (var ii=0,l=funs.length; ii < l; ii++) {
+                       var exp = funs[ii].exp , vname = funs[ii].vname;
+                       try {
+                         //var fu = new Function("x",' with(Math) { return ' +exp+'; }' );
+                         console.log("FUU=",' var envir = '+JSON.stringify(envir)+'; with(envir) { return ' +exp+'; }' );
+                         var fu = new Function("x",' var envir = '+JSON.stringify(envir)+'; with(envir) { return ' +exp+'; }' );
+                         envir[vname] = fu;
+                       } catch(err) {
+                         console.log("Userfunction bad",err,uatxt);
+                         envir[vname] = 0;
+                       }
+                 }
+                 try {
+                   var jscore = new Function("e","with(e) { " + param.contopt.jscore + "; }");
+                   qgrade = jscore(envir);
+                 } catch(err) {
+                     console.log("JSCORE function bad",err,param.contopt.jscore);
+                     qgrade = 0;
+                 }
+                 console.log("JSCORE:",param,ua,envir,jscore,qgrade);
                  break;
              case 'abcde':
                  //console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);

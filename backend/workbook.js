@@ -722,6 +722,7 @@ exports.getquestion = function(user,query,callback) {
               || qu.qtype == 'fillin'
               || qu.qtype == 'diff'
               || qu.qtype == 'js'
+              || qu.qtype == 'jscore'
               || qu.qtype == 'numeric'
               || qu.qtype == 'textarea') {
               // display is what we show the student

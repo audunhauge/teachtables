@@ -2099,6 +2099,13 @@ function eedit(myid,q,target) {
                , abcde:'Connected numeric subquestions'
                , textarea:'Free text'
                , numeric:'Numeric answers'
+               , jscore:'Answers scored by script'
+                  // fields may be [[num:x0]] [[num:x1]] [[fun:f]] [[txt:name]]
+                  // this specisfies type and name for user inputs
+                  // scoring is done by running score function stored in 
+                  // con.score (javascript function returning score)
+                  // this is coded same way as js for other questions
+                  // only must define con.score as a function returning [0,1]
                , fillin:'Textbox'
                , random:'Random pick based on tag'
                , diff:'Difference'
@@ -2115,7 +2122,7 @@ function eedit(myid,q,target) {
      hardy = hard;  // cant set hardness of a question if more than 3 studs have scored it
    }
    var qdescript = descript[q.qtype] || q.qtype;
-   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,js,dragdrop,sequence,fillin,numeric,abcde,info,textarea,random,container,quiz".split(','));
+   var selectype = makeSelect('qtype',q.qtype,"multiple,diff,js,dragdrop,sequence,fillin,numeric,jscore,abcde,info,textarea,random,container,quiz".split(','));
    var head = '<h1 id="heading" class="wbhead">Question editor</h1>' ;
         head += '<h3>Question '+ q.id + ' ' + qdescript + '</h3>' ;
    var variants = editVariants(q);
@@ -2331,7 +2338,7 @@ function eedit(myid,q,target) {
             var inp = containeropts[coi];
             contopt[inp.name] = inp.value;
             if (inp.type == "textarea") {
-                 contopt[inp.name] = $j('#intro').val();
+                 contopt[inp.name] = inp.value;
             }
             if (inp.type == "checkbox") {
                  contopt[inp.name] = (inp.checked == true) ? "1":"0";
@@ -2415,6 +2422,21 @@ function eedit(myid,q,target) {
            + '</table>'
            + '</div><div class="button" id="addopt">+</div>'
            break;
+        case 'jscore':
+           var jscore = dialog.contopt.jscore || 'return 1';   // default scoring functions passes any response
+           var envir = dialog.contopt.envir || 'math';   // default scoring functions passes any response
+           var elements = {
+                 elements:{
+                      jscore:     {  value:jscore, type:"textarea", klass:"longtext copts" }
+                   ,  envir:      {  type:"select", klass:"copts",  value:envir, options:[{ value:"math"},{ label:"user",value:"envir"} ] }
+                 }
+               };
+           var res = gui(elements);
+           s += '<span id="inputdiv">'
+              + ' <span title="Matte eller userdata">EvalEnvir {envir}</span><br>'
+              + ' <span title="Funksjon for å score svarene">Scorefunk <br>{jscore}</span></span>';
+           s = s.supplant(res);           
+           break;
         case 'multiple':
            var optlist = drawOpts(q.options,q.fasit);
            var rikt = dialog.contopt.rikt || '1';
@@ -2456,7 +2478,7 @@ function eedit(myid,q,target) {
                  defaults:{  type:"text", klass:"copts" }
                , elements:{
                      seltype:       {  type:"select", klass:"copts",  value:seltype,
-                                      options:[{ value:"all"},{ value:"multiple"},{ value:"numeric"},{ value:"fillin"},{ value:"dragdrop"} ] }
+                                      options:[{ value:"all"},{ value:"multiple"},{ value:"numeric"},{ value:"jscore"},{ value:"fillin"},{ value:"dragdrop"} ] }
                    , level:       {  type:"select", klass:"copts",  value:level,
                                       options:[{ value:"any"},{ value:"darwin"},{ value:"easy"},{ value:"medium"},{ value:"hard"} ] }
                    , tags:         { value:usetags }
@@ -2575,6 +2597,7 @@ function eedit(myid,q,target) {
            s = s.supplant(res);
            break;
         case 'numeric':
+        case 'jscore':
         case 'info':
         case 'diff':
         case 'js':
@@ -2767,6 +2790,7 @@ wb.getUserAnswer = function(qid,iid,myid,showlist) {
         break;
       case 'fillin':
       case 'numeric':
+      case 'jscore':
       case 'abcde':
       case 'diff':
       case 'textarea':
@@ -3236,6 +3260,7 @@ wb.render.normal  = {
                             subtype = qu.param.subtype;
                           }
                           // TODO intentional drop thru to fillin
+                      case 'jscore':
                       case 'fillin':
                           if (qu.feedback && qu.feedback != 'none' ) {
                             if (/^[0-9-]+$/.test(qu.feedback)) {

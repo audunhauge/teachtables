@@ -16,7 +16,7 @@ question[123]={ qtext:'{"display":"drop dead #a","code":"a=3","pycode":"","hints
 question[124]={ qtext:'{"display":"sort em [[1]] [[2]] [[3]] [[4]]","fasit":[],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:124 };
 question[125]={ qtext:'{"display":"sort em [[1]] ","fasit":[],"code":"","pycode":"","hints":"","daze":"ja"}',qtype:"dragdrop",id:125 };
 question[126]={ qtext:'{"display":"a decimal [[0.667:0.01]], fraction [[eva:2/3]], regular [[reg:2+]], normal [[nor:10,1]], range [[rng:10,20]], expression has zero [[zro:x+2,0.001]],'
-       + ' symbolic [[sym:2a+4b]], list [[lis:1,2,4,7]]"'
+       + ' symbolic [[sym:2a+4b]], list [[lis:1,2,4,7]] any [[any]] and anytext [[anytext]]"'
            + ',"fasit":[]'
            + ',"code":"","pycode":"","hints":"","daze":""}',qtype:"numeric",id:126 };
 question[127]={ qtext:'{"display":"simple number [[#{ar[0]}]] and a missing value [[#{ar[12]}]] ","fasit":[],'
@@ -318,7 +318,7 @@ describe("Quiz", function(){
         });
         it("should get subtypes for numeric", function(done){
           qz.generateParams({id:126,qtype:"numeric"},314,0,1,false,function(qobj) {
-              expect(qobj.subtype).to.deep.equal([0,1,2,3,4,5,6,7]);
+              expect(qobj.subtype).to.deep.equal([0,1,2,3,4,5,6,7,8,8]);
               done();
           });
         });
