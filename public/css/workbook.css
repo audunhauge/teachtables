@@ -1035,6 +1035,14 @@ span.qtype {
     position:relative;
 }
 
+span.valid1 input {
+ background:#bdb !important;
+}
+
+span.valid0 input {
+ background:#ccd !important;
+}
+
 span.valid0 , span.valid1 {
     position:relative;
 }
@@ -1401,6 +1409,12 @@ input:disabled {
 
 .gradebutton.disabled {
   background:#999 !important;
+}
+
+textarea.longtext {
+    width:500px !important;
+    height:180px;
+    margin-left:50px;
 }
 
 textarea.smalltext {
