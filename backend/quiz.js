@@ -206,13 +206,13 @@ function normalizeFunction(txt,nosubst,ua) {
       fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });    // regexp confuses editor
       fu = fu.replace(/pow\(([^,]+),([^)]+)\)/gm,function(m,f,e) { return "pow("+f+";"+e+")"; })
       fu = fu.replace(/([0-9])\,([0-9])/gm,function(m,f,e) { return f+"."+e; });      // desimal 3,141 => 3.141
+      fu = fu.replace(/tt/gm,'t*t');
+      fu = fu.replace(/tt/gm,'t*t');
+      fu = fu.replace(/xx/gm,'x*x');
+      fu = fu.replace(/xx/gm,'x*x');
+      fu = fu.replace(/yy/gm,'y*y');
+      fu = fu.replace(/yy/gm,'y*y');
       fu = fu.replace(/;/gm,",");
-      fu = fu.replace(/tt/gm,'t*t');
-      fu = fu.replace(/tt/gm,'t*t');
-      fu = fu.replace(/xx/gm,'x*x');
-      fu = fu.replace(/xx/gm,'x*x');
-      fu = fu.replace(/yy/gm,'y*y');
-      fu = fu.replace(/yy/gm,'y*y');
       fu = fu.replace(/\)\(/gm,')*(').replace(/©/gm,'exp');
       //return 'with(Math) { return ' + fu + '; }';
       return fu;

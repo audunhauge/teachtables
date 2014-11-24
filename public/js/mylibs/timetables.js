@@ -507,14 +507,17 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   // add on a layer showing tests
   if (timeplan.plan.prover.tests) {
     for (var jjd in timeplan.plan.prover.tests) {
-      var tpp = timeplan.plan.prover.tests[jjd];
       var testday = jjd-jd;
       if (testday > 6) continue;
-      var sslo = tpp.value.split(',');
-      for (var ii =0; ii < sslo.length; ii++) {
-        var ssl = sslo[ii];
-        var ttop = lesson2slot(ssl-1);
-        v += '<div class="tttest" style="left:'+(60+130*testday)+'px; top:'+(24+ttop*3)+'px;"></div>';
+      var tpplist = timeplan.plan.prover.tests[jjd];
+      for (var jj=0; jj<tpplist.length; jj++) {
+        var tpp = tpplist[jj];
+        var sslo = tpp.value.split(',');
+        for (var ii =0; ii < sslo.length; ii++) {
+          var ssl = sslo[ii];
+          var ttop = lesson2slot(ssl-1);
+          v += '<div class="tttest" style="left:'+(60+130*testday)+'px; top:'+(24+ttop*3)+'px;"></div>';
+        }
       }
     }
   }
@@ -1346,7 +1349,10 @@ function add_tests(uid,jd) {
       var hd =  database.heldag[jd+day] || {} ;
       for (fag in hd) {
           if (faggrupper[fag]) {
-            prover.tests[jd+day] = { shortname:fag,value:hd[fag].value };
+            if (!prover.tests[jd+day]) {
+              prover.tests[jd+day] = [];
+            }
+            prover.tests[jd+day].push({ shortname:fag,value:hd[fag].value });
             for (var dd=0; dd < 9; dd++) {
               if (!prover[dd]) {    // make new entry
                   prover[dd] = {};
@@ -1364,7 +1370,10 @@ function add_tests(uid,jd) {
         var ccgg = coursename.split('_');
         var cc = ccgg[0], gg = ccgg[1];
         if (!(mysubj[coursename] || mysubj[cc] && mysubj[gg])) continue;
-        prover.tests[jd+day] = pro;      // used in show_next4 to mark days with tests
+        if (!prover.tests[jd+day]) {
+          prover.tests[jd+day] = [];
+        }
+        prover.tests[jd+day].push(pro);      // used in show_next4 to mark days with tests
         if (day > 4) continue;
         // build timetable for this week
         var elm = pro.value.split(',');  // get the slots for this test

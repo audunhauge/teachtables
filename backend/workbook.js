@@ -1196,11 +1196,6 @@ var renderq = exports.renderq = function(user,query,callback) {
                   // correct answer
                   ua.param.options = [];
                 }
-                // TODO point of work START
-                if (q.qtype == 'multiple' ) {
-                    //console.log("IMPROVED MULTIPLE ",ua.param);
-                }
-                // TODO point of work END
                 if (q.qtype == 'abcde') {
                   for (var oi in ua.param.abcde) {
                      var elm = ua.param.abcde[oi].split('-||-');
