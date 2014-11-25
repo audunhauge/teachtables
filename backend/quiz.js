@@ -206,8 +206,8 @@ function normalizeFunction(txt,nosubst,ua) {
       fu = fu.replace(/([0-9]+)([a-z(])/gm,function(m,f,e) { return f+'*'+e; });    // regexp confuses editor
       fu = fu.replace(/pow\(([^,]+),([^)]+)\)/gm,function(m,f,e) { return "pow("+f+";"+e+")"; })
       fu = fu.replace(/([0-9])\,([0-9])/gm,function(m,f,e) { return f+"."+e; });      // desimal 3,141 => 3.141
-      fu = fu.replace(/tt/gm,'t*t');
-      fu = fu.replace(/tt/gm,'t*t');
+      fu = fu.replace(/tt/gm,'t*t');     // tttttt -> t*tt*tt*t
+      fu = fu.replace(/tt/gm,'t*t');     // t*tt*tt*t  -> t*t*t*t*t*t
       fu = fu.replace(/xx/gm,'x*x');
       fu = fu.replace(/xx/gm,'x*x');
       fu = fu.replace(/yy/gm,'y*y');
@@ -248,7 +248,7 @@ function getSubtypes(fasit) {
       } else {
         e = e.substr(0,4);
         if (subtypes[e]) {
-	  subus[i] = subtypes[e];
+          subus[i] = subtypes[e];
         } else {
           subus[i] = 9;   // most likely just a word like [[one]]
           // thus allow all keys on input
@@ -259,12 +259,11 @@ function getSubtypes(fasit) {
 }
 
 var qz = {
-    quiz:{}         // cache for quiz info
- ,  question:{}     // cache for questions
- ,  contq:{}        // cache for container-questions
- ,  graphs:{}       // cache for graphs indexed by md5 hash of asymptote code
- //,  symb:{}         // symbols used by dynamic question
- ,  containers:{}   // symbols defined by container
+   quiz:{}         // cache for quiz info
+ , question:{}     // cache for questions
+ , contq:{}        // cache for container-questions
+ , graphs:{}       // cache for graphs indexed by md5 hash of asymptote code
+ , containers:{}   // symbols defined by container
  , perturbe:function(optionCount) {
      // gives back a shuffled string, 'abcd'.length == optionCount
      // 'abcd'  becomes 'dacb' etc - giving the order for options
@@ -1575,24 +1574,33 @@ var qz = {
                  qgrade = 0;
                  var fasit = param.fasit;
                  var envir = { };   // empty environment
+                 var vars = [];     // empty list of vars
                  var funs = [];     // empty list of functions
                  // pick out any normal vars - numeric or text
                  for (var ii=0,l=fasit.length; ii < l; ii++) {
                    var uatxt =  ua[ii];
                    var ff = (unescape(fasit[ii])).split(":");
                    var typ = ff[0], vname = ff[1];   // type and name of variable
-                   var exp = normalizeFunction(uatxt,0);
+                   var exp = uatxt;
                    if (typ == "fun") {
+                      exp = normalizeFunction(exp,0);
                       funs.push({exp:exp,vname:vname});
-                   } else envir[vname] = (typ == "num") ? +uatxt : uatxt;
+                   } else {
+                      envir[vname] = (typ == "num") ? +exp : exp;
+                      if (typ == 'num') {
+                        vars.push(vname+"="+exp);
+                      } else {
+                        vars.push(vname+'="'+exp+'"');
+                      }
+                   }
                  }
+                 var varlist = (vars.length) ? "var "+vars.join(",")+";" : '';
                  // pick out any userdefined functions
                  for (var ii=0,l=funs.length; ii < l; ii++) {
                        var exp = funs[ii].exp , vname = funs[ii].vname;
                        try {
-                         //var fu = new Function("x",' with(Math) { return ' +exp+'; }' );
-                         console.log("FUU=",' var envir = '+JSON.stringify(envir)+'; with(envir) { return ' +exp+'; }' );
-                         var fu = new Function("x",' var envir = '+JSON.stringify(envir)+'; with(envir) { return ' +exp+'; }' );
+                         console.log("FUU=",' with(Math) { ' +varlist+' return '+exp+'; }' );
+                         var fu = new Function("x",' with(Math) { ' +varlist+' return '+exp+'; }' );
                          envir[vname] = fu;
                        } catch(err) {
                          console.log("Userfunction bad",err,uatxt);
@@ -1601,12 +1609,16 @@ var qz = {
                  }
                  try {
                    var jscore = new Function("e","with(e) { " + param.contopt.jscore + "; }");
-                   qgrade = jscore(envir);
+                   var res = jscore(envir);
+                   if (_.isObject(res) && res.score && res.feedback) {
+                     feedback = res.feedback; qgrade = res.score;
+                   } else {
+                     qgrade = res;
+                   }
                  } catch(err) {
                      console.log("JSCORE function bad",err,param.contopt.jscore);
                      qgrade = 0;
                  }
-                 console.log("JSCORE:",param,ua,envir,jscore,qgrade);
                  break;
              case 'abcde':
                  //console.log("ABCDE ",param.fasit,param.abcde,ua,attnum);

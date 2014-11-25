@@ -643,7 +643,7 @@ function get_login() {
         var username = $j("#uname").val();
         var password = $j("#pwd").val();
         var doits = (its == "1") ? 1 : 0;
-        $j.get(mybase+ '/login',{"username":username, "password":password, "its":doits }, function(uinfo) {
+        $j.get(mybase+ '/log/login',{"username":username, "password":password, "its":doits }, function(uinfo) {
             if (uinfo && uinfo.id > 0) {
               afterloggin(uinfo);
               if (userinfo.department == ss.teachdep) {
@@ -997,7 +997,7 @@ $j(document).ready(function() {
              database.userinfo = { uid:0 };
            }
            // sjekk først om bruker allerede er logga inn
-           $j.get(mybase+ '/login', function(uinfo) {
+           $j.get(mybase+ '/log/login', function(uinfo) {
                if (uinfo && uinfo.id > 0 && uinfo.id == userinfo.id) {
                   // if user.id > 0 then we are logged in
                   // add new and dainty things to the menu

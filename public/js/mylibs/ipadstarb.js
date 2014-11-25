@@ -92,7 +92,7 @@ function getPassword() {
        $j("#next").unbind();
        $j("#next").click(function() {
           passwd = $j("#pwd").val();
-          $j.get( '/login',{"username":uname, "password":passwd }, function(uinfo) {
+          $j.get( '/log/login',{"username":uname, "password":passwd }, function(uinfo) {
             if (uinfo && uinfo.id > 0) {
               uuid = uinfo.id;
               uname = uinfo.username;

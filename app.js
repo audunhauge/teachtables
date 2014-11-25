@@ -172,7 +172,7 @@ app.post(base+'/editgroup',             routes.editgroup);
 
 
 // user - info login config
-app.get(base+'/login',                  user.login);                // logg in
+app.get(base+'/log/login',              user.login);                // logg in
 app.get(base+'/feide',                  user.feide);                // logg in with feide (simplesaml)
 app.get(base+'/pict',                   user.pict);                 // get user picture
 app.get(base+'/alive',                  user.alive);                // {alive:true} if logged in

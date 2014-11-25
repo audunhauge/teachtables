@@ -2102,7 +2102,7 @@ function eedit(myid,q,target) {
                , jscore:'Answers scored by script'
                   // fields may be [[num:x0]] [[num:x1]] [[fun:f]] [[txt:name]]
                   // this specisfies type and name for user inputs
-                  // scoring is done by running score function stored in 
+                  // scoring is done by running score function stored in
                   // con.score (javascript function returning score)
                   // this is coded same way as js for other questions
                   // only must define con.score as a function returning [0,1]
@@ -2424,18 +2424,15 @@ function eedit(myid,q,target) {
            break;
         case 'jscore':
            var jscore = dialog.contopt.jscore || 'return 1';   // default scoring functions passes any response
-           var envir = dialog.contopt.envir || 'math';   // default scoring functions passes any response
            var elements = {
                  elements:{
                       jscore:     {  value:jscore, type:"textarea", klass:"longtext copts" }
-                   ,  envir:      {  type:"select", klass:"copts",  value:envir, options:[{ value:"math"},{ label:"user",value:"envir"} ] }
                  }
                };
            var res = gui(elements);
            s += '<span id="inputdiv">'
-              + ' <span title="Matte eller userdata">EvalEnvir {envir}</span><br>'
               + ' <span title="Funksjon for å score svarene">Scorefunk <br>{jscore}</span></span>';
-           s = s.supplant(res);           
+           s = s.supplant(res);
            break;
         case 'multiple':
            var optlist = drawOpts(q.options,q.fasit);

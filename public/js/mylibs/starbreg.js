@@ -98,7 +98,7 @@ function getPassword() {
           passwd = $j("#pwd").val();
           $j("#pwd").hide();
           $j("#inp").show();
-          $j.get(mybase+ '/login',{"username":uname, "password":passwd }, function(uinfo) {
+          $j.get(mybase+ '/log/login',{"username":uname, "password":passwd }, function(uinfo) {
             if (uinfo && uinfo.id > 0) {
               uuid = uinfo.id;
               uname = uinfo.username;
