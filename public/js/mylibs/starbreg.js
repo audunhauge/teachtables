@@ -243,7 +243,7 @@ function generateKey() {
        $j("#msg").remove();
        $j("#input").remove();
        $j("#inp").remove();
-       $j.getJSON(mybase+ '/starbkey',{ "uid":uid, "duration":duration, "starth":starth, "startm":startm, "antall":antall, "romid":romid }, function(data) {
+       $j.getJSON(mybase+ '/log/starbkey',{ "uid":uid, "duration":duration, "starth":starth, "startm":startm, "antall":antall, "romid":romid }, function(data) {
            $j("#flipper1").show().click(function() {
                 $j("#regbox").animate( { "width": "hide", "left":"+=100" },200,function() {
                   $j("#backside").css("left",100);
@@ -251,7 +251,7 @@ function generateKey() {
                   $j("#regbox").css("left",0);
                   $j("#flipper2").show();
                 }  );
-                $j.getJSON(mybase+ '/elevstarb',{ "romid":romid },
+                $j.getJSON(mybase+ '/log/elevstarb',{ "romid":romid },
                        function(data) {
                           elevliste = data.elever;
                           makeOL(0);
@@ -288,9 +288,9 @@ function makeOL(offset) {
       var th = $j(this);
       $j("#delete").unbind().show().css("top",pos.top).click(function() {
                 th.html("<td colspan=4>...SLETTER...</td>");
-                $j.getJSON(mybase+"/fjernelev",{ romid:romid, eid:eid, alle:0 },
+                $j.getJSON(mybase+"/log/fjernelev",{ romid:romid, eid:eid, alle:0 },
                 function() {
-                  $j.getJSON(mybase+ '/elevstarb',{ "romid":romid },
+                  $j.getJSON(mybase+ '/log/elevstarb',{ "romid":romid },
                        function(data) {
                           elevliste = data.elever;
                           makeOL(offset);
@@ -335,9 +335,9 @@ function makeOL(offset) {
           var th = $j(this);
           $j("#delete").unbind().show().css("top",pos.top).click(function() {
                     th.html("<td colspan=4>...SLETTER...</td>");
-                    $j.getJSON(mybase+"/fjernelev",{ romid:romid, eid:0, alle:1 },
+                    $j.getJSON(mybase+"/log/fjernelev",{ romid:romid, eid:0, alle:1 },
                     function() {
-                      $j.getJSON(mybase+ '/elevstarb',{ "romid":romid },
+                      $j.getJSON(mybase+ '/log/elevstarb',{ "romid":romid },
                            function(data) {
                               elevliste = data.elever;
                               makeOL(offset);
@@ -353,7 +353,7 @@ function makeOL(offset) {
 function elevreg() {
    $j("#inp").show();
    $j("#pwd").hide();
-   $j.getJSON(mybase+ '/regstud',{ "regkey":0, "userid":uuid },
+   $j.getJSON(mybase+ '/log/regstud',{ "regkey":0, "userid":uuid },
    function(resp) {
      if (resp.fail) {
        $j("#info").html(firstname+" "+lastname);
@@ -400,7 +400,7 @@ function adjust(userid,julday) {
             }
             if (ts == parseInt(ks.substr(ks.length-1,1)) ) {
               $j("#info").html("Sjekker ... ");
-              $j.getJSON(mybase+ '/regstud',{ "regkey":regkey, "userid":userid, "utz":tz },
+              $j.getJSON(mybase+ '/log/regstud',{ "regkey":regkey, "userid":userid, "utz":tz },
                        function(resp) {
                          $j("#info").html(resp.text);
                          $j("#msg").animate({"top": "+=90px"}, 90);

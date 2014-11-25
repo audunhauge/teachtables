@@ -161,78 +161,78 @@ app.get(base+'/basic',                  routes.basic);              // get basic
 app.get(base+'/getsql',                 routes.getsql);             // only admin can run any sql
 app.get(base+'/freedays',               routes.freedays);
 app.get(base+'/getexams',               routes.getexams);
-app.get(base+'/plain',                  routes.plain);              // simplified overview
+app.get(base+'/log/plain',                  routes.plain);              // simplified overview
 app.get(base+'/kurs',                   routes.kurs);               // even simpler simplified overview
 app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
-app.get(base+'/geteuids',               routes.geteuids);           // ids for pics
+app.get(base+'/log/geteuids',               routes.geteuids);           // ids for pics
 
-app.post(base+'/editcourse',            routes.editcourse);
-app.post(base+'/edituser',              routes.edituser);
-app.post(base+'/editgroup',             routes.editgroup);
+app.post(base+'/log/editcourse',            routes.editcourse);
+app.post(base+'/log/edituser',              routes.edituser);
+app.post(base+'/log/editgroup',             routes.editgroup);
 
 
 // user - info login config
 app.get(base+'/log/login',              user.login);                // logg in
-app.get(base+'/feide',                  user.feide);                // logg in with feide (simplesaml)
-app.get(base+'/pict',                   user.pict);                 // get user picture
-app.get(base+'/alive',                  user.alive);                // {alive:true} if logged in
-app.get(base+'/ses',                    user.ses);                  // get login info for active users
-app.get(base+'/userconfig',             user.userconfig);           // fresh read of config (used in config editor)
-app.post(base+'/saveconfig',            user.saveconfig);
+app.get(base+'/log/feide',                  user.feide);                // logg in with feide (simplesaml)
+app.get(base+'/log/pict',                   user.pict);                 // get user picture
+app.get(base+'/log/alive',                  user.alive);                // {alive:true} if logged in
+app.get(base+'/log/ses',                    user.ses);                  // get login info for active users
+app.get(base+'/log/userconfig',             user.userconfig);           // fresh read of config (used in config editor)
+app.post(base+'/log/saveconfig',            user.saveconfig);
 
 
 // workbook
-app.get(base+'/workbook',               workbook.workbook);         // get selected workbook
-app.get(base+'/getqcon',                workbook.getqcon);          // get questions from question-container
-app.get(base+'/getcontainer',           workbook.getcontainer);     // get container info
-app.get(base+'/displayuserresponse',    workbook.displayuserresponse);
-app.get(base+'/wordindex',              workbook.wordindex);
-app.get(base+'/getquestion',            workbook.getquestion);
-app.get(base+'/gettags',                workbook.gettags);
-app.get(base+'/gettagsq',               workbook.gettagsq);
-app.get(base+'/getquesttags',           workbook.getquesttags);
-app.get(base+'/getworkbook',            workbook.getworkbook);
-app.get(base+'/update_subscription',    workbook.update_subscription);
-app.get(base+'/gimmeahint',             workbook.gimmeahint);
-app.get(base+'/exportcontainer',        workbook.exportcontainer );
-app.get(base+'/copyquest',              workbook.copyquest );
-app.get(base+'/updatequiz',             workbook.updatequiz );          // sync with parent/child
-app.get(base+'/progressview',           workbook.progressview );
-app.get(base+'/quizstats',              workbook.quizstats );           // average score pr tag
-app.get(base+'/remarked',               workbook.remarked );            // list of remarked questions (by other teach)
-app.get(base+'/scoresummary',           workbook.scoresummary );        // scores for each container for this user
-app.get(base+'/questionstats',          workbook.questionstats );       // update average and count for each question -(average user score, count of answers)
-app.get(base+'/quizconq',               workbook.quizconq);             // quiz competition between groups
+app.get(base+'/log/workbook',               workbook.workbook);         // get selected workbook
+app.get(base+'/log/getqcon',                workbook.getqcon);          // get questions from question-container
+app.get(base+'/log/getcontainer',           workbook.getcontainer);     // get container info
+app.get(base+'/log/displayuserresponse',    workbook.displayuserresponse);
+app.get(base+'/log/wordindex',              workbook.wordindex);
+app.get(base+'/log/getquestion',            workbook.getquestion);
+app.get(base+'/log/gettags',                workbook.gettags);
+app.get(base+'/log/gettagsq',               workbook.gettagsq);
+app.get(base+'/log/getquesttags',           workbook.getquesttags);
+app.get(base+'/log/getworkbook',            workbook.getworkbook);
+app.get(base+'/log/update_subscription',    workbook.update_subscription);
+app.get(base+'/log/gimmeahint',             workbook.gimmeahint);
+app.get(base+'/log/exportcontainer',        workbook.exportcontainer );
+app.get(base+'/log/copyquest',              workbook.copyquest );
+app.get(base+'/log/updatequiz',             workbook.updatequiz );          // sync with parent/child
+app.get(base+'/log/progressview',           workbook.progressview );
+app.get(base+'/log/quizstats',              workbook.quizstats );           // average score pr tag
+app.get(base+'/log/remarked',               workbook.remarked );            // list of remarked questions (by other teach)
+app.get(base+'/log/scoresummary',           workbook.scoresummary );        // scores for each container for this user
+app.get(base+'/log/questionstats',          workbook.questionstats );       // update average and count for each question -(average user score, count of answers)
+app.get(base+'/log/quizconq',               workbook.quizconq);             // quiz competition between groups
 
-app.post(base+'/generateforall',        workbook.generateforall );
-app.post(base+'/renderq',               workbook.renderq);
-app.post(base+'/gradeuseranswer',       workbook.gradeuseranswer);
-app.post(base+'/editscore',             workbook.editscore);
-app.post(base+'/editquest',             workbook.editquest);
-app.post(base+'/editqncontainer',       workbook.editqncontainer);
-app.post(base+'/studresetcontainer',    workbook.studresetcontainer);
-app.post(base+'/resetcontainer',        workbook.resetcontainer );
-app.post(base+'/changesubject',         workbook.changesubject );
-app.post(base+'/edittags',              workbook.edittags );
-app.post(base+'/settag',                workbook.settag );
-app.post(base+'/updateTags',            workbook.updateTags );
-app.post(base+'/addcomment',            workbook.addcomment );
-app.post(base+'/getuseranswers',        workbook.getuseranswers);
-app.post(base+'/crosstable',            workbook.crosstable);
-app.post(base+'/updatecontainerscore',  workbook.updatecontainerscore );
+app.post(base+'/log/generateforall',        workbook.generateforall );
+app.post(base+'/log/renderq',               workbook.renderq);
+app.post(base+'/log/gradeuseranswer',       workbook.gradeuseranswer);
+app.post(base+'/log/editscore',             workbook.editscore);
+app.post(base+'/log/editquest',             workbook.editquest);
+app.post(base+'/log/editqncontainer',       workbook.editqncontainer);
+app.post(base+'/log/studresetcontainer',    workbook.studresetcontainer);
+app.post(base+'/log/resetcontainer',        workbook.resetcontainer );
+app.post(base+'/log/changesubject',         workbook.changesubject );
+app.post(base+'/log/edittags',              workbook.edittags );
+app.post(base+'/log/settag',                workbook.settag );
+app.post(base+'/log/updateTags',            workbook.updateTags );
+app.post(base+'/log/addcomment',            workbook.addcomment );
+app.post(base+'/log/getuseranswers',        workbook.getuseranswers);
+app.post(base+'/log/crosstable',            workbook.crosstable);
+app.post(base+'/log/updatecontainerscore',  workbook.updatecontainerscore );
 
 
 // meetings - absent - reservations
-app.get(base+'/getmeet',                meetings.getmeet );
-app.get(base+'/getmeeting',             meetings.getmeeting );
-app.get(base+'/rejectmeet',             meetings.rejectmeet );
-app.get(base+'/acceptmeet',             meetings.acceptmeet );
-app.get(base+'/reserv',                 meetings.reserv );
+app.get(base+'/log/getmeet',                meetings.getmeet );
+app.get(base+'/log/getmeeting',             meetings.getmeeting );
+app.get(base+'/log/rejectmeet',             meetings.rejectmeet );
+app.get(base+'/log/acceptmeet',             meetings.acceptmeet );
+app.get(base+'/log/reserv',                 meetings.reserv );
 app.get(base+'/getabsent',              meetings.getabsent );
-app.post(base+'/makereserv',            meetings.makereserv );
-app.post(base+'/save_excursion',        meetings.save_excursion );
-app.post(base+'/save_absent',           meetings.save_absent );
-app.post(base+'/makemeet',              meetings.makemeet );
+app.post(base+'/log/makereserv',            meetings.makereserv );
+app.post(base+'/log/save_excursion',        meetings.save_excursion );
+app.post(base+'/log/save_absent',           meetings.save_absent );
+app.post(base+'/log/makemeet',              meetings.makemeet );
 
 
 
@@ -245,46 +245,46 @@ app.get(base+'/allplans',               plans.allplans );
 app.get(base+'/blocks',                 plans.blocks );
 app.get(base+'/extrax',                 plans.extrax );
 app.get(base+'/yyear',                  plans.yyear );
-app.post(base+'/modifyplan',            plans.modifyplan );
-app.post(base+'/save_simple',           plans.save_simple );
-app.post(base+'/savehd',                plans.savehd );
-app.post(base+'/saveblokk',             plans.saveblokk );
-app.post(base+'/save_vurd',             plans.save_vurd );
-app.post(base+'/save_totfagplan',       plans.save_totfagplan );
-app.post(base+'/save_fagplan',          plans.save_fagplan );
+app.post(base+'/log/modifyplan',            plans.modifyplan );
+app.post(base+'/log/save_simple',           plans.save_simple );
+app.post(base+'/log/savehd',                plans.savehd );
+app.post(base+'/log/saveblokk',             plans.saveblokk );
+app.post(base+'/log/save_vurd',             plans.save_vurd );
+app.post(base+'/log/save_totfagplan',       plans.save_totfagplan );
+app.post(base+'/log/save_fagplan',          plans.save_fagplan );
 
 
 // timetables
 app.get(base+'/timetables',             timetables.timetables);
-app.post(base+'/save_timetable',        timetables.save_timetable);
+app.post(base+'/log/save_timetable',        timetables.save_timetable);
 
 
 // tests - exams
 app.get(base+'/alltests',               tests.alltests);            // all tests and exams for students
-app.post(base+'/save_test',             tests.save_test );
-app.get(base+'/savehd',                 plans.savehd );
+app.post(base+'/log/save_test',             tests.save_test );
+app.get(base+'/log/savehd',                 plans.savehd );
 
 // shows - tickets
 // get shows and sell tickets
-app.post(base+'/buytickets',            show.buytickets);
-app.post(base+'/editshow',              show.editshow );
-app.get(base+'/tickets',                show.tickets );
-app.get(base+'/show',                   show.show );                  // get list of shows for this user
+app.post(base+'/log/buytickets',            show.buytickets);
+app.post(base+'/log/editshow',              show.editshow );
+app.get(base+'/log/tickets',                show.tickets );
+app.get(base+'/log/show',                   show.show );                  // get list of shows for this user
 
-app.get(base+'/starb',                  starb.starb);                 // start page for study time
+app.get(base+'/log/starb',                  starb.starb);                 // start page for study time
 app.get(base+'/attendance',             starb.attendance );
 app.get(base+'/starblessons',           starb.starblessons );
 app.get(base+'/getallstarblessdates',   starb.getallstarblessdates);
 app.get(base+'/getstarblessdates',      starb.getstarblessdates);
-app.get(base+'/createstarbless',        starb.createstarbless);
-app.get(base+'/savestarbless',          starb.savestarbless);
-app.get(base+'/killstarbless',          starb.killstarbless);
-app.get(base+'/elevstarb',              starb.elevstarb);
-app.get(base+'/fjernelev',              starb.fjernelev);
-app.get(base+'/regstud',                starb.regstud);
-app.get(base+'/teachstarb',             starb.teachstarb);
-app.get(base+'/starbkey',               starb.starbkey);
-app.get(base+'/ipad ',                  starb.ipad );
+app.get(base+'/log/createstarbless',        starb.createstarbless);
+app.get(base+'/log/savestarbless',          starb.savestarbless);
+app.get(base+'/log/killstarbless',          starb.killstarbless);
+app.get(base+'/log/elevstarb',              starb.elevstarb);
+app.get(base+'/log/fjernelev',              starb.fjernelev);
+app.get(base+'/log/regstud',                starb.regstud);
+app.get(base+'/log/teachstarb',             starb.teachstarb);
+app.get(base+'/log/starbkey',               starb.starbkey);
+app.get(base+'/log/ipad ',                  starb.ipad );
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

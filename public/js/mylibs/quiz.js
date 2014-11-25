@@ -175,7 +175,7 @@ function questEditor(clusterlist) {
 
 function  questEdit(cclusterlist) {
   // any checks of clusterlist done before calling
-  $j.getJSON(mybase+'/getcontainer',{ "givenqlist":cclusterlist }, function(wqqlist) {
+  $j.getJSON(mybase+'/log/getcontainer',{ "givenqlist":cclusterlist }, function(wqqlist) {
     var qlist = wqqlist.qlist;
     wbinfo.taglist = wqqlist.taglist;
     var showqlist = wb.render.normal.editql(qlist,true);
@@ -240,7 +240,7 @@ function  questEdit(cclusterlist) {
            switch(action) {
              case 'Set subject':
                if (selectedq.length) {
-                 $j.post(mybase+'/changesubject', { subject:su, qidlist:selectedq.join(',') }, function(resp) {
+                 $j.post(mybase+'/log/changesubject', { subject:su, qidlist:selectedq.join(',') }, function(resp) {
                  });
                  for (var i=0,l=selectedq.length; i<l; i++) {
                      var b = selectedq[i];
@@ -251,27 +251,27 @@ function  questEdit(cclusterlist) {
                }
                break;
              case 'Set tag':
-               $j.post(mybase+'/settag', { tagname:su, qidlist:selectedq.join(',') }, function(resp) {
+               $j.post(mybase+'/log/settag', { tagname:su, qidlist:selectedq.join(',') }, function(resp) {
                  });
                break;
              case 'Copy':
-               $j.getJSON(mybase+'/copyquest',{ givenqlist:clusterlist.join(',') }, function(qlist) {
+               $j.getJSON(mybase+'/log/copyquest',{ givenqlist:clusterlist.join(',') }, function(qlist) {
                  alert("oook");
                });
                break;
              case 'Remove tag':
-                 $j.post(mybase+'/edittags', { action:'untag', tagname:su, qidlist:selectedq.join(',') }, function(resp) {
+                 $j.post(mybase+'/log/edittags', { action:'untag', tagname:su, qidlist:selectedq.join(',') }, function(resp) {
                    //showinfo(mylink,param.limit,param.filter);
                  });
                break;
              case 'RemoveAllTags':
-                 $j.post(mybase+'/edittags', { action:'tagfree', qidlist:selectedq.join(',') }, function(resp) {
+                 $j.post(mybase+'/log/edittags', { action:'tagfree', qidlist:selectedq.join(',') }, function(resp) {
                    showinfo(mylink,qparam.limit,qparam.filter);
                  });
                break;
              case 'Delete':
                if (selectedq.length) {
-                 $j.post(mybase+'/editquest', { action:'delete', qidlist:selectedq.join(',') }, function(resp) {
+                 $j.post(mybase+'/log/editquest', { action:'delete', qidlist:selectedq.join(',') }, function(resp) {
                    // remove selected qs from questions
                    for (var i=0; i < selectedq.length; i++) {
                       var qq = selectedq[i];
@@ -695,7 +695,7 @@ function quizDemo() {
         $j("#rapp").html(s);
         s += (s.length % 10 == 0) ? '<br>' : '.';
      }, 200);
-    $j.get(mybase+ "/wordindex", { teacher:qparam.teacher, other:qparam.other, showsubj:qparam.subj }, setupworld );
+    $j.get(mybase+ "/log/wordindex", { teacher:qparam.teacher, other:qparam.other, showsubj:qparam.subj }, setupworld );
 
 
 }

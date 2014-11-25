@@ -384,7 +384,7 @@ function aliveordead() {
     if (zombie > 4) {
         $j("#alive").addClass("dead");
     }
-    $j.get(mybase+"/alive", function(ali) {
+    $j.get(mybase+"/log/alive", function(ali) {
         zombie = 0;
         if (ali.alive == "true") {
             $j("#alive").addClass("green");
@@ -409,7 +409,7 @@ function setup_teach() {
     alreadyappended = true;
     $j("#htitle").append('<div id="alive" class="green"><span id="dead">Server may be asleep ... </span></div>');
     relax(30000);
-    $j.get(mybase+"/geteuids", function(eu) {
+    $j.get(mybase+"/log/geteuids", function(eu) {
       euids = eu;
     });
     var romvalg = '<ul>';
@@ -469,7 +469,7 @@ function setup_teach() {
     var csubscript = '<ul>' + buildSubscript(1) + '</ul>';
     $j("#subscribe").after(subscript);
     $j("#csubscribe").after(csubscript);
-    $j.get(mybase+ "/update_subscription");
+    $j.get(mybase+ "/log/update_subscription");
 
     var s = '<li><a id="romres" href="#">'+ss.setup.reserv+'</a>'+romvalg+'</li>'
            + ''; // + '<li><a id="starb" href="#">Starb</a></li>';
@@ -506,7 +506,7 @@ function setup_teach() {
     });
     // legg inn clickhandler for alle rom
     // hent reserveringer for rommene
-    $j.getJSON(mybase+ "/myplans",
+    $j.getJSON(mybase+ "/log/myplans",
       function(data) {
         myplans = {};
         for (var i in data) {
@@ -519,7 +519,7 @@ function setup_teach() {
         }
       });
     // fetch current users
-    $j.getJSON(mybase+ "/ses",
+    $j.getJSON(mybase+ "/log/ses",
       function(data) {
         online = [];
         for (var i in data) {
@@ -533,7 +533,7 @@ function setup_teach() {
         usersonline = online.join(', ');
       });
 
-    $j.getJSON(mybase+ "/reserv",
+    $j.getJSON(mybase+ "/log/reserv",
          function(data) {
             $j("#nav").append(s);
             $j("#ledigrom").click(function() {
@@ -707,7 +707,7 @@ function afterloggin(uinfo) {
             var rom = specialrooms[spi];
             specr += '<li><a class="bbd" id="rom'+rom +'" href="#">'+rom+'</a></li>';
          }
-         $j.get(mybase+ '/show', function(showlist) {
+         $j.get(mybase+ '/log/show', function(showlist) {
             show = showlist;
             s =  '<li><a id="show" href="#">Show</a><ul>'
                 +    '<li><a id="editshow"  href="#">Rediger show</a></li>'
@@ -856,7 +856,7 @@ function getusers() {
          function(data) {
            absent = data;
          });
-    $j.getJSON(mybase+ "/reserv",
+    $j.getJSON(mybase+ "/log/reserv",
          function(data) {
             reservations = unflatreserv(data);
          });
@@ -1091,7 +1091,7 @@ $j(document).ready(function() {
     });
     $j("#logout").click(function(event) {
         event.preventDefault();
-        $j.get(mybase+ "/logout");
+        $j.get(mybase+ "/log/logout");
         inlogged = false;
         window.location= mybase;
     });

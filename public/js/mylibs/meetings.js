@@ -266,7 +266,7 @@ function meetTimeStart(jd,slotz,early,dur) {
 function findFreeTime() {
   // show list of teachers - allow user to select and find free time
   var siz = 8;
-  $j.getJSON(mybase+ "/getmeet", function(data) {
+  $j.getJSON(mybase+ "/log/getmeet", function(data) {
 
     meetings = data.meetings;
     var stulist = [];  // names of studs if we have some in memory
@@ -609,10 +609,10 @@ function findFreeTime() {
          var roomname = database.roomnames[minfo.roomid] || '';
          var konf = $j('input[name=konf]:checked').val();
          var resroom = $j("#resroom").val();
-         $j.post(mybase+'/makemeet',{ chosen:getkeys(userlist), current:jd, meetstart:first,dur:dur, slot:slot,
+         $j.post(mybase+'/log/makemeet',{ chosen:getkeys(userlist), current:jd, meetstart:first,dur:dur, slot:slot,
                        roomname:roomname, message:message, title:minfo.title, resroom:resroom, sendmail:sendmail,
                        konf:konf, roomid:minfo.roomid, day:day, action:"insert" },function(resp) {
-             $j.getJSON(mybase+ "/getmeet",
+             $j.getJSON(mybase+ "/log/getmeet",
                   function(data) {
                      meetings = data;
                      freeTimeTable(userlist,minfo.roomid,minfo.delta);
@@ -706,7 +706,7 @@ function myMeetings(meetid,delta) {
 
 function editMeeting(meetingid,meetid,delta) {
   // edit a specific meeting - you are owner
-  $j.getJSON(mybase+ "/getmeeting", function(data) {
+  $j.getJSON(mybase+ "/log/getmeeting", function(data) {
     var meet,s,owner,ownerid;
     var owner = false;
     if ( data[userinfo.id] && data[userinfo.id][meetingid]) {
@@ -785,18 +785,18 @@ function editMeeting(meetingid,meetid,delta) {
       s += '<h3>Deltakere</h3><ul><li>'+teachlist.join('</li><li>') + '</ul>';
       s += (metinfo.kort) ? '<br>Short meeting' : '';
       $j("#killmeet").click(function() {
-            $j.post(mybase+'/makemeet',{ myid:meetingid, action:"kill" },function(resp) {
+            $j.post(mybase+'/log/makemeet',{ myid:meetingid, action:"kill" },function(resp) {
                  myMeetings(meetid,delta);
              });
        });
        $j("#stage").html(s);
       $j("#rej").click(function() {
-          $j.get(mybase+ "/rejectmeet?userid="+userinfo.id+"&meetid="+meetingid,function(res) {
+          $j.get(mybase+ "/log/rejectmeet?userid="+userinfo.id+"&meetid="+meetingid,function(res) {
                  myMeetings(meetid,delta);
               });
        });
       $j("#acc").click(function() {
-          $j.get(mybase+ "/acceptmeet?userid="+userinfo.id+"&meetid="+meetingid,function(res) {
+          $j.get(mybase+ "/log/acceptmeet?userid="+userinfo.id+"&meetid="+meetingid,function(res) {
                  myMeetings(meetid,delta);
               });
        });
