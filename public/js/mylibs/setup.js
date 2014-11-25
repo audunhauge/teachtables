@@ -949,7 +949,7 @@ function getcourseplans() {
 
 
 $j(document).ready(function() {
-    $j.getJSON(mybase+ "/basic",{ navn:user },
+    $j.getJSON(mybase+ "/log/basic",{ navn:user },
     function(data) {
         database = data;
         romliste = database.romliste;

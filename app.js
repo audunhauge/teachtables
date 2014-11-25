@@ -121,6 +121,7 @@ app.configure(function(){
   app.use(express.cookieParser('anaglypsis'));
   app.use(express.session());
   app.use(app.router);
+  /*
   app.use(base+'stat/pic',function(req,res,next) {
       if (req.url.match(/anonym.gif/)) {
         next();
@@ -130,6 +131,7 @@ app.configure(function(){
         res.redirect( base+'stat/pic/anonym.gif');
       }
   });
+ */
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(base+'stat',express.static(path.join(__dirname, 'public')));
   app.use(express.static(path.join(__dirname, 'public')));
@@ -157,7 +159,7 @@ app.get(base +'/saml', function(req, res) {
 
 
 app.get(base,                           routes.index);              // gives start-page
-app.get(base+'/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
+app.get(base+'/log/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
 app.get(base+'/log/getsql',                 routes.getsql);             // only admin can run any sql
 app.get(base+'/freedays',               routes.freedays);
 app.get(base+'/getexams',               routes.getexams);
