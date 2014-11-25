@@ -158,7 +158,7 @@ app.get(base +'/saml', function(req, res) {
 
 app.get(base,                           routes.index);              // gives start-page
 app.get(base+'/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
-app.get(base+'/getsql',                 routes.getsql);             // only admin can run any sql
+app.get(base+'/log/getsql',                 routes.getsql);             // only admin can run any sql
 app.get(base+'/freedays',               routes.freedays);
 app.get(base+'/getexams',               routes.getexams);
 app.get(base+'/log/plain',                  routes.plain);              // simplified overview
@@ -240,7 +240,7 @@ app.post(base+'/log/makemeet',              meetings.makemeet );
 // plans
 app.get(base+'/getaplan',               plans.getaplan );
 app.get(base+'/getallplans',            plans.getallplans );
-app.get(base+'/myplans',                plans.myplans );
+app.get(base+'/log/myplans',                plans.myplans );
 app.get(base+'/allplans',               plans.allplans );
 app.get(base+'/blocks',                 plans.blocks );
 app.get(base+'/extrax',                 plans.extrax );
@@ -255,7 +255,7 @@ app.post(base+'/log/save_fagplan',          plans.save_fagplan );
 
 
 // timetables
-app.get(base+'/timetables',             timetables.timetables);
+app.get(base+'/log/timetables',             timetables.timetables);
 app.post(base+'/log/save_timetable',        timetables.save_timetable);
 
 
