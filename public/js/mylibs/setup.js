@@ -267,7 +267,7 @@ function gotoPage() {
                   var userplan = getcourseplan(usr,deltamemory);
                   vis_timeplan_helper(userplan,usr,target,false,false,deltamemory);
                 } else {
-                  $j.getJSON(mybase+ "/timetables",
+                  $j.getJSON(mybase+ "/log/timetables",
                     function(data) {
                         timetables = unflatten(data.flatlist);
                         updateFagplanMenu();
@@ -285,7 +285,7 @@ function gotoPage() {
                   var userplan = getuserplan(+usr);
                   vis_timeplan_helper(userplan,+usr,target,'isuser',true,deltamemory);
                 } else {
-                  $j.getJSON(mybase+ "/timetables",
+                  $j.getJSON(mybase+ "/log/timetables",
                     function(data) {
                         timetables = unflatten(data.flatlist);
                         updateFagplanMenu();
@@ -356,7 +356,7 @@ function take_action() {
 
         case 'plan':
             if (showplan != '') {
-                 $j.getJSON(mybase+ "/timetables",
+                 $j.getJSON(mybase+ "/log/timetables",
                     function(data) {
                         timetables = unflatten(data.flatlist);
                         getcourseplans();
@@ -691,7 +691,7 @@ function belongsToCategory(uid,cat) {
 function afterloggin(uinfo) {
     inlogged = true;
     database.userinfo = userinfo = uinfo;
-    $j.getJSON(mybase+ "/timetables",
+    $j.getJSON(mybase+ "/log/timetables",
     function(data) {
       timetables = unflatten(data.flatlist);
       //uinfo.mdd = belongsToCategory(uinfo.id,{10:1,11:1,12:1});
@@ -864,7 +864,7 @@ function getusers() {
 
 function getcourseplans() {
   // fetch timetables and courseplans
-  $j.getJSON(mybase+ "/timetables",
+  $j.getJSON(mybase+ "/log/timetables",
         function(data) {
             timetables = unflatten(data.flatlist);
             if (promises.timetables) {

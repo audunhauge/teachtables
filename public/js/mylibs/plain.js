@@ -35,7 +35,7 @@ $j(document).ready(function() {
            $j.get(mybase+ "/getexams", { "quick":"true" },
                function(data) {
                  heldag = data;
-                 $j.get(mybase+ "/timetables", { "quick":"true" },
+                 $j.get(mybase+ "/log/timetables", { "quick":"true" },
                    function(data) {
                      var timetables = unflatten(data);
                      var s = getYearPlanThisWeek(thisweek);

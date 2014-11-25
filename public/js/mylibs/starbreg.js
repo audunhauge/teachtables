@@ -72,7 +72,7 @@ function getPassword() {
      if (loggedin == '1') {
         $j("#inp").show();
         $j("#pwd").hide();
-        $j.get(mybase+ '/timetables', function(timetables) {
+        $j.get(mybase+ '/log/timetables', function(timetables) {
           timetables = unflatten(timetables.flatlist);
           var mytab = timetables.teach[uuid];
           var day = jd % 7;
@@ -103,7 +103,7 @@ function getPassword() {
               uuid = uinfo.id;
               uname = uinfo.username;
               loggedin = '1';
-              $j.get(mybase+ '/timetables', function(timetables) {
+              $j.get(mybase+ '/log/timetables', function(timetables) {
                 timetables = unflatten(timetables.flatlist);
                 var mytab = timetables.teach[uuid];
                 var day = jd % 7;
