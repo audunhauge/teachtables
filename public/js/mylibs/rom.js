@@ -163,8 +163,8 @@ function rom_reservering(room,delta,makeres) {
         var message = $j("#restext").val() || (userinfo.firstname.substr(0,4) + ' ' +userinfo.lastname.substr(0,4));
         var idlist = $j.map(mylist,function(e,i) { return e.id; }).join(',');
         $j("#info").html("Lagrer " + mylist.length);
-        $j.post(mybase+'/makereserv',{ current:current, room:room, myid:0, idlist:idlist, message:message, action:"insert" },function(resp) {
-            $j.getJSON(mybase+ "/reserv",
+        $j.post(mybase+'/log/makereserv',{ current:current, room:room, myid:0, idlist:idlist, message:message, action:"insert" },function(resp) {
+            $j.getJSON(mybase+ "/log/reserv",
                  function(data) {
                     reservations =  unflatreserv(data);
                     rom_reservering(room,delta);
@@ -179,8 +179,8 @@ function rom_reservering(room,delta,makeres) {
     $j(".killer").click(function(event) {
       event.stopPropagation()
       var myid = $j(this).parent().attr('id');
-        $j.post(mybase+'/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:"", action:"kill" },function(resp) {
-          $j.getJSON(mybase+ "/reserv",
+        $j.post(mybase+'/log/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:"", action:"kill" },function(resp) {
+          $j.getJSON(mybase+ "/log/reserv",
                function(data) {
                   reservations =  unflatreserv(data);
                   rom_reservering(room,delta);
@@ -196,8 +196,8 @@ function rom_reservering(room,delta,makeres) {
          function (value,settings) {
             //var myid = this.id;
             var myid = $j(this).parent().attr('id');
-            $j.post(mybase+'/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:value, action:"update" },function(resp) {
-              $j.getJSON(mybase+ "/reserv",
+            $j.post(mybase+'/log/makereserv',{ current:current, room:room, myid:myid, idlist:'0', message:value, action:"update" },function(resp) {
+              $j.getJSON(mybase+ "/log/reserv",
                    function(data) {
                       reservations =  unflatreserv(data);
                       rom_reservering(room,delta);
