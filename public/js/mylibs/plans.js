@@ -799,7 +799,7 @@ function regstarb(julday,room) {
         var th = $j(this);
         $j("#delete").unbind().show().css("top",pos.top+20).click(function() {
                   th.html("...SLETTER...");
-                  $j.getJSON(mybase+"/fjernelev",{ romid:roomid, eid:eid, alle:0 }, function() {
+                  $j.getJSON(mybase+"/log/fjernelev",{ romid:roomid, eid:eid, alle:0 }, function() {
                     getreglist(roomid,julday);
                     $j("#delete").hide();
                   });
@@ -829,7 +829,7 @@ function regstarb(julday,room) {
          return;
        }
        var starbelever = idvalgte.join(',');
-       $j.getJSON(mybase+"/teachstarb", { starbelever:starbelever, julday:julday, roomid:roomid }, function(data) {
+       $j.getJSON(mybase+"/log/teachstarb", { starbelever:starbelever, julday:julday, roomid:roomid }, function(data) {
            regstarb(julday,room);
        });
     });
@@ -1116,7 +1116,7 @@ function makeplans() {
         +  '</div>';
         + '</div>';
   $j("#main").html(s);
-  $j.getJSON(mybase+ "/myplans",     // returns all your plans and all your courses
+  $j.getJSON(mybase+ "/log/myplans",     // returns all your plans and all your courses
   function(data) {
        var ss = 'Dine planer:';
        var planlist = {};

@@ -646,7 +646,7 @@ function myMeetings(meetid,delta) {
   // show list of meetings (your meetings)
   meetid = typeof(meetid) != 'undefined' ?  +meetid : 0;
   delta = typeof(delta) != 'undefined' ?  +delta : 0;    // week offset from current date
-  $j.getJSON(mybase+ "/getmeet", function(data) {
+  $j.getJSON(mybase+ "/log/getmeet", function(data) {
     meetings = data.meetings;
     var s='<div id="timeviser"><h1 id="oskrift">Mine møter</h1>';
     s+= '<div id="freeplan"></div>';

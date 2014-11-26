@@ -29,7 +29,7 @@ function starbkurs() {
           editstarbless(+this.id.substr(2));
        });
      $j("#newless").click(function() {
-         $j.getJSON(mybase+'/createstarbless',{ info:'nytt' , name:'nytt kurs', roomid:1, teachid:1 , day:1 }, function(data) {
+         $j.getJSON(mybase+'/log/createstarbless',{ info:'nytt' , name:'nytt kurs', roomid:1, teachid:1 , day:1 }, function(data) {
             starbkurs();
          });
        });
@@ -127,7 +127,7 @@ function editstarbless(cid) {
             }
             var jdlist = jds.join(',');
             $j("#savestarb").html("Lagrer ..");
-            $j.getJSON(mybase+'/savestarbless',{ jdays:jdlist, info:info , name:name, roomid:roomid, teachid:teachid , day:day, idd:cid },
+            $j.getJSON(mybase+'/log/savestarbless',{ jdays:jdlist, info:info , name:name, roomid:roomid, teachid:teachid , day:day, idd:cid },
             function(data) {
                 $j.getJSON(mybase+'/starblessons', function(data) {
                   for (var ii in data) {

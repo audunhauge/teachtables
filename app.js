@@ -121,7 +121,6 @@ app.configure(function(){
   app.use(express.cookieParser('anaglypsis'));
   app.use(express.session());
   app.use(app.router);
-  /*
   app.use(base+'stat/pic',function(req,res,next) {
       if (req.url.match(/anonym.gif/)) {
         next();
@@ -131,13 +130,14 @@ app.configure(function(){
         res.redirect( base+'stat/pic/anonym.gif');
       }
   });
- */
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(base+'stat',express.static(path.join(__dirname, 'public')));
   app.use(express.static(path.join(__dirname, 'public')));
+  /*
   app.use(function(req, res) {
      res.redirect( base+'stat/pic/anonym.gif');
   });
+  */
 });
 
 app.configure('development', function(){
@@ -151,13 +151,15 @@ app.configure('development', function(){
 
 app.get(base +'/saml', function(req, res) {
   var target = req.query.target || '';
-  res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php?target='+target);
+  res.redirect( 'http://node.teachtables.net/simplesaml/getlogin.php?target='+target);
+  //res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php?target='+target);
   //res.redirect( 'http://'+ siteinf.domain +'/simplesaml/getlogin.php')
   //res.redirect( 'http://node.teachtables.net/simplesaml/getlogin.php')
 });
 
 
 
+app.get('/',                            user.alive);                // HaProxy tests server at this address
 app.get(base,                           routes.index);              // gives start-page
 app.get(base+'/log/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
 app.get(base+'/log/getsql',                 routes.getsql);             // only admin can run any sql

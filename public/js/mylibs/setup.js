@@ -1018,7 +1018,7 @@ $j(document).ready(function() {
                getusers();
             });
          });
-    $j.getJSON(mybase+ "/getmeet", function(data) {
+    $j.getJSON(mybase+ "/log/getmeet", function(data) {
        meetings = data.meetings;
     });
     $j("#yearplan").click(function(event) {

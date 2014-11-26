@@ -47,7 +47,7 @@ function managecourse() {
   $j("#main").html(s);
   $j("#genquizstats").click(function(event) {
       event.preventDefault();
-      $j.get(mybase+ "/questionstats");
+      $j.get(mybase+ "/log/questionstats");
   });
   $j("#editcourse").click(function(event) {
       event.preventDefault();
