@@ -1004,23 +1004,23 @@ var qz = {
   , triangle:function(p,a,b,c) {
       // assumes p:point, a:num, b:num,c:number
       // creates a triangle
-      //          /|
-      //         / |
-      //     c  /  |b
-      //       /   |
-      //      /____|
-      //    p    a
-      //
+      //          /\
+      //         / |\      c²=a²+b²-2ab cos(C)
+      //     c  /  | \ b      cos(C) = x/b
+      //       /  h|  \         x = (a²+b²-c²)/(2a)
+      //      /____|___\        h = sqrt(b²-x²)
+      //    p        x  C
+      //          a
       var p0 = _.clone(p);
       var p1 = _.clone(p);
       var p2 = _.clone(p);
       p1.x += a;
-      var rx = (b*b+c*c-a*a)/(2*b);
-      p2.x += rx;
-      var ry = Math.sqrt(c*c - rx*rx)
+      var rx = (a*a+b*b-c*c)/(2*a);
+      p2.x += a - rx;
+      var ry = Math.sqrt(b*b - rx*rx)
       p2.y += ry;
       console.log("TRIANGLE",p0,p1,p2);
-      return { p0:p0,p1:p1,p2:p2 };
+      return { p0:p0,p1:p1,p2:p2, draw:"["+p0.x+","+p0.y+","+p1.x+","+p1.y+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+"],["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]"};
     }
 
   , leastfactor:function(n) {
