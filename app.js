@@ -159,15 +159,15 @@ app.get(base +'/saml', function(req, res) {
 
 
 
-app.get('/',                            user.alive);                // HaProxy tests server at this address
-app.get(base,                           routes.index);              // gives start-page
+app.get('/',                                user.alive);                // HaProxy tests server at this address
+app.get(base,                               routes.index);              // gives start-page
 app.get(base+'/log/basic',                  routes.basic);              // get basic info - name of studs,teachers, timetables
 app.get(base+'/log/getsql',                 routes.getsql);             // only admin can run any sql
-app.get(base+'/freedays',               routes.freedays);
-app.get(base+'/getexams',               routes.getexams);
+app.get(base+'/freedays',                   routes.freedays);
+app.get(base+'/getexams',                   routes.getexams);
 app.get(base+'/log/plain',                  routes.plain);              // simplified overview
-app.get(base+'/kurs',                   routes.kurs);               // even simpler simplified overview
-app.get(base+'/gateway',                routes.gateway);            // stripped kalendar for tests/yearplan
+app.get(base+'/kurs',                       routes.kurs);               // even simpler simplified overview
+app.get(base+'/gateway',                    routes.gateway);            // stripped kalendar for tests/yearplan
 app.get(base+'/log/geteuids',               routes.geteuids);           // ids for pics
 
 app.post(base+'/log/editcourse',            routes.editcourse);
@@ -176,7 +176,7 @@ app.post(base+'/log/editgroup',             routes.editgroup);
 
 
 // user - info login config
-app.get(base+'/log/login',              user.login);                // logg in
+app.get(base+'/log/login',                  user.login);                // logg in
 app.get(base+'/log/feide',                  user.feide);                // logg in with feide (simplesaml)
 app.get(base+'/log/pict',                   user.pict);                 // get user picture
 app.get(base+'/log/alive',                  user.alive);                // {alive:true} if logged in
@@ -232,7 +232,7 @@ app.get(base+'/log/getmeeting',             meetings.getmeeting );
 app.get(base+'/log/rejectmeet',             meetings.rejectmeet );
 app.get(base+'/log/acceptmeet',             meetings.acceptmeet );
 app.get(base+'/log/reserv',                 meetings.reserv );
-app.get(base+'/getabsent',              meetings.getabsent );
+app.get(base+'/getabsent',                  meetings.getabsent );
 app.post(base+'/log/makereserv',            meetings.makereserv );
 app.post(base+'/log/save_excursion',        meetings.save_excursion );
 app.post(base+'/log/save_absent',           meetings.save_absent );
@@ -242,13 +242,13 @@ app.post(base+'/log/makemeet',              meetings.makemeet );
 
 
 // plans
-app.get(base+'/getaplan',               plans.getaplan );
-app.get(base+'/getallplans',            plans.getallplans );
+app.get(base+'/getaplan',                   plans.getaplan );
+app.get(base+'/getallplans',                plans.getallplans );
 app.get(base+'/log/myplans',                plans.myplans );
-app.get(base+'/allplans',               plans.allplans );
-app.get(base+'/blocks',                 plans.blocks );
-app.get(base+'/extrax',                 plans.extrax );
-app.get(base+'/yyear',                  plans.yyear );
+app.get(base+'/allplans',                   plans.allplans );
+app.get(base+'/blocks',                     plans.blocks );
+app.get(base+'/extrax',                     plans.extrax );
+app.get(base+'/yyear',                      plans.yyear );
 app.post(base+'/log/modifyplan',            plans.modifyplan );
 app.post(base+'/log/save_simple',           plans.save_simple );
 app.post(base+'/log/savehd',                plans.savehd );
@@ -264,7 +264,7 @@ app.post(base+'/log/save_timetable',        timetables.save_timetable);
 
 
 // tests - exams
-app.get(base+'/alltests',               tests.alltests);            // all tests and exams for students
+app.get(base+'/alltests',                   tests.alltests);            // all tests and exams for students
 app.post(base+'/log/save_test',             tests.save_test );
 app.get(base+'/log/savehd',                 plans.savehd );
 
@@ -276,10 +276,10 @@ app.get(base+'/log/tickets',                show.tickets );
 app.get(base+'/log/show',                   show.show );                  // get list of shows for this user
 
 app.get(base+'/log/starb',                  starb.starb);                 // start page for study time
-app.get(base+'/attendance',             starb.attendance );
-app.get(base+'/starblessons',           starb.starblessons );
-app.get(base+'/getallstarblessdates',   starb.getallstarblessdates);
-app.get(base+'/getstarblessdates',      starb.getstarblessdates);
+app.get(base+'/attendance',                 starb.attendance );
+app.get(base+'/starblessons',               starb.starblessons );
+app.get(base+'/getallstarblessdates',       starb.getallstarblessdates);
+app.get(base+'/getstarblessdates',          starb.getstarblessdates);
 app.get(base+'/log/createstarbless',        starb.createstarbless);
 app.get(base+'/log/savestarbless',          starb.savestarbless);
 app.get(base+'/log/killstarbless',          starb.killstarbless);

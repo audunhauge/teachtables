@@ -998,6 +998,31 @@ var qz = {
       return facts;
     }
 
+  , point:function(x,y) {
+      return { x:x, y:y };
+    }
+  , triangle:function(p,a,b,c) {
+      // assumes p:point, a:num, b:num,c:number
+      // creates a triangle
+      //          /|
+      //         / |
+      //     c  /  |b
+      //       /   |
+      //      /____|
+      //    p    a
+      //
+      var p0 = _.clone(p);
+      var p1 = _.clone(p);
+      var p2 = _.clone(p);
+      p1.x += a;
+      var rx = (b*b+c*c-a*a)/(2*b);
+      p2.x += rx;
+      var ry = Math.sqrt(c*c - rx*rx)
+      p2.y += ry;
+      console.log("TRIANGLE",p0,p1,p2);
+      return { p0:p0,p1:p1,p2:p2 };
+    }
+
   , leastfactor:function(n) {
       if (isNaN(n) || !isFinite(n)) return NaN;
       if (n==0) return 0;
@@ -1236,6 +1261,8 @@ var qz = {
        , getprime:qz.getprime
        , isprime:qz.isprime
        , factor:qz.factor
+       , point:qz.point
+       , triangle:qz.triangle
        , leastfactor:qz.leastfactor
        , getnthprime:qz.getnthprime
        , modinv:qz.modinv
