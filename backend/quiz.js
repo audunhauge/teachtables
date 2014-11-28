@@ -1001,8 +1001,8 @@ var qz = {
   , point:function(x,y) {
       return { x:x, y:y };
     }
-  , triangle:function(p,a,b,c) {
-      // assumes p:point, a:num, b:num,c:number
+  , triangle:function(p,a,b,c,px,sx) {
+      // assumes p:point, a:num, b:num,c:numbers
       // creates a triangle
       //          /\
       //         / |\      c²=a²+b²-2ab cos(C)
@@ -1011,16 +1011,36 @@ var qz = {
       //      /____|___\        h = sqrt(b²-x²)
       //    p        x  C
       //          a
+      //
+      //  returns p0,p1,p2 and draw:lines to draw the triangle, ptxt: text for points, stxt: text for sides
+      //  px and sx are csv
       var p0 = _.clone(p);
       var p1 = _.clone(p);
       var p2 = _.clone(p);
+      var m = Math.max(a,b,c);  // the longest side may not be more than half total length all sides
+      if (m >= (a+b+c)/2) {   // one side is too long
+        return { p0:p0,p1:p1,p2:p2, draw:"",ptxt:"",stxt:""};
+      }
+      var ptxt = "", stxt ="";
       p1.x += a;
       var rx = (a*a+b*b-c*c)/(2*a);
       p2.x += a - rx;
       var ry = Math.sqrt(b*b - rx*rx)
       p2.y += ry;
-      console.log("TRIANGLE",p0,p1,p2);
-      return { p0:p0,p1:p1,p2:p2, draw:"["+p0.x+","+p0.y+","+p1.x+","+p1.y+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+"],["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]"};
+      if (px) {
+          px = px.split(",");
+          ptxt = ' ['+(p0.x-1.0)+','+(p0.y-1.0)+',\"'+px[0]+'\"]';
+          ptxt += ',['+(p1.x+0.5)+','+(p0.y-1.0)+',\"'+px[1]+'\"]';
+          ptxt += ',['+(p2.x-0.5)+','+(p2.y+0.5)+',\"'+px[2]+'\"]';
+      }
+      if (sx) {
+          sx = sx.split(",");
+          stxt = ' ['+(p0.x+a/2-0.5)+','+(p0.y-1.0)+',\"'+sx[0]+'\"]';
+          stxt += ',['+(p1.x-rx/2)+','+(p2.y/2)+',\"'+sx[1]+'\"]';
+          stxt += ',['+(p0.x+(a-rx)/2-1)+','+(p2.y/2)+',\"'+sx[2]+'\"]';
+      }
+      var draw ="["+p0.x+","+p0.y+","+p1.x+","+p1.y+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+"],["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]";
+      return { p0:p0,p1:p1,p2:p2, draw:draw, ptxt:ptxt, stxt:stxt };
     }
 
   , leastfactor:function(n) {
