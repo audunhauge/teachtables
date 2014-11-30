@@ -1001,8 +1001,9 @@ var qz = {
   , point:function(x,y) {
       return { x:x, y:y };
     }
-  , triangle:function(p,a,b,c,px,sx) {
-      // assumes p:point, a:num, b:num,c:numbers
+  , triangle:function(p,q,a,b,c,px,sx) {
+      // assumes p:point,q:point, a:num, b:num,c:num,px:string,sx:string
+      // if (a<0) then the direction of first line will be reversed
       // creates a triangle
       //          /\
       //         / |\      c²=a²+b²-2ab cos(C)
@@ -1014,33 +1015,88 @@ var qz = {
       //
       //  returns p0,p1,p2 and draw:lines to draw the triangle, ptxt: text for points, stxt: text for sides
       //  px and sx are csv
+      //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
+      //  if q == null then unitvector (1,0) is used (along x-axis)
       var p0 = _.clone(p);
       var p1 = _.clone(p);
-      var p2 = _.clone(p);
+      var p2 = _.clone(p1);
       var m = Math.max(a,b,c);  // the longest side may not be more than half total length all sides
       if (m >= (a+b+c)/2) {   // one side is too long
         return { p0:p0,p1:p1,p2:p2, draw:"",ptxt:"",stxt:""};
       }
+      var v = qz.point(1,0);  // use point as vector
+      if (q != null) {
+         // need to create unit vector (p,q)
+         v = qz.point(q.x-p.x,q.y-p.y);
+         var d = Math.sqrt(v.x*v.x+v.y*v.y);
+         v.x = (q.x-p.x)/d;
+         v.y = (q.y-p.y)/d;
+      }
+      var n = qz.point(-v.y,v.x);          // normal vector for v
+      console.log("V=(",v.x,",",v.y,")");
       var ptxt = "", stxt ="";
-      p1.x += a;
+      p1.x += a*v.x;
+      p1.y += a*v.y;
       var rx = (a*a+b*b-c*c)/(2*a);
-      p2.x += a - rx;
+      p2.x += (a - rx)*v.x;
+      p2.y += (a - rx)*v.y;
       var ry = Math.sqrt(b*b - rx*rx)
-      p2.y += ry;
+      p2.x += ry*n.x;
+      p2.y += ry*n.y;
       if (px) {
           px = px.split(",");
-          ptxt = ' ['+(p0.x-1.0)+','+(p0.y-1.0)+',\"'+px[0]+'\"]';
-          ptxt += ',['+(p1.x+0.5)+','+(p0.y-1.0)+',\"'+px[1]+'\"]';
-          ptxt += ',['+(p2.x-0.5)+','+(p2.y+0.5)+',\"'+px[2]+'\"]';
+          ptxt = ' ['+(p0.x-v.x/2-n.x/2).toFixed(3)+','+(p0.y-v.y/2-n.y/2).toFixed(3)+',\"'+px[0]+'\"]';
+          ptxt += ',['+(p1.x+v.x/3-n.x/2).toFixed(3)+','+(p1.y+v.y/3-n.y/2).toFixed(3)+',\"'+px[1]+'\"]';
+          ptxt += ',['+(p2.x+n.x/2).toFixed(3)+','+(p2.y+n.y/5).toFixed(3)+',\"'+px[2]+'\"]';
       }
       if (sx) {
           sx = sx.split(",");
-          stxt = ' ['+(p0.x+a/2-0.5)+','+(p0.y-1.0)+',\"'+sx[0]+'\"]';
-          stxt += ',['+(p1.x-rx/2)+','+(p2.y/2)+',\"'+sx[1]+'\"]';
-          stxt += ',['+(p0.x+(a-rx)/2-1)+','+(p2.y/2)+',\"'+sx[2]+'\"]';
+          stxt = ' ['+(p0.x+v.x*a/2).toFixed(3)+','+(p0.y+v.y*a/2).toFixed(3)+',\"'+sx[0]+'\"]';
+          stxt += ',['+(p1.x-v.x*rx/2+ry*n.x/2).toFixed(3)+','+(p1.y-v.y*rx/2+ry*n.y/2).toFixed(3)+',\"'+sx[1]+'\"]';
+          stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(3)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(3)+',\"'+sx[2]+'\"]';
       }
       var draw ="["+p0.x+","+p0.y+","+p1.x+","+p1.y+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+"],["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]";
       return { p0:p0,p1:p1,p2:p2, draw:draw, ptxt:ptxt, stxt:stxt };
+    }
+  , rectangle:function(p,q,a,b,px,sx,color) {
+      // assumes p:point,q:point, a:num, b:num,px:string,sx:string
+      // use negative a to draw first line in opposite direction
+      // creates a rectangle
+      //        _______
+      //       |       |  
+      //       |       |b
+      //       |       |
+      //       |_______|  
+      //    p      a      
+      //           
+      //
+      //  returns p0,p1,p2,p3 and draw:lines to draw the rect, ptxt: text for points, stxt: text for sides
+      //  px and sx are csv
+      //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
+      //  if q == null then unitvector (1,0) is used (along x-axis)
+      var p0 = _.clone(p);
+      var p1 = _.clone(p);
+      var v = qz.point(1,0);  // use point as vector
+      if (q != null) {
+         // need to create unit vector (p,q)
+         v = qz.point(q.x-p.x,q.y-p.y);
+         var d = Math.sqrt(v.x*v.x+v.y*v.y);
+         v.x = (q.x-p.x)/d;
+         v.y = (q.y-p.y)/d;
+      }
+      var n = qz.point(-v.y,v.x);          // normal vector for v
+      p1.x += a*v.x;
+      p1.y += a*v.y;
+      var p2 = _.clone(p1);
+      p2.x += b*n.x;
+      p2.y += b*n.y;
+      var p3 = _.clone(p0);
+      p3.x += b*n.x;
+      p3.y += b*n.y;
+      var ptxt = "", stxt ="";
+      color = color ? ","+color : "";
+      var draw ="["+p0.x+","+p0.y+","+p1.x+","+p1.y+color+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+color+"],["+p2.x+","+p2.y+","+p3.x+","+p3.y+color+"],["+p3.x+","+p3.y+","+p0.x+","+p0.y+color+"]";
+      return { p0:p0,p1:p1,p2:p2,p3:p3, draw:draw, ptxt:ptxt, stxt:stxt };
     }
 
   , leastfactor:function(n) {
@@ -1283,6 +1339,7 @@ var qz = {
        , factor:qz.factor
        , point:qz.point
        , triangle:qz.triangle
+       , rectangle:qz.rectangle
        , leastfactor:qz.leastfactor
        , getnthprime:qz.getnthprime
        , modinv:qz.modinv
