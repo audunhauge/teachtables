@@ -745,7 +745,7 @@ function myattend(stuid) {
 function getreglist(roomid,julday) {
    // run for side-effect
    // as this is async
-      $j.getJSON(mybase+"/elevstarb", { romid:roomid, julday:julday }, function(data) {
+      $j.getJSON(mybase+"/log/elevstarb", { romid:roomid, julday:julday }, function(data) {
           if (data && data.elever) {
             var regliste = [];
             for (var id in data.elever) {
