@@ -60,7 +60,7 @@ exports.feide =function(req, res) {
           uname = uname.replace(/Ø/g,"%C3%98");
           uname = uname.replace(/Æ/g,"%C3%86");
           uname = uname.replace(/ü/g,"%C3%BC");
-          res.redirect(base +'log/'+ target + "?navn="+uname);
+          res.redirect(base +'/log'+ target + "?navn="+uname);
         } else {
           console.log("FAILED");
           res.redirect(base);
