@@ -44,7 +44,7 @@ exports.feide =function(req, res) {
       var now = req.query.now;
       var pid = req.query.pid;
       var target = req.query.target || '';
-      if (target) target = '/' + target;
+      if (target) target = 'log/' + target;
       console.log("FEIDE:",ini4,tok,target);
       usr.feide(tok, ini4, now, pid, function(user) {
         if (user) {
@@ -60,7 +60,7 @@ exports.feide =function(req, res) {
           uname = uname.replace(/Ø/g,"%C3%98");
           uname = uname.replace(/Æ/g,"%C3%86");
           uname = uname.replace(/ü/g,"%C3%BC");
-          res.redirect(base +'/log'+ target + "?navn="+uname);
+          res.redirect(base + target + "?navn="+uname);
         } else {
           console.log("FAILED");
           res.redirect(base);
