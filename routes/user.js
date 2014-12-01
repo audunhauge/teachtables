@@ -44,7 +44,7 @@ exports.feide =function(req, res) {
       var now = req.query.now;
       var pid = req.query.pid;
       var target = req.query.target || '';
-      if (target) target = 'log/' + target;
+      if (target) target = '/log/' + target;
       console.log("FEIDE:",ini4,tok,target);
       usr.feide(tok, ini4, now, pid, function(user) {
         if (user) {
