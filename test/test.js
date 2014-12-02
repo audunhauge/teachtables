@@ -337,6 +337,23 @@ describe("Quiz", function(){
         });
       });
 
+      // testing triangle
+      describe("#triangle", function(){
+        it("should draw simple triangle ", function(){
+          var result = qz.triangle({x:0,y:0},null,3,4,5);
+          expect(result).to.deep.equal(
+            {
+            "draw": "[0,0,3,0],[3,0,3,4],[3,4,0,0]",
+            "p0": { "x": 0, "y": 0 },
+            "p1": { "x": 3, "y": 0 },
+            "p2": { "x": 3, "y": 4 },
+            "ptxt": "",
+            "stxt": ""
+            }
+          );
+        });
+      });
+
       // testing getQobj
       describe("#getQobj", function(){
         it("should parse info", function(){

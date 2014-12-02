@@ -1001,9 +1001,11 @@ var qz = {
   , point:function(x,y) {
       return { x:x, y:y };
     }
-  , triangle:function(p,q,a,b,c,px,sx) {
-      // assumes p:point,q:point, a:num, b:num,c:num,px:string,sx:string
+  , triangle:function(p,q,a,b,c,px,sx,color) {
+      // p:point,q:point, a:num, b:num,c:num,px:string,sx:string,color:string
+      // color:"111"  use "1 2" to draw first line with color 1, last with color 2 (2. line not drawn)
       // if (a<0) then the direction of first line will be reversed
+      // -b to flip to other side of vector
       // creates a triangle
       //          /\
       //         / |\      c²=a²+b²-2ab cos(C)
@@ -1017,10 +1019,16 @@ var qz = {
       //  px and sx are csv
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
       //  if q == null then unitvector (1,0) is used (along x-axis)
+      var c0,c1,c2;
+      var draw = [];
+      if (color == undefined) color ="111";
       var p0 = _.clone(p);
       var p1 = _.clone(p);
       var p2 = _.clone(p1);
       var m = Math.max(a,b,c);  // the longest side may not be more than half total length all sides
+      c0 = color.charAt(0);
+      c1 = color.charAt(1);
+      c2 = color.charAt(2);
       if (m >= (a+b+c)/2) {   // one side is too long
         return { p0:p0,p1:p1,p2:p2, draw:"",ptxt:"",stxt:""};
       }
@@ -1033,7 +1041,6 @@ var qz = {
          v.y = (q.y-p.y)/d;
       }
       var n = qz.point(-v.y,v.x);          // normal vector for v
-      console.log("V=(",v.x,",",v.y,")");
       var ptxt = "", stxt ="";
       p1.x += a*v.x;
       p1.y += a*v.y;
@@ -1043,6 +1050,10 @@ var qz = {
       var ry = Math.sqrt(b*b - rx*rx)
       p2.x += ry*n.x;
       p2.y += ry*n.y;
+      if (c0 != " ")  draw.push( "["+p0.x+","+p0.y+","+p1.x+","+p1.y+"]");
+      if (c1 != " ")  draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+"]");
+      if (c2 != " ")  draw.push("["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]");
+      draw = draw.join(",");
       if (px) {
           px = px.split(",");
           ptxt = ' ['+(p0.x-2*v.x/3-n.x/2).toFixed(3)+','+(p0.y-2*v.y/3-n.y/2).toFixed(3)+',\"'+px[0]+'\"]';
@@ -1055,10 +1066,9 @@ var qz = {
           stxt += ',['+(p1.x-2*v.x*rx/3+ry*n.x/2).toFixed(3)+','+(p1.y-2*v.y*rx/3+ry*n.y/2).toFixed(3)+',\"'+sx[1]+'\"]';
           stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(3)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(3)+',\"'+sx[2]+'\"]';
       }
-      var draw ="["+p0.x+","+p0.y+","+p1.x+","+p1.y+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+"],["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]";
       return { p0:p0,p1:p1,p2:p2, draw:draw, ptxt:ptxt, stxt:stxt };
     }
-  , rectangle:function(p,q,a,b,px,sx,color) {
+  , rectangle:function(p,q,a,b,px,sx,opts) {
       // assumes p:point,q:point, a:num, b:num,px:string,sx:string
       // use negative a to draw first line in opposite direction
       // creates a rectangle
