@@ -343,7 +343,20 @@ describe("Quiz", function(){
           var result = qz.triangle({x:0,y:0},null,3,4,5);
           expect(result).to.deep.equal(
             {
-            "draw": "[0,0,3,0],[3,0,3,4],[3,4,0,0]",
+            "draw": "[0,0,3,0,1],[3,0,3,4,1],[3,4,0,0,1]",
+            "p0": { "x": 0, "y": 0 },
+            "p1": { "x": 3, "y": 0 },
+            "p2": { "x": 3, "y": 4 },
+            "ptxt": "",
+            "stxt": ""
+            }
+          );
+        });
+        it("should draw just one line triangle ", function(){
+          var result = qz.triangle({x:0,y:0},null,3,4,5,"","","1  ");
+          expect(result).to.deep.equal(
+            {
+            "draw": "[0,0,3,0,1]",
             "p0": { "x": 0, "y": 0 },
             "p1": { "x": 3, "y": 0 },
             "p2": { "x": 3, "y": 4 },

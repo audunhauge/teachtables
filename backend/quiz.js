@@ -1021,7 +1021,7 @@ var qz = {
       //  if q == null then unitvector (1,0) is used (along x-axis)
       var c0,c1,c2;
       var draw = [];
-      if (color == undefined) color ="111";
+      if (color == undefined) color ="000";
       var p0 = _.clone(p);
       var p1 = _.clone(p);
       var p2 = _.clone(p1);
@@ -1050,14 +1050,14 @@ var qz = {
       var ry = Math.sqrt(b*b - rx*rx)
       p2.x += ry*n.x;
       p2.y += ry*n.y;
-      if (c0 != " ")  draw.push( "["+p0.x+","+p0.y+","+p1.x+","+p1.y+"]");
-      if (c1 != " ")  draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+"]");
-      if (c2 != " ")  draw.push("["+p2.x+","+p2.y+","+p0.x+","+p0.y+"]");
+      if (c0 != " ")  draw.push( "["+p0.x+","+p0.y+","+p1.x+","+p1.y+","+c0+"]");
+      if (c1 != " ")  draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+","+c1+"]");
+      if (c2 != " ")  draw.push("["+p2.x+","+p2.y+","+p0.x+","+p0.y+","+c2+"]");
       draw = draw.join(",");
       if (px) {
           px = px.split(",");
-          ptxt = ' ['+(p0.x-2*v.x/3-n.x/2).toFixed(3)+','+(p0.y-2*v.y/3-n.y/2).toFixed(3)+',\"'+px[0]+'\"]';
-          ptxt += ',['+(p1.x+v.x/3-n.x/2).toFixed(3)+','+(p1.y+v.y/3-n.y/2).toFixed(3)+',\"'+px[1]+'\"]';
+          ptxt = ' ['+(p0.x-0.5-v.x/3-n.x/3).toFixed(3)+','+(p0.y-0.5-v.y/3-n.y/3).toFixed(3)+',\"'+px[0]+'\"]';
+          ptxt += ',['+(p1.x+v.x/3-4*n.x/5).toFixed(3)+','+(p1.y+v.y/3-4*n.y/5).toFixed(3)+',\"'+px[1]+'\"]';
           ptxt += ',['+(p2.x+n.x/2).toFixed(3)+','+(p2.y+n.y/5).toFixed(3)+',\"'+px[2]+'\"]';
       }
       if (sx) {
