@@ -203,6 +203,24 @@ function lineplot(param) {
     }
   }
   // */
+  if (param.circles) {
+    console.log("some circles found",param.circles);
+    for (var pp=0; pp< param.circles.length; pp++) {
+      var poi = param.circles[pp];
+      var ppx = poi[0];
+      var ppy = poi[1];
+      var radius = Math.max(0,poi[2]);
+      var lc = poi[3] || 0;
+      g.append("svg:ellipse")
+        .attr("cx", x(ppx))
+        .attr("cy", -1 * y(ppy))
+        .attr("stroke", plotcolors(lc))
+        .attr("fill", "none")
+        .attr("rx", x(radius)-margin)
+        .attr("ry", y(radius)-margin)
+        ;
+    }
+  }
 
     //*
   if (param.vectors) {
