@@ -35,6 +35,49 @@ var parseJSON = exports.parseJSON = function (str) {
 
 }
 
+function Point(x,y) {
+    this.x = x; this.y = y;
+}
+
+Point.prototype = {
+  length:function() {
+      return Math.sqrt(this.x*this.x+this.y*this.y);
+  }
+  , add:function(v){
+      if (v instanceof Point) {
+          return new Point(this.x + v.x, this.y + v.y);
+      } else {
+          return new Point(this.x + v, this.y + v);
+      }
+  }
+  , sub:function(v){
+      if (v instanceof Point) {
+          return new Point(this.x - v.x, this.y - v.y);
+      } else {
+          return new Point(this.x - v, this.y - v);
+      }
+  }
+  , mult:function(v){
+      if (v instanceof Point) {
+          return new Point(this.x * v.x, this.y * v.y);
+      } else {
+          return new Point(this.x * v, this.y * v);
+      }
+  }
+  , div:function(v){
+      if (v instanceof Point) {
+          return new Point(this.x / v.x, this.y / v.y);
+      } else {
+          return new Point(this.x / v, this.y / v);
+      }
+  }
+  , unit:function() {
+    return this.div(this.length());
+  }
+  , norm:function() {
+    return new Point(-this.y,this.x);
+  }
+}
 
 function prep(code) {
   code = code.replace(/package/g,"function package()");
@@ -998,8 +1041,18 @@ var qz = {
       return facts;
     }
 
-  , point:function(x,y) {
-      return { x:x, y:y };
+  , circumcirc:function(o,p,q) {
+       // o:point, p:point, q:point
+       // finds center for circumcircle given three points (triangle)
+       var v = p.sub(o);
+       var u = q.sub(p);
+       var A = o.add(v.div(2));
+       var B = p.add(u.div(2));
+       v = v.unit().norm();
+       u = u.unit().norm();
+       var r = (-A.x*u.y+A.y*u.x+B.x*u.y-B.y*u.x)/(v.x*u.y-v.y*u.x);
+       var center = new Point(A.x+r*v.x,A.y+r*v.y);
+       return center;
     }
   , triangle:function(p,q,a,b,c,px,sx,color) {
       // p:point,q:point, a:num, b:num,c:num,px:string,sx:string,color:string
@@ -1022,9 +1075,10 @@ var qz = {
       var c0,c1,c2;
       var draw = [];
       if (color == undefined) color ="000";
-      var p0 = _.clone(p);
-      var p1 = _.clone(p);
-      var p2 = _.clone(p1);
+      p = new Point(p.x,p.y);
+      var p0 = new Point(p.x,p.y);
+      var p1 = new Point(p.x,p.y);
+      var p2 = new Point(p.x,p.y);
       var m = Math.max(a,b,c);  // the longest side may not be more than half total length all sides
       c0 = color.charAt(0);
       c1 = color.charAt(1);
@@ -1032,24 +1086,18 @@ var qz = {
       if (m >= (a+b+c)/2) {   // one side is too long
         return { p0:p0,p1:p1,p2:p2, draw:"",ptxt:"",stxt:""};
       }
-      var v = qz.point(1,0);  // use point as vector
+      var v = new Point(1,0);  // use point as vector
       if (q != null) {
          // need to create unit vector (p,q)
-         v = qz.point(q.x-p.x,q.y-p.y);
-         var d = Math.sqrt(v.x*v.x+v.y*v.y);
-         v.x = (q.x-p.x)/d;
-         v.y = (q.y-p.y)/d;
+         v = (new Point(q.x-p.x,q.y-p.y)).unit();
       }
-      var n = qz.point(-v.y,v.x);          // normal vector for v
+      var n = v.norm();          // normal vector for v
       var ptxt = "", stxt ="";
-      p1.x += a*v.x;
-      p1.y += a*v.y;
+      p1 = p1.add(v.mult(a));
       var rx = (a*a+b*b-c*c)/(2*a);
-      p2.x += (a - rx)*v.x;
-      p2.y += (a - rx)*v.y;
+      p2 = p2.add(v.mult(a-rx));
       var ry = Math.sqrt(b*b - rx*rx)
-      p2.x += ry*n.x;
-      p2.y += ry*n.y;
+      p2 = p2.add(n.mult(ry));
       if (c0 != " ")  draw.push( "["+p0.x+","+p0.y+","+p1.x+","+p1.y+","+c0+"]");
       if (c1 != " ")  draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+","+c1+"]");
       if (c2 != " ")  draw.push("["+p2.x+","+p2.y+","+p0.x+","+p0.y+","+c2+"]");
@@ -1066,7 +1114,8 @@ var qz = {
           stxt += ',['+(p1.x-2*v.x*rx/3+ry*n.x/2).toFixed(3)+','+(p1.y-2*v.y*rx/3+ry*n.y/2).toFixed(3)+',\"'+sx[1]+'\"]';
           stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(3)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(3)+',\"'+sx[2]+'\"]';
       }
-      return { p0:p0,p1:p1,p2:p2, draw:draw, ptxt:ptxt, stxt:stxt };
+      var center = qz.circumcirc(p0,p1,p2);
+      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt };
     }
   , rectangle:function(p,q,a,b,px,sx,opts) {
       // assumes p:point,q:point, a:num, b:num,px:string,sx:string
