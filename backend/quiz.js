@@ -1040,6 +1040,7 @@ var qz = {
       }
       return facts;
     }
+  , point:function(x,y) { return {x:x,y:y} }
 
   , circumcirc:function(o,p,q) {
        // o:point, p:point, q:point
@@ -1060,16 +1061,18 @@ var qz = {
       // if (a<0) then the direction of first line will be reversed
       // -b to flip to other side of vector
       // creates a triangle
-      //          /\
-      //         / |\      c²=a²+b²-2ab cos(C)
-      //     c  /  | \ b      cos(C) = x/b
-      //       /  h|  \         x = (a²+b²-c²)/(2a)
-      //      /____|___\        h = sqrt(b²-x²)
-      //    p        x  C
+      //          /\                                               /\
+      //         / |\      c²=a²+b²-2ab cos(C)                    /  \   incircle
+      //     c  /  | \ b      cos(C) = x/b                       / \ /\
+      //       /  h|  \         x = (a²+b²-c²)/(2a)             /   °  \ circle
+      //      /____|___\        h = sqrt(b²-x²)                /____|r__\
+      //    p        x  C                                           t
       //          a
       //
       //  returns p0,p1,p2 and draw:lines to draw the triangle, ptxt: text for points, stxt: text for sides
       //  px and sx are csv
+      //  also returns  area:num, incirc:point, r:num
+      //  area of triangle, center of incircle and radius of incircle
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
       //  if q == null then unitvector (1,0) is used (along x-axis)
       var c0,c1,c2;
@@ -1104,9 +1107,9 @@ var qz = {
       draw = draw.join(",");
       if (px) {
           px = px.split(",");
-          ptxt = ' ['+(p0.x-0.5-v.x/3-n.x/3).toFixed(3)+','+(p0.y-0.5-v.y/3-n.y/3).toFixed(3)+',\"'+px[0]+'\"]';
-          ptxt += ',['+(p1.x+v.x/3-4*n.x/5).toFixed(3)+','+(p1.y+v.y/3-4*n.y/5).toFixed(3)+',\"'+px[1]+'\"]';
-          ptxt += ',['+(p2.x+n.x/2).toFixed(3)+','+(p2.y+n.y/5).toFixed(3)+',\"'+px[2]+'\"]';
+          ptxt = ' ['+(p0.x-0.3-v.x/3-n.x/3).toFixed(3)+','+(p0.y-0.3-v.y/3-n.y/3).toFixed(3)+',\"'+px[0]+'\"]';
+          ptxt += ',['+(p1.x-0.3+v.x/3-n.x/3).toFixed(3)+','+(p1.y-0.3+v.y/3-n.y/3).toFixed(3)+',\"'+px[1]+'\"]';
+          ptxt += ',['+(p2.x+n.x/3).toFixed(3)+','+(p2.y-0.3+n.y/3).toFixed(3)+',\"'+px[2]+'\"]';
       }
       if (sx) {
           sx = sx.split(",");
@@ -1114,11 +1117,20 @@ var qz = {
           stxt += ',['+(p1.x-2*v.x*rx/3+ry*n.x/2).toFixed(3)+','+(p1.y-2*v.y*rx/3+ry*n.y/2).toFixed(3)+',\"'+sx[1]+'\"]';
           stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(3)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(3)+',\"'+sx[2]+'\"]';
       }
-      var center = qz.circumcirc(p0,p1,p2);
-      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt };
+      var ci = qz.circumcirc(p0,p1,p2);
+      a = Math.abs(a); b = Math.abs(b); c=Math.abs(c);
+      // some xtra info for a triangle thats nice to have
+      var area = Math.sqrt((a+b+c)*(a+b-c)*(a+c-b)*(b+c-a))/4;
+      var s = (a+b+c)/2;
+      var r = area/s;
+      var e = (b+a-c)/2;
+      var t = new Point(p1.x-e*v.x,p1.y-e*v.y);  // tangent for incircle on segment-a
+      var c = new Point(t.x+n.x*r,t.y+n.y*r);
+      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt, circle:{x:c.x,y:c.y}, area:area, r:r, center:{x:ci.x,y:ci.y} };
     }
-  , rectangle:function(p,q,a,b,px,sx,opts) {
-      // assumes p:point,q:point, a:num, b:num,px:string,sx:string
+  , rectangle:function(p,q,a,b,px,sx,color) {
+      // assumes p:point,q:point, a:num, b:num,px:string,sx:string,color:string
+      // color defaults to "0000" draw all 4 lines same color, a missing color hides the line
       // use negative a to draw first line in opposite direction
       // creates a rectangle
       //        _______
@@ -1133,6 +1145,13 @@ var qz = {
       //  px and sx are csv
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
       //  if q == null then unitvector (1,0) is used (along x-axis)
+      var c0,c1,c2,c3;
+      var draw = [];
+      if (color == undefined) color ="0000";
+      c0 = color.charAt(0);
+      c1 = color.charAt(1);
+      c2 = color.charAt(2);
+      c3 = color.charAt(3);
       var p0 = _.clone(p);
       var p1 = _.clone(p);
       var v = qz.point(1,0);  // use point as vector
@@ -1153,8 +1172,12 @@ var qz = {
       p3.x += b*n.x;
       p3.y += b*n.y;
       var ptxt = "", stxt ="";
+      if (c0 != " ") draw.push("["+p0.x+","+p0.y+","+p1.x+","+p1.y+","+c0+"]");
+      if (c1 != " ") draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+","+c1+"]");
+      if (c2 != " ") draw.push("["+p2.x+","+p2.y+","+p3.x+","+p3.y+","+c2+"]");
+      if (c3 != " ") draw.push("["+p3.x+","+p3.y+","+p0.x+","+p0.y+","+c3+"]");
+      draw = draw.join(",");
       color = color ? ","+color : "";
-      var draw ="["+p0.x+","+p0.y+","+p1.x+","+p1.y+color+"],["+p1.x+","+p1.y+","+p2.x+","+p2.y+color+"],["+p2.x+","+p2.y+","+p3.x+","+p3.y+color+"],["+p3.x+","+p3.y+","+p0.x+","+p0.y+color+"]";
       return { p0:p0,p1:p1,p2:p2,p3:p3, draw:draw, ptxt:ptxt, stxt:stxt };
     }
 
