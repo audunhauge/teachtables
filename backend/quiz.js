@@ -572,6 +572,19 @@ var qz = {
                  console.log("expected 1 groups of {} - found ",elm.length);
                  return hist;
                }
+               if (elm[1]) try {
+                 // assume param can be decoded as JSON
+                 eval('var dummy = {'+elm[1]+'}');
+               } catch(err) {
+                   console.log("PARSE ERROR plot",elm[1]);
+                   // clip the parameters and show each line as a text element in svg
+                   // the user might be able to see the error directly, otherwise can easily
+                   // check the code in quiz or in svg
+                   // user can see aprox 11 lines from parameter list
+                   var msg = elm[1].replace(/[\n\r]+/gm,"AZZA").replace(/[^\[\]a-zA-Z0-9 :+.,={}()*/#;-]/gm," ").split(/AZZA/);
+                   msg = (msg.map(function(e,i) { return '[1,'+(11-i)+',"'+e+'"]'})).join(",");
+                   elm[1] = 'xrange:[0,15],yrange:[0,15],width:400,height:300,text:[[1,13,"Parameter error"],[1,12,"Missing comma?"],'+msg+']';
+               }
                //dataprovider += 'var data=['+elm[0]+'];\n';
                hist = '<div id="hist'+idd+'">'+tegn+'<div class="graph"></div></div><script>' + udata;
                var param = (elm[1]) ? ','+elm[1] : '';
@@ -1101,21 +1114,21 @@ var qz = {
       p2 = p2.add(v.mult(a-rx));
       var ry = Math.sqrt(b*b - rx*rx)
       p2 = p2.add(n.mult(ry));
-      if (c0 != " ")  draw.push( "["+p0.x+","+p0.y+","+p1.x+","+p1.y+","+c0+"]");
-      if (c1 != " ")  draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+","+c1+"]");
-      if (c2 != " ")  draw.push("["+p2.x+","+p2.y+","+p0.x+","+p0.y+","+c2+"]");
+      if (c0 != " ")  draw.push( "["+(p0.x).toFixed(2)+","+(p0.y).toFixed(2)+","+(p1.x).toFixed(2)+","+(p1.y).toFixed(2)+","+c0+"]");
+      if (c1 != " ")  draw.push("["+(p1.x).toFixed(2)+","+(p1.y).toFixed(2)+","+(p2.x).toFixed(2)+","+(p2.y).toFixed(2)+","+c1+"]");
+      if (c2 != " ")  draw.push("["+(p2.x).toFixed(2)+","+(p2.y).toFixed(2)+","+(p0.x).toFixed(2)+","+(p0.y).toFixed(2)+","+c2+"]");
       draw = draw.join(",");
       if (px) {
           px = px.split(",");
-          ptxt = ' ['+(p0.x-0.3-v.x/3-n.x/3).toFixed(3)+','+(p0.y-0.3-v.y/3-n.y/3).toFixed(3)+',\"'+px[0]+'\"]';
-          ptxt += ',['+(p1.x-0.3+v.x/3-n.x/3).toFixed(3)+','+(p1.y-0.3+v.y/3-n.y/3).toFixed(3)+',\"'+px[1]+'\"]';
-          ptxt += ',['+(p2.x+n.x/3).toFixed(3)+','+(p2.y-0.3+n.y/3).toFixed(3)+',\"'+px[2]+'\"]';
+          ptxt = ' ['+(p0.x-0.3-v.x/3-n.x/3).toFixed(2)+','+(p0.y-0.3-v.y/3-n.y/3).toFixed(2)+',\"'+px[0]+'\"]';
+          ptxt += ',['+(p1.x-0.3+v.x/3-n.x/3).toFixed(2)+','+(p1.y-0.3+v.y/3-n.y/3).toFixed(2)+',\"'+px[1]+'\"]';
+          ptxt += ',['+(p2.x+n.x/3).toFixed(2)+','+(p2.y-0.3+n.y/3).toFixed(2)+',\"'+px[2]+'\"]';
       }
       if (sx) {
           sx = sx.split(",");
-          stxt = ' ['+(p0.x+v.x*a/2).toFixed(3)+','+(p0.y+v.y*a/2).toFixed(3)+',\"'+sx[0]+'\"]';
-          stxt += ',['+(p1.x-2*v.x*rx/3+ry*n.x/2).toFixed(3)+','+(p1.y-2*v.y*rx/3+ry*n.y/2).toFixed(3)+',\"'+sx[1]+'\"]';
-          stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(3)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(3)+',\"'+sx[2]+'\"]';
+          stxt = ' ['+(p0.x+v.x*a/2).toFixed(2)+','+(p0.y+v.y*a/2).toFixed(2)+',\"'+sx[0]+'\"]';
+          stxt += ',['+(p1.x-2*v.x*rx/3+ry*n.x/2).toFixed(2)+','+(p1.y-2*v.y*rx/3+ry*n.y/2).toFixed(2)+',\"'+sx[1]+'\"]';
+          stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(2)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(2)+',\"'+sx[2]+'\"]';
       }
       var ci = qz.circumcirc(p0,p1,p2);
       a = Math.abs(a); b = Math.abs(b); c=Math.abs(c);

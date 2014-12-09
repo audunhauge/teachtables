@@ -1659,7 +1659,14 @@ function edqlist() {
                           var containedqs = '';
                           if (param.qlistorder) {
                               var colr = qqa.parent ? 'redfont' : 'bluefont';
-                              containedqs = ' <span class="'+colr+'">'+param.qlistorder.length+'</span>';
+                              var parentname = '';
+                              if (qqa.parent && qqa.ptid != userinfo.id) {
+                                  if (teachers[qqa.ptid]) {
+                                  var teach = teachers[qqa.ptid];
+                                  parentname = ' title="'+(teach.firstname.substr(0,12))+ "&nbsp;"+(teach.lastname.substr(0,12)) + '" ';
+                                  }
+                              }
+                              containedqs = ' <span '+parentname+'class="'+colr+'">'+param.qlistorder.length+'</span>';
                           }
                           var shorttext = param.display || '';
                           var duup = already ? 'duup' : '';

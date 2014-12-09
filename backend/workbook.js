@@ -626,10 +626,13 @@ exports.getquesttags = function(user,query,callback) {
   var tagstring   = query.tags;  // assumed to be 'atag,anothertag,moretags'
   if (tagstring == 'quizlist') {
     // special casing - get all quizes
+    syncquiznames(user);  // update to new names - unlikely to be finished first try
+    // we expect user to reclick get all quiz for this to work
     var qtlist = { 'quizlist':{} };
-    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status,q.parent from quiz_question q  "
-        + " where q.teachid=$1 and (qtype='quiz' or qtype='container') and q.subject in "+sublist
-        + " and q.status != 9 order by modified desc", [uid],
+    client.query( "select q.id,q.qtype,q.qtext,q.name,q.teachid,q.status,q.parent,p.teachid as ptid from quiz_question q  "
+        + " left outer join quiz_question p on (q.parent = p.id) "
+        + " where q.teachid=$1 and (q.qtype='quiz' or q.qtype='container') and q.subject in "+sublist
+        + " and q.status != 9 order by q.parent,q.modified desc", [uid],
     after(function(results) {
         if (results && results.rows && results.rows[0]) {
           for (var i=0,l=results.rows.length; i<l; i++) {
@@ -1815,6 +1818,15 @@ exports.update_subscription = function(user) {
           }
       }
   }
+}
+
+function syncquiznames(user) {
+    // name of parent quiz may have changed - so update to new name
+    // if you desire to rename a copied quiz you must take ownership (parent bond broken)
+    var sql = "update quiz_question  set name = ii.name from "
+            + "( select p.name,q.id as idd from quiz_question q inner join quiz_question p on (q.parent = p.id) "
+            + " where q.qtype = 'quiz' and q.teachid = $1 and p.teachid != $1 and q.name != p.name) ii where id = ii.idd";
+      client.query( sql,[user.id]);
 }
 
 var updatequiz = exports.updatequiz = function(user,query,callback) {
