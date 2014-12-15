@@ -337,6 +337,15 @@ describe("Quiz", function(){
         });
       });
 
+      describe("#triheight", function(){
+        it("should calculate height of triangle ", function(){
+          var result = qz.triheight({x:0,y:0},{x:4,y:0},{x:4,y:4});
+          expect(result.h).to.be.within(3.99,4);
+          expect(result.s.x).to.be.within(3.99,4);
+          expect(result.s.y).to.be.within(0,0.001);
+        });
+      });
+
       // testing triangle
       describe("#triangle", function(){
         it("should draw simple triangle ", function(){

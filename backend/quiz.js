@@ -35,6 +35,11 @@ var parseJSON = exports.parseJSON = function (str) {
 
 }
 
+function pnt(x) {   // clean up for use as coordinates
+   if (x % 1 == 0) return x;
+   return x.toFixed(2);
+}
+
 function Point(x,y) {
     this.x = x; this.y = y;
 }
@@ -56,6 +61,9 @@ Point.prototype = {
       } else {
           return new Point(this.x - v, this.y - v);
       }
+  }
+  , dot:function(v){
+     return this.x*v.x+this.y*v.y;
   }
   , mult:function(v){
       if (v instanceof Point) {
@@ -1055,6 +1063,27 @@ var qz = {
     }
   , point:function(x,y) { return {x:x,y:y} }
 
+  , triheight:function(p,q,r) {
+       // p,q,r point
+       // return { h:num,s:point }
+       //                  r
+       //               . /|        
+       //            .   / | h       
+       //       p ._____/  |
+       //               q   s
+       //
+       // triangle defined by p,q,r
+       // find the height h of the triangle, h is normal to p-q 
+       // and the point s (may be on segment p-q)
+      var A = new Point(p.x,p.y), B = new Point(q.x,q.y), C = new Point(r.x,r.y);
+      var v = B.sub(A), a = v.length(), b = C.sub(B).length(), c = A.sub(C).length();
+      var area2 = Math.sqrt((a+b+c)*(a+b-c)*(a+c-b)*(b+c-a))/2;  // twice the area
+      var h = (area2)/a;  // area = (h*a)/2
+      var n = v.norm().unit();   // normal vector for p-q
+      var s = C.sub(n.mult(h));  // new point s = r - h*n
+      return { h:h, s:s };
+    }
+
   , circumcirc:function(o,p,q) {
        // o:point, p:point, q:point
        // finds center for circumcircle given three points (triangle)
@@ -1084,6 +1113,7 @@ var qz = {
       //
       //  returns p0,p1,p2 and draw:lines to draw the triangle, ptxt: text for points, stxt: text for sides
       //  px and sx are csv
+      //  atxt: text for angles (placed incide triangle)
       //  also returns  area:num, incirc:point, r:num
       //  area of triangle, center of incircle and radius of incircle
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
@@ -1114,24 +1144,39 @@ var qz = {
       p2 = p2.add(v.mult(a-rx));
       var ry = Math.sqrt(b*b - rx*rx)
       p2 = p2.add(n.mult(ry));
-      if (c0 != " ")  draw.push( "["+(p0.x).toFixed(2)+","+(p0.y).toFixed(2)+","+(p1.x).toFixed(2)+","+(p1.y).toFixed(2)+","+c0+"]");
-      if (c1 != " ")  draw.push("["+(p1.x).toFixed(2)+","+(p1.y).toFixed(2)+","+(p2.x).toFixed(2)+","+(p2.y).toFixed(2)+","+c1+"]");
-      if (c2 != " ")  draw.push("["+(p2.x).toFixed(2)+","+(p2.y).toFixed(2)+","+(p0.x).toFixed(2)+","+(p0.y).toFixed(2)+","+c2+"]");
+      if (c0 != " ")  draw.push("["+pnt(p0.x)+","+pnt(p0.y)+","+pnt(p1.x)+","+pnt(p1.y)+","+c0+"]");
+      if (c1 != " ")  draw.push("["+pnt(p1.x)+","+pnt(p1.y)+","+pnt(p2.x)+","+pnt(p2.y)+","+c1+"]");
+      if (c2 != " ")  draw.push("["+pnt(p2.x)+","+pnt(p2.y)+","+pnt(p0.x)+","+pnt(p0.y)+","+c2+"]");
       draw = draw.join(",");
       if (px) {
           px = px.split(",");
-          ptxt = ' ['+(p0.x-0.3-v.x/3-n.x/3).toFixed(2)+','+(p0.y-0.3-v.y/3-n.y/3).toFixed(2)+',\"'+px[0]+'\"]';
-          ptxt += ',['+(p1.x-0.3+v.x/3-n.x/3).toFixed(2)+','+(p1.y-0.3+v.y/3-n.y/3).toFixed(2)+',\"'+px[1]+'\"]';
-          ptxt += ',['+(p2.x+n.x/3).toFixed(2)+','+(p2.y-0.3+n.y/3).toFixed(2)+',\"'+px[2]+'\"]';
+          ptxt =  ' ['+pnt(p0.x-0.3-v.x/3-n.x/3)+','+pnt(p0.y-0.3-v.y/3-n.y/3)+',\"'+px[0]+'\"]';
+          ptxt += ',['+pnt(p1.x-0.3+v.x/3-n.x/3)+','+pnt(p1.y-0.3+v.y/3-n.y/3)+',\"'+px[1]+'\"]';
+          ptxt += ',['+pnt(p2.x+n.x/3)+','+pnt(p2.y-0.3+n.y/3)+',\"'+px[2]+'\"]';
       }
       if (sx) {
           sx = sx.split(",");
-          stxt = ' ['+(p0.x+v.x*a/2).toFixed(2)+','+(p0.y+v.y*a/2).toFixed(2)+',\"'+sx[0]+'\"]';
-          stxt += ',['+(p1.x-2*v.x*rx/3+ry*n.x/2).toFixed(2)+','+(p1.y-2*v.y*rx/3+ry*n.y/2).toFixed(2)+',\"'+sx[1]+'\"]';
-          stxt += ',['+(p0.x+2*v.x*(a-rx)/5+ry*n.x/2).toFixed(2)+','+(p0.y+v.y*(a-rx)/2+ry*n.y/2).toFixed(2)+',\"'+sx[2]+'\"]';
+          stxt = ' ['+pnt(p0.x+v.x*a/2-4*n.x/5)+','+pnt(p0.y+v.y*a/2 - 4*n.y/5)+',\"'+sx[0]+'\"]';
+          stxt += ',['+pnt(p1.x-2*v.x*rx/3+ry*n.x/2)+','+pnt(p1.y-2*v.y*rx/3+ry*n.y/2)+',\"'+sx[1]+'\"]';
+          stxt += ',['+pnt(p0.x+2*v.x*(a-rx)/5+ry*n.x/2)+','+pnt(p0.y+v.y*(a-rx)/2+ry*n.y/2)+',\"'+sx[2]+'\"]';
       }
-      var ci = qz.circumcirc(p0,p1,p2);
       a = Math.abs(a); b = Math.abs(b); c=Math.abs(c);
+      // calculate inner angles
+      var ab = p1.sub(p0);
+      var bc = p2.sub(p1);
+      var ca = p0.sub(p2);
+      var Acos = 180-Math.acos(ab.dot(ca)/(a*c))*180/Math.PI; 
+      var Bcos = 180-Math.acos(ab.dot(bc)/(a*b))*180/Math.PI; 
+      var Ccos = 180-Math.acos(bc.dot(ca)/(c*b))*180/Math.PI; 
+      var fx = new Point(-0.5,-0.5);  // adjustment to center text on point
+      var ag = p0.add(fx).add(ab.unit().sub(ca.unit()).mult(1) );  // displace angle text from p0
+      var bg = p1.add(fx).add(bc.unit().sub(ab.unit()).mult(1) );  // change mult(1) to push further
+      var cg = p2.add(fx).add(ca.unit().sub(bc.unit()).mult(1) );  // 
+      atxt = '  ['+pnt(ag.x)+','+pnt(ag.y)+',\"'+Acos.toFixed(1)+'\"]';
+      atxt += ',['+pnt(bg.x)+','+pnt(bg.y)+',\"'+Bcos.toFixed(1)+'\"]';
+      atxt += ',['+pnt(cg.x)+','+pnt(cg.y)+',\"'+Ccos.toFixed(1)+'\"]';
+      // generate circumcircle
+      var ci = qz.circumcirc(p0,p1,p2);
       // some xtra info for a triangle thats nice to have
       var area = Math.sqrt((a+b+c)*(a+b-c)*(a+c-b)*(b+c-a))/4;
       var s = (a+b+c)/2;
@@ -1139,7 +1184,7 @@ var qz = {
       var e = (b+a-c)/2;
       var t = new Point(p1.x-e*v.x,p1.y-e*v.y);  // tangent for incircle on segment-a
       var c = new Point(t.x+n.x*r,t.y+n.y*r);
-      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt, circle:{x:c.x,y:c.y}, area:area, r:r, center:{x:ci.x,y:ci.y} };
+      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt, circle:{x:c.x,y:c.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt };
     }
   , rectangle:function(p,q,a,b,px,sx,color) {
       // assumes p:point,q:point, a:num, b:num,px:string,sx:string,color:string
@@ -1185,10 +1230,10 @@ var qz = {
       p3.x += b*n.x;
       p3.y += b*n.y;
       var ptxt = "", stxt ="";
-      if (c0 != " ") draw.push("["+p0.x+","+p0.y+","+p1.x+","+p1.y+","+c0+"]");
-      if (c1 != " ") draw.push("["+p1.x+","+p1.y+","+p2.x+","+p2.y+","+c1+"]");
-      if (c2 != " ") draw.push("["+p2.x+","+p2.y+","+p3.x+","+p3.y+","+c2+"]");
-      if (c3 != " ") draw.push("["+p3.x+","+p3.y+","+p0.x+","+p0.y+","+c3+"]");
+      if (c0 != " ") draw.push("["+pnt(p0.x)+","+pnt(p0.y)+","+pnt(p1.x)+","+pnt(p1.y)+","+c0+"]");
+      if (c1 != " ") draw.push("["+pnt(p1.x)+","+pnt(p1.y)+","+pnt(p2.x)+","+pnt(p2.y)+","+c1+"]");
+      if (c2 != " ") draw.push("["+pnt(p2.x)+","+pnt(p2.y)+","+pnt(p3.x)+","+pnt(p3.y)+","+c2+"]");
+      if (c3 != " ") draw.push("["+pnt(p3.x)+","+pnt(p3.y)+","+pnt(p0.x)+","+pnt(p0.y)+","+c3+"]");
       draw = draw.join(",");
       color = color ? ","+color : "";
       return { p0:p0,p1:p1,p2:p2,p3:p3, draw:draw, ptxt:ptxt, stxt:stxt };
@@ -1434,6 +1479,7 @@ var qz = {
        , factor:qz.factor
        , point:qz.point
        , triangle:qz.triangle
+       , triheight:qz.triheight
        , rectangle:qz.rectangle
        , leastfactor:qz.leastfactor
        , getnthprime:qz.getnthprime
