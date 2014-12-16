@@ -902,7 +902,7 @@ function showResults(group,container,contopt) {
                  his = reslist[uui].hist;
                }
                var face = '';
-               if (teachesThisCourse) {
+               if (!anonym && teachesThisCourse) {
                    var pix = euids[uui] ? euids[uui]+'.jpg' : 'anonym.gif';
                    face = '<div class="upic"><img src="/skeisvangstat/pic/'+pix+'"></div>';
                }
