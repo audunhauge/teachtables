@@ -639,20 +639,15 @@ var qz = {
                 return hist;
                break;
            case 'hist':
-            //   width of interval and height
-            if (userdata) {
-              tegn = '<div class="gradebutton">Tegn</div>';
-            } else {
-              var elm = [];
-              params.replace(/{([^ª]+?)}/g,function(mm,cc) {
-                   elm.push(cc);
-                });
-              if (elm.length < 1) {
+            var elm = [];
+            params.replace(/{([^ª]+?)}/g,function(mm,cc) {
+                elm.push(cc);
+            });
+            if (elm.length < 1) {
                 console.log("expected 1 groups of {} - found ",elm.length);
                 return hist;
-              }
-              dataprovider =  'var data=['+elm[0]+'];\n'
             }
+            dataprovider =  'var data=['+elm[0]+'];\n'
             hist = '<div id="hist'+qid+'_'+instance+'_'+idx+'">'+tegn+'</div><script>'
                    + dataprovider
                    + 'if (data.length > 0) {\n'
@@ -688,53 +683,19 @@ var qz = {
                    + '     .attr("y2", 20+h -y(0)- .5)\n'
                    + '     .style("stroke", "#000");\n'
                    + '}\n'
-                   + ((userdata) ? (
-                       '$j("#hist'+qid+'_'+instance+'_'+idx+'").undelegate(".gradebutton","click");\n'
-                     + '$j("#hist'+qid+'_'+instance+'_'+idx+'").delegate(".gradebutton","click",function() {\n'
-                     + '   data = [];\n'
-                     + '   var ch = $j("#quest'+qid+'_'+instance+' .fillin input");\n'
-                     + '   for (var i=0, l=ch.length; i<l; i++) {\n'
-                     + '      var opti = $j(ch[i]).val();\n'
-                     + '     data[i] = opti\n'
-                     + '   }\n'
-                     + ' var start=[],width=[], freq=[], sum = 0;\n'
-                     + ' for (var i=0, l=data.length; i<l; i += 2) {\n'
-                     + '   width.push(+data[i]);\n'
-                     + '   freq.push(+data[i+1]);\n'
-                     + '   start.push(+sum);\n'
-                     + '   sum += +data[i];\n'
-                     + ' }\n'
-                     + '   y.domain([0,Math.max.apply(null, freq) ]);\n'
-                     + '   if (freq.length > 0) {\n'
-                     + '    chart'+idx+'.selectAll("rect") \n'
-                     + '     .data(freq) \n'
-                     + '     .transition() \n'
-                     + '     .duration(1000) \n'
-                     + '     .attr("x", function(d, i) { return 5*start[i] - .5; }) \n'
-                     + '     .attr("y", function(d,i) { return 20+h - y(d) - .5; }) \n'
-                     + '     .attr("width", function(d,i) { return 5*width[i]; }) \n'
-                     + '     .attr("height", function(d) { return y(d); }); \n'
-                     + '    }\n'
-                     + ' })\n'
-                     ) : '')
                    + '</script>';
-               //console.log(hist);
                return hist;
              break;
            case 'bar':
-            if (userdata) {
-              tegn = '<div class="gradebutton">Tegn</div>';
-            } else {
-              var elm = [];
-              params.replace(/{([^ª]+?)}/g,function(mm,cc) {
+            var elm = [];
+            params.replace(/{([^ª]+?)}/g,function(mm,cc) {
                    elm.push(cc);
                 });
-              if (elm.length < 1) {
+            if (elm.length < 1) {
                 console.log("expected 1 groups of {} - found ",elm.length);
                 return hist;
-              }
-              dataprovider = 'var data=['+elm[0]+'];\n';
             }
+            dataprovider = 'var data=['+elm[0]+'];\n';
             hist = '<div id="hist'+qid+'_'+instance+'_'+idx+'">'+tegn+'</div><script>'
                    + dataprovider
                    + 'if (data.length > 0) {\n'
@@ -772,30 +733,7 @@ var qz = {
                    + '     .attr("text-anchor", "top") // text-align: right\n'
                    + '     .text(String);\n'
                    + '}\n'
-                   + ((userdata) ? (
-                       '$j("#hist'+qid+'_'+instance+'_'+idx+'").undelegate(".gradebutton","click");\n'
-                     + '$j("#hist'+qid+'_'+instance+'_'+idx+'").delegate(".gradebutton","click",function() {\n'
-                     + '   data = [];\n'
-                     + '   var ch = $j("#quest'+qid+'_'+instance+' .fillin input");\n'
-                     + '   for (var i=0, l=ch.length; i<l; i++) {\n'
-                     + '      var opti = $j(ch[i]).val();\n'
-                     + '     data[i] = opti\n'
-                     + '   }\n'
-                     + '   y.domain([0,Math.max.apply(null, data) ]);\n'
-                     + '   if (data.length > 0) {\n'
-                     + '    chart'+idx+'.selectAll("rect") \n'
-                     + '     .data(data) \n'
-                     + '     .transition() \n'
-                     + '     .duration(1000) \n'
-                     + '     .attr("x", function(d, i) { return x(i) - .5; }) \n'
-                     + '     .attr("y", function(d,i) { return 20+h - y(d) - .5; }) \n'
-                     + '     .attr("width", w) \n'
-                     + '     .attr("height", function(d) { return y(d); }); \n'
-                     + '    }\n'
-                     + ' })\n'
-                     ) : '')
                    + '</script>';
-               //console.log(hist);
                return hist;
              break;
          }
@@ -1138,7 +1076,7 @@ var qz = {
          v = (new Point(q.x-p.x,q.y-p.y)).unit();
       }
       var n = v.norm();          // normal vector for v
-      var ptxt = "", stxt ="";
+      var ptxt = "", stxt ="", arcs="";
       p1 = p1.add(v.mult(a));
       var rx = (a*a+b*b-c*c)/(2*a);
       p2 = p2.add(v.mult(a-rx));
@@ -1179,6 +1117,17 @@ var qz = {
       atxt = '  ['+pnt(ag.x)+','+pnt(ag.y)+',\"'+Acos.toFixed(1)+'\"]';
       atxt += ',['+pnt(bg.x)+','+pnt(bg.y)+',\"'+Bcos.toFixed(1)+'\"]';
       atxt += ',['+pnt(cg.x)+','+pnt(cg.y)+',\"'+Ccos.toFixed(1)+'\"]';
+      // data for drawing arcs for angles
+      var aga,agb;
+      aga = p0.add(ab.unit());
+      agb = p0.sub(ca.unit());
+      arcs = '  ['+pnt(aga.x)+','+pnt(aga.y)+',0.2,'+pnt(agb.x)+','+pnt(agb.y)+']';
+      agb = p1.sub(ab.unit());
+      aga = p1.add(bc.unit());
+      arcs += ' ,['+pnt(aga.x)+','+pnt(aga.y)+',0.2,'+pnt(agb.x)+','+pnt(agb.y)+']';
+      agb = p2.sub(bc.unit());
+      aga = p2.add(ca.unit());
+      arcs += ' ,['+pnt(aga.x)+','+pnt(aga.y)+',0.2,'+pnt(agb.x)+','+pnt(agb.y)+']';
       // generate circumcircle
       var ci = qz.circumcirc(p0,p1,p2);
       // some xtra info for a triangle thats nice to have
@@ -1188,7 +1137,8 @@ var qz = {
       var e = (b+a-c)/2;
       var t = new Point(p1.x-e*v.x,p1.y-e*v.y);  // tangent for incircle on segment-a
       var c = new Point(t.x+n.x*r,t.y+n.y*r);
-      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt, circle:{x:c.x,y:c.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt };
+      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt, 
+               circle:{x:c.x,y:c.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt, arcs:arcs };
     }
   , rectangle:function(p,q,a,b,px,sx,color) {
       // assumes p:point,q:point, a:num, b:num,px:string,sx:string,color:string

@@ -182,6 +182,23 @@ function lineplot(param) {
     }
     //*
     //
+  if (param.arcs) {
+    // assumed to be [    [a,b,r,c,d], ....     ]
+    for (var pp=0; pp< param.arcs.length; pp++) {
+      var poi = param.arcs[pp];
+      var d1 = {}, d2 = {}, rx,ry;
+      d1.x = x(poi[0]);
+      d1.y = y(poi[1]);
+      rx   = x(poi[2]);
+      ry   = y(poi[2]);
+      d2.x = x(poi[3]);
+      d2.y = y(poi[4]);
+      g.append("svg:path")
+      .attr("d", "M "+d1.x+" "+(-1*d1.y)+" A "+rx+" "+ry+" 0 0 0 "+d2.x+" "+(-1*d2.y))
+      .attr("stroke", plotcolors(1) )
+      .attr("fill", "black")
+    }
+  }
   if (param.textpath) {
     // assumed to be [    [a,b,c,d,"txt"], ....     ]
     // used to guide text along a path
