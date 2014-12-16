@@ -419,16 +419,32 @@ path {
 line.yTicks, line.xTicks {
    stroke: black;
    stroke-width: 0.3;
-}   
+}
 
 text {
   font-family: Arial;
   font-size: 0.5em;
 }
 
+text.textlabel.huge {
+  font-size: 1.5em;
+}
+text.textlabel.large {
+  font-size: 1.2em;
+}
+text.textlabel.medium {
+  font-size: 0.8em;
+}
+text.textlabel.small {
+  font-size: 0.65em;
+}
+text.textlabel.tiny {
+  font-size: 0.45em;
+}
+
 text.funlabel {
   font-family: Arial;
-  font-size: 0.7em;
+  font-size: 1.7em;
 }
 
 .chart rect {

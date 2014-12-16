@@ -30,6 +30,7 @@ function lineplot(param) {
       target = param.target || 'body',
       jitter = +param.jitter || 0,
       pointsize = param.pointsize || 1,
+      textsize = param.textsize || 'medium';
       plotcolors = d3.scale.category10(),
       w = +param.width || 200,
       h = +param.height || 200,
@@ -143,6 +144,7 @@ function lineplot(param) {
 
   vis.append("marker")
       .attr("id", "arrowhead")
+      .attr("class", "arrow")
       .attr("refX", 9)
       .attr("refY", 5)
       .attr("viewBox","0 0 10 10")
@@ -180,8 +182,30 @@ function lineplot(param) {
     }
     //*
     //
+  if (param.textpath) {
+    // assumed to be [    [a,b,c,d,"txt"], ....     ]
+    // used to guide text along a path
+    for (var pp=0; pp< param.textpath.length; pp++) {
+      var poi = param.textpath[pp];
+      var d1 = {}, d2 = {};
+      d1.x = x(poi[0]);
+      d1.y = y(poi[1]);
+      d2.x = x(poi[2]);
+      d2.y = y(poi[3]);
+      var tx = poi[4];
+      var lc = poi[4] || 0;
+      g.append("svg:path")
+      .attr("d", "M "+d1.x+" "+(-1*d1.y)+" L "+d2.x+" "+(-1*d2.y))
+      .attr("id", "line"+pp)
+      g.append("svg:text")
+        .attr("class", "textlabel "+textsize)
+        .append("svg:textPath")
+          .attr("xlink:href", "#line"+pp)
+          .text(tx)
+    }
+  }
   if (param.lines) {
-    console.log("some lines found",param.lines);
+    //console.log("some lines found",param.lines);
     // assumed to be [    [a,b,c,d], ....     ]
     for (var pp=0; pp< param.lines.length; pp++) {
       var poi = param.lines[pp];
@@ -192,6 +216,7 @@ function lineplot(param) {
       d2.y = y(poi[3]);
       var lc = poi[4] || 0;
       g.append("svg:line")
+        .attr("id", "line"+pp)
         .attr("x1",d1.x)
         .attr("y1",-1*d1.y)
         .attr("stroke", plotcolors(lc) )
@@ -267,12 +292,14 @@ function lineplot(param) {
       }
     }
   }
+
+
   if (param.text ) {
     var text = param.text;
     for (i=0; i<text.length; i++) {
       var tx = text[i];
       g.append("svg:text")
-        .attr("class", "textlabel")
+        .attr("class", "textlabel "+textsize)
         .text(tx[2])
         .attr("x", x(tx[0]) )
         .attr("y", -1*y(tx[1]) )

@@ -1067,13 +1067,13 @@ var qz = {
        // p,q,r point
        // return { h:num,s:point }
        //                  r
-       //               . /|        
-       //            .   / | h       
+       //               . /|
+       //            .   / | h
        //       p ._____/  |
        //               q   s
        //
        // triangle defined by p,q,r
-       // find the height h of the triangle, h is normal to p-q 
+       // find the height h of the triangle, h is normal to p-q
        // and the point s (may be on segment p-q)
       var A = new Point(p.x,p.y), B = new Point(q.x,q.y), C = new Point(r.x,r.y);
       var v = B.sub(A), a = v.length(), b = C.sub(B).length(), c = A.sub(C).length();
@@ -1148,6 +1148,10 @@ var qz = {
       if (c1 != " ")  draw.push("["+pnt(p1.x)+","+pnt(p1.y)+","+pnt(p2.x)+","+pnt(p2.y)+","+c1+"]");
       if (c2 != " ")  draw.push("["+pnt(p2.x)+","+pnt(p2.y)+","+pnt(p0.x)+","+pnt(p0.y)+","+c2+"]");
       draw = draw.join(",");
+      var ab = p1.sub(p0);
+      var bc = p2.sub(p1);
+      var ca = p0.sub(p2);
+      a = Math.abs(a); b = Math.abs(b); c=Math.abs(c);
       if (px) {
           px = px.split(",");
           ptxt =  ' ['+pnt(p0.x-0.3-v.x/3-n.x/3)+','+pnt(p0.y-0.3-v.y/3-n.y/3)+',\"'+px[0]+'\"]';
@@ -1156,22 +1160,22 @@ var qz = {
       }
       if (sx) {
           sx = sx.split(",");
-          stxt = ' ['+pnt(p0.x+v.x*a/2-4*n.x/5)+','+pnt(p0.y+v.y*a/2 - 4*n.y/5)+',\"'+sx[0]+'\"]';
-          stxt += ',['+pnt(p1.x-2*v.x*rx/3+ry*n.x/2)+','+pnt(p1.y-2*v.y*rx/3+ry*n.y/2)+',\"'+sx[1]+'\"]';
-          stxt += ',['+pnt(p0.x+2*v.x*(a-rx)/5+ry*n.x/2)+','+pnt(p0.y+v.y*(a-rx)/2+ry*n.y/2)+',\"'+sx[2]+'\"]';
+          var pb,pa;
+          pa = p0.add(v.mult(a/2)).sub(n.div(1)); pb = pa.add(v.mult(a));
+          stxt = ' ['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[0]+'\"]';
+          pa = p2.sub(bc.unit().mult(b/2)).sub(bc.unit().norm().div(2)); pb = pa.sub(bc.unit().mult(b));
+          stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[1]+'\"]';
+          pa = p0.sub(ca.unit().mult(c/2)).sub(ca.unit().norm().div(2)); pb = pa.sub(ca.unit().mult(c));
+          stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[2]+'\"]';
       }
-      a = Math.abs(a); b = Math.abs(b); c=Math.abs(c);
       // calculate inner angles
-      var ab = p1.sub(p0);
-      var bc = p2.sub(p1);
-      var ca = p0.sub(p2);
-      var Acos = 180-Math.acos(ab.dot(ca)/(a*c))*180/Math.PI; 
-      var Bcos = 180-Math.acos(ab.dot(bc)/(a*b))*180/Math.PI; 
-      var Ccos = 180-Math.acos(bc.dot(ca)/(c*b))*180/Math.PI; 
+      var Acos = 180-Math.acos(ab.dot(ca)/(a*c))*180/Math.PI;
+      var Bcos = 180-Math.acos(ab.dot(bc)/(a*b))*180/Math.PI;
+      var Ccos = 180-Math.acos(bc.dot(ca)/(c*b))*180/Math.PI;
       var fx = new Point(-0.5,-0.5);  // adjustment to center text on point
       var ag = p0.add(fx).add(ab.unit().sub(ca.unit()).mult(1) );  // displace angle text from p0
       var bg = p1.add(fx).add(bc.unit().sub(ab.unit()).mult(1) );  // change mult(1) to push further
-      var cg = p2.add(fx).add(ca.unit().sub(bc.unit()).mult(1) );  // 
+      var cg = p2.add(fx).add(ca.unit().sub(bc.unit()).mult(1) );  //
       atxt = '  ['+pnt(ag.x)+','+pnt(ag.y)+',\"'+Acos.toFixed(1)+'\"]';
       atxt += ',['+pnt(bg.x)+','+pnt(bg.y)+',\"'+Bcos.toFixed(1)+'\"]';
       atxt += ',['+pnt(cg.x)+','+pnt(cg.y)+',\"'+Ccos.toFixed(1)+'\"]';
@@ -1477,7 +1481,8 @@ var qz = {
        , getprime:qz.getprime
        , isprime:qz.isprime
        , factor:qz.factor
-       , point:qz.point
+       , point:qz.point            // simple point - only props x,y
+       , Point:Point               // add,mult,sub.unit,length,norm,dot,div
        , triangle:qz.triangle
        , triheight:qz.triheight
        , rectangle:qz.rectangle
