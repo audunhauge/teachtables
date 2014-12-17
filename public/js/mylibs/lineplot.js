@@ -202,6 +202,7 @@ function lineplot(param) {
   if (param.textpath) {
     // assumed to be [    [a,b,c,d,"txt"], ....     ]
     // used to guide text along a path
+    console.log(param.textpath);
     for (var pp=0; pp< param.textpath.length; pp++) {
       var poi = param.textpath[pp];
       var d1 = {}, d2 = {};
@@ -233,7 +234,6 @@ function lineplot(param) {
       d2.y = y(poi[3]);
       var lc = poi[4] || 0;
       g.append("svg:line")
-        .attr("id", "line"+pp)
         .attr("x1",d1.x)
         .attr("y1",-1*d1.y)
         .attr("stroke", plotcolors(lc) )

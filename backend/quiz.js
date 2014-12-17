@@ -1057,6 +1057,7 @@ var qz = {
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
       //  if q == null then unitvector (1,0) is used (along x-axis)
       var c0,c1,c2;
+      var ux = new Point(1,0);  // x unit vector - used to test if text right side up
       var draw = [];
       if (color == undefined) color ="000";
       p = new Point(p.x,p.y);
@@ -1098,12 +1099,12 @@ var qz = {
       }
       if (sx) {
           sx = sx.split(",");
-          var pb,pa;
-          pa = p0.add(v.mult(a/2)).sub(n.div(1)); pb = pa.add(v.mult(a));
+          var pb,pa,pc;  // pc used to swap pb,pa if text would be upside down
+          pa = p0.add(v.mult(a/2)).sub(n.div(1)); pb = (v.dot(ux)>0) ? pa.add(v.mult(a)) : pa.sub(v.mult(a));
           stxt = ' ['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[0]+'\"]';
-          pa = p2.sub(bc.unit().mult(b/2)).sub(bc.unit().norm().div(2)); pb = pa.sub(bc.unit().mult(b));
+          pa = p2.sub(bc.unit().mult(b/2)).sub(bc.unit().norm().div(2)); pb = (bc.dot(ux)<0) ? pa.sub(bc.unit().mult(b)) : pa.add(bc.unit().mult(b));
           stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[1]+'\"]';
-          pa = p0.sub(ca.unit().mult(c/2)).sub(ca.unit().norm().div(2)); pb = pa.sub(ca.unit().mult(c));
+          pa = p0.sub(ca.unit().mult(c/2)).sub(ca.unit().norm().div(2)); pb = (ca.dot(ux)<0) ? pa.sub(ca.unit().mult(c)) : pa.add(ca.unit().mult(c));
           stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[2]+'\"]';
       }
       // calculate inner angles
