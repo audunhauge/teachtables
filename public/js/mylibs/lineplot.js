@@ -21,6 +21,9 @@ function fubug(fub) {
   console.log(fub);
 }
 
+var unix = 1;  // global var incremented for each plot
+               // so that named lines in svg don't interfere with each other
+
 
 function lineplot(param) {
 
@@ -214,13 +217,14 @@ function lineplot(param) {
       var lc = poi[4] || 0;
       g.append("svg:path")
       .attr("d", "M "+d1.x+" "+(-1*d1.y)+" L "+d2.x+" "+(-1*d2.y))
-      .attr("id", "line"+pp)
+      .attr("id", "line"+unix+pp);  // unix is incremented for each call to lineplot that gives ids to lines
       g.append("svg:text")
         .attr("class", "textlabel "+textsize)
         .append("svg:textPath")
-          .attr("xlink:href", "#line"+pp)
-          .text(tx)
+          .attr("xlink:href", "#line"+unix+pp)
+          .text(tx);
     }
+    unix++;  // so next lineplot doesn't mix up line hrefs
   }
   if (param.lines) {
     //console.log("some lines found",param.lines);

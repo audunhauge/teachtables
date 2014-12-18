@@ -1038,6 +1038,8 @@ var qz = {
   , triangle:function(p,q,a,b,c,px,sx,color) {
       // p:point,q:point, a:num, b:num,c:num,px:string,sx:string,color:string
       // color:"111"  use "1 2" to draw first line with color 1, last with color 2 (2. line not drawn)
+      // if first char in sx is + then place text elements
+      //   otherwise the text for sides will use textPath (doesn't print -thus the escape mec)
       // if (a<0) then the direction of first line will be reversed
       // -b to flip to other side of vector
       // creates a triangle
@@ -1058,6 +1060,8 @@ var qz = {
       //  if q == null then unitvector (1,0) is used (along x-axis)
       var c0,c1,c2;
       var ux = new Point(1,0);  // x unit vector - used to test if text right side up
+      var adj = (new Point(1,1)).unit();  // adjustment for text compared to this vector
+      var jad = new Point(-1,-1).unit();  // opposite of adj
       var draw = [];
       if (color == undefined) color ="000";
       p = new Point(p.x,p.y);
@@ -1091,21 +1095,47 @@ var qz = {
       var bc = p2.sub(p1);
       var ca = p0.sub(p2);
       a = Math.abs(a); b = Math.abs(b); c=Math.abs(c);
+      var ci = qz.circumcirc(p0,p1,p2);
+      // some xtra info for a triangle thats nice to have
+      var area = Math.sqrt((a+b+c)*(a+b-c)*(a+c-b)*(b+c-a))/4;
+      var s = (a+b+c)/2;
+      var r = area/s;
+      var e = (b+a-c)/2;
+      var t = new Point(p1.x-e*v.x,p1.y-e*v.y);  // tangent for incircle on segment-a
+      var C = new Point(t.x+n.x*r,t.y+n.y*r);    // center of incircle
+      var pb,pa,dd;  // dd is delta to adjust for text being placed by lower left corner
+      var Ca = (C.sub(p0)).unit();  // vectors towards triangle center
+      var Cb = (C.sub(p1)).unit();
+      var Cc = (C.sub(p2)).unit();
       if (px) {
           px = px.split(",");
-          ptxt =  ' ['+pnt(p0.x-0.3-v.x/3-n.x/3)+','+pnt(p0.y-0.3-v.y/3-n.y/3)+',\"'+px[0]+'\"]';
-          ptxt += ',['+pnt(p1.x-0.3+v.x/3-n.x/3)+','+pnt(p1.y-0.3+v.y/3-n.y/3)+',\"'+px[1]+'\"]';
-          ptxt += ',['+pnt(p2.x+n.x/3)+','+pnt(p2.y-0.3+n.y/3)+',\"'+px[2]+'\"]';
+          dd = Math.max(0.3,Ca.dot(adj)); pa = p0.sub(Ca.mult(dd)); ptxt  =  ' ['+pnt(pa.x)+','+pnt(pa.y)+',\"'+px[0]+'\"]';
+          dd = Math.max(0.3,Cb.dot(adj)); pa = p1.sub(Cb.mult(dd)); ptxt +=  ',['+pnt(pa.x)+','+pnt(pa.y)+',\"'+px[1]+'\"]';
+          dd = Math.max(0.3,Cc.dot(adj)); pa = p2.sub(Cc.mult(dd)); ptxt +=  ',['+pnt(pa.x)+','+pnt(pa.y)+',\"'+px[2]+'\"]';
       }
       if (sx) {
-          sx = sx.split(",");
-          var pb,pa,pc;  // pc used to swap pb,pa if text would be upside down
-          pa = p0.add(v.mult(a/2)).sub(n.div(1)); pb = (v.dot(ux)>0) ? pa.add(v.mult(a)) : pa.sub(v.mult(a));
-          stxt = ' ['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[0]+'\"]';
-          pa = p2.sub(bc.unit().mult(b/2)).sub(bc.unit().norm().div(2)); pb = (bc.dot(ux)<0) ? pa.sub(bc.unit().mult(b)) : pa.add(bc.unit().mult(b));
-          stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[1]+'\"]';
-          pa = p0.sub(ca.unit().mult(c/2)).sub(ca.unit().norm().div(2)); pb = (ca.dot(ux)<0) ? pa.sub(ca.unit().mult(c)) : pa.add(ca.unit().mult(c));
-          stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[2]+'\"]';
+          if (sx.charAt(0) == '+') {
+            // place side text using text - not textpath - needed if printing
+            sx = sx.substr(1).split(",");
+            //pa = p0.add(v.mult(a/2)).sub(n.div(1));
+            dd = Math.max(0.3,Cc.dot(jad)); pa = p0.add(v.mult(a/2)).add(Cc.mult(dd));
+            stxt = ' ['+pnt(pa.x)+','+pnt(pa.y)+',\"'+sx[0]+'\"]';
+            dd = Math.max(0.3,Ca.dot(jad)); pa = p2.sub(bc.unit().mult(b/2)).add(Ca.mult(dd));
+            //pa = p2.sub(bc.unit().mult(b/2)).sub(bc.unit().norm().div(2));
+            stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+',\"'+sx[1]+'\"]';
+            dd = Math.max(0.3,Cb.dot(jad)); pa = p0.sub(ca.unit().mult(c/2)).add(Cb.mult(dd));
+            //pa = p0.sub(ca.unit().mult(c/2)).sub(ca.unit().norm().div(2));
+            stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+',\"'+sx[2]+'\"]';
+          } else {
+            // create a line used for textpath
+            sx = sx.split(",");
+            pa = p0.add(v.mult(a/2)).sub(n.div(2)); pb = (v.dot(ux)>0) ? pa.add(v.mult(a)) : pa.sub(v.mult(a));
+            stxt = ' ['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[0]+'\"]';
+            pa = p2.sub(bc.unit().mult(b/2)).sub(bc.unit().norm().div(2)); pb = (bc.dot(ux)<0) ? pa.sub(bc.unit().mult(b)) : pa.add(bc.unit().mult(b));
+            stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[1]+'\"]';
+            pa = p0.sub(ca.unit().mult(c/2)).sub(ca.unit().norm().div(2)); pb = (ca.dot(ux)<0) ? pa.sub(ca.unit().mult(c)) : pa.add(ca.unit().mult(c));
+            stxt += ',['+pnt(pa.x)+','+pnt(pa.y)+','+pnt(pb.x)+','+pnt(pb.y)+',\"'+sx[2]+'\"]';
+          }
       }
       // calculate inner angles
       var Acos = 180-Math.acos(ab.dot(ca)/(a*c))*180/Math.PI;
@@ -1130,16 +1160,8 @@ var qz = {
       aga = p2.add(ca.unit());
       arcs += ' ,['+pnt(aga.x)+','+pnt(aga.y)+',0.2,'+pnt(agb.x)+','+pnt(agb.y)+']';
       // generate circumcircle
-      var ci = qz.circumcirc(p0,p1,p2);
-      // some xtra info for a triangle thats nice to have
-      var area = Math.sqrt((a+b+c)*(a+b-c)*(a+c-b)*(b+c-a))/4;
-      var s = (a+b+c)/2;
-      var r = area/s;
-      var e = (b+a-c)/2;
-      var t = new Point(p1.x-e*v.x,p1.y-e*v.y);  // tangent for incircle on segment-a
-      var c = new Point(t.x+n.x*r,t.y+n.y*r);
-      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt, 
-               circle:{x:c.x,y:c.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt, arcs:arcs };
+      return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt,
+               circle:{x:C.x,y:C.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt, arcs:arcs };
     }
   , rectangle:function(p,q,a,b,px,sx,color) {
       // assumes p:point,q:point, a:num, b:num,px:string,sx:string,color:string
