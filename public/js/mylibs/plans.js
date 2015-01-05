@@ -1065,7 +1065,9 @@ function show_next4() {
             } else {
               txt = "";
             }
-            txt += e.days[j] || "";
+            var infotxt = e.days[j] || '';
+            var elm = infotxt.split('ADMIN');
+            txt = elm[0];
             var hd = database.heldag[i+j];
             if (hd) {
                   txt += '<ul class="hdliste">';
