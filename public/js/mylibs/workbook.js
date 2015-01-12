@@ -484,13 +484,15 @@ function quizstats(ttype,using,ignoring) {
                 if (!tagscore[line.tagname]) tagscore[line.tagname] = 0;
                 if (!userscore[line.userid]) userscore[line.userid] = 0;
                 if (!usercount[line.userid]) usercount[line.userid] = 0;
+                if (!userant[line.userid]) userant[line.userid] = 0;
                 sometags[line.tagname] += 1;
                 tagscore[line.tagname] += Math.min(1,+line.avg);
-                usercount[line.userid] += +line.ant;
+                userant[line.userid] += +line.ant;
+                usercount[line.userid] += 1;
                 userscore[line.userid] += Math.min(1,+line.avg);
                 studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
-            var avg = _.reduce(usercount,function(m,n) { return m+n;   },0) / _.keys(usercount).length;
+            var avg = _.reduce(userant,function(m,n) { return m+n;   },0) / _.keys(usercount).length;
             for (var tg in sometags) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
