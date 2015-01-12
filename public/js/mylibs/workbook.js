@@ -493,14 +493,17 @@ function quizstats(ttype,using,ignoring) {
                 userscore[line.userid] += Math.min(1,+line.avg);
                 studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
-            var avg = _.reduce(userant,function(m,n) { return m+n;   },0) / _.keys(userant).length;
+            var avgcount = _.reduce(userant,function(m,n) { return m+n;   },0) / _.keys(userant).length;
+            // average number of answers
             for (var tg in sometags) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
+            var avgavg = tagavg.length ?  _.reduce(tagavg,function(m,n) { return m+n;   },0) /tagavg.length : 0;
+            // average of tag-avreage giving total average
             var sortedstuds = _.keys(studstats);
             sortedstuds.sort(function(a,b) {
-                if (usercount[a] < avg*0.65 || usercount[b] < avg*0.65) {
+                if (usercount[a] < avgcount*0.65 || usercount[b] < avgcount*0.65) {
                    return usercount[b] - usercount[a];
                 }
                 return userscore[b]/usercount[b] - userscore[a]/usercount[a]
@@ -552,7 +555,7 @@ function quizstats(ttype,using,ignoring) {
             s += '<tr><th>Avg</th>' + tgar.map(function(e) {
                    var t = e[0];
                    return '<td>'+(tagavg[t].toFixed(2))+'</td>'
-                }).join('') + '<td></td><td>'+(avg.toFixed(0))+'</td></tr>';
+                }).join('') + '<td></td>'+(avgavg.toFixed(2))+'<td>'+(avgcount.toFixed(0))+'</td></tr>';
             s += '</table>';
             s = '<div class="centered sized1"><div id="studinf"><h4>Egenvurdering for faget '+ course + '</h4>'
                    + 'På denne sida får du faglig tilbakemelding, framovermelding og anledning til egenvurdering. '
