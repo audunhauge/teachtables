@@ -461,7 +461,8 @@ function quizstats(ttype,using,ignoring) {
             var tagavg = {};
             var notused = {};
             var userscore = {};
-            var usercount = {};
+            var usercount = {};    // number of tags for this user
+            var userant = {};      // number of useranswers pr user
             var tagquizlist = {};  // connects a tag to quiz with same name
             var tgar = [];
             // build list of quizes with same name as tags
