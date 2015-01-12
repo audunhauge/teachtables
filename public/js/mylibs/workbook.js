@@ -519,7 +519,7 @@ function quizstats(ttype,using,ignoring) {
                        active = " catt1";
                    }
                    return '<td><div class="rel"><div '+hasid+'class="angled stud'+active+'" tag="'+e[0]+'">'+e[0]+'</div></div></td>'
-                }).join('') + '<td>Avg</td></tr>';
+                }).join('') + '<td>Avg</td><td>Ant</td></tr>';
             for (var ii=0,l=sortedstuds.length; ii<l; ii++) {
                 var e = enr = sortedstuds[ii];
                 if (!isteach && userinfo.id != enr) continue;
@@ -546,6 +546,7 @@ function quizstats(ttype,using,ignoring) {
                     s += "</td>";
                 }
                 s += '<td class="showhide">'+(userscore[enr]/usercount[enr]).toFixed(2)+'</td>';
+                s += '<td>'+(userant[enr])+'</td>';
                 s += '</tr>';
             }
             s += '<tr><th>Avg</th>' + tgar.map(function(e) {
