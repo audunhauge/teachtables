@@ -552,7 +552,7 @@ function quizstats(ttype,using,ignoring) {
             s += '<tr><th>Avg</th>' + tgar.map(function(e) {
                    var t = e[0];
                    return '<td>'+(tagavg[t].toFixed(2))+'</td>'
-                }).join('') + '<td></td><td>'+avg+'</td></tr>';
+                }).join('') + '<td></td><td>'+(avg.toFixed(0))+'</td></tr>';
             s += '</table>';
             s = '<div class="centered sized1"><div id="studinf"><h4>Egenvurdering for faget '+ course + '</h4>'
                    + 'På denne sida får du faglig tilbakemelding, framovermelding og anledning til egenvurdering. '
