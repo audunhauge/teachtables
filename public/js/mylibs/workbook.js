@@ -493,7 +493,7 @@ function quizstats(ttype,using,ignoring) {
                 userscore[line.userid] += Math.min(1,+line.avg);
                 studstats[line.userid][line.tagname] = { ant:line.ant, avg:(Math.min(1,+line.avg)).toFixed(2)};
             }
-            var avg = _.reduce(userant,function(m,n) { return m+n;   },0) / _.keys(usercount).length;
+            var avg = _.reduce(userant,function(m,n) { return m+n;   },0) / _.keys(userant).length;
             for (var tg in sometags) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
@@ -552,7 +552,7 @@ function quizstats(ttype,using,ignoring) {
             s += '<tr><th>Avg</th>' + tgar.map(function(e) {
                    var t = e[0];
                    return '<td>'+(tagavg[t].toFixed(2))+'</td>'
-                }).join('') + '<td></td></tr>';
+                }).join('') + '<td></td><td>'+avg+'</td></tr>';
             s += '</table>';
             s = '<div class="centered sized1"><div id="studinf"><h4>Egenvurdering for faget '+ course + '</h4>'
                    + 'På denne sida får du faglig tilbakemelding, framovermelding og anledning til egenvurdering. '
