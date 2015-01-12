@@ -499,7 +499,7 @@ function quizstats(ttype,using,ignoring) {
                 tgar.push([tg,sometags[tg]]);
                 tagavg[tg] = tagscore[tg]/sometags[tg];
             }
-            var avgavg = _.keys(tagavg).length ?  _.reduce(tagavg,function(m,n) { return m+n;   },0) / _.keys(tagavg).lengtht : 0;
+            var avgavg = _.keys(tagavg).length ?  _.reduce(tagavg,function(m,n) { return m+n;   },0) / _.keys(tagavg).length : 0;
             // average of tag-avreage giving total average
             var sortedstuds = _.keys(studstats);
             sortedstuds.sort(function(a,b) {
