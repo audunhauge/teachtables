@@ -533,7 +533,7 @@ function quizstats(ttype,using,ignoring) {
                   var ln = usr.lastname.caps();
                   var face = '';
                   if (teachesThisCourse) {
-                    var pix = euids[uui] ? euids[uui]+'.jpg' : 'anonym.gif';
+                    var pix = euids[enr] ? euids[enr]+'.jpg' : 'anonym.gif';
                     face = '<div class="upic"><img src="/skeisvangstat/pic/'+pix+'"></div>';
                   }
                   e = fn + ' ' + ln + face;
