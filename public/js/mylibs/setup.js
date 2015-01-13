@@ -989,7 +989,8 @@ $j(document).ready(function() {
                     return ('<td><a href="?navn='+e.firstname
                       + ' ' + e.lastname+'">' + e.firstname + ' ' + e.lastname +  '</a></td><td>'
                       + e.department + '</td><td> ' + e.institution +'</td><td>'+ e.gr + '</td>');
-                 }).join('</tr><tr>') + '</tr></table></div>';
+                 }).join('</tr><tr>') + '</tr></table>'
+                 +'Dersom lista er tom (0) eller ditt navn ikke vises:<p>Sett markøren over Login, flytt ned til søk og skriv inn fornavn.</div>';
                action = 'velg';
                $j("#main").html(s);
            }
