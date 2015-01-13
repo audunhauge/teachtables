@@ -1102,7 +1102,7 @@ div.upic {
     height:64px;
     opacity:0;
 }
-div.upics:hover  div.upic {
+.upics:hover > div.upic {
   opacity:1;
 }
 
