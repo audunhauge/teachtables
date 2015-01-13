@@ -692,7 +692,7 @@ function showProgress(ttype) {
                 var korder = [];
                 for (var i=0,l=results.length; i<l; i++) {
                     var r = results[i];
-                    if (quizzes[r.k].exam != "0" && quizzes[r.k].exam != testtxt) continue;
+                    if (quizzes[r.k] == undefined || (quizzes[r.k].exam != "0" && quizzes[r.k].exam != testtxt)) continue;
                     if (!cross[r.u]) {
                         cross[r.u] = {};
                         ulist.push(r.u);
