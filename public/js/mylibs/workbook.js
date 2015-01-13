@@ -513,6 +513,7 @@ function quizstats(ttype,using,ignoring) {
                 temalist = _.keys(sometags);
             }
             tgar.sort(function(a,b) { return tagavg[b[0]] - tagavg[a[0]]});
+            var teachesThisCourse= teaches(userinfo.id,wbinfo.coursename);
             var s = '<p><p><p><p><table>';
             s += '<tr><th class="enavn">Navn</th>' + tgar.map(function(e) {
                    var hasid = '';
@@ -528,9 +529,14 @@ function quizstats(ttype,using,ignoring) {
                 if (!isteach && userinfo.id != enr) continue;
                 if (students[enr]) {
                   var usr = students[enr];
-                  fn = usr.firstname.caps();
-                  ln = usr.lastname.caps();
-                  e = fn + ' ' + ln;
+                  var fn = usr.firstname.caps();
+                  var ln = usr.lastname.caps();
+                  var face = '';
+                  if (teachesThisCourse) {
+                    var pix = euids[uui] ? euids[uui]+'.jpg' : 'anonym.gif';
+                    face = '<div class="upic"><img src="/skeisvangstat/pic/'+pix+'"></div>';
+                  }
+                  e = fn + ' ' + ln + face;
                 }
                 s += '<tr class="studline"><th class="enavn" id="ee'+enr+'">'+e+'</th>';
                 for (var i= 0; i < tgar.length; i++) {
