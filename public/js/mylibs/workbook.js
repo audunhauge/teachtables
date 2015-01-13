@@ -879,8 +879,8 @@ function showResults(group,container,contopt) {
                 var gr = Math.round(100*score)/100;
                 var prosent = gr*100;
                 var hist = makeSparkline(re.hist);
-                var first = (re.start) ? startTime( new Date(re.start)) : '&nbsp;' ;
-                var last = (re.fresh) ? startTime( new Date(re.fresh)) : '&nbsp;' ;
+                var first = (re.start) ? startTime( new Date(+re.start)) : '&nbsp;' ;
+                var last = (re.fresh) ? startTime( new Date(+re.fresh)) : '&nbsp;' ;
                 var grade = score2grade(gr,skala);
                 reslist[uid] = { text:'<span class="kara">' + prosent.toFixed(0) + ' prosent </span>'
                          +  ((wbinfo.courseinfo.contopt.karak == 1) ?'<span class="kara">karakter '+grade+'</span>' : '' )
