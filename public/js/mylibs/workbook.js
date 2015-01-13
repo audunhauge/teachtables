@@ -919,7 +919,7 @@ function showResults(group,container,contopt) {
                    var pix = euids[uui] ? euids[uui]+'.jpg' : 'anonym.gif';
                    face = '<div class="upic"><img src="/skeisvangstat/pic/'+pix+'"></div>';
                }
-               displaylist[uui] =  '<div id="ures'+uui+'" class="userres'+active+'"><span class="numb">1</span><span class="upics relative fn">' + fn + face
+               displaylist[uui] =  '<div id="ures'+uui+'" class="upics relative userres'+active+'"><span class="numb">1</span><span class="fn">' + fn + face
                  + '</span><span class="ln">' + ln + '</span>' + resultat + '</div>';
                showorder.push( { id:uui, fn:fn, ln:ln, grade:gg, first:ff, last:ll } );
              }
