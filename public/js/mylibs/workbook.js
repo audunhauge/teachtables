@@ -538,7 +538,7 @@ function quizstats(ttype,using,ignoring) {
                   }
                   e = fn + ' ' + ln + face;
                 }
-                s += '<tr class="studline"><th class="enavn" id="ee'+enr+'">'+e+'</th>';
+                s += '<tr class="studline"><th class="enavn relative" id="ee'+enr+'">'+e+'</th>';
                 for (var i= 0; i < tgar.length; i++) {
                     var tg = tgar[i][0];
                     var inf = studstats[enr][tg];
