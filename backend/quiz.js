@@ -289,6 +289,7 @@ function getSubtypes(fasit) {
   // pick out subtypes for each element in fasit;
   //
   var subus = [], m;
+  if (fasit && fasit.length)
   for (var i=0,l=fasit.length; i < l; i++) {
       var e = unescape(fasit[i])
       if ( e.match(/^[-0-9.+:]+$/) ) {
