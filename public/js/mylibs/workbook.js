@@ -3085,7 +3085,7 @@ wb.render.normal  = {
                 if (qu.qtype == 'abcde') {
                   // for abcde partial questions - do not show fasit before all
                   // subquestions are answered - ie attempt >= options.length
-                  abc = param.options.length > attempt;
+                  abc = param.options ? param.options.length > attempt : false;
                 }
                 if ( abc || (fasit.length  == 0 && parts.length > 1 && (score < 0.8  && attempt < 3) )) {
                     //param.display = parts[0];
