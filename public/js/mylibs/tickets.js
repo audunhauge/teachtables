@@ -19,7 +19,7 @@ function editshow(userid) {
     + ' </div>';
     $j("#main").html(s);
     showstate = 0;
-    $j.get(mybase+ '/show', function(showlist) {
+    $j.get(mybase+ '/log/show', function(showlist) {
         show = showlist;
         var mineshow = '<h3>Showliste</h3><ul class="starbless">';
         mylist = show[userid] || [];
@@ -170,7 +170,7 @@ function tickets(userid) {
   selectedprice = '';
   pricecost = {};  // stores price of show indexd by showname
   accu = {};
-  $j.get(mybase+ '/show', function(showlist) {
+  $j.get(mybase+ '/log/show', function(showlist) {
     show = showlist;
     accu = {};
     var s = '<h1><a class="button" href="#" id="showtitle">Billettsalg</a></h1>'
@@ -307,7 +307,7 @@ function tickets(userid) {
 function totallog() {
   var mydate = julian.jdtogregorian(database.thisjd);
   var datetxt = mydate.day +'/'+mydate.month +'/'+  mydate.year;
-  $j.get(mybase+ '/tickets', function(tickets) {
+  $j.get(mybase+ '/log/tickets', function(tickets) {
     s = '<div class="button blue" id="prev">&lt;</div><div class="button blue "id="next">&gt;</div>';
     s += '<table class="centered">';
     s += '<caption>'+datetxt+'</caption>';
@@ -338,7 +338,7 @@ function showsummary(delta) {
   delta = typeof(delta) != 'undefined' ?  +delta : 0;
   var mydate = julian.jdtogregorian(database.thisjd+delta);
   var datetxt = mydate.day +'/'+mydate.month +'/'+  mydate.year;
-  $j.get(mybase+ '/tickets', function(tickets) {
+  $j.get(mybase+ '/log/tickets', function(tickets) {
     s = '<div class="button blue" id="prev">&lt;</div><div class="button blue "id="next">&gt;</div>';
     s += '<table class="centered">';
     s += '<caption>'+datetxt+'</caption>';
