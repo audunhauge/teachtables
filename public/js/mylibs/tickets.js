@@ -34,7 +34,7 @@ function editshow(userid) {
         mineshow += '</ul>';
         $j("#leftside").html(mineshow);
         $j("#addshow").click(function() {
-          $j.post(mybase+'/editshow',{action:'insert', name:'NewShow',showtime:"1,2,3",pricenames:"voksne:200,barn:100",authlist:"" },function(resp) {
+          $j.post(mybase+'/log/editshow',{action:'insert', name:'NewShow',showtime:"1,2,3",pricenames:"voksne:200,barn:100",authlist:"" },function(resp) {
               editshow(userid);
           });
         });
@@ -43,7 +43,7 @@ function editshow(userid) {
           myid = $j(this).parent().attr('id');
           ashow = mylist[myid];
           if (ashow.userid == userid) {
-            $j.post(mybase+'/editshow',{action:'kill', showid:ashow.id },function(resp) {
+            $j.post(mybase+'/log/editshow',{action:'kill', showid:ashow.id },function(resp) {
               editshow(userid);
             });
           }
@@ -141,7 +141,7 @@ function showEditor(userid,myshow,targetdiv,ulist,tabb) {
       var showtime    = $j('input[name=showtime]').val() || '';
       var pricenames  = $j('input[name=pricenames]').val() || '';
       var authlist    = $j('input[name=authlist]').val() || '';
-      $j.post(mybase+'/editshow',{action:'update', showid:myshow.id, name:showname,showtime:showtime,pricenames:pricenames,authlist:authlist },function(resp) {
+      $j.post(mybase+'/log/editshow',{action:'update', showid:myshow.id, name:showname,showtime:showtime,pricenames:pricenames,authlist:authlist },function(resp) {
           editshow(userid);
       });
     });
@@ -284,7 +284,7 @@ function tickets(userid) {
         }
         if (accumul.length > 0) {
           $j("#accu").html('<li>Lagrer data ....</li>');
-          $j.post(mybase+'/buytickets',{showid:ashow.id, accu:accumul.join('|'), type:type },function(resp) {
+          $j.post(mybase+'/log/buytickets',{showid:ashow.id, accu:accumul.join('|'), type:type },function(resp) {
                $j("#salg").show();
                var s = resp.msg;
                $j("#accu").html(s);
