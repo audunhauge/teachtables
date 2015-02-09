@@ -1036,9 +1036,10 @@ var qz = {
        var center = new Point(A.x+r*v.x,A.y+r*v.y);
        return center;
     }
-  , triangle:function(p,q,a,b,c,px,sx,color) {
+  , triangle:function(p,q,a,b,c,px,sx,color,angs) {
       // p:point,q:point, a:num, b:num,c:num,px:string,sx:string,color:string
       // color:"111"  use "1 2" to draw first line with color 1, last with color 2 (2. line not drawn)
+      // angs = 0 no angle text, binary values 111 (7) => all angles, 101 (5) angle A and angle C
       // if first char in sx is + then place text elements
       //   otherwise the text for sides will use textPath (doesn't print -thus the escape mec)
       // if (a<0) then the direction of first line will be reversed
@@ -1059,12 +1060,14 @@ var qz = {
       //  area of triangle, center of incircle and radius of incircle
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
       //  if q == null then unitvector (1,0) is used (along x-axis)
+
+      if (angs == undefined) angs = 7;  // default generate all angles
       var c0,c1,c2;
       var ux = new Point(1,0);  // x unit vector - used to test if text right side up
       var adj = (new Point(1,1)).unit();  // adjustment for text compared to this vector
       var jad = new Point(-1,-1).unit();  // opposite of adj
       var draw = [];
-      if (color == undefined) color ="000";
+      if (color == undefined) color ="000";  // default same color all sides
       p = new Point(p.x,p.y);
       var p0 = new Point(p.x,p.y);
       var p1 = new Point(p.x,p.y);
@@ -1146,9 +1149,11 @@ var qz = {
       var ag = p0.add(fx).add(ab.unit().sub(ca.unit()).mult(1) );  // displace angle text from p0
       var bg = p1.add(fx).add(bc.unit().sub(ab.unit()).mult(1) );  // change mult(1) to push further
       var cg = p2.add(fx).add(ca.unit().sub(bc.unit()).mult(1) );  //
-      atxt = '  ['+pnt(ag.x)+','+pnt(ag.y)+',\"'+Acos.toFixed(1)+'\"]';
-      atxt += ',['+pnt(bg.x)+','+pnt(bg.y)+',\"'+Bcos.toFixed(1)+'\"]';
-      atxt += ',['+pnt(cg.x)+','+pnt(cg.y)+',\"'+Ccos.toFixed(1)+'\"]';
+      atxt = [];
+      if (angs & 4) atxt.push('['+pnt(ag.x)+','+pnt(ag.y)+',\"'+Acos.toFixed(1)+'\"]');
+      if (angs & 2) atxt.push('['+pnt(bg.x)+','+pnt(bg.y)+',\"'+Bcos.toFixed(1)+'\"]');
+      if (angs & 1) atxt.push('['+pnt(cg.x)+','+pnt(cg.y)+',\"'+Ccos.toFixed(1)+'\"]');
+      atxt = atxt.join(",");
       // data for drawing arcs for angles
       var aga,agb;
       aga = p0.add(ab.unit());
