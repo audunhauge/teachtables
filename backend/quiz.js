@@ -1055,7 +1055,7 @@ var qz = {
       //
       //  returns p0,p1,p2 and draw:lines to draw the triangle, ptxt: text for points, stxt: text for sides
       //  px and sx are csv
-      //  atxt: text for angles (placed incide triangle)
+      //  atxt: text for angles (placed inside triangle)
       //  also returns  area:num, incirc:point, r:num
       //  area of triangle, center of incircle and radius of incircle
       //  q is used to construct a unit vector (p,q), the first line is drawn along this vector
@@ -1167,7 +1167,7 @@ var qz = {
       arcs += ' ,['+pnt(aga.x)+','+pnt(aga.y)+',0.2,'+pnt(agb.x)+','+pnt(agb.y)+']';
       // generate circumcircle
       return { p0:{x:p0.x,y:p0.y},p1:{x:p1.x,y:p1.y},p2:{x:p2.x,y:p2.y}, draw:draw, ptxt:ptxt, stxt:stxt,
-               circle:{x:C.x,y:C.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt, arcs:arcs };
+               circle:{x:C.x,y:C.y}, area:area, r:r, center:{x:ci.x,y:ci.y}, atxt:atxt, arcs:arcs, angles:[Acos,Bcos,Ccos] };
     }
   , rectangle:function(p,q,a,b,px,sx,color) {
       // assumes p:point,q:point, a:num, b:num,px:string,sx:string,color:string
