@@ -1754,8 +1754,8 @@ exports.questionstats = function(user,query,callback) {
                   for (var i=0; i < pp.poo.length; i++) {
                       var pi = pp.poo[i];
                       var qq = ql[pi] ? ql[pi] : { avg:0, count:0};
-                      tot += qq.avg * qq.count;
-                      count += qq.count;
+                      tot += +qq.avg * +qq.count;
+                      count += +qq.count;
                   }
                   var avg = tot/count;
                   for (var i=0; i < pp.poo.length; i++) {
