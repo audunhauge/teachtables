@@ -1742,24 +1742,24 @@ exports.questionstats = function(user,query,callback) {
                   ql[rr.id] = rr;
                   if (rr.parent) {
                       if (!pool[rr.parent]) {
-                          pool[rr.parent] = { avg:0, count:0, poo:[ rr.parent ] };  // the pool contains parent + children
+                          pool[rr.parent] = [ rr.parent ] ;  // the pool contains parent + children
                       }
-                      pool[rr.parent].poo.push(rr.id);
+                      pool[rr.parent].push(rr.id);
                   }
               }
               // now we have a pool of relatives that need to be combined
               for (var pid in pool) {
                   var pp = pool[pid];  // pid is parent id
                   var tot = 0, count = 0;
-                  for (var i=0; i < pp.poo.length; i++) {
-                      var pi = pp.poo[i];
+                  for (var i=0; i < pp.length; i++) {
+                      var pi = pp[i];
                       var qq = ql[pi] ? ql[pi] : { avg:0, count:0};
                       tot += +qq.avg * +qq.count;
                       count += +qq.count;
                   }
                   var avg = tot/count;
-                  for (var i=0; i < pp.poo.length; i++) {
-                      var pi = pp.poo[i];
+                  for (var i=0; i < pp.length; i++) {
+                      var pi = pp[i];
                       console.log("update quiz_question set avg=$1,count=$2 where id=$3",[avg,count,pi]);
                       client.query("update quiz_question set avg=$1,count=$2 where id=$3",[avg,count,pi]);
                   }
