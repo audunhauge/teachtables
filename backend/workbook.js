@@ -980,7 +980,7 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
       var namelist = "'" + _.keys(tags).join("','") + "'";
       client.query("select q.id,q.name,count(u.id) as cc from quiz_question q inner join quiz_useranswer u "
                    + "on (u.qid=q.id) where q.qtype = 'quiz' and subject = $1 and q.name in ("+namelist+") and "
-                   + "u.userid in (" + studlist + ") group by q.id,q.name order by cc", [subject],
+                   + "u.userid in (" + studlist + ") and q.teachid=$2 group by q.id,q.name order by cc", [subject,teachid],
       //client.query("select id,name from quiz_question where qtype='quiz' and subject = $1 and name in ("+namelist+")" , [subject],
         after(function(tagquiz) {
            stats.tagquiz = tagquiz;
