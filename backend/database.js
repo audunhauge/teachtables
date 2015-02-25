@@ -1155,6 +1155,17 @@ var makereserv = function(user,query,callback) {
     }
 }
 
+function lesson2slot(s) {
+  // converts lesson to new slot number
+  var min;
+  if (db.lessonstart[s]) {
+     min = db.lessonstart[s];
+  } else {
+     min = _.last(db.lessonstart) + 30*(+s+1-db.lessonstart.length);
+  }
+  return  (min - db.lessonstart[0]) / 5;
+}
+
 
 var getReservations = function(callback) {
   // returns a hash of all reservations
@@ -1177,10 +1188,10 @@ var getReservations = function(callback) {
                 //var vvalue = (res.name+' '+res.value).replace(repl,'');
                 var vvalue = (res.name+' '+stripRooms(res.value));
                 for (var j=0;j<9;j++) {
-                  res.slot = j;
+                  res.slot = lesson2slot(j);
                   //reservations[julday].push({id: res.id, userid: res.userid, day: res.day,
                   //               slot: j, itemid: res.roomid, name:roomname , value:vvalue, eventtype:'hd' });
-                  reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ j + ','
+                  reservations[julday].push( res.id + ',' + res.userid + ','+ res.day + ','+ res.slot + ','
                                            + res.courseid + ','+res.roomid+','+ roomname + ','+ vvalue + ',hd' );
                 }
               } else {

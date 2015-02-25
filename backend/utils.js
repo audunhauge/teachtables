@@ -6,6 +6,8 @@ String.prototype.caps = function() {
     return this.replace( /(^|\s)([a-zæøå])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
 }
 
+
+
 if (!String.prototype.supplant) {
     String.prototype.supplant = function (o) {
         return this.replace(/{([^{}]*)}/g,
