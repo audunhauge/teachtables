@@ -202,6 +202,28 @@ function lineplot(param) {
       .attr("fill", "black")
     }
   }
+  if (param.lines) {
+    //console.log("some lines found",param.lines);
+    // assumed to be [    [a,b,c,d], ....     ]
+    for (var pp=0; pp< param.lines.length; pp++) {
+      var poi = param.lines[pp];
+      var d1 = {}, d2 = {};
+      d1.x = x(poi[0]);
+      d1.y = y(poi[1]);
+      d2.x = x(poi[2]);
+      d2.y = y(poi[3]);
+      var lc = poi[4] || 0;
+      g.append("svg:line")
+        .attr("x1",d1.x)
+        .attr("y1",-1*d1.y)
+        .attr("stroke", plotcolors(lc) )
+        .attr("x2", d2.x)
+        .attr("y2", -1*d2.y)
+        .attr("fill", "black")
+        .attr("stroke-width", 2)
+        ;
+    }
+  }
   if (param.textpath) {
     // assumed to be [    [a,b,c,d,"txt"], ....     ]
     // used to guide text along a path
@@ -225,28 +247,6 @@ function lineplot(param) {
           .text(tx);
     }
     unix++;  // so next lineplot doesn't mix up line hrefs
-  }
-  if (param.lines) {
-    //console.log("some lines found",param.lines);
-    // assumed to be [    [a,b,c,d], ....     ]
-    for (var pp=0; pp< param.lines.length; pp++) {
-      var poi = param.lines[pp];
-      var d1 = {}, d2 = {};
-      d1.x = x(poi[0]);
-      d1.y = y(poi[1]);
-      d2.x = x(poi[2]);
-      d2.y = y(poi[3]);
-      var lc = poi[4] || 0;
-      g.append("svg:line")
-        .attr("x1",d1.x)
-        .attr("y1",-1*d1.y)
-        .attr("stroke", plotcolors(lc) )
-        .attr("x2", d2.x)
-        .attr("y2", -1*d2.y)
-        .attr("fill", "black")
-        .attr("stroke-width", 2)
-        ;
-    }
   }
   // */
   if (param.circles) {

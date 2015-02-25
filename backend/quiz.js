@@ -1076,7 +1076,7 @@ var qz = {
       c0 = color.charAt(0);
       c1 = color.charAt(1);
       c2 = color.charAt(2);
-      if (m >= (a+b+c)/2) {   // one side is too long
+      if (m >= (Math.abs(a)+Math.abs(b)+Math.abs(c))/2) {   // one side is too long
         return { p0:p0,p1:p1,p2:p2, draw:"",ptxt:"",stxt:""};
       }
       var v = new Point(1,0);  // use point as vector
