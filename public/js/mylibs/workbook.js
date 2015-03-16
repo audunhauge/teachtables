@@ -1528,13 +1528,14 @@ function edqlist() {
          +showqlist
          + '</div><div title="Lag nytt spørsmål" id="addmore" class="button">add</div>'
          + '<div title="Nullstill svarlista" id="reset" class="gradebutton">reset</div>'
-         + '<div title="Exporter spørsmål" id="export" class="gradebutton">export</div>'
-         + '<div title="Importer spørsmål" id="import" class="gradebutton">import</div>'
-         + '<div title="Oppdater - hent/send nyeste versjon" id="update" class="gradebutton">sync</div>'
+         //+ '<div title="Exporter spørsmål" id="export" class="gradebutton">export</div>'
+         //+ '<div title="Importer spørsmål" id="import" class="gradebutton">import</div>'
+         + '<div title="Oppdater - hent/send nyeste versjon" id="sync" class="gradebutton">sync</div>'
          + '<div tag="'+wbinfo.containerid+'" title="Rediger QUIZ" id="edquiz" class="gradebutton">REDIGER</div>'
          + '<div id="qlist" class="qlist"></div>'
          + '<div id="importdia" ></div>'
          + '<div title="Gjenskap beholdere med elevsvar, ikke bruk dersom tillfeldig utvalg" id="regen" class="gradebutton">regen</div>'
+         + '<div title="Oppdater elevens spørsmålsliste (allerede påbegynt quiz)" id="extend" class="gradebutton">extend</div>'
          + '<div title="Legg til eksisterende sprsml" id="attach" class="gradebutton">attach</div></div></div>';
   $j("#main").html(s);
   $j("#sortable").sortable({placeholder:"ui-state-highlight",update: function(event, ui) {
@@ -1744,6 +1745,17 @@ function edqlist() {
      show_thisweek();
   });
   //*
+  $j("#extend").click(function() {
+     var group;
+     try {
+        group = wbinfo.coursename.split('_');
+        group = group[1];
+     } catch(err) {
+        group = '';
+     }
+     $j.post(mybase+'/log/setnewqlist',{ group:group, container:wbinfo.containerid}, function(qrender) {
+     });
+  });
   $j("#regen").click(function() {
      var group;
      try {
@@ -1756,7 +1768,7 @@ function edqlist() {
      });
   });
   //*/
-  $j("#update").click(function() {
+  $j("#sync").click(function() {
     $j.get(mybase+"/log/updatequiz",{ container:wbinfo.containerid}, function(msg) {
       $j.getJSON(mybase+'/log/getcontainer',{ container:wbinfo.containerid }, function(qlist) {
         wbinfo.qlist = qlist.qlist;

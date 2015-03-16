@@ -124,7 +124,7 @@ var saveteachabsent = function(user,query,callback) {
   var userid = query.userid;
   var klass = query.klass;   // this will be userid or 0
   //console.log("Saving:",jd,text,name,userid,klass);
-  if (text == '') client.query(
+  if (text === '') client.query(
           "delete from calendar where name = $1 and userid= $2 and eventtype='absent' and julday= $3 " , [ name,userid, jd ],
           after(function(results) {
               callback( {ok:true, msg:"deleted"} );
@@ -154,7 +154,7 @@ var saveteachabsent = function(user,query,callback) {
                     var today = new Date();
                     var m = today.getMonth()+1; var d = today.getDate(); var y = today.getFullYear();
                     var julday = julian.greg2jul(m,d,y);
-                    if (db.teachers[userid] && jd == julday) {
+                    if (db.teachers[userid] && jd === julday) {
                        // send mail if we mark a teacher as absent on this very day
                        var teach = db.teachers[userid];
                        var avd = siteinf.depleader[teach.institution];
@@ -205,7 +205,7 @@ var saveabsent = function(user,query,callback) {
   var kind = query.kind || 'absent';
   var klass = query.klass;   // this will be userid or 0
   //console.log("Saving:",jd,text,name,userid,klass);
-  if (text == '') client.query(
+  if (text === '') client.query(
           'delete from calendar'
       + " where name = $1 and ($2 or (class=$3 or class=0 ) and userid= $4) and eventtype=$6 and julday= $5 " , [ name,user.isadmin,klass,userid, jd,kind ],
           after(function(results) {
@@ -511,7 +511,7 @@ var ical = function(user,query,callback) {
   var type      =  query.type || 'yearplan';
   function guid() {
      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+          var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
               return v.toString(16);
               });
   }
@@ -588,12 +588,12 @@ var savesimple = function(query,callback) {
   var type = query.myid.substring(0,4);
   var typemap = { 'free':'fridager','year':'aarsplan' };
   var eventtype = typemap[type] || 'error';
-  if (eventtype == 'error') {
+  if (eventtype === 'error') {
      callback( { ok:false, msg:"invalid event-type" } );
   }
   var jd  = query.myid.substring(4);
   var text = query.value;
-  if (text == '') client.query(
+  if (text === '') client.query(
           'delete from calendar where eventtype=$1 and julday= $2 ' , [ eventtype, jd ],
           after(function(results) {
               callback( {ok:true, msg:"deleted"} );
@@ -665,11 +665,11 @@ exports.getsql = function(user,sql,param,reload,callback) {
     callback("not allowed");
     return;
   }
-  if (!(user.isadmin || user.department == 'Undervisning')) {
+  if (!(user.isadmin || user.department === 'Undervisning')) {
     callback("not allowed");
     return;
   }
-  if (param == '') param = [];
+  if (param === '') param = [];
   client.query(
       sql,param,
       after(function(results) {
@@ -715,7 +715,7 @@ var regstarb = function(ip,user, query, callback) {
       return;
   }
   */
-  if (userid == 0 || !db.students[userid] ) {
+  if (userid === 0 || !db.students[userid] ) {
       callback(resp);
       return;
   }
@@ -732,7 +732,7 @@ var regstarb = function(ip,user, query, callback) {
       after(function(results) {
           if (results.rows && results.rows[0]) {
             var starb = results.rows[0];
-            if (starb.userid == userid) {
+            if (starb.userid === userid) {
               resp.fail = 0;
               resp.text = "Allerede registrert"
               resp.info = "";
@@ -785,7 +785,7 @@ var regstarb = function(ip,user, query, callback) {
                     } else {
                       resp.fail = 1;
                       resp.text = "Ugyldig key";
-                      if (starbkey.ecount == 0) {
+                      if (starbkey.ecount === 0) {
                         resp.text = "RegKey er brukt opp";
                       } else if (starbkey.start > minutcount) {
                         var kmm = starbkey.start % 60;
@@ -813,7 +813,7 @@ var deletestarb = function(user,params,callback) {
   var eid       = +params.eid    || 0;
   var romid     = +params.romid  || 0;
   var alle      = +params.alle   || 0;
-  if (uid < 10000 || romid == 0 ) {
+  if (uid < 10000 || romid === 0 ) {
       callback( { ok:0 } );
   }
   var today = new Date();
@@ -821,7 +821,7 @@ var deletestarb = function(user,params,callback) {
   var jd = julian.greg2jul(month,day,year);
   //console.log( 'select * from starb where julday=$1 and roomid=$2 ' , [jd,romid ]);
   var sql,params;
-  if (alle == 1) {
+  if (alle === 1) {
     sql = 'delete from starb where julday = $1 and roomid=$2';
     params = [jd,romid];
   } else {
@@ -847,7 +847,7 @@ var getstarb = function(user,params,callback) {
       callback(starblist);
       return;
   }
-  if (jd == 0) {
+  if (jd === 0) {
     var today = new Date();
     var month = today.getMonth()+1; var day = today.getDate(); var year = today.getFullYear();
     var jd = julian.greg2jul(month,day,year);
@@ -867,7 +867,7 @@ var getstarb = function(user,params,callback) {
 }
 
 var genstarb = function(user,params,callback) {
-  if (user == undefined) {
+  if (user === undefined) {
     callback( { "key":0 } );
     return;
   }
@@ -908,7 +908,7 @@ var genstarb = function(user,params,callback) {
                    ts =  (ts + 0 + +regkstr.substr(j,1) ) % 10;
                 }
                 regk = 10*regk + +ts;
-                // the last digit in regkey == sum of the others mod 10
+                // the last digit in regkey === sum of the others mod 10
                 search = (active[regk]) ? true : false;
             }
             client.query( 'insert into starbkey (roomid,julday,teachid,regkey,ecount,start,minutes) '
@@ -1030,7 +1030,7 @@ var makemeet = function(user,query,host,callback) {
         var roomname     = db.roomnames[roomid];
         var calledback = false;
         var participants = [];
-        var klass = (konf == 'ob') ? 1 : 0 ;
+        var klass = (konf === 'ob') ? 1 : 0 ;
         var meetinfo = JSON.stringify({message:message, slot:slot0, dur:dur, owner:user.id,
                                        sendmail:mailit, title:title, message:message, chosen:chosen });
         console.log('insert into calendar (eventtype,julday,userid,roomid,name,value,class,day,slot,dur) values (\'meeting\',$1,$2,$3,$4,$5,$6,$7,$8,$9)  returning id',
@@ -1044,7 +1044,7 @@ var makemeet = function(user,query,host,callback) {
               for (var uii in chosen) {
                 var uid = +chosen[uii];
                 var teach = db.teachers[uid];
-                var thisklass = (user.id == uid) ? 1 : klass;  // creator can not choose to not show up for meeting
+                var thisklass = (user.id === uid) ? 1 : klass;  // creator can not choose to not show up for meeting
                 participants.push(teach.firstname.caps() + " " + teach.lastname.caps());
                 allusers.push(teach.email);
                 values.push('(\'meet\','+pid+','+uid+','+user.id+','+(current+myday)+','+roomid+",'"+title+"','"+meetstart+"',"+thisklass+","+myday+","+slot0+","+dur+")" );
@@ -1064,7 +1064,7 @@ var makemeet = function(user,query,host,callback) {
                    }));
               }
               console.log("SENDMAIL=",mailit);
-              if (mailit == 'yes') {
+              if (mailit === 'yes') {
                 var greg = julian.jdtogregorian(current + myday);
                 var d1 = new Date(greg.year, greg.month-1, greg.day);
                 var meetdate = greg.day + '.' + greg.month + '.' + greg.year;
@@ -1086,9 +1086,9 @@ var makemeet = function(user,query,host,callback) {
                       var persmsg = basemsg;
                       var uid = +chosen[uii];
                       var teach = db.teachers[uid];
-                      if (konf == 'deny') persmsg += "\n" + " Avvis med denne linken:\n"
+                      if (konf === 'deny') persmsg += "\n" + " Avvis med denne linken:\n"
                           + "http://"+host+siteinf.base +"/rejectmeet?userid="+uid+"&meetid="+pid;
-                      if (konf == 'conf') persmsg += "\n" + " Bekreft med denne linken:\n"
+                      if (konf === 'conf') persmsg += "\n" + " Bekreft med denne linken:\n"
                           + "http://"+host+siteinf.base +"/acceptmeet?userid="+uid+"&meetid="+pid;
                       var mailOptions = {
                                 text:   persmsg
@@ -1181,13 +1181,13 @@ var getReservations = function(callback) {
               if (!reservations[julday]) {
                 reservations[julday] = [];
               }
-              if (res.eventtype == 'heldag') {
+              if (res.eventtype === 'heldag') {
                 res.day = julday % 7;
                 var roomname = db.roomnames[res.roomid];
                 //var repl = new RegExp(",? *"+roomname,"i");
                 //var vvalue = (res.name+' '+res.value).replace(repl,'');
                 var vvalue = (res.name+' '+stripRooms(res.value));
-                for (var j=0;j<9;j++) {
+                for (var j=0;j<5;j++) {
                   res.slot = lesson2slot(j);
                   //reservations[julday].push({id: res.id, userid: res.userid, day: res.day,
                   //               slot: j, itemid: res.roomid, name:roomname , value:vvalue, eventtype:'hd' });
@@ -1273,7 +1273,7 @@ var getstudents = function() {
                 var user = results.rows[i];
                 if (user.euid) euids[user.id] = user.euid;
                 delete user.euid;  // save some space
-                if (user.department == 'Undervisning') {
+                if (user.department === 'Undervisning') {
                   if (user.institution && user.institution != '') {
                     db.teachIds.push(user.id);
                     db.teachers[user.id] = user;
@@ -1442,7 +1442,7 @@ var getinvigilators = exports.getinvigilators  = function () {
     //request('https://docs.google.com/spreadsheet/pub?key=0AkY2PNer2OpXdG1LSXJndm1uRTMwZGI3MkxxMElDaEE&output=csv',
     request('https://docs.google.com/spreadsheet/pub?key=0AkY2PNer2OpXdElLdzhKenFNLVdtYndVaFR0YTZmVGc&single=true&gid=0&output=csv',
         function (error, response, body) {
-         if (!error && response.statusCode == 200) {
+         if (!error && response.statusCode === 200) {
             var list = body.split('\n');
             var quizbase = {};
             var science = '';
@@ -1547,7 +1547,7 @@ var getexams = exports.getexams = function(callback) {
           if (results) {
           for (var i=0,k= results.rows.length; i < k; i++) {
               var free = results.rows[i];
-              if (free.eventtype == 'heldag') {
+              if (free.eventtype === 'heldag') {
                 if (!db.heldag[free.julday]) {
                   db.heldag[free.julday] = {};
                 }

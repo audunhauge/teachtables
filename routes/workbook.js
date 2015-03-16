@@ -179,6 +179,16 @@ exports.updatecontainerscore = function(req, res) {
     }
 };
 
+exports.setnewqlist = function(req,res) {
+    if (req.session.user && req.session.user.department == 'Undervisning' ) {
+      wb.setnewqlist(req.session.user, req.body, function(data) {
+        res.send(data);
+      });
+    } else {
+      res.send(null);
+    }
+};
+
 exports.generateforall = function(req,res) {
     if (req.session.user && req.session.user.department == 'Undervisning' ) {
       wb.generateforall(req.session.user, req.body, function(data) {

@@ -209,6 +209,7 @@ app.get(base+'/log/questionstats',          workbook.questionstats );       // u
 app.get(base+'/log/quizconq',               workbook.quizconq);             // quiz competition between groups
 
 app.post(base+'/log/generateforall',        workbook.generateforall );
+app.post(base+'/log/setnewqlist',           workbook.setnewqlist );
 app.post(base+'/log/renderq',               workbook.renderq);
 app.post(base+'/log/gradeuseranswer',       workbook.gradeuseranswer);
 app.post(base+'/log/editscore',             workbook.editscore);
