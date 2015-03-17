@@ -1565,7 +1565,7 @@ function generateQlist(shuffle,attemptnum,coo,questlist,already,contopt,uid,cont
           }
         }
         if (allPresent) questlist = newlist;
-    } else if ( attemptnum === 0) {
+    } else if ( attemptnum == 0) {
         questlist =  genNewQlistOrder(already,questlist,contopt,coo,uid,container);
     }
     return questlist;
