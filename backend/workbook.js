@@ -159,7 +159,7 @@ exports.editquest = function(user,query,callback) {
           params.push(subject);
           idd++;
         }
-        if (query.parent === 0) {
+        if (query.parent == 0) {
           sql += ',parent=$'+idd;
           params.push(0);
           idd++;
@@ -941,7 +941,8 @@ var quizstats = exports.quizstats = function(user,query,callback,isupdate) {
   var isteach = (user.department === 'Undervisning');
   //var studid  = query.studid;
   var studlist = query.studlist || "" ;  // list of student ids
-  var goodlist = _.every(studlist.split(","),function(e) { return (e === Math.floor(+e))});
+  var goodlist = _.every(studlist.split(","),function(e) { return (+e === Math.floor(+e))});
+  console.log("GOODLIST=",goodlist,studlist);
   // test that studlist is list of numbers
   userstats.lasttime[subject] = justnow;
   var lim1 = justnow-8*24*60*60*1000;
