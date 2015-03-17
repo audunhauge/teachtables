@@ -2709,7 +2709,7 @@ function eedit(myid,q,target) {
               var answer = $j("input[name=a"+i+"]").val();
               var unit = $j("input[name=u"+i+"]").val();
               var skip = $j("input[name=s"+i+"]").val();
-              var order = $j("input[name=r"+i+"]").val();
+              var order = $j("input[name=r"+i+"]").val() || 'a';
               sortme.push({ q:question,g:guidance,a:answer,u:unit,s:skip,o:order})
             }
             sortme.sort(function(a,b) { return a.o.charCodeAt(0) - b.o.charCodeAt(0) });
