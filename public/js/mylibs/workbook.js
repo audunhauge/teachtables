@@ -2646,7 +2646,7 @@ function eedit(myid,q,target) {
      var order = "a".charCodeAt(0);
      if (options) {
        for (var i=0,l=options.length; i<l; i++) {
-         var fa = fasit[i];
+         var fa = (fasit) ? fasit[i] : '';
          var parts = options[i].split('-||-');
          var qtx = parts[0];
          var guidance = parts[1] || '';
