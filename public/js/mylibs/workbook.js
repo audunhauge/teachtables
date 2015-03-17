@@ -2686,6 +2686,7 @@ function eedit(myid,q,target) {
    }
    function preserve() {
         // preserve any changed option text
+      if (q.fasit == undefined) q.fasit = [];
       if (q.options) {
         if (q.qtype == 'multiple') {
             for (var i=0,l=q.options.length; i<l; i++) {
