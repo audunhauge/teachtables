@@ -245,12 +245,12 @@ function gui(elements) {
             opt.name = elm.name;
             opt.id = elm.id;
             opt.klass = elm.klass;
-            s += '{label}<input name="{name}" id="{id}" class="{klass}" type="{type}" value="{value}"{checked} >'.supplant(opt);
+            s += '{label}<input name="{name}" id="{id}" {disabled} {depp} class="{klass}" type="{type}" value="{value}"{checked} >'.supplant(opt);
           }
           s += "</span>"
         } else {
             elm.checked = (elm.value != 0) ?  ' checked="checked"' : '';
-            s = '{label}<input name="{name}" id="{id}" class="{klass}" type="{type}" value="{value}"{checked} >'.supplant(elm);
+            s = '{label}<input name="{name}" id="{id}" {disabled} {depp} class="{klass}" type="{type}" value="{value}"{checked} >'.supplant(elm);
         }
         break;
       default:

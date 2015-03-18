@@ -1105,7 +1105,7 @@ function containerClick() {
             } else {
               wbinfo.trail.push({id:wbinfo.containerid,name:$j("#"+this.id).attr("tag") });
             }
-            wbinfo.page[containerid] = wbinfo.page[containerid] || 0;
+            //wbinfo.page[containerid] = wbinfo.page[containerid] || 0;
             wbinfo.parentid = wbinfo.containerid;   // remember parent
             wbinfo.containerid = containerid;
             renderPage();
@@ -1133,6 +1133,16 @@ function renderPage() {
     catch(err) {
       courseinfo = {};
     }
+    contopt = {};
+    if (courseinfo.contopt) {
+      contopt = courseinfo.contopt;
+    }
+    if (contopt.navi == '1' && contopt.lastfirst == '1') {
+        if (wbinfo.page[wbinfo.containerid] == undefined ) {
+            wbinfo.page[wbinfo.containerid] = 99;
+            // go shoot yourself in the foot if you have a quiz with more than 99*pagesize questions
+        }
+    }
     wbinfo.page[wbinfo.containerid] = wbinfo.page[wbinfo.containerid] || 0;
     wbinfo.missing[wbinfo.containerid] = wbinfo.missing[wbinfo.containerid] || 0;
     wbinfo.courseinfo = courseinfo;
@@ -1146,10 +1156,6 @@ function renderPage() {
     var trail = makeTrail();
     var nav   = '';              // default no page navigation
 
-    contopt = {};
-    if (courseinfo.contopt) {
-      contopt = courseinfo.contopt;
-    }
 
     var header,  // header for first page
         body;    // som text info on first page
@@ -1326,15 +1332,17 @@ function renderPage() {
         wbinfo.taglist = wqqlist.taglist;
         var qlist = wqqlist.qlist;
         var showlist = generateQlist(qlist);
-        var pagenum = '';
+        var pagenumtxt = '';
+        var pagenum = Math.min(Math.floor((qlist.length-1)/contopt.antall),+wbinfo.page[wbinfo.containerid]);
+        wbinfo.page[wbinfo.containerid] = pagenum;
         if (contopt.antall < qlist.length) {
           // show page number
-          pagenum = 'Side ' + (+wbinfo.page[wbinfo.containerid] + 1);
+          pagenumtxt = 'Side ' + (pagenum + 1);
         }
         if (showlist.length) {
           wb.render[wbinfo.layout].qlist(wbinfo.containerid, showlist, contopt, function(renderq) {
                 $j("#qlist").html( renderq.showlist);
-                $j("#progress").html( '<div id="page">'+pagenum+'</div><div id="maxscore">'
+                $j("#progress").html( '<div id="page">'+pagenumtxt+'</div><div id="maxscore">'
                             +renderq.maxscore+'</div><div id="uscore">'+renderq.uscore+'</div>');
                 wbinfo.maxscore = renderq.maxscore;
                 afterEffects();
@@ -2209,6 +2217,7 @@ function eedit(myid,q,target) {
    s += '</div></div>';
 
    $j(target).html(s);
+   $j("[disabled]").parent().css("color","#555");
    $j('#sync').click(function() {
          q.count = q.count ? q.count + 1 : 1 ;
          if ( q.count % 2) {
@@ -2251,15 +2260,23 @@ function eedit(myid,q,target) {
    // enable/disable dependent controls
    $j("#inputdiv").undelegate(".deppers","change");
    $j("#inputdiv").delegate(".deppers","change", function() {
+         var guielement = document.getElementById($j(this).attr("id"));
          var test = $j(this).attr("derp");
-         var val = $j(this).val();
+         var val;
+         if (guielement.type == "checkbox") {
+            val = guielement.checked ? 1 : 0;
+         } else {
+            val = $j(this).val();
+         }
          var elm = test.split(';');
          for (var i=0; i< elm.length; i++) {
            var listener = elm[i].split(':');
            if (val == listener[1]) {
              $j("#"+listener[0]).removeAttr('disabled').css("background","#ffe");
+             $j("#"+listener[0]).parent().css("color","#000");
            } else {
              $j("#"+listener[0]).attr('disabled', 'disabled').css("background","#ccc");
+             $j("#"+listener[0]).parent().css("color","#555");
            }
          }
        });
@@ -2558,6 +2575,7 @@ function eedit(myid,q,target) {
            var komme = (dialog.contopt.komme != undefined) ? dialog.contopt.komme : 1;
            var hints = (dialog.contopt.hints != undefined) ? dialog.contopt.hints : 1;
            var navi = (dialog.contopt.navi != undefined) ? dialog.contopt.navi : 1;
+           var lastfirst = (dialog.contopt.lastfirst != undefined) ? dialog.contopt.lastfirst : 0;
            var adaptiv = (dialog.contopt.adaptiv != undefined) ? dialog.contopt.adaptiv : 0;
            var elements = {
                  defaults:{  type:"text", klass:"copts float" }
@@ -2569,6 +2587,7 @@ function eedit(myid,q,target) {
                  , intro:         {  klass:"smalltext copts",  value:intro, type:"textarea" }
                  , omstart:       {  type:"checkbox", value:omstart }
                  , navi:          {  type:"checkbox", value:navi }
+                 , lastfirst:     {  type:"checkbox", value:lastfirst ,depend:{ navi:1}}
                  , trinn:         {  type:"checkbox", value:trinn }
                  , komme:         {  type:"checkbox", value:komme }
                  , exam:          {  type:"select", klass:"copts",  value:exam, options:[{ value:"quiz"},{ value:"homework"},{ value:"lab"},{ value:"exam"} ] }
@@ -2599,6 +2618,7 @@ function eedit(myid,q,target) {
              + '<div class="underlined" title="En valgfri introtext for elevene">Intro {intro}</div>'
              + '<div class="underlined" title="quiz,lekse,lab,prøve - styrer oppsummering">QuizType{exam}</div>'
              + '<div class="underlined" title="Kan bla tilbake i prøven">Navigering {navi}</div>'
+             + '<div class="underlined" title="Åpne quizen på siste side">LastFirst {lastfirst}</div>'
              + '<div class="underlined" title="Brukeren kan kommentere spørsmålene">Brukerkommentarer{komme}</div>'
              + '<div class="underlined" title="Nyttig for øvingsoppgaver med genererte spørsmål">Elev kan ta omstart {omstart}</div>'
              + '<div class="underlined" title="Vis spørsmål i tillfeldig orden">Stokk {shuffle}</div>'
