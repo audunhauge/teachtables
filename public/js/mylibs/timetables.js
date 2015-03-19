@@ -376,6 +376,7 @@ function build_plantable(jd,uid,username,timeplan,xtraplan,filter,edit) {
   var already = {};  // to avoid doubles in list of absentees
   for (i=0; i< plan.length;i++) {
     var pt = plan[i];
+    if (_.isEmpty(pt)) continue;
     var dday = pt[0];
     var sslo = pt[1];
     var subj = pt[2];

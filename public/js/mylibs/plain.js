@@ -57,7 +57,7 @@ $j(document).ready(function() {
                 });
            });
            if (+uuid > 10000) {
-               $j.get(mybase+ "/getmeet", function(data) {
+               $j.get(mybase+ "/log/getmeet", function(data) {
                     var meetings = showMyMeets(data,thisweek,uuid);
                     $j("#meetings").html(meetings);
                });
