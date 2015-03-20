@@ -177,6 +177,7 @@ app.post(base+'/log/editgroup',             routes.editgroup);
 
 // user - info login config
 app.get(base+'/log/login',                  user.login);                // logg in
+app.get(base+'/log/uid',                    user.uid);                  // convert name to userid
 app.get(base+'/log/feide',                  user.feide);                // logg in with feide (simplesaml)
 app.get(base+'/log/pict',                   user.pict);                 // get user picture
 app.get(base+'/log/alive',                  user.alive);                // {alive:true} if logged in

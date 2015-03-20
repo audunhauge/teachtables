@@ -60,7 +60,7 @@ exports.findUser = function (firstname,lastname) {
              seen[s.id] = 1;
           }
         }
-      } else { 
+      } else {
           if (db.coursesgr[plain]) {
           // the searchterm matches a coursename
           var grlist = db.coursesgr[plain];
@@ -83,7 +83,7 @@ exports.findUser = function (firstname,lastname) {
               if (s) {
                 s.gr = gr;
                 list.push(s);
-              }  
+              }
             }
           }
         }

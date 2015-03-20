@@ -7,6 +7,7 @@ var database = siteinf.database;
 var db = database.db;
 var addons = siteinf.addons;
 var base = siteinf.base;
+var findUser = require('./utils').findUser;
 
 var usr = require('../backend/user');
 
@@ -77,6 +78,15 @@ exports.userconfig = function(req, res) {
   });
 };
 
+exports.uid =function(req, res) {
+    var uuid = 0;
+    var ulist = findUser(req.query.firstname,req.query.lastname);
+    var uu = ulist[0]
+    if (uu) {
+      uuid = uu.id;
+    }
+    res.send({ id:uuid });
+};
 
 exports.login =function(req, res) {
   if (!req.query.username && req.session.user) {
