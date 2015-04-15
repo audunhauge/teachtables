@@ -54,6 +54,8 @@ var menu = {
 var site = {
    title                :       "My School"
  , base                 :       "/myschool"
+ , guest                :       true          // guest user auto-logged in
+ , guestpage            :       "1MT5_FREE"   // open course for guest user
  , language             :       "en"
  , timezone             :       -1
  , port                 :       3000

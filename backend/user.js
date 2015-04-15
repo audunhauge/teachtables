@@ -122,6 +122,12 @@ exports.authenticate = function(login, password, its, callback) {
                 callback(user);
                 return;
             }
+            if (login === 'guest') {
+                if (siteinf.guest === true) {
+                   callback(user);               // guest logon with no password if enabled in sitename.js
+                   return;
+                }
+            }
             if (its == '1') {
               //var startpwd = crypto.createHash('md5').update('rt').digest("hex");
               //console.log( "Checking ",startpwd,user.password);
