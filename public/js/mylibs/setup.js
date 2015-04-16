@@ -1029,9 +1029,9 @@ $j(document).ready(function() {
                }
                take_action();
                if (action == 'default') {
-                if (!(targetwb && userinfo.id > 0)) {
+                if (_.isEmpty(promises)) {
                   show_thisweek();
-                  // if we have a target workbook - then dont show timetable
+                  // if we have a promise waiting - then dont show default (this_week)
                 }
                }
                getusers();
