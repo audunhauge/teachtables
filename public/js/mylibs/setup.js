@@ -32,6 +32,7 @@ var showyear = 0;       // used to choose school year to show
 
 var user = Url.decode(gup("navn"));
 var its = Url.decode(gup("its"));
+var targetwb = Url.decode(gup("workbook"));   // can target a workbook in a url (only used if logged in)
 var currentloc = mybase+"?navn="+user;  // current location - used by popstate and others
 var action = gup("action") || 'default';   // brukes i switch til å velge alternative visninger
 var getdom = gup("getdom") || null;        // hent importert fil fra server
@@ -202,20 +203,34 @@ function gotoPage() {
   // page=timeplan/room/roomname
   // page=edit/aarsplan
   // page=edit/fridager
+  // page=workbook/workbook_name
   // page=quiz
   if (page) {
     var element = page.split('/');
     var main = element.shift();
     switch (main) {
+      case 'workbook':
+        if (userinfo.id > 0) {
+          if (courseplans) {
+            workbook(element);
+          } else {
+            //if (!promises.allplans) promises.allplans = [];
+            promises.allplans = [];
+            promises.allplans.workbook = function() { action = 'showpage'; workbook(element.shift()); };
+          }
+        } else {
+          show_thisweek();
+        }
+        break;
       case 'quiz':
-            var cid = element.shift();
-            wbinfo.containerid = cid;
-            wbinfo.pagelink = cid;
-            contopt = {};
-            wbinfo.contopt = contopt;
-            wbinfo.layout = 'normal';
-            promises = {};
-            renderPage();
+        var cid = element.shift();
+        wbinfo.containerid = cid;
+        wbinfo.pagelink = cid;
+        contopt = {};
+        wbinfo.contopt = contopt;
+        wbinfo.layout = 'normal';
+        promises = {};
+        renderPage();
         break;
       case 'plans':
         var fagnavn = element.shift();
@@ -1014,7 +1029,10 @@ $j(document).ready(function() {
                }
                take_action();
                if (action == 'default') {
-                 show_thisweek();
+                if (!(targetwb && userinfo.id > 0)) {
+                  show_thisweek();
+                  // if we have a target workbook - then dont show timetable
+                }
                }
                getusers();
             });
