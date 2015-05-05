@@ -821,9 +821,17 @@ exports.displayuserresponse = function(user,uid,container,callback) {
   //   as show fasit may have changed AFTER student finished the test
   client.query("select q.id as i,q.qtext from quiz_question q where q.id = $1 ", [container],
   after(function(quizz) {
-      var qz = quizz.rows[0];
-      var qopts = parseJSON(qz.qtext);   // tru options for container as exists NOW
-      var qcontopt = qopts.contopt || {};
+        var qz = quizz.rows[0];
+        var qopts = parseJSON(qz.qtext);   // tru options for container as exists NOW
+        var qcontopt = qopts.contopt || {};
+        if (user.department != 'Undervisning' ) {
+            // check if this container is available for students
+            if (qcontopt.hidden == '1'  ) {
+                // attempting to view a hidden quiz
+                callback(null);
+                return;
+            }
+        }
       client.query( "select id,userid,qid,param,score from quiz_useranswer where qid=$1 and userid=$2 ",[ container,uid ],
       after(function(coont) {
         if (coont && coont.rows && coont.rows[0]) {
@@ -1747,6 +1755,16 @@ var getqcon = exports.getqcon = function(user,query,callback) {
   client.query( "select q.* from quiz_question q where q.status != 9 and q.id =$1",[ container ],
   after(function(results) {
           if (results && results.rows) {
+            var this_container = results.rows[0];
+            var masterq = (this_container) ? parseJSON(this_container.qtext) : {} ;
+            if (user.department != 'Undervisning' && masterq.contopt) {
+                // check if this container is available for students
+                if (masterq.contopt.hidden == '1'  ) {
+                    // attempting to view a hidden quiz
+                    callback(null);
+                    return;
+                }
+            }
             client.query( "select u.* from quiz_useranswer u where u.qid =$1",[ container ],
             after(function(usera) {
                if (usera && usera.rows) {
@@ -2123,6 +2141,14 @@ var getuseranswers = exports.getuseranswers = function(user,query,callback) {
     var shuffle = false;
     if (masterq.contopt && (masterq.contopt.randlist || masterq.contopt.shuffle)) {
           shuffle = true;
+    }
+    if (user.department != 'Undervisning' ) {
+        // check if this container is available for students
+        if (masterq.contopt.hidden == '1'  ) {
+            // attempting to view a hidden quiz
+            callback(null);
+            return;
+        }
     }
     if (contopt == undefined && masterq.contopt ) {
         // if no container options sent, then use as defined in CURRENT question def
