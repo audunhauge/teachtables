@@ -159,42 +159,34 @@ exports.basic = function(req, res) {
         // this is done in database.js - but needs redoing here in case
         // the server has been running for more than one day
         // Some returned data will need to be filtered on date
-        //myclient = database.client;
-        //console.log("basic");
+        // TODO
+        // the client should send in getTimezoneOffset as req.tzo so that we can
+        // compute users local time
         var today = new Date();
         var month = today.getMonth()+1; var day = today.getDate(); var year = today.getFullYear();
+        var hours = today.getUTCHours();
         db.firstweek = (month >7) ? julian.w2j(year,33) : julian.w2j(year-1,33)
         db.lastweek  = (month >7) ? julian.w2j(year+1,28) : julian.w2j(year,28)
         // info about this week
         db.thisjd = julian.greg2jul(month,day,year );
-        db.startjd = 7 * Math.floor(db.thisjd  / 7);
+        var skip = ((db.thisjd % 7) > 3 && hours > 14 - siteinf.timezone) ? 3 : 0;   // start next week after school ends friday
+        db.startjd = 7 * Math.floor((db.thisjd + skip ) / 7);
         db.startdate = julian.jdtogregorian(db.startjd);
         db.enddate = julian.jdtogregorian(db.startjd+6);
         db.week = julian.week(db.startjd);
-        var db_copy = db;
-        db_copy.userinfo = { uid:0 };
+        db.userinfo = { uid:0 };
         if (req.query.navn) {
           var username = req.query.navn;
-          //username = username.replace(/æ/g,'e').replace(/Æ/g,'E').replace(/ø/g,'o');
-          //username = username.replace(/Ø/g,'O').replace(/å/g,'a').replace(/Å/g,'A');
           username = username.toLowerCase();
           var nameparts = username.split(" ");
           var ln = nameparts.pop();
           var fn = nameparts.join(' ');
           if (fn == '') { fn = ln; ln = '' };
           var ulist = findUser(fn,ln);
-          //console.log(ulist);
-          db_copy.userinfo = (ulist.length == 1) ? ulist[0] : { uid:0 };
-          db_copy.ulist = ulist;
-          //console.log(db_copy.userinfo);
-          if (db_copy.userinfo) {
-            //db_copy.userinfo.isadmin = (admins[db_copy.userinfo.username] && admins[db_copy.userinfo.username] == 1) ? true : false;
-            //console.log(db_copy.userinfo.isadmin);
-          }
-          req.userinfo = db_copy.userinfo;
+          db.userinfo = (ulist.length == 1) ? ulist[0] : { uid:0 };
+          db.ulist = ulist;
+          req.userinfo = db.userinfo;
         }
-        //console.log("I came here");
-        res.send(db_copy);
-        //console.log("THIS IS AFTER");
+        res.send(db);
 };
 

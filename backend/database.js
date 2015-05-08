@@ -100,7 +100,9 @@ db.nextyear.firstweek = (month >7) ? julian.w2j(year+1,33) : julian.w2j(year,33)
 db.nextyear.lastweek  = (month >7) ? julian.w2j(year+2,26) : julian.w2j(year+1,26);
 console.log("Nextyear ",db.nextyear);
 // info about this week
-db.startjd = 7 * Math.floor(julian.greg2jul(month,day,year ) / 7);
+// this info is overwritten by routes/index.js  in basic()
+// we have it here as we need them before basic() is triggered by users
+db.startjd = 7 * Math.floor((julian.greg2jul(month,day,year )+2) / 7);
 db.startdate = julian.jdtogregorian(db.startjd);
 db.enddate = julian.jdtogregorian(db.startjd+6);
 db.week = julian.week(db.startjd);
