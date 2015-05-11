@@ -169,7 +169,8 @@ exports.basic = function(req, res) {
         db.lastweek  = (month >7) ? julian.w2j(year+1,28) : julian.w2j(year,28)
         // info about this week
         db.thisjd = julian.greg2jul(month,day,year );
-        var skip = ((db.thisjd % 7) > 3 && hours > 14 - siteinf.timezone) ? 3 : 0;   // start next week after school ends friday
+        var wd = db.thisjd % 7 + (hours - siteinf.timezone)/100;  // hours as decimalish ( 4.16 ==  day 4, hour 16)
+        var skip = (wd > 4.14 ) ? 3 : 0;   // start next week after school ends friday
         db.startjd = 7 * Math.floor((db.thisjd + skip ) / 7);
         db.startdate = julian.jdtogregorian(db.startjd);
         db.enddate = julian.jdtogregorian(db.startjd+6);
