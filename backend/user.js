@@ -124,6 +124,14 @@ exports.authenticate = function(login, password, its, callback) {
             }
             if (login === 'guest') {
                 if (siteinf.guest === true) {
+                  // TODO
+                  // try to get a guest account matching last part of ip (0..255)
+                  // "select * from users where username =$", [ "guest"+ last_ip_chunk ]
+                  // if we find such, then set user = results.rows[0]
+                  // else use default guest account
+                  // this spreads guest users over 250 accounts so that they will
+                  // most likely be able to build up scores that are meaningfull
+                  // Later we will add support for account creation with check by email
                    callback(user);               // guest logon with no password if enabled in sitename.js
                    return;
                 }
