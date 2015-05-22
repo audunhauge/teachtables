@@ -99,7 +99,8 @@ exports.login =function(req, res) {
       // check if username is guest - logged in with no pwd
       // if siteinf.guest is true
   }
-  usr.authenticate(usname, req.query.password, req.query.its, function(user) {
+           var ip = req.connection.remoteAddress;
+  usr.authenticate(usname, req.query.password, req.query.its, req.connection.remoteAddress, function(user) {
     if (user) {
       if (user.config) {
           // some browsers seem to do addslashes ...
