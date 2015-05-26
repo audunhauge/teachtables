@@ -623,7 +623,7 @@ function absentees(absentDueTest,absent,timmy,elever,j,tjd) {
 }
 
 function showAweek(egne,gru,elever,info,absent,timmy,tests,plandata,uke,tjd,section) {
-        if (plandate == undefined) {  // no need to crash and burn if no plan exists
+        if (plandata == undefined) {  // no need to crash and burn if no plan exists
           return '';
         }
         var summary = plandata[section];
