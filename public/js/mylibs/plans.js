@@ -1173,7 +1173,7 @@ function makeplans() {
                 choo.push(this.id.substr(2));
               });
          // we now have any new courses to connect to this plan
-         $j.post(mybase+ "/modifyplan", { "operation":'connect',"planid":inf.id, "connect":choo.join(',') },
+         $j.post(mybase+ "/log/modifyplan", { "operation":'connect',"planid":inf.id, "connect":choo.join(',') },
             function(msg) {
               makeplans();
             });
@@ -1181,7 +1181,7 @@ function makeplans() {
          var pname   = $j("#efag").val();
          var subject = $j("#esubject").val() || pname.split(/[ _]/)[0];
          if (inf.start != start) {
-             $j.post(mybase+ "/modifyplan", { "operation":'editplan',"planid":inf.id, "start":start, "pname":pname, "subject":subject },
+             $j.post(mybase+ "/log/modifyplan", { "operation":'editplan',"planid":inf.id, "start":start, "pname":pname, "subject":subject },
                 function(msg) {
                   makeplans();
                 });
@@ -1229,7 +1229,7 @@ function makeplans() {
        $j(".killer").click(function() {
            event.stopPropagation()
            var myid = $j(this).parent().attr('id');
-           $j.post(mybase+ "/modifyplan", { "operation":'delete',"planid":myid.substr(4) },
+           $j.post(mybase+ "/log/modifyplan", { "operation":'delete',"planid":myid.substr(4) },
             function(msg) {
               makeplans();
             });
@@ -1237,7 +1237,7 @@ function makeplans() {
        $j("#addplan").click(function() {
           var pname   = $j("#pname").val();
           var subject = $j("#subject").val() || pname.split(/[ _]/)[0];
-          $j.post(mybase+ "/modifyplan", { "operation":'newplan',"pname":pname, "subject":subject },
+          $j.post(mybase+ "/log/modifyplan", { "operation":'newplan',"pname":pname, "subject":subject },
             function(msg) {
               makeplans();
             });

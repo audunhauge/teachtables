@@ -99,9 +99,11 @@ exports.feide = function(token, ini4, now, pid, callback) {
 
 
 
-exports.authenticate = function(login, password, its, callback) {
+exports.authenticate = function(login, password, its, remote_ip,callback) {
   var username = login || 'nn';
   var password = password || '';
+  var ipbyte = (remote_ip.split(".")).pop();
+  console.log("REmote",ipbyte);
   client.query(
       "select * from users where username = $1 " , [ username ] ,
       after(function(results) {
@@ -132,8 +134,15 @@ exports.authenticate = function(login, password, its, callback) {
                   // this spreads guest users over 250 accounts so that they will
                   // most likely be able to build up scores that are meaningfull
                   // Later we will add support for account creation with check by email
-                   callback(user);               // guest logon with no password if enabled in sitename.js
-                   return;
+		  client.query( "select * from users where username = $1 " , [ "aguest"+ipbyte ] ,
+		  after(function(results) {
+                    if (results.rows[0]) {
+                       user = results.rows[0];
+                    }
+                    console.log("hehere");
+		    callback(user);               // guest logon with no password if enabled in sitename.js
+                  }));
+                  return;
                 }
             }
             if (its == '1') {

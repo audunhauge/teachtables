@@ -878,7 +878,8 @@ CREATE TABLE users (
     department character varying(32) DEFAULT ''::character varying,
     feide character varying(32) DEFAULT ''::character varying,
     ini4 character varying(4),
-    config text DEFAULT ''::text
+    config text DEFAULT ''::text,
+    euid integer DEFAULT 0
 );
 
 

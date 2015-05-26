@@ -184,6 +184,7 @@ exports.basic = function(req, res) {
           var fn = nameparts.join(' ');
           if (fn == '') { fn = ln; ln = '' };
           var ulist = findUser(fn,ln);
+          console.log("USENAME=",username,ulist);
           db.userinfo = (ulist.length == 1) ? ulist[0] : { uid:0 };
           db.ulist = ulist;
           req.userinfo = db.userinfo;

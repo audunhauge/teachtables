@@ -1014,7 +1014,7 @@ $j(document).ready(function() {
            }
            // sjekk først om bruker allerede er logga inn
            $j.get(mybase+ '/log/login',{"guest":user }, function(uinfo) {
-               if (uinfo && uinfo.id > 0 && uinfo.id == userinfo.id) {
+               if (uinfo && uinfo.id > 0 && (uinfo.id == userinfo.id || (uinfo.institution == 'hospes' && userinfo.username == 'guest' ))) {
                   // if user.id > 0 then we are logged in
                   // add new and dainty things to the menu
                   // same as isteach
